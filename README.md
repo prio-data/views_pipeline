@@ -35,6 +35,7 @@ pipeline_root/
 |   |   |
 |   |   |-- reports/ # dissemination material - internal and external 
 |   |   |   |-- plots/ # plots for papers, reports, newsletters, and slides
+|   |   |   |-- figures/ # figures for papers, reports, newsletters, and slides 
 |   |   |   |-- timelapse/ # plots to create timelapse and the timelapse
 |   |   |   |-- papers/ # working papers, white papers, articles ect.
 |   |   |   |-- slides/ # slides, presentation and similar. 
