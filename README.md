@@ -3,6 +3,7 @@ VIEWS forecasting pipeline for monthly prediction runs. Includes MLops and QA fo
 
 REPO STRUCTURE:
 
+```
 pipeline_root/
 |
 |-- README.md
@@ -146,3 +147,4 @@ pipeline_root/
     |-- make_new_ensemble_dir.py # script to create a standard ensemble dir
     |-- asses_model_dir.py # check structure and presence of obligatory scripts
     |-- asses_ensemble_dir.py # check structure and presence of obligatory scripts  
+```
