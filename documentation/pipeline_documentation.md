@@ -3,7 +3,7 @@
 ## Motivation and Rationale
 The VIEWS early-warning system pipeline produces predictions on a monthly basis, for a variety of models. However, in the last months, several errors have occured that compromise the quality of our forecasts. Additionally, the pipeline does not yet adhere to best practices standards relating to the structure and implementation. As a result, the VIEWS Pipeline is being rewritten and improved during a 5-day hackathon. 
 
-We aim to develop a minimal solution first, that can be further developed in the future to accommodate more needs and models. The initial models implemented during the hackathon in February 2024 are: 2 baseline models (all zero, no change), 2 production models, and 1 bespoke model (Hydranet).
+We aim to develop a minimal solution first, that can be further developed in the future to accommodate more needs and models. The initial models implemented during the hackathon in February 2024 are: 2 baseline models (all zero, no change), 2 production models (orange pasta, yellow pikachu), and 1 bespoke model (Hydranet).
 
 The most important changes relate to the following elements: standardizing  moving away from Notebooks and towards scripts; implementing alert gates for input and performance drift; using the platform Weights & Biases for logging and visualizing model outputs; using the platform Prefect to carry out the entire monthly run, from fetching the input data through a queryset to allocating predictions in the prediction store on Fimbulthul server.
 
@@ -57,11 +57,9 @@ Secondly, at least for the initial phase, the models folder also contains a sub-
 
 Third, **artifacts** sub-folder contains model_metadata_dict.py (stores model metadata); model_train_partition.pth (for offline validation), model_test_partition.pth (for offline testing); and model_forecasting.pth (for online forecasting). 
 
-*Question: What ex*
+Fourth, there is a **notebook** sub-folder where experimentation can go. All other code in the repository is in python script format.
 
-Fourth, there is a **notebook** sub-folder where experimentation can go. All other code in the repository is in .py format.
-
-Fifth, in the **reports** sub-folder we include internal and external dissemination material (if applicable) for the specific model
+Fifth, in the **reports** sub-folder we include internal and external dissemination material (if applicable) for the specific model.
 
 # Pipeline Components
 
@@ -83,7 +81,12 @@ This includes a sweep in Weights & Biases, where the following metrics will be l
 - Jeffreys Divergence: A measure of the difference between two probability distributions, emphasizing sensitivity to small changes in probability.
 - Jenson-Shannon Divergence: Quantifies the similarity between two probability distributions by measuring the average divergence of each from their average, providing a symmetric measure of similarity.
 
+*Thus far for the production models, we only have MSE in the code though*
+
 ## Online Evaluation / Drift Detection
+We are development an alertgate package that can be pip installed.
+
+The results of the drift detection (alert gate) will also be logged on Weights & Biases.
 ### Check Input Data
 
 ### Check Output Data
@@ -91,6 +94,11 @@ This includes a sweep in Weights & Biases, where the following metrics will be l
 ### Check Performance
 
 ## Visualization
+Visualizations are accessible on Weights & Biases. There is a suite of interactive plots (bar charts, line graphs, tables).
+
+We also produce maps for predicted fatalities, with standardised design and tick labels (*work in progress*). The goal is to create a running gif across steps and publish on Weights & Biases reports, instead of looking at 36 single maps.
+
+*At this stage, this does not replace the mapper plots of the monthly run*
 
 # Glossary for Beginners
 
