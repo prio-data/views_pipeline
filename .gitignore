@@ -20,3 +20,4 @@ data/**/*.pyc
 models/a_pgm_model/main_training.py
 testing_training.py
 prefect_run.py
+wandb/
