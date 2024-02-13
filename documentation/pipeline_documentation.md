@@ -84,12 +84,19 @@ This includes a sweep in Weights & Biases, where the following metrics will be l
 *Thus far for the production models, we only have MSE in the code though*
 
 ## Online Evaluation / Drift Detection
-We are development an alertgate package that can be pip installed.
 
 The results of the drift detection (alert gate) will also be logged on Weights & Biases.
 ### Check Input Data
+Jim is working on this -- dataframe > converted to tensor > looks at:
+ fraction of NAs in different units 
+ looks for change in missingness over past month vs. 5 previous months
+ distribution of data in past month vs. 5 previous months (KSS)
+
+Will be logged on Weights & Biases, and can be integrated into the package Mihai is writing
 
 ### Check Output Data
+Mihai is working on this -- developing an alertgate package that can be pip installed.
+
 
 ### Check Performance
 
