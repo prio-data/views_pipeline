@@ -1,7 +1,7 @@
 
-from models.all_zero_baseline_model import main as all_zero_baseline_model
-from models.no_change_baseline_model import main as no_change_baseline_model
-from models.a_pgm_model import main_training as a_pgm_model
+from models.blue_sea import main as all_zero_baseline_model
+from models.yellow_duck import main as no_change_baseline_model
+from models.green_oracle import main_training as a_pgm_model
 
 
 def main():

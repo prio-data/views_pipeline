@@ -1,7 +1,7 @@
-from ..no_change_baseline_model.src.dataloaders.fetch_data_run_query import fetch_data
-from ..no_change_baseline_model.src.forecasting.true_future_36m import forecast
-from ..no_change_baseline_model.src.evaluation.evaluation_mse import evaluate_mse
-from ..no_change_baseline_model.configs import config
+from ..blue_sea.src.dataloaders.fetch_data_run_query import fetch_data
+from ..blue_sea.src.forecasting.true_future_36m import forecast
+from ..blue_sea.src.evaluation.evaluation_mse import evaluate_mse
+from ..blue_sea.configs import config
 
 def main():
     data_for_training = fetch_data()
@@ -18,4 +18,4 @@ if __name__ == "__main__":
     print(forecasts)
     evaluate_mse()
     print(config.common_config)
-    
+
