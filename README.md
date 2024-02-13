@@ -57,7 +57,8 @@ pipeline_root/
 |   |       |-- visualization/ # scripts to create visualizations
 |   |       |
 |   |       |-- training/
-|   |       |   |-- train_model.py # script to train, and save, a model
+|   |       |   |-- train_experimental_model.py # train a model on the standard pertitions
+|   |       |   |-- train_pipeline_model.py # train a model on all availible data
 |   |       |
 |   |       |-- offline_evaluation/ # aka offline quality assurance
 |   |       |   |-- evaluate_model.py # script to evaluate a train and saved model
