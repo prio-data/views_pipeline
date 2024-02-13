@@ -21,7 +21,7 @@ pipeline_root/
 |   |   |   |-- config_hyperparameters.py # hyperparameters train_model.py
 |   |   |
 |   |   |-- data/ # all input, processed, output data
-|   |   |    |-- raw/ # Data directly from VIEWSER
+|   |   |    |-- raw/ # Data directly from VIEiWSER
 |   |   |    |-- processed/ # Data processed
 |   |   |    |-- generated/ # Data generated - i.e. predictions/forecast
 |   |   |
@@ -57,7 +57,7 @@ pipeline_root/
 |   |       |-- visualization/ # scripts to create visualizations
 |   |       |
 |   |       |-- training/
-|   |       |   |-- train_experimental_model.py # train a model on the standard pertitions
+|   |       |   |-- train_experimental_model.py # train on the standard pertitions
 |   |       |   |-- train_pipeline_model.py # train a model on all availible data
 |   |       |
 |   |       |-- offline_evaluation/ # aka offline quality assurance
