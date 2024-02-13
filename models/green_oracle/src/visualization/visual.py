@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from .map_config import visual_config as map_config
 import numpy as np
-
+import wandb
 def visualize_forecasts_in_maps(step) -> None:
     """
     This function visualizes the forecasts in maps for a given step. It takes the step as an input and plots the map for
@@ -42,7 +42,7 @@ def visualize_forecasts_in_maps(step) -> None:
     # Save the plot in a folder
     output_dir = map_config['output_dir']
     fig.savefig(f'{output_dir}/map_step_{step}.png')
-
+    wandb.log({'map_step': step, 'Log map': wandb.Image(fig)})
     # get the second axes which is the colorbar
     colorbar = plt.gcf().get_axes()[1]
     colorbar.set_ylabel('Fatalities in log scale')
@@ -53,7 +53,7 @@ def visualize_forecasts_in_maps(step) -> None:
     merged_raw_forecasts.plot(column=f'step_pred_{step}', ax=ax, legend=True)
     output_dir = map_config['output_dir']
     fig.savefig(f'{output_dir}/map_step_{step}_raw.png')
-    
+    wandb.log({'map_step': step, 'Raw map': wandb.Image(fig)})
     # get the second axes which is the colorbar
     colorbar = plt.gcf().get_axes()[1]
     colorbar.set_ylabel('Fatalities in raw scale')
