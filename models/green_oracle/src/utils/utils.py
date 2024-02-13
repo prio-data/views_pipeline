@@ -1,3 +1,4 @@
+import wandb
 from sklearn.linear_model import LinearRegression, LogisticRegression
 from sklearn.base import BaseEstimator
 from sklearn.utils.estimator_checks import check_estimator
@@ -32,3 +33,9 @@ def _resolve_estimator(func_name: str):
              }
 
     return funcs[func_name]
+
+
+def wandb_log(project_name, entity_name, entity_to_log, name_of_entity):
+    wandb.init(project=project_name, entity=entity_name)
+    wandb.log({f'{name_of_entity}': entity_to_log})
+    wandb.finish()
