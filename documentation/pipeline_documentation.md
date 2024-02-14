@@ -5,7 +5,7 @@ A series of other VIEWS-developed tools are relevant:
 - For documentation of our data ingestion package (i.e., how to add input data to viewser), refer to [ingester3](https://github.com/UppsalaConflictDataProgram/ingester3).
 - For documentation of accessing data on viewser, refer to [viewser](https://github.com/prio-data/viewser).
 - For documentation of stepshifted models, refer to [stepshift](https://github.com/prio-data/stepshift)(*Work in Progress*).
-- Please **do not use** the views-runs package anymore.
+- Please do not use the views-runs package. Views-runs is a previous attempt at a placeholder pipeline with notebooks. As such, it should not be used in the current pipeline due to incompatibilities in implementation.
 
 ## How to Run This Pipeline
 This machine learning (ML) pipeline produces the monthly run of the VIEWS conflict forecasts. At this stage, it produces 5 models and is to be expanded gradually.
@@ -71,7 +71,7 @@ The most important changes relate to the following elements: standardizing  movi
 
     Typically, a *run* occurs once a month. However, additional runs may be performed within a month if corrections or calibrations are necessary to meet the quality standards expected of a VIEWS system.
 
-    As runs are relatively infrequent events, each run is assigned a *meaningful* name following established conventions. The name format is as follows: `target_generation_monthid_iteration`. For example:`fatalities_003_413_a`.
+    As runs are relatively infrequent events, each run is assigned a *meaningful* name following established conventions. The name format is as follows: `modelset_generation_monthid_iteration`. For example:`fatalities_003_413_a`.
 
     In this example, the run includes all deployed models targeting fatalities, belonging to the third generation of VIEWS *fatality* models. The run corresponds to month number 413 using the standard VIEWS month ID format. The trailing *a* signifies that this is the first run created this month; subsequent runs would be denoted with *b*, *c*, and so on, indicating the order of execution within the given target, generation, and month.
 
@@ -350,13 +350,11 @@ This component encompasses the generation of forecasts using deployed models and
 Orchestration, in the context of workflow management systems like Prefect, refers to the coordination and execution of a series of tasks or operations in a specified order. It involves managing the flow of data and control between different tasks to ensure that they are executed correctly and efficiently.
 
 The workflow tasks are:
-1. Load data
-    for each model: 
-        src/dataloaders/get_partitioned_data.py
-        src/dataloaders/get_latest_data.py
-2. Train data
-    for each model:
-        src/training/train_model.py
+For each model
+1. Classify as baseline, shadow, production
+    Look at artifacts/model_metadata_dict
+2. Run src/forecasting/generate_forecast.py 
+    For this to work, src/dataloaders/get_latest_data.py needs to be in generate_forecast
 
 # Future Developments
 
