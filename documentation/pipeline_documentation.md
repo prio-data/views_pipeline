@@ -24,11 +24,7 @@ The most important changes relate to the following elements: standardizing  movi
 
     Typically, a *run* occurs once a month. However, additional runs may be performed within a month if corrections or calibrations are necessary to meet the quality standards expected of a VIEWS system.
 
-    As runs are relatively infrequent events, each run is assigned a *meaningful* name following established conventions. The name format is as follows: `target_generation_monthid_iteration`. For example:
-
-    ```
-    fatalities_003_413_a
-    ```
+    As runs are relatively infrequent events, each run is assigned a *meaningful* name following established conventions. The name format is as follows: `target_generation_monthid_iteration`. For example:`fatalities_003_413_a`.
 
     In this example, the run includes all deployed models targeting fatalities, belonging to the third generation of VIEWS *fatality* models. The run corresponds to month number 413 using the standard VIEWS month ID format. The trailing *a* signifies that this is the first run created this month; subsequent runs would be denoted with *b*, *c*, and so on, indicating the order of execution within the given target, generation, and month.
 
@@ -48,7 +44,7 @@ The new naming convention for models takes the form of *adjective_noun*, adding 
 ### GitHub Repository Strucuture
 The entire pipeline is contained in the repository "views-pipeline", which has a predefined structure stated in the readme. As such, this pipeline repository replaces "viewsforecasting" (pipeline 002) and "views-runs" (pipeline 001) (*TBC*). 
 
-
+The structure is based on best practices commonly observed in the machine learning community. Resources and references that discuss similar project structures and best practices include Cookiecutter Data Science, Kaggle Kernels, and a variety of MLOps books.
 
 ```
 pipeline_root/
@@ -224,7 +220,24 @@ Fifth, in the **reports** sub-folder we include internal and external disseminat
 
 ## Model Training
 
-## Offline Evaluation
+## Logging on Weights & Biases
+We want a centralized place for logging and monitoring the data about and produced by our models. This has the benefit of allowing continuous improvement of the ML system.
+
+The chosen platform is Weights & Biases (W&B / wandb). W&B automatically logs the following information during a W&B Experiment:
+- System metrics: CPU and GPU utilization, network, etc. These are shown in the System tab on the run page. For the GPU, these are fetched with nvidia-smi.
+- Command line: The stdout and stderr are picked up and show in the logs tab on the run page.
+
+Other logged objects include:
+- Plots: Using wandb.plot with wandb.log to track charts. 
+- Tables: Using wandb.Table to log data to visualize and query with W&B
+- Configuration information: Log hyperparameters, link to dataset, or  name of architecture used as config parameters
+- Metrics: Use wandb.log to see metrics from your model. 
+
+
+## Monitor and Assess Model Performance
+We use drift detection, online evaluation, and offline evaluation to monitor and assess model performance. Drift detection focuses on monitoring changes in the data distribution over time, online evaluation assesses model performance in real-time as it interacts with new data, and offline evaluation evaluates model performance using a static dataset before deployment. Each of these techniques plays a vital role in ensuring the effectiveness and reliability of our ML models.
+
+### Offline Evaluation
 This includes a sweep in Weights & Biases, where the following metrics will be logged: 
 
 - Mean Squared Error (MSE): Measures the average squared difference between predicted values and actual values.
@@ -234,10 +247,12 @@ This includes a sweep in Weights & Biases, where the following metrics will be l
 
 *Thus far for the production models, we only have MSE in the code though*
 
-## Online Evaluation / Drift Detection
+### Online Evaluation
+
+### Drift Detection
 
 The results of the drift detection (alert gate) will also be logged on Weights & Biases.
-### Check Input Data
+#### Check Input Data
 Jim is working on this -- dataframe > converted to tensor > looks at:
  fraction of NAs in different units 
  looks for change in missingness over past month vs. 5 previous months
@@ -245,11 +260,10 @@ Jim is working on this -- dataframe > converted to tensor > looks at:
 
 Will be logged on Weights & Biases, and can be integrated into the package Mihai is writing
 
-### Check Output Data
+#### Check Output Data
 Mihai is working on this -- developing an alertgate package that can be pip installed.
 
 
-### Check Performance
 
 ## Visualization
 Visualizations are accessible on Weights & Biases. There is a suite of interactive plots (bar charts, line graphs, tables).
