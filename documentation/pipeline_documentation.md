@@ -8,7 +8,7 @@ A series of other VIEWS-developed tools are relevant:
 - Please **do not use** the views-runs package anymore.
 
 ## How to Run This Pipeline
-This machine learning (ML) pipeline produces the monthly run of the VIEWS conflict forecasts. At this stage, it produces 5 models and needs to be expanded gradually.
+This machine learning (ML) pipeline produces the monthly run of the VIEWS conflict forecasts. At this stage, it produces 5 models and is to be expanded gradually.
 
 A single run of this pipeline is carried out using the workflow management system *Prefect*. 
 
@@ -18,6 +18,7 @@ Before running the ML pipeline, ensure that you have the following prerequisites
     Prefect (install using ´pip install prefect´)
     Required Python packages for the ML pipeline (scikit-learn, pandas, TensorFlow, viewser, ingester3, stepshift)
 ### Steps to Launch the ML Pipeline Run
+*work in progress*
 1. **Clone the Repository:**
 Clone the repository containing the ML pipeline code to your local machine.
 ```bash
@@ -40,7 +41,6 @@ Once the pipeline is initiated, you can monitor its execution using the Prefect 
 ```bash
 prefect server start
 ```
-
 
 ### Additional Notes
 
@@ -302,16 +302,39 @@ This includes a sweep in Weights & Biases, where the following metrics will be l
 ### Drift Detection (Alertgate)
 Drift detection mechanisms monitor changes in data distribution and model performance, triggering corrective actions when deviations are detected. The results of the drift detection (alert gate) will also be logged on Weights & Biases.
 
-*Link to package source code: TBD*
-
-#### Installation Instructions
 
 #### Check Input Data
 Input data drift is monitored by analyzing dataframes for changes in missing values and distribution, ensuring data integrity and reliability.
 
-#### Check Output Data
+*Will probably be put into viewser*
+
+#### Check Output Data (ForecastDrift)
 Output data drift is assessed using a bespoke alertgate package, developed to monitor and analyze forecast outputs for deviations from expected behavior.
 
+Link to package: [ForecastDrift](https://github.com/prio-data/ForecastDrift)
+
+**Installation**
+```bash
+pip install ForecastDrift
+```
+
+```Python
+from ForecastDrift import ForecastDrift
+```
+
+There are two kinds of drift detection:
+1. Current Predictions for a model compared to immediate predecessor run
+    Alerts if models drift beyond a fixed user-specified threshhold.
+2. Current predictions for a model compared to time series of previous runs using aggregate functions
+    Alerts if models drift beyond a number of user-specified standard deviations from the mean of the previous prediction tables. Note that both dispersion function and the centrality function can be changed by user.
+
+Users can specify any metrics, as long as it conforms to scikitlearn metrics. You pass a function to the package.
+Package contains extra metrics, e.g., "Markov Anomaly" (values becoming NA).
+
+Alerts are built as an independent class and can be easily extended and inherited from.
+Forecast drift is test-driven development.
+
+There is a print log as well.
 
 ## Visualization
 Visualizations are accessible on Weights & Biases. There is a suite of interactive plots (bar charts, line graphs, tables).
@@ -323,6 +346,18 @@ We also produce maps for predicted fatalities, with standardised design and tick
 ## Generating Forecasts
 This component encompasses the generation of forecasts using deployed models and ensembles, ensuring accuracy and timeliness in our predictions.
 
+## Orchestration/Deploying the pipeline with Prefect
+Orchestration, in the context of workflow management systems like Prefect, refers to the coordination and execution of a series of tasks or operations in a specified order. It involves managing the flow of data and control between different tasks to ensure that they are executed correctly and efficiently.
+
+The workflow tasks are:
+1. Load data
+    for each model: 
+        src/dataloaders/get_partitioned_data.py
+        src/dataloaders/get_latest_data.py
+2. Train data
+    for each model:
+        src/training/train_model.py
+
 # Future Developments
 
 
@@ -331,11 +366,20 @@ This component encompasses the generation of forecasts using deployed models and
 ## Config File
 Config files specify the settings and hyperparameters used to train machine learning models, allowing for easy experimentation and optimization without modifying the code – i.e., you don't want to hard code (i.e., write directly) hyperparameters into your model code.
 
+## Orchestration
+The Prefect Flow coordinates the execution of tasks, ensuring that they are executed in the correct order based on their dependencies.
+
 ## Hyperparameters
 Hyperparameters are parameters or settings that are not directly learned from data during the training process of a machine learning model, but rather are set prior to training and influence the behavior and performance of the model. For example, hyperparameters could include the learning rate, number of estimators, number of jobs, and transformation of data.
 
+## Prefect
+Prefect is used for workflow orchestration, defining the sequence of tasks (task1, task2, task3) and their dependencies.
+
 ## Sweep
 A sweep configuration is a set of specifications defining how hyperparameters should be explored during a hyperparameter search, the hyperparameters to be tuned, and their respective ranges or values to be tried.
+
+## Weights & Biases (wandb)
+Weights & Biases (W&B) is used to log relevant information (such as data, transformations, and results) produced by each task during the execution of the workflow. W&B logging within each task enables tracking and monitoring of the workflow's progress and outputs, enhancing visibility and reproducibility.
 
 ## Utils/Utility Functions
 Collection of functions or tools that serve various general purposes and are commonly reused across different parts of a software project. These utility functions are often not specific to any particular domain or task but rather provide common functionalities that can be helpful in many different situations.
