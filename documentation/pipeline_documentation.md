@@ -1,8 +1,4 @@
 # Documentation of VIEWS Pipeline 003 (i.e., Cabin Hackaton Pipeline)
-
-## How to Run This Pipeline
-*Insert Prefect documentation*
-
 [Link to readme](https://github.com/prio-data/views_pipeline/blob/main/README.md)
 
 A series of other VIEWS-developed tools are relevant:
@@ -10,6 +6,40 @@ A series of other VIEWS-developed tools are relevant:
 - For documentation of accessing data on viewser, refer to [viewser](https://github.com/prio-data/viewser).
 - For documentation of stepshifted models, refer to [stepshift](https://github.com/prio-data/stepshift)(*Work in Progress*).
 - Please **do not use** the views-runs package anymore.
+
+## How to Run This Pipeline
+This machine learning (ML) pipeline produces the monthly run of the VIEWS conflict forecasts. At this stage, it produces 5 models and needs to be expanded gradually.
+
+A single run of this pipeline is carried out using the workflow management system *Prefect*. 
+
+### Prerequisites
+Before running the ML pipeline, ensure that you have the following prerequisites installed:
+    Python 3.x
+    Prefect (install using ´pip install prefect´)
+    Required Python packages for the ML pipeline (scikit-learn, pandas, TensorFlow, viewser, ingester3, stepshift)
+### Steps to Launch the ML Pipeline Run
+1. **Clone the Repository:**
+Clone the repository containing the ML pipeline code to your local machine.
+´´´bash
+git clone <https://github.com/prio-data/views_pipeline>
+2. **Navigate to the Project Directory**
+Navigate to the directory where your ML pipeline code is located.
+´´´bash
+cd <project_directory>
+3. **Configure Prefect Flow:**
+Open the Python script containing your Prefect flow (e.g., ml_pipeline.py) and configure it according to your pipeline requirements. Ensure that all necessary tasks, dependencies, and parameters are defined correctly.
+4. **Run the ML Pipeline:**
+Execute the Prefect flow script to run the ML pipeline.
+´´´bash
+python ml_pipeline.py
+5. **Monitor Pipeline Execution:**
+Once the pipeline is initiated, you can monitor its execution using the Prefect UI dashboard or CLI. Use the following command to launch the Prefect UI:
+´´´bash
+prefect server start
+
+
+### Additional Notes
+
 
 ## Motivation and Rationale
 The VIEWS early-warning system pipeline produces predictions on a monthly basis, for a variety of models. However, in the last months, several errors have occured that compromise the quality of our forecasts. Additionally, the pipeline does not yet adhere to best practices standards relating to the structure and implementation. As a result, the VIEWS Pipeline is being rewritten and improved during a 5-day hackathon. 
