@@ -200,7 +200,6 @@ The root (entire pipeline) contains folders for: models; ensembles; prefect; doc
 First, within the **models folder**, there is a sub-folder for each model (as defined and named above). Essentially, everything related to a model is then contained: **config** files with hyperparameters for the test sweep conducted on Weights & Biases, as well as hyperparameters for model training.
 
 Secondly, at least for the initial phase, the models folder also contains a sub-folder for **data**, with raw input, processed input, and generated data. 
-*Question: Is this in terms of queryset code, or a file, e.g. parquet?*
 
 Third, **artifacts** sub-folder contains model_metadata_dict.py (stores model metadata); model_train_partition.pth (for offline validation), model_test_partition.pth (for offline testing); and model_forecasting.pth (for online forecasting). 
 
@@ -208,20 +207,24 @@ Fourth, there is a **notebook** sub-folder where experimentation can go. All oth
 
 Fifth, in the **reports** sub-folder we include internal and external dissemination material (if applicable) for the specific model.
 
+Sixth, every model folder contains a source code (src) sub-folder, with code for loading data from viewser, optional pytorch architecture for in-house bespoke models, utils containing functions and classes, visualization scripts, training scripts, evaluation scripts (online, offline, drift detection), as well as the final script to generate the forecasts.
+
 # Pipeline Components
 
-## Generating Forecasts
-
 ## Configuration Files for Hyperparameter Tuning (Config)
+Configuration files define hyperparameters for model training and tuning, facilitating reproducibility and experimentation.
 
 ## Data Loaders
+Data loaders retrieve input data from viewser, preprocess it, and prepare it for model training and evaluation.
 
-## Optional: Architectures
+## Architectures (Optional)
+Architectures, relevant primarily for in-house developed models, define the underlying structure and configuration of machine learning models.
 
 ## Model Training
+The model training component trains machine learning models using predefined datasets and hyperparameters, optimizing performance and accuracy.
 
 ## Logging on Weights & Biases
-We want a centralized place for logging and monitoring the data about and produced by our models. This has the benefit of allowing continuous improvement of the ML system.
+Weights & Biases serves as a centralized platform for logging and monitoring model outputs, system metrics, and experiment metadata, enhancing transparency and collaboration.
 
 The chosen platform is Weights & Biases (W&B / wandb). W&B automatically logs the following information during a W&B Experiment:
 - System metrics: CPU and GPU utilization, network, etc. These are shown in the System tab on the run page. For the GPU, these are fetched with nvidia-smi.
@@ -249,20 +252,18 @@ This includes a sweep in Weights & Biases, where the following metrics will be l
 
 ### Online Evaluation
 
-### Drift Detection
+### Drift Detection (Alertgate)
+Drift detection mechanisms monitor changes in data distribution and model performance, triggering corrective actions when deviations are detected. The results of the drift detection (alert gate) will also be logged on Weights & Biases.
 
-The results of the drift detection (alert gate) will also be logged on Weights & Biases.
+*Link to package source code: TBD*
+
+#### Installation Instructions
+
 #### Check Input Data
-Jim is working on this -- dataframe > converted to tensor > looks at:
- fraction of NAs in different units 
- looks for change in missingness over past month vs. 5 previous months
- distribution of data in past month vs. 5 previous months (KSS)
-
-Will be logged on Weights & Biases, and can be integrated into the package Mihai is writing
+Input data drift is monitored by analyzing dataframes for changes in missing values and distribution, ensuring data integrity and reliability.
 
 #### Check Output Data
-Mihai is working on this -- developing an alertgate package that can be pip installed.
-
+Output data drift is assessed using a bespoke alertgate package, developed to monitor and analyze forecast outputs for deviations from expected behavior.
 
 
 ## Visualization
@@ -271,6 +272,12 @@ Visualizations are accessible on Weights & Biases. There is a suite of interacti
 We also produce maps for predicted fatalities, with standardised design and tick labels (*work in progress*). The goal is to create a running gif across steps and publish on Weights & Biases reports, instead of looking at 36 single maps.
 
 *At this stage, this does not replace the mapper plots of the monthly run*
+
+## Generating Forecasts
+This component encompasses the generation of forecasts using deployed models and ensembles, ensuring accuracy and timeliness in our predictions.
+
+# Future Developments
+
 
 # Glossary for Beginners
 
