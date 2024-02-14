@@ -1,4 +1,4 @@
 project_config = {
-    'project': 'green_oracle_2',
+    'project': 'green_oracle',
     'entity': 'views_pipeline'
 }
