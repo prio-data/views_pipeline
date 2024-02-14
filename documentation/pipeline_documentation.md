@@ -1,7 +1,20 @@
 # Documentation of VIEWS Pipeline 003 (i.e., Cabin Hackaton Pipeline)
 
+## How to Run This Pipeline
+*Insert Prefect documentation*
+
+[Link to readme](https://github.com/prio-data/views_pipeline/blob/main/README.md)
+
+A series of other VIEWS-developed tools are relevant:
+- For documentation of our data ingestion package (i.e., how to add input data to viewser), refer to [ingester3](https://github.com/UppsalaConflictDataProgram/ingester3).
+- For documentation of accessing data on viewser, refer to [viewser](https://github.com/prio-data/viewser).
+- For documentation of stepshifted models, refer to [stepshift](https://github.com/prio-data/stepshift)(*Work in Progress*).
+- Please **do not use** the views-runs package anymore.
+
 ## Motivation and Rationale
 The VIEWS early-warning system pipeline produces predictions on a monthly basis, for a variety of models. However, in the last months, several errors have occured that compromise the quality of our forecasts. Additionally, the pipeline does not yet adhere to best practices standards relating to the structure and implementation. As a result, the VIEWS Pipeline is being rewritten and improved during a 5-day hackathon. 
+
+A diagram of the pipeline schematics is available [here](https://github.com/prio-data/views_pipeline/blob/main/documentation/pipeline_diagram001.pdf).
 
 We aim to develop a minimal solution first, that can be further developed in the future to accommodate more needs and models. The initial models implemented during the hackathon in February 2024 are: 2 baseline models (all zero, no change), 2 production models (orange pasta, yellow pikachu), and 1 bespoke model (Hydranet).
 
@@ -9,7 +22,7 @@ The most important changes relate to the following elements: standardizing  movi
 
 ## Definition of Key Terms
 
-**Model** is understood as:
+**Model** is [defined](https://github.com/prio-data/views_pipeline/blob/main/documentation/model_definition.md) as:
 
     1) A specific instantiation of a machine learning algorithm, 
     2) Trained using a predetermined and unique set of hyperpara.meters,
@@ -18,7 +31,7 @@ The most important changes relate to the following elements: standardizing  movi
     5) In the case of stepshift models, a model is understood as **all** code and **all** artifacts necessary to generate a comprehensive 36 month forecast for the specified target.
     6) Note that, two models, identical in all other aspects, will be deemed distinct if varying post-processing techniques are applied to their generated predictions. For instance, if one model's predictions undergo calibration or normalization while the other's do not.
 
-**Run** is defined as follows:
+**Run** is [defined](https://github.com/prio-data/views_pipeline/blob/main/documentation/run_definition.md) as follows:
 
     A *run* is a complete execution of the pipeline orchestrated through Prefect. It involves generating forecasts using all deployed baseline, shadow, and production models, including both individual models and ensembles. Additionally, a run encompasses various quality assurance measures such as model monitoring, drift detection, and online evaluation.
 
