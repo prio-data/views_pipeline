@@ -20,22 +20,26 @@ Before running the ML pipeline, ensure that you have the following prerequisites
 ### Steps to Launch the ML Pipeline Run
 1. **Clone the Repository:**
 Clone the repository containing the ML pipeline code to your local machine.
-´´´bash
+```bash
 git clone <https://github.com/prio-data/views_pipeline>
+```
 2. **Navigate to the Project Directory**
 Navigate to the directory where your ML pipeline code is located.
-´´´bash
+```bash
 cd <project_directory>
+```
 3. **Configure Prefect Flow:**
 Open the Python script containing your Prefect flow (e.g., ml_pipeline.py) and configure it according to your pipeline requirements. Ensure that all necessary tasks, dependencies, and parameters are defined correctly.
 4. **Run the ML Pipeline:**
 Execute the Prefect flow script to run the ML pipeline.
-´´´bash
+```bash
 python ml_pipeline.py
+```
 5. **Monitor Pipeline Execution:**
 Once the pipeline is initiated, you can monitor its execution using the Prefect UI dashboard or CLI. Use the following command to launch the Prefect UI:
-´´´bash
+```bash
 prefect server start
+```
 
 
 ### Additional Notes
