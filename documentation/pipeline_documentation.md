@@ -15,32 +15,58 @@ For documentation of VIEWS-developed packages see:
 - For documentation of our data ingestion package (i.e., how to add input data to viewser), refer to [ingester3](https://github.com/UppsalaConflictDataProgram/ingester3).
 - For documentation of accessing data on viewser, refer to [viewser](https://github.com/prio-data/viewser).
 - For documentation of stepshifted models, refer to [stepshift](https://github.com/prio-data/stepshift)(*Work in Progress*).
-- Please do not use the views-runs package. Views-runs is a previous attempt at a placeholder pipeline with notebooks. As such, it should not be used in the current pipeline due to incompatibilities in implementation.
+- Views-runs is a previous attempt at a placeholder pipeline with notebooks. As such, it should not be used in the current pipeline due to incompatibilities in implementation. We are using certain elements in this pipeline, though.
 
-### Steps to Launch the ML Pipeline Run
-*work in progress*
+### Steps to Execute the ML Pipeline Run
+The pipeline is executed using Prefect. Using Prefect as an orchestration tool provides a more robust, scalable, and maintainable solution for managing the complex data workflow compared to manual script execution.
+
+Below are the steps to carry out a full run.
+
 1. **Clone the Repository:**
 Clone the repository containing the ML pipeline code to your local machine.
 ```bash
 git clone <https://github.com/prio-data/views_pipeline>
 ```
-2. **Navigate to the Project Directory**
-Navigate to the directory where your ML pipeline code is located.
+2. **Make sure Prefect is set up**
+In your viewser environment, make sure prefect is pip installed.
+You can check with ```pip show prefect```
+
+To login to your account write:
 ```bash
-cd <project_directory>
+prefect cloud login
 ```
-3. **Configure Prefect Flow:**
-Open the Python script containing your Prefect flow (e.g., ml_pipeline.py) and configure it according to your pipeline requirements. Ensure that all necessary tasks, dependencies, and parameters are defined correctly.
-4. **Run the ML Pipeline:**
+and subsequently login online.
+
+3. **Find Orchestration Script:**
+Open the Python script containing the Prefect orchestration flow. 
+Currently, it is in [views_pipeline/orchestration.py (in branch production_models)](https://github.com/prio-data/views_pipeline/blob/production_models/orchestration.py).
+
+At this point you could configure the script.
+
+4. **Run the Orchestration Script:**
 Execute the Prefect flow script to run the ML pipeline.
 ```bash
-python prefect/scripts.py
+python orchestration.py
 ```
+The script executes every main.py file in every model and ensemble folder. For every model, you will be prompted in the terminal to:
+    a) Do sweep 
+    b) Do one run and pickle results
+To conduct the monthly run, type b and enter.
+
+The progress will be logged online on Prefect.
+
 5. **Monitor Pipeline Execution:**
-Once the pipeline is initiated, you can monitor its execution using the Prefect UI dashboard or CLI. Use the following command to launch the Prefect UI:
+Once the pipeline is initiated, you can monitor its execution using the Prefect UI dashboard or CLI. You can copy the link given in the terminal, go to the website, or use the following command to launch the Prefect UI:
 ```bash
 prefect server start
 ```
+
+Once models are run, you can also check their logs and visualisations in Weights & Biases.
+
+6. **Look at resulting data**
+*TBC -- not sure how to look at prediction storage*
+
+*Also not sure how to integrate looking at/checking alertgates in this process*
 
 ## Motivation and Rationale
 The VIEWS early-warning system pipeline produces predictions on a monthly basis, for a variety of models. However, in the last months, several errors have occured that compromise the quality of our forecasts. Additionally, the pipeline does not yet adhere to best practices standards relating to the structure and implementation. As a result, the VIEWS Pipeline is being rewritten and improved during a 5-day hackathon. 
@@ -256,17 +282,133 @@ Sixth, every model folder contains a source code (src) sub-folder, with code for
 
 # Pipeline Components
 
-## Configuration Files for Hyperparameter Tuning (Config)
+## Configuration Files (Config)
 Configuration files define hyperparameters for model training and tuning, facilitating reproducibility and experimentation.
+You can also see model information to make sense of the model given the non-descriptive naming system.
+
+For example, for model orange_pasta, information about the model can be found under models/orange_pasta/configs/**config_common.py** 
+
+```
+def get_common_config():
+    common_config = {
+        "name": "orange_pasta",
+        "algorithm": "LGBMRegressor",
+        "depvar": "ged_sb_dep",
+        "queryset": "fatalities003_pgm_baseline",
+        "data_train": "baseline",
+        "level": "pgm",
+        
+        'steps': [*range(1, 36 + 1, 1)],
+        'calib_partitioner_dict': {"train": (121, 396), "predict": (397, 444)},
+        'test_partitioner_dict': {"train": (121, 444), "predict": (445, 492)},
+        'future_partitioner_dict': {"train": (121, 492), "predict": (493, 504)},
+        'FutureStart': 508,
+        'force_retrain': False
+    }
+    return common_config
+```
+
+The hyperparameters can be seen in **config_hyperparameters.py**:
+
+```
+def get_hp_config(): 
+    hp_config = {
+        "learning_rate": 0.05,
+        "n_estimators": 100,
+        "n_jobs": 12   
+    }
+    return hp_config
+```
+
+The config file of the sweep (**config_sweep.py**) also contains information on the metric used:
+
+```
+def get_swep_config():
+    sweep_config = {
+        "name": "orange_pasta",
+        'method': 'grid'
+    }
+
+    metric = {
+        'name': 'mse',
+        'goal': 'minimize'   
+    }
+
+    sweep_config['metric'] = metric
+
+    parameters_dict = {
+        "n_estimators": {"values": [100, 200]},
+        "learning_rate": {"values": [0.05]},
+        "n_jobs": {"values": [12]}
+    }
+
+    sweep_config['parameters'] = parameters_dict
+
+    return sweep_config
+```
 
 ## Data Loaders
 Data loaders retrieve input data from viewser, preprocess it, and prepare it for model training and evaluation.
+
+The **get_data.py** script retrieves and preprocesses data for modeling from a database using the Viewser library. It then publishes the data and saves it to a Parquet file for later use.
+
+### Functions:
+
+#### `get_data()`:
+This function retrieves and preprocesses data from a database using the Viewser library.
+
+- **Returns**:
+    - `data`: Preprocessed data ready for modeling.
+
+### Dependencies:
+- numpy (`np`)
+- Viewser (`Queryset`, `Column`)
+- pathlib (`Path`)
+
+### Note:
+The script defines a Queryset (`qs_baseline`) that retrieves data from a database table named "fatalities003_pgm_baseline" with a target variable "ged_sb_dep". It applies various transformations to the data, including missing value replacement, logarithmic transformation, temporal decay, spatial lag, and thematic description. The preprocessed data is then published and saved to a Parquet file named "raw.parquet" in the "data/raw" directory relative to the script's location.
+
 
 ## Architectures (Optional)
 Architectures, relevant primarily for in-house developed models, define the underlying structure and configuration of machine learning models.
 
 ## Model Training
 The model training component trains machine learning models using predefined datasets and hyperparameters, optimizing performance and accuracy.
+
+The **train_model.py** script trains a machine learning model using the specified algorithm and configuration parameters. It utilizes the views library for data partitioning, model training, and storage management.
+
+### Functions:
+
+#### `train(common_config, para_config)`:
+This function trains a machine learning model based on the specified algorithm and configuration parameters.
+
+- **Args**:
+    - `common_config` (dict): A dictionary containing common configuration parameters.
+        - Required keys:
+            - `'algorithm'`: A string specifying the algorithm to use for training.
+            - `'sweep'`: A boolean indicating whether hyperparameter sweep is enabled.
+            - `'force_retrain'`: A boolean indicating whether to force retraining of the model.
+            - `'future_partitioner_dict'`: A dictionary specifying partitioning parameters for future data.
+            - `'steps'`: A list of integers representing prediction steps.
+            - `'depvar'`: A string specifying the dependent variable.
+            - `'queryset'`: A string specifying the name of the queryset.
+            - `'name'`: A string specifying the name for storing the trained model.
+    - `para_config` (dict): A dictionary containing algorithm-specific hyperparameters.
+
+- **Returns**:
+    - None
+
+### Dependencies:
+- os
+- wandb
+- pathlib (`Path`)
+- warnings
+- ML Algorithms, e.g., LightGBM (`LGBMRegressor`), XGBoost (`XGBRegressor`)
+- Views library (`views_runs`, `views_partitioning`, `views_forecasts`, `stepshift.views`)
+
+### Note:
+The script sets up the environment to suppress warnings and silence Weights & Biases logging. It loads data from a Parquet file, initializes the specified machine learning model, and trains it using the provided dataset and configuration parameters. The trained model is stored using the Views library, and relevant metadata is logged to Weights & Biases.
+
 
 ## Logging on Weights & Biases
 Weights & Biases serves as a centralized platform for logging and monitoring model outputs, system metrics, and experiment metadata, enhancing transparency and collaboration.
@@ -344,15 +486,111 @@ We also produce maps for predicted fatalities, with standardised design and tick
 ## Generating Forecasts
 This component encompasses the generation of forecasts using deployed models and ensembles, ensuring accuracy and timeliness in our predictions.
 
+The **generate_forecasts.py** script generates forecasts using the Views Forecasts library. It retrieves predictions from a storage if available, otherwise, it generates forecasts using a specified prediction method and data.
+
+### Functions:
+
+#### `forecast(config)`:
+This function generates forecasts using the Views Forecasts library.
+
+- **Args**:
+    - `config` (dict): A dictionary containing configuration parameters for forecasting.
+        - Required keys:
+            - `'storage_name'`: A string specifying the name of the storage to read/store forecasts.
+            - `'RunResult'`: An object containing prediction method and data for forecasting.
+
+- **Returns**:
+    - None
+
+### Dependencies:
+- os
+- warnings
+- pandas (`pd`)
+- Views Forecasts library
+
+### Note:
+The script sets up the environment to suppress warnings and silence Weights & Biases logging. It then attempts to read predictions from the specified storage. If no predictions are found, it generates forecasts using the prediction method specified in `config["RunResult"]` and the associated data, and stores the forecasts in the specified storage for future use.
+
+
 ## Orchestration/Deploying the pipeline with Prefect
 Orchestration, in the context of workflow management systems like Prefect, refers to the coordination and execution of a series of tasks or operations in a specified order. It involves managing the flow of data and control between different tasks to ensure that they are executed correctly and efficiently.
 
-The workflow tasks are:
-For each model
-1. Classify as baseline, shadow, production
-    Look at artifacts/model_metadata_dict
-2. Run src/forecasting/generate_forecast.py 
-    For this to work, src/dataloaders/get_latest_data.py needs to be in generate_forecast
+In views_pipeline, every model and ensemble has its own main.py execution file. These are collected by the main orchestration script (in the root directory) that incorporates Prefect, **orchestration.py**.
+As such, you can still run an individual model using its main.py file, or run all models with orchestration.py.
+
+The primary purpose of the orchestration script is to streamline the execution of machine learning models represented by separate `main.py` files. By automating the execution process, the script simplifies the workflow for running multiple models, reducing manual effort and potential errors.
+
+### Model-specific main.py scripts
+*This is tailored to Xiaolong's scripts for the 2 production models*
+*Noorain's main.py scripts have a slightly different logic*
+
+**Functions:**
+
+#### `model_pipeline(config=None, project=None)`:
+This function defines the model pipeline, including model training, forecasting, and evaluation. It initializes a Weights & Biases run with the specified project and configuration settings, and then executes the pipeline steps accordingly.
+
+- **Args**:
+    - `config` (dict): A dictionary containing configuration parameters for the model pipeline.
+    - `project` (str): A string specifying the project name for Weights & Biases logging.
+
+- **Returns**:
+    - None
+
+#### Dependencies:
+- wandb
+- pathlib (`Path`)
+- `get_hp_config`, `get_swep_config`, `get_common_config` functions from respective configuration files
+- `train`, `forecast`, `evaluate_model`, `evaluate_sweep`, `get_data` functions from respective modules
+
+#### Note:
+- The script initializes a Weights & Biases run with the specified project and configuration settings.
+- It checks if raw data exists and loads it if not.
+- Based on user input, it either conducts a hyperparameter sweep (`do_sweep == 'a'`) or performs a single model run (`do_sweep == 'b'`).
+- For a hyperparameter sweep, it defines a sweep configuration using `wandb.sweep()` and runs the pipeline with the defined configuration using `wandb.agent()`.
+- For a single model run, it runs the pipeline with the provided hyperparameters and project name.
+
+### Pipeline orchestration.py script
+The orchestration script, named `orchestration.py`, is a Python script designed to automate the execution of multiple machine learning models represented by `main.py` files located within the project's directory structure. 
+
+**Logic:**
+The orchestration script leverages the Prefect library, a workflow orchestration tool, to define and execute a Prefect Flow named `model_execution_flow`. This flow iterates over each `main.py` file found within the `models` directory and executes them as subprocesses using the `execute_main` task.
+
+1. **Defining Paths:** The script uses the `pathlib` module to define the root directory where the `main.py` files are located (`root_dir`).
+
+2. **Task Definition:** It defines a Prefect task (`execute_main`) responsible for executing a single `main.py` file as a subprocess.
+
+3. **Flow Definition:** The `model_execution_flow` Prefect Flow is defined, which iterates over each `main.py` file found within the `models` directory and assigns the execution task to them.
+
+4. **Execution:** Finally, the Prefect workflow (`model_execution_flow`) is executed, triggering the execution of each `main.py` file.
+
+
+**Functions:**
+
+### `execute_main`
+
+- **Args:** 
+    - `main_file`: Path to the main.py file of a machine learning model.
+
+- **Returns:** 
+    - None
+
+### model_execution_flow
+
+- **Args:** 
+    - None
+
+- **Returns:** 
+    - None
+
+#### Dependencies:
+- Python (>= 3.6)
+- Prefect library
+
+#### Note:
+The orchestration script automates the execution of machine learning models represented by `main.py` files. It leverages Prefect to define and execute a Prefect Flow named `model_execution_flow`, which iterates over each `main.py` file found within the `models` directory and executes them as subprocesses using the `execute_main` task.
+
+
+
 
 # Future Developments
 
