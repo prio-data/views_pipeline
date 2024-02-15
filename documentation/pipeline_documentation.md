@@ -23,11 +23,13 @@ The pipeline is executed using Prefect. Using Prefect as an orchestration tool p
 Below are the steps to carry out a full run.
 
 1. **Clone the Repository:**
+
 Clone the repository containing the ML pipeline code to your local machine.
 ```bash
 git clone <https://github.com/prio-data/views_pipeline>
 ```
 2. **Make sure Prefect is set up**
+
 In your viewser environment, make sure prefect is pip installed.
 You can check with ```pip show prefect```
 
@@ -38,6 +40,7 @@ prefect cloud login
 and subsequently login online.
 
 3. **Find Orchestration Script:**
+
 Open the Python script containing the Prefect orchestration flow. 
 Currently, it is in [views_pipeline/orchestration.py (in branch production_models)](https://github.com/prio-data/views_pipeline/blob/production_models/orchestration.py).
 
