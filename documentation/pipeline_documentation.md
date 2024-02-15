@@ -1,12 +1,6 @@
 # Documentation of VIEWS Pipeline 003 (i.e., Cabin Hackaton Pipeline)
 [Link to readme](https://github.com/prio-data/views_pipeline/blob/main/README.md)
 
-A series of other VIEWS-developed tools are relevant:
-- For documentation of our data ingestion package (i.e., how to add input data to viewser), refer to [ingester3](https://github.com/UppsalaConflictDataProgram/ingester3).
-- For documentation of accessing data on viewser, refer to [viewser](https://github.com/prio-data/viewser).
-- For documentation of stepshifted models, refer to [stepshift](https://github.com/prio-data/stepshift)(*Work in Progress*).
-- Please do not use the views-runs package. Views-runs is a previous attempt at a placeholder pipeline with notebooks. As such, it should not be used in the current pipeline due to incompatibilities in implementation.
-
 ## How to Run This Pipeline
 This machine learning (ML) pipeline produces the monthly run of the VIEWS conflict forecasts. At this stage, it produces 5 models and is to be expanded gradually.
 
@@ -15,8 +9,14 @@ A single run of this pipeline is carried out using the workflow management syste
 ### Prerequisites
 Before running the ML pipeline, ensure that you have the following prerequisites installed:
     Python 3.x
-    Prefect (install using ´pip install prefect´)
-    Required Python packages for the ML pipeline (scikit-learn, pandas, TensorFlow, viewser, ingester3, stepshift)
+    Required Python packages for the ML pipeline (scikit-learn, pandas, TensorFlow, prefect, wandb, viewser, ingester3, stepshift)
+
+For documentation of VIEWS-developed packages see:
+- For documentation of our data ingestion package (i.e., how to add input data to viewser), refer to [ingester3](https://github.com/UppsalaConflictDataProgram/ingester3).
+- For documentation of accessing data on viewser, refer to [viewser](https://github.com/prio-data/viewser).
+- For documentation of stepshifted models, refer to [stepshift](https://github.com/prio-data/stepshift)(*Work in Progress*).
+- Please do not use the views-runs package. Views-runs is a previous attempt at a placeholder pipeline with notebooks. As such, it should not be used in the current pipeline due to incompatibilities in implementation.
+
 ### Steps to Launch the ML Pipeline Run
 *work in progress*
 1. **Clone the Repository:**
@@ -34,7 +34,7 @@ Open the Python script containing your Prefect flow (e.g., ml_pipeline.py) and c
 4. **Run the ML Pipeline:**
 Execute the Prefect flow script to run the ML pipeline.
 ```bash
-python ml_pipeline.py
+python prefect/scripts.py
 ```
 5. **Monitor Pipeline Execution:**
 Once the pipeline is initiated, you can monitor its execution using the Prefect UI dashboard or CLI. Use the following command to launch the Prefect UI:
@@ -42,15 +42,12 @@ Once the pipeline is initiated, you can monitor its execution using the Prefect 
 prefect server start
 ```
 
-### Additional Notes
-
-
 ## Motivation and Rationale
 The VIEWS early-warning system pipeline produces predictions on a monthly basis, for a variety of models. However, in the last months, several errors have occured that compromise the quality of our forecasts. Additionally, the pipeline does not yet adhere to best practices standards relating to the structure and implementation. As a result, the VIEWS Pipeline is being rewritten and improved during a 5-day hackathon. 
 
 A diagram of the pipeline schematics is available [here](https://github.com/prio-data/views_pipeline/blob/main/documentation/pipeline_diagram001.pdf).
 
-We aim to develop a minimal solution first, that can be further developed in the future to accommodate more needs and models. The initial models implemented during the hackathon in February 2024 are: 2 baseline models (all zero, no change), 2 production models (orange pasta, yellow pikachu), and 1 bespoke model (Hydranet).
+We aim to develop a minimal solution first, that can be further developed in the future to accommodate more needs and models. The initial models implemented during the hackathon in February 2024 are: 2 baseline models (all zero, no change), 2 production models (orange pasta, yellow pikachu), and 1 bespoke shadow model (Hydranet).
 
 The most important changes relate to the following elements: standardizing  moving away from Notebooks and towards scripts; implementing alert gates for input and performance drift; using the platform Weights & Biases for logging and visualizing model outputs; using the platform Prefect to carry out the entire monthly run, from fetching the input data through a queryset to allocating predictions in the prediction store on Fimbulthul server.
 
@@ -81,12 +78,13 @@ We have agreed to standardize the pipeline in several ways.
 ### Model Naming Conventions
 **Models** will no longer carry descriptive titles (e.g., *transform_log_clf_name_LGBMClassifier_reg_name_LGBMRegressor*). As more and more models are developed over time, this would become too chaotic, long, and ultimately small differences could not be communicated properly through the title. Instead, the code and metadata of the model should be use to substantively differentiate them between each other. 
 
-The new naming convention for models takes the form of *adjective_noun*, adding more models alphabetically. For example, the first model to be added can be named *amazing_apple*, the second model *bad_bunny*, etc. This is a popular practice, and Weights & Biases implements this naming convention automatically. 
+The new naming convention for models in the pipeline takes the form of *adjective_noun*, adding more models alphabetically. For example, the first model to be added can be named *amazing_apple*, the second model *bad_bunny*, etc. This is a popular practice, and Weights & Biases implements this naming convention automatically. 
 
 *To be clarified: how to "translate" when moving from model development to communicating results.*
 
 ### Model Metadata 
 *There is general disagreement to the degree of automatic vs. manual entry & length of model metadata -- work in progress*
+Metadata can be looked up on Weights & Biases
 
 ### GitHub Repository Strucuture
 The entire pipeline is contained in the repository "views-pipeline", which has a predefined structure stated in the readme. As such, this pipeline repository replaces "viewsforecasting" (pipeline 002) and "views-runs" (pipeline 001) (*TBC*). 
@@ -311,7 +309,7 @@ Input data drift is monitored by analyzing dataframes for changes in missing val
 #### Check Output Data (ForecastDrift)
 Output data drift is assessed using a bespoke alertgate package, developed to monitor and analyze forecast outputs for deviations from expected behavior.
 
-Link to package: [ForecastDrift](https://github.com/prio-data/ForecastDrift)
+Link to package including documentation: [ForecastDrift](https://github.com/prio-data/ForecastDrift)
 
 **Installation**
 ```bash
