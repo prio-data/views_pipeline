@@ -546,18 +546,6 @@ Forecast drift is test-driven development.
 
 There is a print log as well.
 
-## Visualization
-Visualizations are accessible on Weights & Biases. There is a suite of interactive plots (bar charts, line graphs, tables).
-
-We also produce maps for predicted fatalities, with standardised design and tick labels (*work in progress*). The goal is to create a running gif across steps and publish on Weights & Biases reports, instead of looking at 36 single maps.
-
-*At this stage, this does not replace the mapper plots of the monthly run*
-
-*Have not finalised a solution, Problems arose with bokeh*
-
-*Malika's working notebook is [here](https://github.com/prio-data/fatalities003_development/blob/ms_visual/notebook001.ipynb)*
-
-
 ## Generating Forecasts
 This component encompasses the generation of forecasts using deployed models and ensembles, ensuring accuracy and timeliness in our predictions.
 
@@ -585,6 +573,31 @@ This function generates forecasts using the Views Forecasts library.
 
 ### Note:
 The script sets up the environment to suppress warnings and silence Weights & Biases logging. It then attempts to read predictions from the specified storage. If no predictions are found, it generates forecasts using the prediction method specified in `config["RunResult"]` and the associated data, and stores the forecasts in the specified storage for future use.
+
+
+## Visualization
+Visualizations are accessible on Weights & Biases. There is a suite of interactive plots (bar charts, line graphs, tables).
+
+Xiaolong has already written code for maps that work in Weights & Biases, which plot fatalities and metrics. 
+
+We also produce maps for predicted fatalities, with standardised design and tick labels (*work in progress*). The goal is to create a running gif across steps and publish on Weights & Biases reports, instead of looking at 36 single maps.
+
+*At this stage, this does not replace the mapper plots of the monthly run*
+
+*Malika's working notebook is [here](https://github.com/prio-data/fatalities003_development/blob/ms_visual/notebook001.ipynb)*
+
+*Utils are [here](https://github.com/prio-data/fatalities003_development/blob/ms_visual/util/ms_visual_tools_pgm.py)*
+- Visualisation takes place after predictions have been stored
+- Further development of Xiaolong's maps
+- Standardised tick labels (consistent min and max, colours, log-normalised) to allow for comparisons across maps (to make gif/video)
+- Does not use shapefiles, fetches geometries directly
+- Makes images (for now, first month and first step) and logs on W&B
+- Ability to look at maps across months and steps with slider (ONLY functional in Notebooks) -- uses ipywidgets (not exportable)
+- Also includes other way to make maps with bokeh to export to w&b (needs further development with slider -- currently only shows first one) 
+
+To-Do:
+- Connect to Bokeh server or explore custom javascript methods 
+
 
 
 ## Orchestration: Executing the pipeline with Prefect
@@ -666,6 +679,8 @@ The orchestration script automates the execution of machine learning models repr
 
 # Future Developments
 
+## Visualization
+Some additional ideas for visualization data: https://docs.wandb.ai/guides/app/features/custom-charts/walkthrough, and https://docs.wandb.ai/guides/track/log/plots. Malika thinks linear plots might be easier to just make as we usually do and log them into wandb but they have some interesting built in things as well.
 
 # Glossary for Beginners
 
