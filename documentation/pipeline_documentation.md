@@ -435,14 +435,13 @@ This includes a sweep in Weights & Biases, where the following metrics will be l
 - Jeffreys Divergence: A measure of the difference between two probability distributions, emphasizing sensitivity to small changes in probability.
 - Jenson-Shannon Divergence: Quantifies the similarity between two probability distributions by measuring the average divergence of each from their average, providing a symmetric measure of similarity.
 
-*Thus far for the production models, we only have MSE in the code though*
+*Thus far for the production models, we only have MSE in the code though* 
 
-## evaluate_model.py
-
-This script provides functionality to evaluate a model's performance by calculating the mean squared error (MSE) 
+#### Model Evaluation
+The **evaluate_model.py** script provides functionality to evaluate a model's performance by calculating the mean squared error (MSE) 
 between the actual and predicted values for a given dependent variable across multiple prediction steps.
 
-### Functions:
+**Functions:**
 
 #### `evaluate_model(config)`:
 Evaluates the model's performance using the provided configuration parameters.
@@ -457,24 +456,24 @@ Evaluates the model's performance using the provided configuration parameters.
 - **Returns**:
     - None
 
-### Usage:
+**Usage:**
 Call `evaluate_model(config)` function with appropriate configuration parameters to evaluate the model.
 
-### Dependencies:
+**Dependencies:**
 - numpy (`np`)
 - pandas (`pd`)
 - wandb
 - scikit-learn (`sklearn`)
 
-### Note:
+**Note:**
 The script expects a specific data structure for forecasts stored in the configured `storage_name`.
 It calculates MSE for each prediction step and prints the average MSE.
 
-## evaluate_sweep.py
 
-This script is designed to evaluate a sweep of models' performance by calculating the mean squared error (MSE) between the actual and predicted values for a given dependent variable across multiple prediction steps.
+### Sweep Evaluation 
+The **evaluate_sweep.py** script is designed to evaluate a sweep of models' performance by calculating the mean squared error (MSE) between the actual and predicted values for a given dependent variable across multiple prediction steps.
 
-### Functions:
+**Functions:**
 
 #### `evaluate_sweep(config)`:
 This function evaluates the performance of a sweep of models using the provided configuration parameters.
@@ -489,16 +488,16 @@ This function evaluates the performance of a sweep of models using the provided 
 - **Returns**:
     - None
 
-### Usage:
+**Usage:**
 Call `evaluate_sweep(config)` function with appropriate configuration parameters to evaluate the sweep of models.
 
-### Dependencies:
+**Dependencies:**
 - numpy (`np`)
 - pandas (`pd`)
 - wandb
 - scikit-learn (`sklearn`)
 
-### Note:
+**Note:**
 The script expects a specific data structure for forecasts stored in the configured `storage_name`.
 It calculates MSE for each prediction step and logs the average MSE using Weights & Biases (`wandb.log()`).
 
@@ -513,6 +512,8 @@ Drift detection mechanisms monitor changes in data distribution and model perfor
 Input data drift is monitored by analyzing dataframes for changes in missing values and distribution, ensuring data integrity and reliability.
 
 *Will probably be put into viewser*
+
+*More documentation needed once I get access to Jim's code*
 
 #### Check Output Data (ForecastDrift)
 Output data drift is assessed using a bespoke alertgate package, developed to monitor and analyze forecast outputs for deviations from expected behavior.
@@ -549,6 +550,11 @@ We also produce maps for predicted fatalities, with standardised design and tick
 
 *At this stage, this does not replace the mapper plots of the monthly run*
 
+*Have not finalised a solution, Problems arose with bokeh*
+
+*Malika's working notebook is [here](https://github.com/prio-data/fatalities003_development/blob/ms_visual/notebook001.ipynb)*
+
+
 ## Generating Forecasts
 This component encompasses the generation of forecasts using deployed models and ensembles, ensuring accuracy and timeliness in our predictions.
 
@@ -578,7 +584,7 @@ This function generates forecasts using the Views Forecasts library.
 The script sets up the environment to suppress warnings and silence Weights & Biases logging. It then attempts to read predictions from the specified storage. If no predictions are found, it generates forecasts using the prediction method specified in `config["RunResult"]` and the associated data, and stores the forecasts in the specified storage for future use.
 
 
-## Orchestration/Deploying the pipeline with Prefect
+## Orchestration: Executing the pipeline with Prefect
 Orchestration, in the context of workflow management systems like Prefect, refers to the coordination and execution of a series of tasks or operations in a specified order. It involves managing the flow of data and control between different tasks to ensure that they are executed correctly and efficiently.
 
 In views_pipeline, every model and ensemble has its own main.py execution file. These are collected by the main orchestration script (in the root directory) that incorporates Prefect, **orchestration.py**.
