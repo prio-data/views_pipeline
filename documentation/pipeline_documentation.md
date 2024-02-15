@@ -597,6 +597,7 @@ We also produce maps for predicted fatalities, with standardised design and tick
 
 To-Do:
 - Connect to Bokeh server or explore custom javascript methods 
+- Add visualization code to each model's main.py (before run and finish, see fatalities003)
 
 
 
