@@ -81,22 +81,22 @@ The most important changes relate to the following elements: standardizing  movi
 
 **Model** is [defined](https://github.com/prio-data/views_pipeline/blob/main/documentation/model_definition.md) as:
 
-    1) A specific instantiation of a machine learning algorithm, 
-    2) Trained using a predetermined and unique set of hyperpara.meters,
-    3) On a well-defined set of input features,
-    4) And targeting a specific outcome target.
-    5) In the case of stepshift models, a model is understood as **all** code and **all** artifacts necessary to generate a comprehensive 36 month forecast for the specified target.
-    6) Note that, two models, identical in all other aspects, will be deemed distinct if varying post-processing techniques are applied to their generated predictions. For instance, if one model's predictions undergo calibration or normalization while the other's do not.
+1) A specific instantiation of a machine learning algorithm, 
+2) Trained using a predetermined and unique set of hyperpara.meters,
+3) On a well-defined set of input features,
+4) And targeting a specific outcome target.
+5) In the case of stepshift models, a model is understood as **all** code and **all** artifacts necessary to generate a comprehensive 36 month forecast for the specified target.
+6) Note that, two models, identical in all other aspects, will be deemed distinct if varying post-processing techniques are applied to their generated predictions. For instance, if one model's predictions undergo calibration or normalization while the other's do not.
 
 **Run** is [defined](https://github.com/prio-data/views_pipeline/blob/main/documentation/run_definition.md) as follows:
 
-    A *run* is a complete execution of the pipeline orchestrated through Prefect. It involves generating forecasts using all deployed baseline, shadow, and production models, including both individual models and ensembles. Additionally, a run encompasses various quality assurance measures such as model monitoring, drift detection, and online evaluation.
+A *run* is a complete execution of the pipeline orchestrated through Prefect. It involves generating forecasts using all deployed baseline, shadow, and production models, including both individual models and ensembles. Additionally, a run encompasses various quality assurance measures such as model monitoring, drift detection, and online evaluation.
 
-    Typically, a *run* occurs once a month. However, additional runs may be performed within a month if corrections or calibrations are necessary to meet the quality standards expected of a VIEWS system.
+Typically, a *run* occurs once a month. However, additional runs may be performed within a month if corrections or calibrations are necessary to meet the quality standards expected of a VIEWS system.
 
-    As runs are relatively infrequent events, each run is assigned a *meaningful* name following established conventions. The name format is as follows: `modelset_generation_monthid_iteration`. For example:`fatalities_003_413_a`.
+As runs are relatively infrequent events, each run is assigned a *meaningful* name following established conventions. The name format is as follows: `modelset_generation_monthid_iteration`. For example:`fatalities_003_413_a`.
 
-    In this example, the run includes all deployed models targeting fatalities, belonging to the third generation of VIEWS *fatality* models. The run corresponds to month number 413 using the standard VIEWS month ID format. The trailing *a* signifies that this is the first run created this month; subsequent runs would be denoted with *b*, *c*, and so on, indicating the order of execution within the given target, generation, and month.
+In this example, the run includes all deployed models targeting fatalities, belonging to the third generation of VIEWS *fatality* models. The run corresponds to month number 413 using the standard VIEWS month ID format. The trailing *a* signifies that this is the first run created this month; subsequent runs would be denoted with *b*, *c*, and so on, indicating the order of execution within the given target, generation, and month.
 
 ## Standardization
 We have agreed to standardize the pipeline in several ways. 
@@ -660,9 +660,6 @@ The orchestration script leverages the Prefect library, a workflow orchestration
 
 #### Note:
 The orchestration script automates the execution of machine learning models represented by `main.py` files. It leverages Prefect to define and execute a Prefect Flow named `model_execution_flow`, which iterates over each `main.py` file found within the `models` directory and executes them as subprocesses using the `execute_main` task.
-
-
-
 
 # Future Developments
 
