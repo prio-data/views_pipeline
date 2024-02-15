@@ -412,6 +412,38 @@ This function trains a machine learning model based on the specified algorithm a
 ### Note:
 The script sets up the environment to suppress warnings and silence Weights & Biases logging. It loads data from a Parquet file, initializes the specified machine learning model, and trains it using the provided dataset and configuration parameters. The trained model is stored using the Views library, and relevant metadata is logged to Weights & Biases.
 
+## Ensembling
+The [`main.py`](https://github.com/prio-data/views_pipeline/blob/production_models/ensembles/white_snow/main.py) script within the ensemble model "white snow" implements an ensemble model evaluation process, specifically utilizing a median ensemble technique. It reads data from two sources, creates a median ensemble, saves the ensemble to a data store, and evaluates its performance using predefined evaluation metrics.
+
+### Functionality
+1. **Data Preparation:**
+   - The script reads data from two sources named "orange_pasta" and "yellow_pikachu" into DataFrames `df1` and `df2` respectively.
+
+2. **Standardization:**
+   - The `get_standardized_df(df)` function is utilized to extract specific columns (`target` and `prediction_columns`) from each DataFrame to standardize the format of input data.
+
+3. **Ensemble Creation:**
+   - A median ensemble (`df_median`) is created by taking the element-wise median of corresponding values in `df1` and `df2` using the `median_emsemble(df1, df2)` function.
+
+4. **Data Storage:**
+   - The ensemble DataFrame (`df_median`) is saved to a data store named "white_snow" using the `df_median.forecasts.to_store(name="...")` method.
+
+5. **Model Evaluation:**
+   - Configuration settings for the model are obtained using the `get_common_config()` function.
+   - The ensemble model is evaluated using the `evaluate_model(config)` function with the obtained configuration settings.
+
+### Usage
+To run the script, execute it as the main program. Ensure that the required data sources are accessible and that the evaluation configuration is properly set up.
+
+### Dependencies
+- pandas: For data manipulation and DataFrame operations.
+- `evaluate_model` function from `src.offline_evaluation.evaluate_ensemble`: For evaluating the ensemble model.
+- `get_common_config` function from `configs.config_common`: For obtaining configuration settings.
+
+### Example Usage:
+```bash
+python main.
+```
 
 ## Logging on Weights & Biases
 Weights & Biases serves as a centralized platform for logging and monitoring model outputs, system metrics, and experiment metadata, enhancing transparency and collaboration.
@@ -431,6 +463,8 @@ Other logged objects include:
 We use drift detection, online evaluation, and offline evaluation to monitor and assess model performance. Drift detection focuses on monitoring changes in the data distribution over time, online evaluation assesses model performance in real-time as it interacts with new data, and offline evaluation evaluates model performance using a static dataset before deployment. Each of these techniques plays a vital role in ensuring the effectiveness and reliability of our ML models.
 
 ### Offline Evaluation
+Offline evaluation evaluates model performance using a static dataset before deployment.
+
 This includes a sweep in Weights & Biases, where the following metrics will be logged: 
 
 - Mean Squared Error (MSE): Measures the average squared difference between predicted values and actual values.
@@ -440,13 +474,12 @@ This includes a sweep in Weights & Biases, where the following metrics will be l
 
 *Thus far for the production models, we only have MSE in the code though* 
 
-#### Model Evaluation
-The **evaluate_model.py** script provides functionality to evaluate a model's performance by calculating the mean squared error (MSE) 
-between the actual and predicted values for a given dependent variable across multiple prediction steps.
+#### `evaluate_model.py`
+The **evaluate_model.py** script provides functionality to evaluate a model's performance by calculating the mean squared error (MSE) between the actual and predicted values for a given dependent variable across multiple prediction steps.
 
 **Functions:**
 
-#### `evaluate_model(config)`:
+##### `evaluate_model(config)`:
 Evaluates the model's performance using the provided configuration parameters.
 
 - **Args**:
@@ -459,26 +492,26 @@ Evaluates the model's performance using the provided configuration parameters.
 - **Returns**:
     - None
 
-**Usage:**
+- **Usage:**
 Call `evaluate_model(config)` function with appropriate configuration parameters to evaluate the model.
 
-**Dependencies:**
-- numpy (`np`)
-- pandas (`pd`)
-- wandb
-- scikit-learn (`sklearn`)
+- **Dependencies:**
+    - numpy (`np`)
+    - pandas (`pd`)
+    - wandb
+    - scikit-learn (`sklearn`)
 
-**Note:**
+- **Note:**
 The script expects a specific data structure for forecasts stored in the configured `storage_name`.
 It calculates MSE for each prediction step and prints the average MSE.
 
 
-### Sweep Evaluation 
+#### `evaluate_sweep.py`
 The **evaluate_sweep.py** script is designed to evaluate a sweep of models' performance by calculating the mean squared error (MSE) between the actual and predicted values for a given dependent variable across multiple prediction steps.
 
 **Functions:**
 
-#### `evaluate_sweep(config)`:
+##### `evaluate_sweep(config)`:
 This function evaluates the performance of a sweep of models using the provided configuration parameters.
 
 - **Args**:
@@ -491,33 +524,34 @@ This function evaluates the performance of a sweep of models using the provided 
 - **Returns**:
     - None
 
-**Usage:**
+- **Usage:**
 Call `evaluate_sweep(config)` function with appropriate configuration parameters to evaluate the sweep of models.
 
-**Dependencies:**
-- numpy (`np`)
-- pandas (`pd`)
-- wandb
-- scikit-learn (`sklearn`)
+- **Dependencies:**
+    - numpy (`np`)
+    - pandas (`pd`)
+    - wandb
+    - scikit-learn (`sklearn`)
 
-**Note:**
+- **Note:**
 The script expects a specific data structure for forecasts stored in the configured `storage_name`.
 It calculates MSE for each prediction step and logs the average MSE using Weights & Biases (`wandb.log()`).
 
 
 ### Online Evaluation
+Online evaluation assesses model performance in real-time as it interacts with new data. Not sure if/where this is implemented.
 
 ### Drift Detection (Alertgate)
 Drift detection mechanisms monitor changes in data distribution and model performance, triggering corrective actions when deviations are detected. The results of the drift detection (alert gate) will also be logged on Weights & Biases.
 
 
-#### Check Input Data
+### Check Input Data
 Input data drift is monitored by analyzing dataframes for changes in missing values and distribution, ensuring data integrity and reliability.
 
 This functionality has been incorporated into querysets in viewser.
 The source code is in following scripts (currently in the branch `drift_detection`):
 
-**`[viewser/viewser/commands/queryset/config_drift.py](https://github.com/prio-data/viewser/blob/drift_detection/viewser/commands/queryset/config_drift.py)`**
+**`viewser/viewser/commands/queryset/config_drift.py`**
 
 The `drift_config.py` file contains configuration settings related to drift detection in a system or process. These settings determine thresholds and partition lengths used in drift detection algorithms.
 
@@ -544,6 +578,7 @@ Attributes are:
 
 
 **`viewser/viewser/commands/queryset/operations.py`**
+
 The `queryset_operations.py` module provides operations related to managing and interacting with querysets, including the new drift detection functionality.
 
 Drift Detection:
@@ -559,11 +594,7 @@ Drift Detection:
 
 
 
-*Will probably be put into viewser*
-
-*More documentation needed once I get access to Jim's code*
-
-#### Check Output Data (ForecastDrift)
+### Check Output Data (ForecastDrift)
 Output data drift is assessed using a bespoke alertgate package, developed to monitor and analyze forecast outputs for deviations from expected behavior.
 
 Link to package including documentation: [ForecastDrift](https://github.com/prio-data/ForecastDrift)
@@ -725,8 +756,18 @@ The orchestration script automates the execution of machine learning models repr
 
 # Future Developments
 
+## Modelling
+- Weighting models in the ensemble by some estimated weights
+- Calibration
+
+## Evaluation
+Decide on and implement online evaluation (offline and drift detection are implemented).
+
 ## Visualization
 Some additional ideas for visualization data: https://docs.wandb.ai/guides/app/features/custom-charts/walkthrough, and https://docs.wandb.ai/guides/track/log/plots. Malika thinks linear plots might be easier to just make as we usually do and log them into wandb but they have some interesting built in things as well.
+
+## Orchestration
+Create VIEWS Prefect account with login details that team knows. Currently, Sara and Xiaolong are running on personal accounts.
 
 # Glossary for Beginners
 
