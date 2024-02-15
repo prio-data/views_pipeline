@@ -1,48 +1,23 @@
-import wandb
-from pathlib import Path
+import pandas as pd
+from views_forecasts.extensions import *
 
-from configs.config_hyperparameters import get_hp_config
-from configs.config_sweep import get_swep_config
-from configs.config_common import get_common_config
-from ensembles.white_snow.src.training.train_ensemble import train
-from src.forecasting.generate_forecast import forecast
-from ensembles.white_snow.src.offline_evaluation.evaluate_ensemble import evaluate_model
-from src.offline_evaluation.evaluate_sweep import evaluate_sweep
-from ensembles.white_snow.src.dataloaders.get_model_outputs import get_data
+def get_standardized_df(df):
+    cols = [df.forecasts.target] + df.forecasts.prediction_columns
+    return df[cols]
 
-
-def model_pipeline(config=None, project=None):
-    
-    with wandb.init(project=project, entity="views_pipeline", config=config): 
-
-        config = wandb.config
-        train(common_config, config)
-        forecast(common_config)
-        if common_config['sweep']:
-            evaluate_sweep(common_config)
-        else:
-            evaluate_model(common_config)
+def median_emsemble(df1, df2):
+    return (df1 + df2) / 2
 
     
 
 if __name__ == "__main__":
-    wandb.login()
-    parque_path = Path(__file__).parent/"data/raw/raw.parquet"
-    if not parque_path.exists():
-        data = get_data()
-    common_config = get_common_config()
-    sweep_config = get_swep_config()
-    hp_config = get_hp_config()
+    df1 = pd.DataFrame.forecasts.read_store(name="orange_pasta")
+    df1 = get_standardized_df(df1)
 
-    do_sweep = input(f'a) Do sweep \nb) Do one run and pickle results \n')
-
-    if do_sweep == 'a':
-        common_config['sweep'] = True
-        sweep_id = wandb.sweep(sweep_config, project=common_config["name"]+"_sweep")
-        wandb.agent(sweep_id, function=model_pipeline)
+    df2 = pd.DataFrame.forecasts.read_store(name="yellow_pikachu")
+    df2 = get_standardized_df(df2)  
     
-    elif do_sweep == 'b':
-        common_config['sweep'] = False
-        model_pipeline(hp_config, project=common_config["name"])
-    
+    df_median = median_emsemble(df1, df2)
+    df_median.forecasts.set_run('cabin_001_530_b')
+    df_median.forecasts.to_store(name="white_snow")
     
