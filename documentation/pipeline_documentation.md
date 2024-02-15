@@ -442,7 +442,7 @@ To run the script, execute it as the main program. Ensure that the required data
 
 ### Example Usage:
 ```bash
-python main.
+python main.py
 ```
 
 ## Logging on Weights & Biases
@@ -757,7 +757,7 @@ The orchestration script automates the execution of machine learning models repr
 # Future Developments
 
 ## Modelling
-- Weighting models in the ensemble by some estimated weights
+- Weighting models in the ensemble by some estimated weights (now it's just median ensemble)
 - Calibration
 
 ## Evaluation
