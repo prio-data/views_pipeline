@@ -10,7 +10,7 @@ def evaluate_model(config):
     for step in steps:
         stepcols.append('step_pred_' + str(step))
 
-    df = pd.DataFrame.forecasts.read_store(name=config["storage_name"]).replace([np.inf, -np.inf], 0)[stepcols]
+    df = pd.DataFrame.forecasts.read_store(name=config["name"]).replace([np.inf, -np.inf], 0)[stepcols]
 
     pred_cols = [f'step_pred_{str(i)}' for i in steps]
     df['mse'] = df.apply(lambda row: mean_squared_error([row['ged_sb_dep']] * 36,

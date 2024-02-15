@@ -33,7 +33,7 @@ if __name__ == "__main__":
     sweep_config = get_swep_config()
     hp_config = get_hp_config()
 
-    do_sweep = input(f'a) Do sweep \nb) Do one run and pickle results \n')
+    do_sweep = input(f'a) Do sweep \nb) Do one run b\n')
 
     if do_sweep == 'a':
         common_config['sweep'] = True
