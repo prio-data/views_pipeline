@@ -24,5 +24,6 @@ def ensemble_mean():
     function_dir = os.path.dirname(function_file)
     parent_dir = os.path.dirname(function_dir)
     ensemble_model_name = parent_dir.split('/')[-2]
-    ensemble.forecasts.to_store(ensemble_model_name, overwrite=True)
+    ensemble.forecasts.set_run('cabin_001_530_b')
+    ensemble.forecasts.to_store(name = ensemble_model_name, overwrite=False)
     print(ensemble)
