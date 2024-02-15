@@ -437,6 +437,72 @@ This includes a sweep in Weights & Biases, where the following metrics will be l
 
 *Thus far for the production models, we only have MSE in the code though*
 
+## evaluate_model.py
+
+This script provides functionality to evaluate a model's performance by calculating the mean squared error (MSE) 
+between the actual and predicted values for a given dependent variable across multiple prediction steps.
+
+### Functions:
+
+#### `evaluate_model(config)`:
+Evaluates the model's performance using the provided configuration parameters.
+
+- **Args**:
+    - `config` (dict): A dictionary containing configuration parameters for evaluation.
+        - Required keys:
+            - `'steps'`: A list of integers representing prediction steps.
+            - `'depvar'`: A string specifying the name of the dependent variable.
+            - `'storage_name'`: A string specifying the name of the storage to read the forecasts from.
+
+- **Returns**:
+    - None
+
+### Usage:
+Call `evaluate_model(config)` function with appropriate configuration parameters to evaluate the model.
+
+### Dependencies:
+- numpy (`np`)
+- pandas (`pd`)
+- wandb
+- scikit-learn (`sklearn`)
+
+### Note:
+The script expects a specific data structure for forecasts stored in the configured `storage_name`.
+It calculates MSE for each prediction step and prints the average MSE.
+
+## evaluate_sweep.py
+
+This script is designed to evaluate a sweep of models' performance by calculating the mean squared error (MSE) between the actual and predicted values for a given dependent variable across multiple prediction steps.
+
+### Functions:
+
+#### `evaluate_sweep(config)`:
+This function evaluates the performance of a sweep of models using the provided configuration parameters.
+
+- **Args**:
+    - `config` (dict): A dictionary containing configuration parameters for evaluation.
+        - Required keys:
+            - `'steps'`: A list of integers representing prediction steps.
+            - `'depvar'`: A string specifying the name of the dependent variable.
+            - `'storage_name'`: A string specifying the name of the storage to read the forecasts from.
+
+- **Returns**:
+    - None
+
+### Usage:
+Call `evaluate_sweep(config)` function with appropriate configuration parameters to evaluate the sweep of models.
+
+### Dependencies:
+- numpy (`np`)
+- pandas (`pd`)
+- wandb
+- scikit-learn (`sklearn`)
+
+### Note:
+The script expects a specific data structure for forecasts stored in the configured `storage_name`.
+It calculates MSE for each prediction step and logs the average MSE using Weights & Biases (`wandb.log()`).
+
+
 ### Online Evaluation
 
 ### Drift Detection (Alertgate)
