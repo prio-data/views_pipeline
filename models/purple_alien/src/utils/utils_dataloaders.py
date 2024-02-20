@@ -43,7 +43,6 @@ def get_views_date(partition):
 
 
     df = queryset_base.publish().fetch()
-
     df.reset_index(inplace = True)
 
     df.rename(columns={'priogrid_gid': 'pg_id'}, inplace= True)
