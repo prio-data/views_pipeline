@@ -194,61 +194,22 @@ def norm_features(full_vol , config, a = 0, b = 1) -> np.ndarray:
 
 def get_data(config):
 
-    """Return the data for either the calibration or the test run.
+    """Return the data for either the calibration, the test run or an actual forecast.
     The shape for the views_vol is (N, C, H, W, D) where D is features.
     Right now the features are ln_best_sb, ln_best_ns, ln_best_os
     """
 
     # Data
-    #location = '/home/projects/ku_00017/data/raw/conflictNet' # data dir in computerome.
-    #location = '/home/simmaa/HydraNet_001/data/processed' # data dir in fimbulthul.
     location = config.path_processed_data
-    model_type = config.model_type
+    model_type = config.model_type # 'calibration', 'testing' or 'forecasting'
 
-    # The viewser data
-    if model_type == 'calibration':
-        
-        
-        # OLD SOLUTION STLL USED ON COMPUTEROME
-#        file_name = "/viewser_monthly_vol_calib_sbnsos.pkl" # bad names... 
-#
-#        print('loading data....')
-#        pkl_file = open(location + file_name, 'rb')
-#        views_vol = pickle.load(pkl_file)
-#        pkl_file.close()
-        
-        # THIS IS THE ONE TO USE
-        file_name = "/calibration_vol.npy"
+    try:
+        file_name = f'/{model_type}_vol.npy'
         views_vol = np.load(location + file_name)
-
-
-    elif model_type == 'testing':
-        # file_name = "/viewser_monthly_vol_test_sbnsos.pkl"
-
-        file_name = "/test_vol.npy"
-        views_vol = np.load(location + file_name)
-
-
-
-#        print('loading data....')
-#        pkl_file = open(location + file_name, 'rb')
-#        views_vol = pickle.load(pkl_file)
-#        pkl_file.close()
-
-    elif model_type == "forecasting":
-         file_name = "/latest_vol.npy"
-         views_vol = np.load(location + file_name)
-
-    else:
-        print('Wrong model type...')
-        sys.exit()
-
-
-    #views_vol = norm_channels(views_vol, config, un_log = False, a = 0, b = 1) # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     
-    #if config.norm_target: # nor used...
-    #    views_vol = norm_features(views_vol, config, a = 0, b = 1) # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
+    except FileNotFoundError as e:
+        print(f'File not found: {e}. Run correct dataloader get_calibration_data.py, get_test_data.py or get_forecasting_data.py. Now exiting...')
+        sys.exit()
 
     return(views_vol)
 

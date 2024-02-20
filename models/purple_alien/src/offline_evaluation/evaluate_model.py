@@ -171,7 +171,7 @@ def get_posterior(model, views_vol, config, device):
     #dump_location = '/home/projects/ku_00017/data/generated/conflictNet/' # should be in config
 
     # fimbulthul dump location
-    dump_location = '/home/simmaa/HydraNet_001/data/generated/' # should be in config
+    dump_location = config.path_generated_data #'/home/simmaa/HydraNet_001/data/generated/' # should be in config <---------------------------------------------------------------------------------------------------
 
         
     posterior_dict = {'posterior_list' : posterior_list, 'posterior_list_class': posterior_list_class, 'out_of_sample_vol' : out_of_sample_vol}
@@ -216,7 +216,7 @@ def model_pipeline(config = None, project = None):
         #artifacts_path = f"/home/projects/ku_00017/people/simpol/scripts/conflictNet/artifacts"
         
         # fimbulthul artifacts path
-        artifacts_path = f"/home/simmaa/HydraNet_001/artifacts"
+        artifacts_path = config.path_artifacts # f"/home/simmaa/HydraNet_001/artifacts" # should be in config <---------------------------------------------------------------------------------------------------
 
         model = torch.load(f"{artifacts_path}/calibration_model.pt") # you rpolly need configs for both train and test...
 
