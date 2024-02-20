@@ -1,7 +1,58 @@
 # views_pipeline
-VIEWS forecasting pipeline for monthly prediction runs. Includes MLops and QA for all models/ensembles.
+VIEWS forecasting pipeline for monthly prediction runs. For more detailed documentation of rationale and components see **`documentation/pipeline_documentation.md`**
 
-REPO STRUCTURE:
+## How to Run This Pipeline
+### Prerequisites
+
+- Python 3.x
+- Required Python packages: scikit-learn, pandas, TensorFlow, Prefect, wandb, viewser, ingester3, stepshift
+
+### Execution Steps
+
+1. **Clone the Repository:**
+
+   ```bash
+   git clone <https://github.com/prio-data/views_pipeline>
+
+2. **Make sure Prefect is set up**
+
+In your viewser environment, make sure prefect is pip installed.
+You can check with ```pip show prefect```
+
+To login to your account write:
+```bash
+prefect cloud login
+```
+and subsequently login online.
+
+3. **Find Orchestration Script:**
+
+Open the Python script containing the Prefect orchestration flow. 
+Currently, it is in [views_pipeline/orchestration.py (in branch production_models)](https://github.com/prio-data/views_pipeline/blob/production_models/orchestration.py).
+
+At this point you could configure the script.
+
+4. **Run the Orchestration Script:**
+Execute the Prefect flow script to run the ML pipeline.
+```bash
+python orchestration.py
+```
+The script executes every main.py file in every model and ensemble folder. For every model, you will be prompted in the terminal to:
+    a) Do sweep 
+    b) Do one run and pickle results
+To conduct the monthly run, type `b` and enter.
+
+The progress will be logged online on Prefect.
+
+5. **Monitor Pipeline Execution:**
+Once the pipeline is initiated, you can monitor its execution using the Prefect UI dashboard or CLI. You can copy the link given in the terminal, go to the website, or use the following command to launch the Prefect UI:
+```bash
+prefect server start
+```
+
+Once models are run, you can also check their logs and visualisations in [Weights & Biases](https://wandb.ai/views_pipeline).
+
+## Repository Structure and Explanations
 
 ```
 pipeline_root/
