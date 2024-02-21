@@ -1,4 +1,4 @@
-import os
+from pathlib import Path
 
 def make_new_model_dir(model_name):
     """
@@ -10,11 +10,11 @@ def make_new_model_dir(model_name):
     Returns:
     - model_dir (str): Path to the newly created model directory.
     """
-    models_dir = "models"
-    model_dir = os.path.join(models_dir, model_name)
+    models_dir = Path("models")
+    model_dir = models_dir / model_name
     
     try:
-        os.makedirs(model_dir)
+        model_dir.mkdir(parents=True, exist_ok=False)        
         print(f"Created new model directory: {model_dir}")
     except FileExistsError:
         print(f"Model directory already exists: {model_dir}")
@@ -39,22 +39,21 @@ def make_new_model_dir(model_name):
         "src/training",
         "src/offline_evaluation",
         "src/online_evaluation",
-        "src/drift_detection",
         "src/forecasting"
     ]
     
     for subdir in subdirs:
-        subdir_path = os.path.join(model_dir, subdir)
-        os.makedirs(subdir_path, exist_ok=True)
+        subdir_path = model_dir / subdir
+        subdir_path.mkdir(parents=True, exist_ok=True)
         print(f"Created subdirectory: {subdir_path}")
     
     # Create README.md and requirements.txt
-    readme_path = os.path.join(model_dir, "README.md")
+    readme_path = model_dir / "README.md"
     with open(readme_path, "w") as readme_file:
         readme_file.write("# Model README\n")
     print(f"Created README.md: {readme_path}")
     
-    requirements_path = os.path.join(model_dir, "requirements.txt")
+    requirements_path = model_dir / "requirements.txt"
     with open(requirements_path, "w") as requirements_file:
         requirements_file.write("# Requirements\n")
     print(f"Created requirements.txt: {requirements_path}")
