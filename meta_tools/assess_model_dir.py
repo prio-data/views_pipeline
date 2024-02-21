@@ -1,4 +1,4 @@
-import os
+from pathlib import Path
 
 def assess_model_dir(model_dir):
     """
@@ -19,33 +19,25 @@ def assess_model_dir(model_dir):
     # Define the expected structure
     expected_structure = [
         "configs",
-        "data/raw",
-        "data/processed",
-        "data/generated",
         "artifacts",
         "notebooks",
-        "reports/plots",
-        "reports/figures",
-        "reports/timelapse",
-        "reports/papers",
-        "reports/slides",
+        "reports",
         "src/dataloaders",
         "src/architectures",
         "src/utils",
-        "src/visualization",
         "src/training",
         "src/offline_evaluation",
         "src/online_evaluation",
-        "src/drift_detection",
-        "src/forecasting",
-        "README.md",
-        "requirements.txt"
-    ]
+        "src/forecasting"
+    ] 
+
+    # Convert model_dir to a Path object
+    model_path = Path(model_dir)
     
     # Check structure
     for item in expected_structure:
-        item_path = os.path.join(model_dir, item)
-        if not os.path.exists(item_path):
+        item_path = model_path / item
+        if not item_path.exists():
             assessment["structure_errors"].append(f"Missing directory or file: {item}")
     
     # Check for obligatory scripts
@@ -61,8 +53,8 @@ def assess_model_dir(model_dir):
         ]
     
     for script_path in obligatory_scripts:
-        full_script_path = os.path.join(model_dir, script_path)
-        if not os.path.exists(full_script_path):
+        full_script_path = model_path / script_path
+        if not full_script_path.exists():
             assessment["missing_scripts"].append(f"Missing script: {script_path}")
     
     return assessment
