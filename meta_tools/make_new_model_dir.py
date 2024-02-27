@@ -10,7 +10,7 @@ def make_new_model_dir(model_name):
     Returns:
     - model_dir (str): Path to the newly created model directory.
     """
-    models_dir = Path("models")
+    models_dir = Path("../models")
     model_dir = models_dir / model_name
     
     try:

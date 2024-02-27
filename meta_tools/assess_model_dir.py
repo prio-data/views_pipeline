@@ -32,7 +32,7 @@ def assess_model_dir(model_dir):
     ] 
 
     # Convert model_dir to a Path object
-    model_path = Path(model_dir)
+    model_path = Path(f'../models/{model_dir}')
     
     # Check structure
     for item in expected_structure:

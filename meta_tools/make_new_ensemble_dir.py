@@ -10,7 +10,7 @@ def make_new_ensemble_dir(ensemble_name):
     Returns:
     - ensemble_dir (str): Path to the newly created ensemble directory.
     """
-    ensembles_dir = Path("ensembles")
+    ensembles_dir = Path("../ensembles")
     ensemble_dir = ensembles_dir / ensemble_name
     
     try:
