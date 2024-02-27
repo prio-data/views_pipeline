@@ -30,29 +30,29 @@ def train(common_config, para_config):
     if not common_config["sweep"]:
         # Train partition
         try:
-            stepshifter_model = pd.read_pickle(f"{Path(__file__).parent.parent.parent}/artifacts/model_train_partition.pkl")
+            stepshifter_model_train = pd.read_pickle(f"{Path(__file__).parent.parent.parent}/artifacts/model_train_partition.pkl")
         except:
-            stepshift_training(common_config, "train", model, dataset)
-            stepshifter_model.save(f"{Path(__file__).parent.parent.parent}/artifacts/model_train_partition.pkl")
+            stepshifter_model_train = stepshift_training(common_config, "train", model, dataset)
+            stepshifter_model_train.save(f"{Path(__file__).parent.parent.parent}/artifacts/model_train_partition.pkl")
 
         # Test partition
         try:
-            stepshifter_model = pd.read_pickle(f"{Path(__file__).parent.parent.parent}/artifacts/model_test_partition.pkl")
+            stepshifter_model_test = pd.read_pickle(f"{Path(__file__).parent.parent.parent}/artifacts/model_test_partition.pkl")
         except:
-            stepshift_training(common_config, "test", model, dataset)
-            stepshifter_model.save(f"{Path(__file__).parent.parent.parent}/artifacts/model_test_partition.pkl")
+            stepshifter_model_test = stepshift_training(common_config, "test", model, dataset)
+            stepshifter_model_test.save(f"{Path(__file__).parent.parent.parent}/artifacts/model_test_partition.pkl")
 
         # Future partition
         try:
-            stepshifter_model = pd.read_pickle(f"{Path(__file__).parent.parent.parent}/artifacts/model_forecasting.pkl")
+            stepshifter_model_future = pd.read_pickle(f"{Path(__file__).parent.parent.parent}/artifacts/model_forecasting.pkl")
         except:
-            stepshift_training(common_config, "future", model, dataset)
-            stepshifter_model.save(f"{Path(__file__).parent.parent.parent}/artifacts/model_forecasting.pkl")
+            stepshifter_model_future = stepshift_training(common_config, "future", model, dataset)
+            stepshifter_model_future.save(f"{Path(__file__).parent.parent.parent}/artifacts/model_forecasting.pkl")
 
     else:
-        stepshift_training(common_config, "train", model, dataset)
-        stepshift_training(common_config, "test", model, dataset)
-        stepshift_training(common_config, "future", model, dataset)
+        stepshifter_model_train = stepshift_training(common_config, "train", model, dataset)
+        stepshifter_model_test = stepshift_training(common_config, "test", model, dataset)
+        stepshifter_model_future = stepshift_training(common_config, "future", model, dataset)
 
 
 def stepshift_training(common_config, partition_name, model, dataset):
@@ -61,5 +61,5 @@ def stepshift_training(common_config, partition_name, model, dataset):
     partition = DataPartitioner({partition_name: common_config[f"{partition_name}_partitioner_dict"]})
     stepshifter_def = StepshiftedModels(model, steps, target)
     stepshifter_model = ViewsRun(partition, stepshifter_def)
-    stepshifter_model.fit(partition_name=partition_name, timespan_name="train", data=dataset)
+    stepshifter_model.fit(partition_name, "train", dataset)
     return stepshifter_model
