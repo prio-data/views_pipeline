@@ -10,7 +10,17 @@ def make_new_ensemble_dir(ensemble_name):
     Returns:
     - ensemble_dir (str): Path to the newly created ensemble directory.
     """
-    ensembles_dir = Path("../ensembles")
+    current_dir = Path.cwd()
+
+    # Define the relative path to the "ensembles" directory
+    relative_path = "ensembles"
+
+    # If the current directory is not the root directory, go up one level and append "ensembles"
+    if current_dir.match('*meta_tools'):
+        ensembles_dir = current_dir.parent / relative_path
+    else:
+        ensembles_dir = current_dir  /relative_path
+
     ensemble_dir = ensembles_dir / ensemble_name
     
     try:
