@@ -80,6 +80,8 @@ pipeline_root/
 |   |   |-- configs/ # ...
 |   |   |   |-- config_sweep.py # hyperparameters for test_sweep.py (WandB sweep)
 |   |   |   |-- config_hyperparameters.py # hyperparameters train_model.py
+|   |   |   |-- config_partitioner.py OR config_common # calibration, test, forecasting partitions
+
 |   |   |
 |   |   |-- data/ # all input, processed, output data
 |   |   |    |-- raw/ # Data directly from VIEiWSER
@@ -103,9 +105,10 @@ pipeline_root/
 |   |   |
 |   |   |-- src/ # all source code needed to train, test, and forecast
 |   |       |
-|   |       |-- dataloaders/ # scripts to get data from VIEWSER
-|   |       |   |-- get_partitioned_data.py # standard train/val/test partition
-|   |       |   |-- get_latest_data.py # the lastest data
+|   |       |-- dataloaders/ # scripts to get data from VIEWSER (and input drift detection)
+|   |       |   |-- get_calibration_data.py # calibration training data
+|   |       |   |-- get_forecasting_data.py # the forecasting data
+|   |       |   |-- get_test_data.py # the testing data
 |   |       |   
 |   |       |-- architectures/ # only relevant for models developed in-house
 |   |       |   |-- network.py # e.g a py script containing a pytorch nn class
@@ -118,8 +121,9 @@ pipeline_root/
 |   |       |-- visualization/ # scripts to create visualizations
 |   |       |
 |   |       |-- training/
-|   |       |   |-- train_experimental_model.py # train on the standard pertitions
-|   |       |   |-- train_pipeline_model.py # train a model on all availible data
+|   |       |   |-- train_calibration_model.py # 
+|   |       |   |-- train_testing_model.py # 
+|   |       |   |-- train_forecasting_model.py # 
 |   |       |
 |   |       |-- offline_evaluation/ # aka offline quality assurance
 |   |       |   |-- evaluate_model.py # script to evaluate a train and saved model
@@ -127,11 +131,10 @@ pipeline_root/
 |   |       |
 |   |       |-- online_evaluation/
 |   |       |   |-- evaluate_forecast.py # continues performance check
-|   |       |  
-|   |       |-- drift_detection/ # aka online evalation 
-|   |       |   |-- drift_detection_input.py # check new latest data
-|   |       |   |-- drift_detection_output.py # check new forecasts
-|   |       |   |-- drift_detection_performance.py # check new performance
+|   |       |
+|   |       |-- drift detection/ #monitor changes in model performance
+|   |       |   |-- drift_detection_output # check new forecasts
+|   |       |   |-- drift_detection_performance # check new performance
 |   |       |
 |   |       |-- forecasting/
 |   |           |-- generate_forecast.py #script to genereate true-future fc.
