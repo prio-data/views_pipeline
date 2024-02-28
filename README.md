@@ -1,3 +1,13 @@
+
+
+---
+
+# 🚧 Early Access Alert! 🚧
+
+Welcome to our project! Please note that this pipeline is **actively under construction**. We're in the **early stages of development**, meaning it's **not yet ready for operational use**. We're working hard to bring you a robust and fully-functional tool, so stay tuned for updates!
+
+---
+
 # views_pipeline
 VIEWS forecasting pipeline for monthly prediction runs. For more detailed documentation of rationale and components see **`documentation/pipeline_documentation.md`**
 
