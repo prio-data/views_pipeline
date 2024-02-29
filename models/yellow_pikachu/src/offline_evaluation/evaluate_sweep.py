@@ -3,13 +3,18 @@ import pandas as pd
 import wandb
 from pathlib import Path
 from sklearn.metrics import mean_squared_error
-from views_forecasts.extensions import *
 
+import sys
+src_path = f"{Path(__file__).parent.parent}"
+sys.path.append(str(src_path)+"/utils")
+
+from utils import get_artifacts_path, get_data_path
 
 def evaluate_sweep(config):
     print('Evaluating...')
-    model = pd.read_pickle(Path(__file__).parent.parent / "artifacts/model_forecasting.pkl")
-    dataset = pd.read_parquet(f"{Path(__file__).parent.parent.parent}/data/raw/raw.parquet")
+    # Not sure how to save the sweep model, so temporarily loading it from the artifacts
+    model = pd.read_pickle(get_artifacts_path("future"))
+    dataset = pd.read_parquet(get_data_path("raw"))
 
     steps = config["steps"]
     stepcols = [config["depvar"]]

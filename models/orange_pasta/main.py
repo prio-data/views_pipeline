@@ -23,7 +23,7 @@ def model_pipeline(config=None, project=None):
         else:
             evaluate_model(common_config)
 
-        predictions = forecast(common_config)
+        predictions = forecast()
 
 if __name__ == "__main__":
     wandb.login()
