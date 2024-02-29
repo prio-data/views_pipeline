@@ -18,6 +18,7 @@ def get_data():
       spatial lag decay functions, and more.
     - The resulting DataFrame is saved as a Parquet file in the 'data/raw' directory.
     """
+    print("Getting data...")
     qs_cm_cflong  = (Queryset("escwa001_cflong", "country_month")
                 # target variable
                 .with_column(Column("ged_sb_dep", from_table="ged2_cm", from_column="ged_sb_best_sum_nokgi")

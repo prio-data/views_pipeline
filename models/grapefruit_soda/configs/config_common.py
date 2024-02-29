@@ -6,12 +6,13 @@ def get_common_config():
     - common_config (dict): A dictionary containing common configuration settings.
     """
     common_config = {
-        "name": "blue_wave",
+        "name": "grapefruit_soda",
         "algorithm": "RandomForestClassifier", 
         "depvar": "ged_sb_dep", 
         "queryset": "escwa001_cflong",
         "data_train": "", #? e.g. baseline, conflict_treelag
         "level": "cm",
+        "sweep": False,
         
         'steps': [*range(1, 36 + 1, 1)],
         'calib_partitioner_dict': {"train": (121, 396), "predict": (409, 456)},
