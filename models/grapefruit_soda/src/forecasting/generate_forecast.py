@@ -1,3 +1,6 @@
+#Questions:
+    # Do we only want to return future predictions?
+
 from views_runs import DataPartitioner
 
 from configs.config_common import common_config #contains data partition dictionaries
