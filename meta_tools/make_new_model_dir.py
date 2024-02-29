@@ -10,7 +10,6 @@ def make_new_model_dir(model_name):
     Returns:
     - model_dir (str): Path to the newly created model directory.
     """
-    # Get the current working directory
     current_dir = Path.cwd()
 
     # Define the relative path to the "models" directory
@@ -20,8 +19,8 @@ def make_new_model_dir(model_name):
     if current_dir.match('*meta_tools'):
         models_dir = current_dir.parent / relative_path
     else:
-        models_dir = current_dir / relative_path
-    
+        models_dir = current_dir  /relative_path
+
     model_dir = models_dir / model_name
     
     try:
