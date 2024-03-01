@@ -1,6 +1,7 @@
 import numpy as np
-from viewser import Queryset, Column
 from pathlib import Path
+
+from viewser import Queryset, Column
 
 def get_data():
     """
@@ -333,8 +334,17 @@ def get_data():
 
                             """)
                 )
-    data = qs_cm_cflong.publish().fetch()
+    #data = qs_cm_cflong.publish().fetch()
+    data = qs_cm_cflong.fetch()
     data = data.astype(float) # Recast all columns to float because of an excessive assert in the stepshift library
-    data.to_parquet(f"{Path(__file__).parent.parent.parent}/data/raw/raw.parquet") 
+    data.to_parquet(f"{Path(__file__).parent.parent.parent}/data/raw/raw.parquet") #wd is this grapefruit_soda/src/dataloaders
+    
+    print("Data fetched!")
     
     return data
+    
+
+if __name__ == "__main__":
+
+    # Call the function
+    get_data()
