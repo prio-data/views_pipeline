@@ -76,12 +76,15 @@ pipeline_root/
 |   |   |
 |   |   |-- README.md
 |   |   |-- requirements.txt
+|   |   |-- main.py # Orchestration script (running the model)
 |   |   |
-|   |   |-- configs/ # ...
-|   |   |   |-- config_sweep.py # hyperparameters for test_sweep.py (WandB sweep)
-|   |   |   |-- config_hyperparameters.py # hyperparameters train_model.py
-|   |   |   |-- config_partitioner.py OR config_common # calibration, test, forecasting partitions
-
+|   |   |-- configs/ # All model specific config files
+|   |   |   |-- config_model.py                   # Contains model architecture, name, target variable, and level of analysis (previous config_common minus partition info)
+|   |   |   |-- config_hyperparameters.py         # Specifies the finalized hyperparameters used for training the deployed model (W&B specific).
+|   |   |   |-- config_sweep.py                   # Configurations for hyperparameter sweeps during experimentation phases (W&B specific).
+|   |   |   |-- config_data_partition.py          # Get data partitions for spilts pertaining to validation, testing, and forecasting. (Some of what were in config_common, but with a variable end point for forecast.) 
+|   |   |   |-- config_feature_set.py             # Defines the features to be pulled from the views - basically the queryset. 
+|   |   |   |-- config_deployment.py              # Status of the model regarding its lifecycle. I.e. is it in production, shadow mode, or a baseline model (or ESCWA...).
 |   |   |
 |   |   |-- data/ # all input, processed, output data
 |   |   |    |-- raw/ # Data directly from VIEiWSER
@@ -203,8 +206,7 @@ pipeline_root/
 |   ...
 |
 |
-|-- prefect/
-|    |--scripts.py # orchestration
+|-- orchestration.py # orchestration for entire pipeline (runs all models on Prefect)|-- prefect/
 |
 |-- documentation/
 |
