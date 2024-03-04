@@ -9,7 +9,7 @@ The model utilizes LightGBM for its predictions and is on pgm level of analysis.
 ## Repository Structure
 ```
 
-model_001/ # should follow the naming convention adjective_noun
+orange_pasta/ # should follow the naming convention adjective_noun
 |-- README.md
 |-- requirements.txt
 |
