@@ -19,17 +19,16 @@ def model_pipeline(config=None, project=None):
         train(common_config, config)
 
         if common_config['sweep']:
-            evaluate_sweep(common_config)
+            evaluate_sweep(common_config, config)
         else:
             evaluate_model(common_config)
-
-        predictions = forecast()
+            predictions = forecast()
 
 if __name__ == "__main__":
     wandb.login()
-    parque_path = Path(__file__).parent/"data/raw/raw.parquet"
-    if not parque_path.exists():
-        data = get_data()
+
+    data = get_data()
+
     common_config = get_common_config()
     sweep_config = get_swep_config()
     hp_config = get_hp_config()

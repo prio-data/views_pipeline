@@ -20,22 +20,16 @@ from views_stepshift.run import ViewsRun
 
 
 def train(common_config, para_config):
-    # suffix = ""
-    # if common_config["sweep"]:
-    #     for key, value in para_config.items():
-    #         suffix += f"_{key}_{value}"
-    
     print("Training...")
-    model = globals()[common_config["algorithm"]](**para_config)
-    dataset = pd.read_parquet(get_data_path("raw"))
-
     if not common_config["sweep"]:
+        model = globals()[common_config["algorithm"]](**para_config)
+        dataset = pd.read_parquet(get_data_path("raw"))
         # Train partition
         try:
-            stepshifter_model_train = pd.read_pickle(get_artifacts_path("train"))
+            stepshifter_model_calib = pd.read_pickle(get_artifacts_path("calib"))
         except:
-            stepshifter_model_train = stepshift_training(common_config, "train", model, dataset)
-            stepshifter_model_train.save(get_artifacts_path("train"))
+            stepshifter_model_calib = stepshift_training(common_config, "calib", model, dataset)
+            stepshifter_model_calib.save(get_artifacts_path("calib"))
 
         # Test partition
         try:
@@ -49,12 +43,7 @@ def train(common_config, para_config):
             stepshifter_model_future = pd.read_pickle(get_artifacts_path("future"))
         except:
             stepshifter_model_future = stepshift_training(common_config, "future", model, dataset)
-            stepshifter_model_future.save(get_artifacts_path("future"))
-
-    else:
-        stepshifter_model_train = stepshift_training(common_config, "train", model, dataset)
-        stepshifter_model_test = stepshift_training(common_config, "test", model, dataset)
-        stepshifter_model_future = stepshift_training(common_config, "future", model, dataset)
+            stepshifter_model_future.save(get_artifacts_path("future")) 
 
 
 def stepshift_training(common_config, partition_name, model, dataset):

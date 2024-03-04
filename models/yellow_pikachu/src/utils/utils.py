@@ -14,3 +14,5 @@ def get_data_path(data_name):
     '''
 
     return Path(__file__).parent.parent.parent / "data" / f"{data_name}" / f"{data_name}.parquet"
+
+

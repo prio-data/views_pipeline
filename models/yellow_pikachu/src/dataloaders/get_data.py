@@ -1,58 +1,23 @@
-import numpy as np
-from viewser import Queryset, Column
+import pandas as pd
 from pathlib import Path
 
+import sys
+src_path = f"{Path(__file__).parent.parent}"
+model_path = f"{Path(__file__).parent.parent.parent}"
+sys.path.append(str(model_path)+"/configs")
+sys.path.append(str(src_path)+"/utils")
+
+from configs.config_queryset import get_queryset
+from utils import get_data_path
+
 def get_data():
-
-    thetacrit_spatial = 0.7
-    qs_treelag = (Queryset("fatalities003_pgm_conflict_treelag", "priogrid_month")
-                  # target variable
-                  .with_column(Column("ged_sb_dep", from_table="ged2_pgm", from_column="ged_sb_best_sum_nokgi")
-                               .transform.missing.replace_na()
-                               # .transform.ops.ln()
-                               )
-
-                  # dichotomous version, primarily for downsampling....
-                  .with_column(Column("ged_gte_1", from_table="ged2_pgm", from_column="ged_sb_best_sum_nokgi")
-                               .transform.bool.gte(1)
-                               )
-
-                  .with_column(Column("treelag_1_sb", from_table="ged2_pgm", from_column="ged_sb_best_sum_nokgi")
-                               .transform.missing.replace_na()
-                               .transform.spatial.treelag(thetacrit_spatial, 1)
-                               )
-
-                  .with_column(Column("treelag_1_ns", from_table="ged2_pgm", from_column="ged_ns_best_sum_nokgi")
-                               .transform.missing.replace_na()
-                               .transform.spatial.treelag(thetacrit_spatial, 1)
-                               )
-
-                  .with_column(Column("treelag_1_os", from_table="ged2_pgm", from_column="ged_os_best_sum_nokgi")
-                               .transform.missing.replace_na()
-                               .transform.spatial.treelag(thetacrit_spatial, 1)
-                               )
-
-                  .with_column(Column("treelag_2_sb", from_table="ged2_pgm", from_column="ged_sb_best_sum_nokgi")
-                               .transform.missing.replace_na()
-                               .transform.spatial.treelag(thetacrit_spatial, 2)
-                               )
-
-                  .with_column(Column("treelag_2_ns", from_table="ged2_pgm", from_column="ged_ns_best_sum_nokgi")
-                               .transform.missing.replace_na()
-                               .transform.spatial.treelag(thetacrit_spatial, 2)
-                               )
-
-                  .with_column(Column("treelag_2_os", from_table="ged2_pgm", from_column="ged_os_best_sum_nokgi")
-                               .transform.missing.replace_na()
-                               .transform.spatial.treelag(thetacrit_spatial, 2)
-                               )
-                  )
-
-
-
-    data = qs_treelag.publish().fetch()
-    data = data.astype(np.float64)
-
-    data.to_parquet(f"{Path(__file__).parent.parent.parent}/data/raw/raw.parquet")
+    print("Getting data...")
+    parque_path = get_data_path("raw")
+    if not parque_path.exists():
+        qs_treelag = get_queryset()
+        data = qs_treelag.publish().fetch()
+        data.to_parquet(parque_path)
+    else: 
+        data = pd.read_parquet(parque_path)
 
     return data
