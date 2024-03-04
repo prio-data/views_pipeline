@@ -73,7 +73,7 @@ def train_model():
     print("Models trained!")
 
 
-    return base_model, stepshifter_model_calib, stepshifter_model_future
+    return stepshifter_model_calib, stepshifter_model_future
 
 
 
