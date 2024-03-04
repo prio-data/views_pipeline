@@ -64,153 +64,159 @@ Once models are run, you can also check their logs and visualizations in [Weight
 
 ## Repository Structure and Explanations
 
+
 ```
 pipeline_root/
 |
-|-- README.md
-|-- LICENCE.md
-|-- .gitignore
+|-- README.md                                       # What you are looking at
+|-- LICENSE.md                                      # Creative commons (CC BY-NC-SA 4.0)
+|-- .gitignore                                      # In place to ensure no unwanted file types get pushed to GitHub
 |
-|-- models/
-|   |-- exemplifying_model/                        # Should follow the naming convention adjective_noun
+|-- models/                                         # Parent directory for all individual models (see documentation for definition of "model")
+|   |-- exemplifying_model/                         # Each individual model subdirectory should follow the naming convention adjective_noun
 |   |   |
-|   |   |-- README.md
-|   |   |-- requirements.txt
-|   |   |-- main.py                                 # Orchestration script (running the model via Prefect)
+|   |   |-- README.md                               # Concise description of the model and relevant details written in "plain language"
+|   |   |-- requirements.txt                        # Python version and libraries - should rarely deviate from a standard well-maintained VIEWS_env.
+|   |   |-- main.py                                 # Orchestration script to run a deployed model via Prefect on a monthly basis
 |   |   |
 |   |   |-- configs/                                # All model specific config files
-|   |   |   |-- config_model.py                     # Contains model architecture, name, target variable, and level of analysis (previous config_common minus partition info)
-|   |   |   |-- config_hyperparameters.py           # Specifies the finalized hyperparameters used for training the deployed model (W&B specific).
-|   |   |   |-- config_sweep.py                     # Configurations for hyperparameter sweeps during experimentation phases (W&B specific).
-|   |   |   |-- config_feature_set.py               # Defines the features to be pulled from the views - basically the queryset. 
-|   |   |   |-- config_deployment.py                # Status of the model regarding its lifecycle. I.e. is it in production, shadow mode, or a baseline model (or ESCWA...).
+|   |   |   |-- config_model.py                     # Contains model architecture, name, target variable, and level of analysis
+|   |   |   |-- config_hyperparameters.py           # Specifies the finalized hyperparameters used for training the deployed model (W&B specific)
+|   |   |   |-- config_sweep.py                     # Configurations for hyperparameter sweeps during experimentation phases (W&B specific)
+|   |   |   |-- config_feature_set.py               # Defines the features to be pulled from the views - basically the queryset
+|   |   |   |-- config_deployment.py                # Status of the model regarding its lifecycle. E.g., production, shadow mode, or a baseline model
 |   |   |
-|   |   |-- data/                                   # all input, processed, output data -> might be out phased later to go directly from/to server
-|   |   |    |-- raw/                               # Data directly from VIEiWSER
+|   |   |-- data/                                   # All input, processed, output data -> might be out phased later to go directly from/to server
+|   |   |    |-- raw/                               # Data directly from VIEWSER
 |   |   |    |-- processed/                         # Data processed
-|   |   |    |-- generated/                         # Data generated - i.e. predictions/forecast
+|   |   |    |-- generated/                         # Data generated - i.e., predictions/forecast
 |   |   |
-|   |   |-- artifacts/                              # Model artifacts. Step-shift models will have 36 of each. pth or pkl. 
-|   |   |   |-- evelaution_metrics.py               # A dictionary containing the evaluation metrics for all 36 steps found in the test partetion. Potential weights.
-|   |   |   |-- model_calibration_partition.pth     # Trained model object for offline evaluation during calibration and experimentation (trained on train set of calibration partition)
-|   |   |   |-- model_test_partition.pth            # Trained model object for offline evaluation during final testing (trained on train set of the test calibration) 
-|   |   |   |-- model_forecasting.pth               # Trained model object for online forecasting - i.e. the model object to be deployed and called during orcestration (train on forecasting partition)
+|   |   |-- artifacts/                              # Model artifacts. Step-shift models will have 36 of each. pth or pkl.
+|   |   |   |-- evaluation_metrics.py               # A dictionary containing the evaluation metrics for all 36 steps found in the test partition
+|   |   |   |-- model_calibration_partition.pth     # Model object for offline evaluation, trained on train set of calibration partition
+|   |   |   |-- model_test_partition.pth            # Model object for offline evaluation, trained on train set of the test partition
+|   |   |   |-- model_forecasting.pth               # Model object for online forecasting, trained on the forecasting partition
 |   |   |
-|   |   |-- notebooks/                              # Only for developemt experimentation, and trouble-shooting. 
+|   |   |-- notebooks/                              # Only for development experimentation, and trouble-shooting.
 |   |   |
-|   |   |-- reports/                                # dissemination material - internal and external 
-|   |   |   |-- plots/                              # plots for papers, reports, newsletters, and slides
-|   |   |   |-- figures/                            # figures for papers, reports, newsletters, and slides 
-|   |   |   |-- timelapse/                          # plots to create timelapse and the timelapse
-|   |   |   |-- papers/                             # working papers, white papers, articles ect.
-|   |   |   |-- slides/                             # slides, presentation and similar. 
+|   |   |-- reports/                                # Dissemination material - internal and external
+|   |   |   |-- plots/                              # Plots for papers, reports, newsletters, and slides
+|   |   |   |-- figures/                            # Figures for papers, reports, newsletters, and slides
+|   |   |   |-- timelapse/                          # Plots to create timelapse and the timelapse
+|   |   |   |-- papers/                             # Working papers, white papers, articles etc.
+|   |   |   |-- slides/                             # Slides, presentation, and similar
 |   |   |
-|   |   |-- src/                                    # all source code needed to train, test, and forecast
+|   |   |-- src/                                    # All source code needed to train, test, and forecast
 |   |       |
-|   |       |-- dataloaders/                        # Model specfic scripts to get data from VIEWSER (input drift detection happens here)
-|   |       |   |-- get_calibration_data.py         # The model specific data covering the standard calibration pertition
-|   |       |   |-- get_test_data.py                # The model specific data covering the standard test pertition
-|   |       |   |-- get_forecasting_data.py         # The model spefific date for forecasting during deployment - first observed month to last observed month
+|   |       |-- dataloaders/                        # Model specific scripts to get data from VIEWSER (input drift detection happens here)
+|   |       |   |-- get_calibration_data.py         # The model specific data covering the standard calibration partition
+|   |       |   |-- get_test_data.py                # The model specific data covering the standard test partition
+|   |       |   |-- get_forecasting_data.py         # The model specific data for forecasting during deployment - first observed month to last observed month
 |   |       |
-|   |       |-- architectures/                      # only relevant for models developed in-house
-|   |       |   |-- network.py                      # e.g a py script containing a pytorch nn class
+|   |       |-- architectures/                      # Only relevant for models developed in-house
+|   |       |   |-- network.py                      # E.g., a py script containing a PyTorch nn class
 |   |       |
-|   |       |-- utils/                              # functions and classes - common utils used across multiple models should be in the common_utils in root.
-|   |       |   |-- utils.py                        # a general utils.py for all utils function
-|   |       |   |-- utils_torch.py                  # sep. utils demanding more specific libraries
-|   |       |   |-- utils_gpd.py                    # sep. utils demanding more specific libraries
+|   |       |-- utils/                              # Model sepcific Functions and classes (common utils should be in the common_utils in root)
+|   |       |   |-- utils.py                        # A general utils.py for all utils function
+|   |       |   |-- utils_torch.py                  # Sep. utils demanding more specific libraries
+|   |       |   |-- utils_gpd.py                    # Sep. utils demanding more specific libraries
 |   |       |
-|   |       |-- visualization/                      # scripts to create visualizations
+|   |       |-- visualization/                      # Scripts to create visualizations
 |   |       |
 |   |       |-- training/
-|   |       |   |-- train_calibration_model.py      # Script for traning the model on train set of the calibration partition  
+|   |       |   |-- train_calibration_model.py      # Script for training the model on train set of the calibration partition  
 |   |       |   |-- train_testing_model.py          # Script for training the model on the train set of the test partition
-|   |       |   |-- train_forecasting_model.py      # 
+|   |       |   |-- train_forecasting_model.py      # Script for training the model on the full forecasting partition
 |   |       |
-|   |       |-- offline_evaluation/                 # aka offline quality assurance
-|   |       |   |-- evaluate_model.py               # script to evaluate a trained and saved model - can be calibration or test.
-|   |       |   |-- evaluate_sweep.py               # script to run a wandb sweep - should only ever be used on the calibration partition
+|   |       |-- offline_evaluation/                 # Offline evaluation and quality assurance
+|   |       |   |-- evaluate_model.py               # Script to evaluate a trained and saved model - can be calibration or test
+|   |       |   |-- evaluate_sweep.py               # Script to run a wandb sweep - should only ever be used on the calibration partition
 |   |       |
 |   |       |-- online_evaluation/
-|   |       |   |-- evaluate_forecast.py            # continues performance check of the deployed model (forecasting)
+|   |       |   |-- evaluate_forecast.py            # Continuous performance check of the deployed forecasting model (W&B Specific)
 |   |       |
 |   |       |-- forecasting/
-|   |           |-- generate_forecast.py            # Script to genereate true-future forecasts.
+|   |           |-- generate_forecast.py            # Script to generate true-future forecasts.
 |   |
-|   |-- different_model/                            # Next model, similar structure.
+|   |-- different_model/                            # Next model, similar structure
 |   |   |-- ...
 |   |   ...
 |   ...
 |
 |-- ensembles/
 |   |-- exemplifying_ensemble/                      # Similar to model dir, with a few differences
-|   |   |-- README.md 
+|   |   |-- README.md                               # Concise description of the ensemble and relevant details written in "plain language"
 |   |   |-- requirements.txt
-|   |   |-- main.py                                 # Orchestration script (running the ensemble)     
+|   |   |-- main.py                                 # Orchestration script to run a deployed ensemble via Prefect on a monthly basis
 |   |   |
-|   |   |-- configs/                                #
-|   |   |   |-- config_sweep.py                     #
-|   |   |   |-- config_hyperparameters.py           #
+|   |   |-- configs/                                # All ensemble specific config files
+|   |   |   |-- config_model.py                     # Contains ensemble architecture, name, target variable, and level of analysis
+|   |   |   |-- config_hyperparameters.py           # If applicable, specifies the finalized hyperparameters of the ensemble (W&B specific)
+|   |   |   |-- config_sweep.py                     # If applicable, specifies the hyperparameter sweeps during experimentation phases (W&B specific)
+|   |   |   |-- config_deployment.py                # Status of the ensemble regarding its lifecycle. E.g., production, shadow mode, or a baseline model
 |   |   |
-|   |   |-- artifacts/                              #
-|   |   |   |-- ensemble_metadata_dict.py           #
-|   |   |   |-- ensemble_forecasting.pkl            #
+|   |   |-- artifacts/                              # Ensemble's artifacts. Not applicable to all ensembles
+|   |   |   |-- evaluation_metrics.py               # A dictionary containing the evaluation metrics for all 36 steps found in the test partition
+|   |   |   |-- ensemble_calibration_partition.pth  # If applicable, ensemble object for offline evaluation, calibration partition
+|   |   |   |-- ensemble_test_partition.pth         # If applicable, ensemble object for offline evaluation, test partition
+|   |   |   |-- ensemble_forecasting.pth            # If applicable, ensemble object for online forecasting, forecasting partition
 |   |   |
-|   |   |-- notebooks/                              #
+|   |   |-- notebooks/                              # Only for development experimentation, and trouble-shooting.
 |   |   |
-|   |   |-- reports/                                #
-|   |   |   |-- plots/                              #
-|   |   |   |-- timelapse/                          #
-|   |   |   |-- papers/                             #
-|   |   |   |-- slides/                             #
+|   |   |-- reports/                                # Dissemination material - internal and external
+|   |   |   |-- plots/                              # Plots for papers, reports, newsletters, and slides
+|   |   |   |-- figures/                            # Figures for papers, reports, newsletters, and slides
+|   |   |   |-- timelapse/                          # Plots to create timelapse and the timelapse
+|   |   |   |-- papers/                             # Working papers, white papers, articles etc.
+|   |   |   |-- slides/                             # Slides, presentation, and similar
 |   |   |
-|   |   |-- src/                                    #
+|   |   |-- src/                                    # All source code needed to train, test, and forecast
 |   |       |
-|   |       |-- dataloaders/                        # 
-|   |       |   |-- get_model_outputs.py            # Model outputs instead of VIEWSER data 
+|   |       |-- dataloaders/                        # In most cases, ensembles will only take outputs from other models as input
+|   |       |   |-- get_model_outputs.py            # Get outputs from individual models instead of VIEWSER data
 |   |       |
 |   |       |-- architecture/                       # Some ensembles might have an architecture
-|   |       |   |-- ensemble.py                     #
+|   |       |   |-- ensemble.py                     # Script for said architecture
 |   |       |
-|   |       |-- utils/                              #
-|   |       |   |-- utils.py                        #
+|   |       |-- utils/                              # Ensemble specific utils
+|   |       |   |-- utils.py                        
 |   |       |   
-|   |       |-- visualization/                      #
+|   |       |-- visualization/                      # Scripts to create visualizations
 |   |       |
-|   |       |-- training/                           #
-|   |       |   |-- train_ensemble.py               # Some ensembles might need training
+|   |       |-- training/                           # Some ensembles might need training
+|   |       |   |-- train_ensemble.py               # Script for such potential training
 |   |       |
-|   |       |-- offline_evaluation/                 # We do not have a clear routine for this yet
-|   |       |   |-- evaluate_ensemble.py            #
-|   |       |   |-- evaluate_sweep.py               #
+|   |       |-- offline_evaluation/                 # Offline evaluation and quality assurance
+|   |       |   |-- evaluate_ensemble.py            # Script to evaluate an ensemble - can be used with calibration or test models
+|   |       |   |-- evaluate_sweep.py               # Script to run a wandb sweep - should only ever be used with the calibration partition
 |   |       |
-|   |       |-- online_evaluation/                  #
-|   |       |   |-- evaluate_forecast.py            # Continues performance check
+|   |       |-- online_evaluation/
+|   |       |   |-- evaluate_forecast.py            # Continuous performance check of the deployed forecasting ensemble (W&B Specific)
 |   |       |
-|   |       |-- forecasting/                        #
-|   |           |--generate_forecast.py             # Script to genereate true-future forecast.
+|   |       |-- forecasting/
+|   |           |-- generate_forecast.py            # Script to generate true-future forecasts
 |   |       
 |   |
-|   |-- different_ensemble/                         #
+|   |-- different_ensemble/                         # Next ensemble, similar structure
 |   |   |-- ...
 |   |   ...
 |   ...
 |
-|-- orchestration.py                                # orchestration for entire pipeline (runs all models on Prefect)
+|-- orchestration.py                                # Orchestration for the entire pipeline (runs all deployed models and ensembles via Prefect)
 |
-|-- documentation/
+|-- documentation/                                  # All relevant documentation (wiki to come)
 |
-|-- common_utils/                                   # Functions and classes used across multiple (but not necessary all) models  
+|-- common_utils/                                   # Functions and classes used across multiple (but not necessarily all) models/ensembles  
 |       |-- stepshifter.py                          # Updated stepshifter function
-|       |-- set_paths.py                            # Sets all paths for imports, data, utils ect. Machine invariant. 
-|       |-- get_data.py                             # General function that takes the general get_partion and a model specific config_feature_set.py to fetch model specific data.
-|       |-- get_partion.py                          # Get data partitions for spilts pertaining to validation, testing, and forecasting. (Some of what were in config_common, but with a variable end point for forecast.) 
+|       |-- set_paths.py                            # Sets all paths for imports, data, utils etc. Machine invariant.
+|       |-- get_data.py                             # General function that takes the general get_partition and a model specific config_feature_set.py to fetch model specific data
+|       |-- get_partition.py                        # Get data partitions for splits pertaining to validation, testing, and forecasting
 |
-|-- templetes/                                      # For code templets. In the long run, most can been turn into common_utils (functions or classes), but might be useful for now.
+|-- templates/                                      # For code templates. In the long run, most can be turned into common_utils/meta_tools (as functions or classes)
 |
-|-- meta_tools/                                     # Some of these should be added to github action for good CI/CD
-		|-- make_new_model_dir.py                   # script to create a standard model dir
-        |-- make_new_ensemble_dir.py                # script to create a standard ensemble dir
-        |-- asses_model_dir.py                      # check structure and presence of obligatory scripts
-        |-- asses_ensemble_dir.py                   # check structure and presence of obligatory scripts  
+|-- meta_tools/                                     # Some of these should be added to GitHub action for good CI/CD
+        |-- make_new_model_dir.py                   # Script to create a standard model directory
+        |-- make_new_ensemble_dir.py                # Script to create a standard ensemble directory
+        |-- assess_model_dir.py                     # Check structure and presence of obligatory scripts
+        |-- assess_ensemble_dir.py                  # Check structure and presence of obligatory scripts  
 ```
