@@ -1,3 +1,13 @@
+
+
+---
+
+# 🚧 Early Access Alert! 🚧
+
+Welcome to our project! Please note that this pipeline is **actively under construction**. We're in the **early stages of development**, meaning it's **not yet ready for operational use**. We're working hard to bring you a robust and fully-functional tool, so stay tuned for updates!
+
+---
+
 # views_pipeline
 VIEWS forecasting pipeline for monthly prediction runs. For more detailed documentation of rationale and components see **`documentation/pipeline_documentation.md`**
 
@@ -95,8 +105,8 @@ pipeline_root/
 |   |   |
 |   |   |-- src/ # all source code needed to train, test, and forecast
 |   |       |
-|   |       |-- dataloaders/ # scripts to get data from VIEWSER
-|   |       |   |-- get_calibrated_data.py # calibration training data
+|   |       |-- dataloaders/ # scripts to get data from VIEWSER (and input drift detection)
+|   |       |   |-- get_calibration_data.py # calibration training data
 |   |       |   |-- get_forecasting_data.py # the forecasting data
 |   |       |   |-- get_test_data.py # the testing data
 |   |       |   
@@ -121,6 +131,10 @@ pipeline_root/
 |   |       |
 |   |       |-- online_evaluation/
 |   |       |   |-- evaluate_forecast.py # continues performance check
+|   |       |
+|   |       |-- drift detection/ #monitor changes in model performance
+|   |       |   |-- drift_detection_output # check new forecasts
+|   |       |   |-- drift_detection_performance # check new performance
 |   |       |
 |   |       |-- forecasting/
 |   |           |-- generate_forecast.py #script to genereate true-future fc.
