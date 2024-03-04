@@ -1,14 +1,21 @@
 #Questions:
     # Do we only want to return future predictions?
+import sys
+from pathlib import Path
+import pandas as pd
 
 from views_runs import DataPartitioner
 
-from configs.config_common import common_config #contains data partition dictionaries
-from src.training.train_model import stepshifter_model_calib, stepshifter_model_future
-from src.dataloaders import data
+#import modules from model folder
+model_path = Path(__file__).resolve().parents[2] 
+sys.path.append(str(model_path))
+
+from configs.config_data_partition import get_data_partitions 
+from src.training.train_model import train_model #stepshifter_model_calib, stepshifter_model_future
+from src.utils.set_paths import get_data_path
 
 
-def generate_forecasts():
+def generate_forecasts(stepshifter_model_calib, stepshifter_model_future):
     """
     Generates forecasts for the future using trained models.
 
@@ -25,8 +32,12 @@ def generate_forecasts():
 
     print("Generating forecasts...")
 
+    #Load data
+    data = pd.read_parquet(get_data_path("raw"))
+
     #Define configs
-    future_partitioner_dict = common_config["future_partitioner_dict"]
+    data_partitions = get_data_partitions()
+    future_partitioner_dict = data_partitions["future_partitioner_dict"]
 
     # Predictions for test partition
     calib_predictions = stepshifter_model_calib.predict('calib','predict',data, proba=True)
@@ -42,6 +53,9 @@ def generate_forecasts():
 
 if __name__ == "__main__":
 
+    # Call the train_model function to get the models
+    stepshifter_model_calib, stepshifter_model_future = train_model()
+
     # Call the generate_forecasts function
-    generate_forecasts()
+    generate_forecasts(stepshifter_model_calib, stepshifter_model_future)
 
