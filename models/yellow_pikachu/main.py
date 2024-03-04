@@ -1,6 +1,11 @@
 import wandb
 from pathlib import Path
+import sys
+pipeline_path = f"{Path(__file__).parent.parent.parent}"
+sys.path.append(str(pipeline_path))
+sys.path.append(str(pipeline_path)+"/common_utils")
 
+from common_utils.set_partition import get_partitioner_dict
 from configs.config_hyperparameters import get_hp_config
 from configs.config_sweep import get_swep_config
 from configs.config_common import get_common_config
@@ -22,16 +27,19 @@ def model_pipeline(config=None, project=None):
             evaluate_sweep(common_config, config)
         else:
             evaluate_model(common_config)
-            predictions = forecast()
+            forecast(common_config)
 
 if __name__ == "__main__":
     wandb.login()
 
-    data = get_data()
-
-    common_config = get_common_config()
     sweep_config = get_swep_config()
     hp_config = get_hp_config()
+    common_config = get_common_config()
+    common_config['calib_partitioner_dict'] = get_partitioner_dict("calibration")
+    common_config['test_partitioner_dict'] = get_partitioner_dict("testing")
+    common_config['forecast_partitioner_dict'] = get_partitioner_dict("forecasting")
+
+    data = get_data(common_config)
 
     do_sweep = input(f'a) Do sweep \nb) Do one run \n')
 

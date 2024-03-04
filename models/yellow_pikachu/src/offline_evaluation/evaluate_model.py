@@ -4,24 +4,19 @@ from pathlib import Path
 from sklearn.metrics import mean_squared_error
 
 import sys
-src_path = f"{Path(__file__).parent.parent}"
-sys.path.append(str(src_path)+"/utils")
-
-# Remove this part after packaging views_stepshift
-current_file_path = Path(__file__).resolve()
-root_path = current_file_path.parent.parent.parent.parent.parent
-sys.path.append(str(root_path))
+pipeline_path = f"{Path(__file__).parent.parent.parent.parent.parent}"
+sys.path.append(str(pipeline_path)+"/common_utils")
 
 from views_forecasts.extensions import *
-from utils import get_artifacts_path, get_data_path
+from common_utils.set_path import get_artifacts_path, get_data_path
 
 
 def evaluate_model(common_config):
     print("Evaluating...")
 
-    stepshifter_model_calib = pd.read_pickle(get_artifacts_path("calib"))
-    stepshifter_model_test = pd.read_pickle(get_artifacts_path("test"))
-    dataset = pd.read_parquet(get_data_path("raw"))
+    stepshifter_model_calib = pd.read_pickle(get_artifacts_path(common_config["name"], "calib"))
+    stepshifter_model_test = pd.read_pickle(get_artifacts_path(common_config["name"], "test"))
+    dataset = pd.read_parquet(get_data_path(common_config["name"], "raw"))
 
     steps = common_config["steps"]
     stepcols = [common_config["depvar"]]
@@ -32,13 +27,13 @@ def evaluate_model(common_config):
         df_calib = pd.DataFrame.forecasts.read_store(name=f'{common_config["name"]}_calib')
     except:
         df_calib = stepshifter_model_calib.predict("calib", "predict", dataset)
-        df_calib.forecasts.to_store(name=f'{common_config["name"]}_calib')  #Remember to set the run name if actual implementation
+        df_calib.forecasts.to_store(name=f'{common_config["name"]}_calib')  #Remember to set the run name in actual implementation
 
     try:
         df_test = pd.DataFrame.forecasts.read_store(name=f'{common_config["name"]}_test')
     except:
         df_test = stepshifter_model_test.predict("test", "predict", dataset)
-        df_test.forecasts.to_store(name=f'{common_config["name"]}_test')  #Remember to set the run name if actual implementation
+        df_test.forecasts.to_store(name=f'{common_config["name"]}_test')  #Remember to set the run name in actual implementation
 
     df_calib = df_calib.replace([np.inf, -np.inf], 0)[stepcols]
     df_test = df_test.replace([np.inf, -np.inf], 0)[stepcols]

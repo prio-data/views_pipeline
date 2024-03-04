@@ -6,18 +6,18 @@ from sklearn.metrics import mean_squared_error
 from lightgbm import LGBMRegressor
 
 import sys
-src_path = f"{Path(__file__).parent.parent}"
-sys.path.append(str(src_path)+"/utils")
+pipeline_path = f"{Path(__file__).parent.parent.parent.parent.parent}"
+sys.path.append(str(pipeline_path)+"/common_utils")
 
-from utils import get_data_path
+from common_utils.set_path import get_data_path
 from views_partitioning.data_partitioner import DataPartitioner
 from views_forecasts.extensions import *
 from stepshift.views import StepshiftedModels
-from views_stepshift.run import ViewsRun
+from common_utils.views_stepshift.run import ViewsRun
 
 def evaluate_sweep(common_config, para_config):
     model = globals()[common_config["algorithm"]](**para_config)
-    dataset = pd.read_parquet(get_data_path("raw"))
+    dataset = pd.read_parquet(get_data_path(common_config["name"], "raw"))
 
     stepshifter_model_calib = stepshift_training(common_config, "calib", model, dataset)
     stepshifter_model_test = stepshift_training(common_config, "test", model, dataset)
