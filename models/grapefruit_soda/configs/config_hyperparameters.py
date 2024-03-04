@@ -1,17 +1,13 @@
-def get_hp_config(): 
+def get_hyperparameters(): 
     """
-    Retrieves the hyperparameter configuration for model training.
+    Specifies the finalized hyperparameters used for training (W&B specific).
 
     Returns:
-    - hp_config (dict): A dictionary containing hyperparameters for the model.
-
-    Notes:
-    - The function returns a dictionary with hyperparameters such as learning rate, number of estimators, and number of jobs.
-    - Hyperparameters are commonly used in machine learning algorithms to control the learning process.
+    - hyperparameters (dict): A dictionary containing hyperparameters for the model.
     """
-    hp_config = {
+    hyperparameters = {
         "learning_rate": 0.05, #we don't have this in the Jupyter notebook
         "n_estimators": 100,
         "n_jobs": 2   
     }
-    return hp_config
+    return hyperparameters #formerly hp_config

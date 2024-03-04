@@ -1,4 +1,7 @@
-def get_swep_config():
+def sweep_config():
+    """
+    Configurations for hyperparameter sweeps during experimentation phases (W&B specific).
+    """
     sweep_config = {
         "name": "grapefruit_soda",
         'method': 'grid' #cm?
