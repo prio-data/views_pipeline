@@ -14,6 +14,7 @@ from src.forecasting.generate_forecast import forecast
 from src.offline_evaluation.evaluate_model import evaluate_model
 from src.offline_evaluation.evaluate_sweep import evaluate_sweep
 from src.dataloaders.get_data import get_data
+from src.utils.utils import split_hurdle_parameters
 
 
 def model_pipeline(config=None, project=None):
@@ -21,6 +22,11 @@ def model_pipeline(config=None, project=None):
     with wandb.init(project=project, entity="views_pipeline", config=config): 
 
         config = wandb.config
+
+        # W&B does not directly support nested dictionaries for hyperparameters 
+        if common_config['sweep'] and common_config['algorithm'] == "HurdleRegression":
+            config['clf'], config['reg'] = split_hurdle_parameters(config)
+            
         train(common_config, config)
 
         if common_config['sweep']:
