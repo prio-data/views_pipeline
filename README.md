@@ -77,7 +77,7 @@ pipeline_root/
 |   |   |
 |   |   |-- README.md                               # Concise description of the model and relevant details written in "plain language"
 |   |   |-- requirements.txt                        # Python version and libraries - should rarely deviate from a standard well-maintained VIEWS_env.
-|   |   |-- main.py                                 # Orchestration script to run a deployed model via Prefect on a monthly basis
+|   |   |-- main.py                                 # Orchestration script to run a deployed model via Prefect as part of a full monthly basis
 |   |   |
 |   |   |-- configs/                                # All model specific config files
 |   |   |   |-- config_model.py                     # Contains model architecture, name, target variable, level of analysis and deployment status
@@ -146,7 +146,7 @@ pipeline_root/
 |   |-- exemplifying_ensemble/                      # Similar to model dir, with a few differences
 |   |   |-- README.md                               # Concise description of the ensemble and relevant details written in "plain language"
 |   |   |-- requirements.txt
-|   |   |-- main.py                                 # Orchestration script to run a deployed ensemble via Prefect on a monthly basis
+|   |   |-- main.py                                 # Orchestration script to run a deployed ensemble as part of a full run via Prefect on a monthly basis
 |   |   |
 |   |   |-- configs/                                # All ensemble specific config files
 |   |   |   |-- config_ensemble.py                  # Contains ensemble architecture, name, target variable, level of analysis and deployment status
