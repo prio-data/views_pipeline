@@ -1,6 +1,6 @@
 # Orange Pasta Model
 ## Overview
-This folder contains code for Orange Pasta model, a machine learning model designed for predicting fatalities. 
+This folder contains code for Lavender Haze model, a machine learning model designed for predicting fatalities. 
 
 The model was implemented during the VIEWS 2024 Cabin Hackathon.
 
@@ -9,7 +9,7 @@ The model utilizes LightGBM for its predictions and is on pgm level of analysis.
 ## Repository Structure
 ```
 
-orange_pasta/ # should follow the naming convention adjective_noun
+lavender_haze/ # should follow the naming convention adjective_noun
 |-- README.md
 |-- requirements.txt
 |
@@ -26,9 +26,9 @@ orange_pasta/ # should follow the naming convention adjective_noun
 |
 |-- artifacts/ # step-shift models will have 36 of each. pth or pkl. 
 |   |-- model_metadata_dict.py # the standard meta data dict for models
-|   |-- model_calib_partition.pth # for offline validation 
-|   |-- model_train_partition.pth # for offline testing
-|   |-- model_future_partition.pth # for online forecasting
+|   |-- model_calib_partition.pkl # for offline validation 
+|   |-- model_train_partition.pkl # for offline testing
+|   |-- model_future_partition.pkl # for online forecasting
 |
 |-- notebooks/
 |
