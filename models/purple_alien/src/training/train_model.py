@@ -11,15 +11,34 @@ import torch.nn.functional as F
 
 import wandb
 
-# Set the base path relative to the current script location
-base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-print(f'working int {base_path}')
+# ------------------------- CHANGE TO A COMMON UTIL ---------------------------------
+from pathlib import Path
 
-# Add the required directories to the system path
-sys.path.insert(0, os.path.join(base_path, "architectures"))
-sys.path.insert(0, os.path.join(base_path, "configs"))
-sys.path.insert(0, os.path.join(base_path, "utils"))  
+def setup_project_paths():
+    root_path = Path(__file__).resolve().parents[3]
+
+    # Define common paths
+    common_utils_path = root_path / "common_utils"
+    common_configs_path = root_path / "common_configs"
+
+    # Define model-specific paths
+    model_path = Path(__file__).resolve().parents[1]
+    configs_path = model_path / "configs"
+    src_path = model_path / "src"
+    utils_path = src_path / "utils"
+    architectures_path = src_path / "architectures"
+
+    paths_to_add = [common_utils_path, common_configs_path, configs_path, utils_path, architectures_path]
+
+    for path in paths_to_add:
+        path_str = str(path)
+        if path.exists() and path_str not in sys.path:
+            sys.path.insert(0, path_str)
+
+# Call the function to setup the project paths
+setup_project_paths()
+# -----------------------------------------------------------------------------------
 
 
 from utils import choose_model, choose_loss, choose_sheduler, get_train_tensors, get_test_tensor, apply_dropout, execute_freeze_h_option, get_log_dict, train_log, init_weights, get_data
