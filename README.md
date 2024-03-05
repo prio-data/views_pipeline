@@ -80,11 +80,10 @@ pipeline_root/
 |   |   |-- main.py                                 # Orchestration script to run a deployed model via Prefect on a monthly basis
 |   |   |
 |   |   |-- configs/                                # All model specific config files
-|   |   |   |-- config_model.py                     # Contains model architecture, name, target variable, and level of analysis
+|   |   |   |-- config_model.py                     # Contains model architecture, name, target variable, level of analysis and deployment status
 |   |   |   |-- config_hyperparameters.py           # Specifies the finalized hyperparameters used for training the deployed model (W&B specific)
 |   |   |   |-- config_sweep.py                     # Configurations for hyperparameter sweeps during experimentation phases (W&B specific)
 |   |   |   |-- config_feature_set.py               # Defines the features to be pulled from the views - basically the queryset
-|   |   |   |-- config_deployment.py                # Status of the model regarding its lifecycle. E.g., production, shadow mode, or a baseline model
 |   |   |
 |   |   |-- data/                                   # All input, processed, output data -> might be out phased later to go directly from/to server
 |   |   |    |-- raw/                               # Data directly from VIEWSER
@@ -150,10 +149,9 @@ pipeline_root/
 |   |   |-- main.py                                 # Orchestration script to run a deployed ensemble via Prefect on a monthly basis
 |   |   |
 |   |   |-- configs/                                # All ensemble specific config files
-|   |   |   |-- config_model.py                     # Contains ensemble architecture, name, target variable, and level of analysis
+|   |   |   |-- config_ensemble.py                  # Contains ensemble architecture, name, target variable, level of analysis and deployment status
 |   |   |   |-- config_hyperparameters.py           # If applicable, specifies the finalized hyperparameters of the ensemble (W&B specific)
 |   |   |   |-- config_sweep.py                     # If applicable, specifies the hyperparameter sweeps during experimentation phases (W&B specific)
-|   |   |   |-- config_deployment.py                # Status of the ensemble regarding its lifecycle. E.g., production, shadow mode, or a baseline model
 |   |   |
 |   |   |-- artifacts/                              # Ensemble's artifacts. Not applicable to all ensembles
 |   |   |   |-- evaluation_metrics.py               # A dictionary containing the evaluation metrics for all 36 steps found in the test partition
@@ -210,7 +208,9 @@ pipeline_root/
 |       |-- stepshifter.py                          # Updated stepshifter function
 |       |-- set_paths.py                            # Sets all paths for imports, data, utils etc. Machine invariant.
 |       |-- get_data.py                             # General function that takes the general get_partition and a model specific config_feature_set.py to fetch model specific data
-|       |-- get_partition.py                        # Get data partitions for splits pertaining to validation, testing, and forecasting
+|
+|-- common_configs/                                 # Config files common to all (or multiple) models or the larger pipeline
+|       |-- set_partition.py                        # Set data partitions for splits pertaining to validation, testing, and forecasting
 |
 |-- templates/                                      # For code templates. In the long run, most can be turned into common_utils/meta_tools (as functions or classes)
 |
