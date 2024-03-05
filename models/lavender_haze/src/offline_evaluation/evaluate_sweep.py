@@ -3,11 +3,17 @@ import pandas as pd
 import wandb
 from pathlib import Path
 from sklearn.metrics import mean_squared_error
-from lightgbm import LGBMRegressor
 
 import sys
 pipeline_path = f"{Path(__file__).parent.parent.parent.parent.parent}"
 sys.path.append(str(pipeline_path)+"/common_utils")
+
+from sklearn.ensemble import GradientBoostingClassifier, GradientBoostingRegressor
+from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier
+from sklearn.ensemble import HistGradientBoostingRegressor, HistGradientBoostingClassifier
+from xgboost import XGBRegressor, XGBClassifier
+from xgboost import XGBRFRegressor, XGBRFClassifier
+from lightgbm import LGBMClassifier, LGBMRegressor
 
 from common_utils.set_path import get_data_path
 from views_partitioning.data_partitioner import DataPartitioner

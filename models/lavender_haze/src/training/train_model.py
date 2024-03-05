@@ -5,7 +5,12 @@ import sys
 pipeline_path = f"{Path(__file__).parent.parent.parent.parent.parent}"
 sys.path.append(str(pipeline_path)+"/common_utils")
 
-from lightgbm import LGBMRegressor
+from sklearn.ensemble import GradientBoostingClassifier, GradientBoostingRegressor
+from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier
+from sklearn.ensemble import HistGradientBoostingRegressor, HistGradientBoostingClassifier
+from xgboost import XGBRegressor, XGBClassifier
+from xgboost import XGBRFRegressor, XGBRFClassifier
+from lightgbm import LGBMClassifier, LGBMRegressor
 
 from views_partitioning.data_partitioner import DataPartitioner
 from views_forecasts.extensions import *
