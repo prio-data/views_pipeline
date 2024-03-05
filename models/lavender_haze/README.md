@@ -2,9 +2,7 @@
 ## Overview
 This folder contains code for Lavender Haze model, a machine learning model designed for predicting fatalities. 
 
-The model was implemented during the VIEWS 2024 Cabin Hackathon.
-
-The model utilizes LightGBM for its predictions and is on pgm level of analysis.
+The model utilizes Hurdle Model (LGBMClassifier+LGBMRegressor) for its predictions and is on pgm level of analysis.
 
 ## Repository Structure
 ```
