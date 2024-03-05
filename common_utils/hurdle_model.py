@@ -49,18 +49,18 @@ class HurdleRegression(BaseEstimator):
         This is necessary because sklearn estimator default arguments
         must pass equality test, and instantiated sub-estimators are not equal. """
 
-        funcs = {'linear': LinearRegression(),
-                 'logistic': LogisticRegression(solver='liblinear'),
+        funcs = {'LinearRegression': LinearRegression(),
+                 'LogisticRegression': LogisticRegression(solver='liblinear'),
                  'LGBMRegressor': LGBMRegressor(n_estimators=250),
                  'LGBMClassifier': LGBMClassifier(n_estimators=250),
-                 'RFRegressor': XGBRFRegressor(n_estimators=250,n_jobs=-2),
-                 'RFClassifier': XGBRFClassifier(n_estimators=250,n_jobs=-2),
-                 'GBMRegressor': GradientBoostingRegressor(n_estimators=200),
-                 'GBMClassifier': GradientBoostingClassifier(n_estimators=200),
+                 'XGBRFRegressor': XGBRFRegressor(n_estimators=250,n_jobs=-2),
+                 'XGBRFClassifier': XGBRFClassifier(n_estimators=250,n_jobs=-2),
+                 'GradientBoostingRegressor': GradientBoostingRegressor(n_estimators=200),
+                 'GradientBoostingClassifier': GradientBoostingClassifier(n_estimators=200),
                  'XGBRegressor': XGBRegressor(n_estimators=100,learning_rate=0.05,n_jobs=-2),
                  'XGBClassifier': XGBClassifier(n_estimators=100,learning_rate=0.05,n_jobs=-2),
-                 'HGBRegressor': HistGradientBoostingRegressor(max_iter=200),
-                 'HGBClassifier': HistGradientBoostingClassifier(max_iter=200),
+                 'HistGradientBoostingRegressor': HistGradientBoostingRegressor(max_iter=200),
+                 'HistGradientBoostingClassifier': HistGradientBoostingClassifier(max_iter=200),
                 }
 
         return funcs[func_name]
