@@ -26,9 +26,9 @@ yellow_pikachu/ # should follow the naming convention adjective_noun
 |
 |-- artifacts/ # step-shift models will have 36 of each. pth or pkl. 
 |   |-- model_metadata_dict.py # the standard meta data dict for models
-|   |-- model_calib_partition.pth # for offline validation 
-|   |-- model_train_partition.pth # for offline testing
-|   |-- model_future_partition.pth # for online forecasting
+|   |-- model_calib_partition.pkl # for offline validation 
+|   |-- model_train_partition.pkl # for offline testing
+|   |-- model_future_partition.pkl # for online forecasting
 |
 |-- notebooks/
 |
