@@ -83,7 +83,7 @@ pipeline_root/
 |   |   |   |-- config_model.py                     # Contains model architecture, name, target variable, level of analysis and deployment status
 |   |   |   |-- config_hyperparameters.py           # Specifies the finalized hyperparameters used for training the deployed model (W&B specific)
 |   |   |   |-- config_sweep.py                     # Configurations for hyperparameter sweeps during experimentation phases (W&B specific)
-|   |   |   |-- config_feature_set.py               # Defines the features to be pulled from the views - basically the queryset
+|   |   |   |-- config_input_data.py                # Defines the features to be pulled from the views and used - basically the queryset
 |   |   |
 |   |   |-- data/                                   # All input, processed, output data -> might be out phased later to go directly from/to server
 |   |   |    |-- raw/                               # Data directly from VIEWSER
