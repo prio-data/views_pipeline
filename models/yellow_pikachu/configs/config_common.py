@@ -4,7 +4,6 @@ def get_common_config():
         "algorithm": "XGBRegressor",
         "depvar": "ged_sb_dep",
         "queryset": "fatalities003_pgm_conflict_treelag",
-        "data_train": "conflict_treelag",
         "level": "pgm",
         'steps': [*range(1, 36 + 1, 1)],
     }

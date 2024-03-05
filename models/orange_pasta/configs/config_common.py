@@ -4,7 +4,6 @@ def get_common_config():
         "algorithm": "LGBMRegressor",
         "depvar": "ged_sb_dep",
         "queryset": "fatalities003_pgm_baseline",
-        "data_train": "baseline",
         "level": "pgm",
         'steps': [*range(1, 36 + 1, 1)],
     }
