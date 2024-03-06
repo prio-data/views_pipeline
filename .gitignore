@@ -171,3 +171,7 @@ cython_debug/
 *.png
 *.svg
 models/grapefruit_soda/data/raw/raw.parquet
+models/electric_relaxation/data/raw/raw.parquet
+models/electric_relaxation/data/generated/future_predictions.parquet
+models/electric_relaxation/data/generated/future_point_predictions.parquet
+models/electric_relaxation/data/generated/calib_predictions.parquet

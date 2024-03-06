@@ -337,7 +337,7 @@ def get_data():
     #data = qs_cm_cflong.publish().fetch()
     data = qs_cm_cflong.fetch()
     data = data.astype(float) # Recast all columns to float because of an excessive assert in the stepshift library
-    data.to_parquet(f"{Path(__file__).parent.parent.parent}/data/raw/raw.parquet") #wd is this grapefruit_soda/src/dataloaders
+    data.to_parquet(f"{Path(__file__).parent.parent.parent}/data/raw/raw.parquet") #wd is this model/src/dataloaders
     
     print("Data fetched!")
     

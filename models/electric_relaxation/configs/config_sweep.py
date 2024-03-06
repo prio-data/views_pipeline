@@ -1,4 +1,4 @@
-def sweep_config():
+def get_sweep_config():
     """
     Configurations for hyperparameter sweeps during experimentation phases (W&B specific).
     """
