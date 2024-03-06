@@ -1,4 +1,4 @@
-# Orange Pasta Model
+# Lavender Haze Model
 ## Overview
 This folder contains code for Lavender Haze model, a machine learning model designed for predicting fatalities. 
 
