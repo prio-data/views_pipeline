@@ -1,69 +1,55 @@
 #orchestration of model
 
-import wandb
-from pathlib import Path
 import sys
-pipeline_path = f"{Path(__file__).parent.parent.parent}"
-sys.path.append(str(pipeline_path))
-sys.path.append(str(pipeline_path)+"/common_utils")
+from pathlib import Path
+import pandas as pd
+import wandb
 
-from common_utils.set_partition import get_partitioner_dict
+print(sys.path)
+
+from src.dataloaders import get_data
+from src.training import train
+from src.forecasting import generate_forecast
+from configs.config_data_partitions import get_data_partitions
 from configs.config_hyperparameters import get_hp_config
-from configs.config_sweep import get_swep_config
-from configs.config_common import get_common_config
-from src.training.train_model import train
-from src.forecasting.generate_forecast import forecast
-from src.offline_evaluation.evaluate_model import evaluate_model
-from src.offline_evaluation.evaluate_sweep import evaluate_sweep
-from src.dataloaders.get_data import get_data
+from configs.config_model import get_model_config
+from configs.config_sweep import get_sweep_config
+from src.utils.set_paths import get_data_path
 
 def model_pipeline(config=None, project=None):
-    """
-    Orchestrates the model training, evaluation, and forecasting pipeline.
-
-    Args:
-    - config (dict, optional): Configuration dictionary containing hyperparameters and settings. Defaults to None.
-    - project (str, optional): Name of the project to log results to in W&B. Defaults to None.
-
-    Notes:
-    - If config is provided, it is used as the configuration dictionary; otherwise, it is fetched from W&B.
-    - The function initializes a W&B run with the specified project and config.
-    - The function trains the model using the provided or fetched configuration.
-    - If the common_config indicates a sweep, the function evaluates the sweep using evaluate_sweep(); otherwise, it evaluates the model using evaluate_model().
-    - The function generates forecasts using forecast().
-    """
     
     with wandb.init(project=project, entity="views_pipeline", config=config): 
 
-        config = wandb.config
-        train(common_config, config)
+        config = wandb.config        
 
-        if common_config['sweep']:
-            evaluate_sweep(common_config)
+        stepshifter_model_calib, stepshifter_model_future = train(model_config, hyperparameters, data_partitions)
+
+        if model_config['sweep']:
+            evaluate_sweep(model_config, config)
         else:
-            evaluate_model(common_config)
-
-        predictions = forecast()
+            evaluate_model(model_config)
+            generate_forecast(data_partitions, stepshifter_model_calib, stepshifter_model_future)
 
 if __name__ == "__main__":
     wandb.login()
 
+    data_partitions = get_data_partitions()
+    hyperparameters = get_hp_config()
+    model_config = get_model_config()
+
     sweep_config = get_sweep_config()
     hp_config = get_hp_config()
-    common_config = get_common_config()
-    common_config['calib_partitioner_dict'] = get_partitioner_dict("calibration")
-    common_config['test_partitioner_dict'] = get_partitioner_dict("testing")
-    common_config['forecast_partitioner_dict'] = get_partitioner_dict("forecasting")
+    model_config = get_model_config()
 
-    data = get_data(common_config)
-    
+    data = pd.read_parquet(get_data_path("raw"))
+
     do_sweep = input(f'a) Do sweep \nb) Do one run \n')
 
     if do_sweep == 'a':
-        common_config['sweep'] = True
+        model_config['sweep'] = True
         sweep_id = wandb.sweep(sweep_config, project=common_config["name"]+"_sweep")
         wandb.agent(sweep_id, function=model_pipeline)
     
     elif do_sweep == 'b':
-        common_config['sweep'] = False
-        model_pipeline(hp_config, project=common_config["name"])
+        model_config['sweep'] = False
+        model_pipeline(hp_config, project=model_config["name"])
