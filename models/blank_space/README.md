@@ -1,4 +1,4 @@
-# Orange Pasta Model
+# Blank Space Model
 ## Overview
 This folder contains code for Blank Space model, a machine learning model designed for predicting fatalities. 
 
