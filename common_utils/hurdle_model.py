@@ -40,8 +40,8 @@ class HurdleRegression(BaseEstimator):
         self.reg_name = reg_name
         self.clf_params = clf_params
         self.reg_params = reg_params
-        self.clf_fi = []
-        self.reg_fi = []
+        # self.clf_fi = []
+        # self.reg_fi = []
 
     @staticmethod
     def _resolve_estimator(func_name: str):
@@ -59,8 +59,8 @@ class HurdleRegression(BaseEstimator):
                  'GradientBoostingClassifier': GradientBoostingClassifier(n_estimators=200),
                  'XGBRegressor': XGBRegressor(n_estimators=100,learning_rate=0.05,n_jobs=-2),
                  'XGBClassifier': XGBClassifier(n_estimators=100,learning_rate=0.05,n_jobs=-2),
-                 'HistGradientBoostingRegressor': HistGradientBoostingRegressor(max_iter=200),
-                 'HistGradientBoostingClassifier': HistGradientBoostingClassifier(max_iter=200),
+                 'HistGradientBoostingRegressor': HistGradientBoostingRegressor(max_iter=200), # doesn't have feature_importances_
+                 'HistGradientBoostingClassifier': HistGradientBoostingClassifier(max_iter=200), # doesn't have feature_importances_
                 }
 
         return funcs[func_name]
@@ -80,13 +80,13 @@ class HurdleRegression(BaseEstimator):
         if self.clf_params:
             self.clf_.set_params(**self.clf_params)
         self.clf_.fit(X, y > 0)
-        self.clf_fi = self.clf_.feature_importances_
+        # self.clf_fi = self.clf_.feature_importances_
 
         self.reg_ = self._resolve_estimator(self.reg_name)
         if self.reg_params:
             self.reg_.set_params(**self.reg_params)
         self.reg_.fit(X[y > 0], y[y > 0])
-        self.reg_fi = self.reg_.feature_importances_
+        # self.reg_fi = self.reg_.feature_importances_
 
         self.is_fitted_ = True
         return self
