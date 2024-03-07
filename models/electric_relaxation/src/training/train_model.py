@@ -74,9 +74,9 @@ def train(model_config, hp_config, data_partitions):
         assert model_calibration_partition is not None and model_future_partition is not None, "Model training failed."
 
         with open(calib_pickle_path, 'wb') as file:
-            pickle.dump(stepshifter_model_calib, file)
+            pickle.dump(model_calibration_partition, file)
         with open(future_pickle_path, 'wb') as file:
-            pickle.dump(stepshifter_model_future, file)
+            pickle.dump(model_future_partition, file)
             
         print("Models trained and saved!")
 
