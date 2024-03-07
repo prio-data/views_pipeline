@@ -1,6 +1,7 @@
 import sys
 from pathlib import Path
 import pandas as pd
+import pickle
 
 from sklearn.ensemble import RandomForestClassifier
 
@@ -16,11 +17,15 @@ from configs.config_data_partitions import get_data_partitions
 from configs.config_hyperparameters import get_hp_config
 from configs.config_model import get_model_config
 #from configs.config_sweep import get_sweep_config
-from src.utils.set_paths import get_data_path
+from src.utils.set_paths import get_data_path, get_artifacts_path
 
 def train(model_config, hp_config, data_partitions): 
     """
     Train models using provided configurations.
+
+    This function trains models for calibration and future partitions based on the provided configurations. If pickle
+    files containing the trained models already exist, it loads the models from the files. Otherwise, it trains the
+    models from scratch, saves them as pickle files, and returns the trained models.
 
     Args:
     - model_config (dict): Model configuration parameters.
@@ -33,39 +38,51 @@ def train(model_config, hp_config, data_partitions):
 
     print("Training...")
 
-    # Load data
-    dataset = pd.read_parquet(get_data_path("raw"))
-    assert not dataset.empty, "Data loading failed."
+    #calib_pickle_path = get_artifacts_path("calibration") #not sure why code doesn't run well with these
+    #future_pickle_path = get_artifacts_path("forecast")
+    calib_pickle_path = model_path / "artifacts" / "model_calibration_partition.pkl"
+    future_pickle_path = model_path / "artifacts" / "model_future_partition.pkl"
+    print(calib_pickle_path)
+    print(future_pickle_path)
+    
+    if calib_pickle_path.exists() and future_pickle_path.exists():
+        print("Pickle files already exist. Loading models from pickle files...")
+        with open(calib_pickle_path, 'rb') as file:
+            stepshifter_model_calib = pickle.load(file)
+        with open(future_pickle_path, 'rb') as file:
+            stepshifter_model_future = pickle.load(file)
+    
+    else:
+        dataset = pd.read_parquet(get_data_path("raw"))
+        assert not dataset.empty, "Data loading failed."
 
-    # Create data partitioners
-    calib_partition = DataPartitioner({'calib': data_partitions["calib_partitioner_dict"]})
-    future_partition = DataPartitioner({'future': data_partitions["future_partitioner_dict"]})
+        calib_partition = DataPartitioner({'calib': data_partitions["calib_partitioner_dict"]})
+        future_partition = DataPartitioner({'future': data_partitions["future_partitioner_dict"]})
 
-    # Extract hyperparameters
-    n_estimators = hp_config["n_estimators"]
-    n_jobs = hp_config["n_jobs"]
+        n_estimators = hp_config["n_estimators"]
+        n_jobs = hp_config["n_jobs"]
 
-    # Instantiate base model
-    base_model = RandomForestClassifier(n_estimators=n_estimators, n_jobs=n_jobs)
+        base_model = RandomForestClassifier(n_estimators=n_estimators, n_jobs=n_jobs)
 
-    # Define steps and target
-    steps = model_config["steps"]
-    target = model_config["depvar"]
+        steps = model_config["steps"]
+        target = model_config["depvar"]
 
-    # Define stepshifter model
-    stepshifter_def = StepshiftedModels(base_model, steps, target)
+        stepshifter_def = StepshiftedModels(base_model, steps, target)
 
-    # Fitting for calibration run, calibration partition
-    stepshifter_model_calib = ViewsRun(calib_partition, stepshifter_def)
-    stepshifter_model_calib.fit('calib', 'train', dataset)
+        stepshifter_model_calib = ViewsRun(calib_partition, stepshifter_def)
+        stepshifter_model_calib.fit('calib', 'train', dataset)
 
-    # Fitting for future run
-    stepshifter_model_future = ViewsRun(future_partition, stepshifter_def)
-    stepshifter_model_future.fit('future', 'train', dataset)
+        stepshifter_model_future = ViewsRun(future_partition, stepshifter_def)
+        stepshifter_model_future.fit('future', 'train', dataset)
 
-    assert stepshifter_model_calib is not None and stepshifter_model_future is not None, "Model training failed."
+        assert stepshifter_model_calib is not None and stepshifter_model_future is not None, "Model training failed."
 
-    print("Models trained!")
+        with open(calib_pickle_path, 'wb') as file:
+            pickle.dump(stepshifter_model_calib, file)
+        with open(future_pickle_path, 'wb') as file:
+            pickle.dump(stepshifter_model_future, file)
+            
+        print("Models trained and saved!")
 
     return stepshifter_model_calib, stepshifter_model_future
 
