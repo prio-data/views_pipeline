@@ -1,6 +1,6 @@
 def get_hp_config(): 
     """
-    Specifies the finalized hyperparameters used for training (W&B specific).
+    Specifies the finalized hyperparameters used for training.
 
     Returns:
     - hyperparameters (dict): A dictionary containing hyperparameters for the model.
@@ -11,4 +11,4 @@ def get_hp_config():
         "n_jobs": 2
    
     }
-    return hp_config #formerly hyperparameters
+    return hp_config

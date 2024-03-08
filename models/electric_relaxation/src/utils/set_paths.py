@@ -26,7 +26,7 @@ def get_generated_data_path(partition_name):
 
     return Path(__file__).parent.parent.parent / "data" / "generated" / f"{partition_name}_predictions.parquet"
 
-def set_paths():
+def set_paths(): #not using this yet in code
        
     """
     Set the paths for various directories for the model, independently of (Mac, Linux) machine. 

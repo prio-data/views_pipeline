@@ -17,7 +17,7 @@ def evaluate_model(model_config):
 
     This function loads a trained model from a pickle file, predicts outcomes for the calibration dataset,
     calculates mean squared error (MSE), average precision, and Brier score for the predictions,
-    and prints the results.
+    and saves the results as a dictionary in the artifacts folder.
 
     Args:
         model_config (dict): Configuration parameters for the model.
