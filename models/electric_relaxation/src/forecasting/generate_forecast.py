@@ -11,7 +11,7 @@ print(sys.path)
 
 from configs.config_data_partitions import get_data_partitions 
 from src.training.train_model import train 
-from src.utils.set_paths import get_raw_data_path, get_generated_data_path
+from src.utils.set_paths import get_data_path, get_generated_data_path
 
 from configs.config_hyperparameters import get_hp_config
 from configs.config_model import get_model_config
@@ -40,7 +40,7 @@ def forecast(data_partitions, model_calibration_partition, model_future_partitio
 
     print("Generating forecasts...")
 
-    data = pd.read_parquet(get_raw_data_path("raw"))
+    data = pd.read_parquet(get_data_path("raw"))
     future_partitioner_dict = data_partitions["future_partitioner_dict"]
 
     calib_predictions = model_calibration_partition.predict('calib','predict',data, proba=True)

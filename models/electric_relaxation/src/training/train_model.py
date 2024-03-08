@@ -17,7 +17,7 @@ from configs.config_data_partitions import get_data_partitions
 from configs.config_hyperparameters import get_hp_config
 from configs.config_model import get_model_config
 #from configs.config_sweep import get_sweep_config
-from src.utils.set_paths import get_raw_data_path, get_artifacts_path
+from src.utils.set_paths import get_data_path, get_artifacts_path
 
 def train(model_config, hp_config, data_partitions): 
     """
@@ -53,7 +53,7 @@ def train(model_config, hp_config, data_partitions):
             model_future_partition = pickle.load(file)
     
     else:
-        dataset = pd.read_parquet(get_raw_data_path("raw"))
+        dataset = pd.read_parquet(get_data_path("raw"))
         assert not dataset.empty, "Data loading failed."
 
         calib_partition = DataPartitioner({'calib': data_partitions["calib_partitioner_dict"]})
@@ -86,10 +86,10 @@ def train(model_config, hp_config, data_partitions):
 if __name__ == "__main__": 
     # Load configuration data
     data_partitions = get_data_partitions()
-    hyperparameters = get_hp_config()
+    hp_config = get_hp_config()
     model_config = get_model_config()
 
     # Call the train function with configuration data
-    model_calibration_partition, model_future_partition = train(model_config, hyperparameters, data_partitions)
+    model_calibration_partition, model_future_partition = train(model_config, hp_config, data_partitions)
 
 
