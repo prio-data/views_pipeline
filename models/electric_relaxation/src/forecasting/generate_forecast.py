@@ -4,18 +4,15 @@ import pandas as pd
 
 from views_runs import DataPartitioner
 
-#import modules from model folder
 model_path = Path(__file__).resolve().parents[2] 
 sys.path.append(str(model_path))
 print(sys.path)
 
 from configs.config_data_partitions import get_data_partitions 
-from src.training.train_model import train 
-from src.utils.set_paths import get_data_path, get_generated_data_path
-
 from configs.config_hyperparameters import get_hp_config
 from configs.config_model import get_model_config
-
+from src.training.train_model import train 
+from src.utils.set_paths import get_data_path, get_generated_data_path
 
 def forecast(data_partitions, model_calibration_partition, model_future_partition):
     """
@@ -53,18 +50,17 @@ def forecast(data_partitions, model_calibration_partition, model_future_partitio
     future_predictions.to_parquet(get_generated_data_path("future"))
     future_point_predictions.to_parquet(get_generated_data_path("future_point"))
 
+    print("Forecasts generated and saved in data/generated!")
+
     return calib_predictions, future_predictions, future_point_predictions
 
 if __name__ == "__main__":
 
-    # Load configuration data
     data_partitions = get_data_partitions()
     hyperparameters = get_hp_config()
     model_config = get_model_config()
 
-    # Call the train function with configuration data
     model_calibration_partition, model_future_partition = train(model_config, hyperparameters, data_partitions)
 
-    # Call the generate_forecasts function
     forecast(data_partitions, model_calibration_partition, model_future_partition)
 

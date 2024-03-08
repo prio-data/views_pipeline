@@ -17,7 +17,7 @@ from src.offline_evaluation.evaluate_model import evaluate_model
 
 def run_model(config=None, project=None):
     """
-    Runs the model training, forecasting, and evaluation pipeline using the provided configuration and project name. Initializes and log on Weights & Biases.
+    Runs the model training, forecasting, and evaluation scripts using the provided configuration and project name. Initializes and log on Weights & Biases.
 
     Args:
         config (dict, optional): A dictionary containing configuration parameters for the model.
@@ -52,8 +52,6 @@ if __name__ == "__main__":
     model_config = get_model_config()
     sweep_config = get_sweep_config()
     hp_config = get_hp_config()
-
-    #data = pd.read_parquet(get_data_path("raw"))
 
     do_sweep = input(f'a) Do sweep \nb) Do one run \n')
 

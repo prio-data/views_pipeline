@@ -8,7 +8,6 @@ from sklearn.ensemble import RandomForestClassifier
 from stepshift.views import StepshiftedModels
 from views_runs import DataPartitioner, ViewsRun
 
-#import modules from model folder
 model_path = Path(__file__).resolve().parents[2] 
 sys.path.append(str(model_path))
 print(sys.path)
@@ -78,18 +77,15 @@ def train(model_config, hp_config, data_partitions):
         with open(future_pickle_path, 'wb') as file:
             pickle.dump(model_future_partition, file)
             
-        print("Models trained and saved!")
+        print("Models trained and saved in artifacts folder!")
 
     return model_calibration_partition, model_future_partition
 
-#Run this script by itself:
 if __name__ == "__main__": 
-    # Load configuration data
     data_partitions = get_data_partitions()
     hp_config = get_hp_config()
     model_config = get_model_config()
 
-    # Call the train function with configuration data
     model_calibration_partition, model_future_partition = train(model_config, hp_config, data_partitions)
 
 

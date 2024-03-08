@@ -339,7 +339,7 @@ def get_data():
     data = data.astype(float) # Recast all columns to float because of an excessive assert in the stepshift library
     data.to_parquet(f"{Path(__file__).parent.parent.parent}/data/raw/raw.parquet") #wd is this model/src/dataloaders
     
-    print("Data fetched!")
+    print("Data fetched and saved in data/raw!")
     
     return data
     

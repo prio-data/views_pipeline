@@ -25,11 +25,12 @@ def evaluate_model(model_config):
     Returns:
         None
 
-    Notes/Questions:
+    Notes:
     - There are 36 predictions for every true value (given 36 steps), so I am taking the mean value of them. Open to discuss this further
     - Code for area under ROC curve didn't work, but leaving in for future development
     - Should this also include test partition?
     - When running the script, I get the following error from sklearn.metrics: No positive class found in y_true, recall is set to one for all thresholds.
+    - Instead of rewriting the code for metrics, it can be written as a loop or function in utils
     """
     print("Evaluating...")
 
@@ -71,6 +72,8 @@ def evaluate_model(model_config):
     with open(metrics_dict_path, 'w') as file:
         file.write("evaluation_metrics = ")
         file.write(repr(evaluation_metrics_calib))
+    
+    print("Evaluation metrics stored in artifacts folder!")
 
     #Doesn't work:
     #df_calib["roc_auc"] = df_calib.apply(lambda row: roc_auc_score([row["ged_sb_dep"]] * 36,
