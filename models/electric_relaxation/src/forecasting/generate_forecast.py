@@ -27,12 +27,6 @@ def forecast(data_partitions, model_calibration_partition, model_future_partitio
     - calibration_predictions (DataFrame): Predictions for the calibration partition.
     - future_predictions (DataFrame): Predictions for the future partition.
     - future_point_predictions (DataFrame): Point predictions for the future partition.
-
-    Notes:
-    - The function relies on previously trained models, specifically `model_calibration_partition` and `model_future_partition`.
-    - The function loads configuration parameters, such as `future_partitioner_dict`, from `common_config`.
-    - Predictions for the calibration partition are generated using `model_calibration_partition.predict()` method.
-    - Predictions for the future partition are generated using `model_future_partition.future_predict()` method.
     """
 
     print("Generating forecasts...")
