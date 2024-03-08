@@ -4,11 +4,6 @@ import pickle
 import time
 import sys
 
-# local imports
-#sys.path.insert(0, "/home/projects/ku_00017/people/simpol/scripts/conflictNet/src/networks")
-#sys.path.insert(0, "/home/projects/ku_00017/people/simpol/scripts/conflictNet/src/configs")
-#sys.path.insert(0, "/home/projects/ku_00017/people/simpol/scripts/conflictNet/src/utils")
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F

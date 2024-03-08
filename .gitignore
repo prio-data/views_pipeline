@@ -1,3 +1,11 @@
+# ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+# :: PLEASE DO NOT DELETE THIS FILE OR ANY OF ITS CONTENTS WITHOUT PERMISSION FROM THE MD&D TEAM  ::                                                           
+# ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+# Adding new file types to the ignore list is less controversial than removing them, 
+# But please, take a second to consult with the team before doing so anyways.
+
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
