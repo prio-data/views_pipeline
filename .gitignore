@@ -179,5 +179,7 @@ cython_debug/
 *.png
 *.svg
 *.parquet
-*.wandb
 *.json
+
+# local versions of weights & biases runs
+wandb/
