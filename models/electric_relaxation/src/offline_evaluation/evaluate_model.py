@@ -38,40 +38,36 @@ def evaluate_model(model_config):
     steps = model_config["steps"]
     depvar = [model_config["depvar"]] #formerly stepcols, changed to depvar to also use in true_values
 
-    for step in steps: #new addition: don't hardcode 36
+    for step in steps: 
         depvar.append("step_pred_" + str(step))
 
     df_calib = df_calib.replace([np.inf, -np.inf], 0)[depvar] 
 
-    pred_cols = [f"step_pred_{str(i)}" for i in steps] #constructs a list with step_pred_1 and so forth
+    pred_cols = [f"step_pred_{str(i)}" for i in steps] 
     
-    df_calib["mse"] = df_calib.apply(lambda row: mean_squared_error([row["ged_sb_dep"]] * 36,
+    df_calib["mse"] = df_calib.apply(lambda row: mean_squared_error([row["ged_sb_dep"]] * steps, 
                                                         [row[col] for col in pred_cols]), axis=1)
     
     mean_mse = df_calib["mse"].mean()
 
-    df_calib["avg_precision"] = df_calib.apply(lambda row: average_precision_score([row["ged_sb_dep"]] * 36,
+    df_calib["avg_precision"] = df_calib.apply(lambda row: average_precision_score([row["ged_sb_dep"]] * steps,
                                                                               [row[col] for col in pred_cols]), axis=1)
     
     mean_avg_precision = df_calib["avg_precision"].mean()
 
 
-    df_calib["brier_score"] = df_calib.apply(lambda row: brier_score_loss([row["ged_sb_dep"]] * 36,
+    df_calib["brier_score"] = df_calib.apply(lambda row: brier_score_loss([row["ged_sb_dep"]] * steps,
                                                                       [row[col] for col in pred_cols]), axis=1)
     mean_brier_score = df_calib["brier_score"].mean()
 
-
-    # Define the path for storing the evaluation metrics
     metrics_dict_path = model_path / "artifacts" / "evaluation_metrics.py"
 
-    # Store the evaluation metrics in a dictionary
     evaluation_metrics_calib = {
         "Mean Mean Squared Error": mean_mse,
         "Mean Average Precision": mean_avg_precision,
         "Mean Brier Score": mean_brier_score
     }
 
-    # Save the evaluation metrics dictionary to a Python file
     with open(metrics_dict_path, 'w') as file:
         file.write("evaluation_metrics = ")
         file.write(repr(evaluation_metrics_calib))
@@ -84,8 +80,6 @@ def evaluate_model(model_config):
 
     
 if __name__ == "__main__":
-    # Define model configuration
     model_config = get_model_config()
 
-    # Call the evaluate_model function with the model configuration
     evaluate_model(model_config)
