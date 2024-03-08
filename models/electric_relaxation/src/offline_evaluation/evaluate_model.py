@@ -1,31 +1,22 @@
-#Issue: for every true value there are 36 predicted values
-
-
 import numpy as np
 import pandas as pd
 from pathlib import Path
 import pickle
 import sys
 
-model_path = Path(__file__).resolve().parents[2] 
-sys.path.append(str(model_path))
-print(sys.path)
-
 from sklearn.metrics import mean_squared_error, average_precision_score, roc_auc_score, brier_score_loss
 
-from views_forecasts.extensions import *
-
-from src.utils.set_paths import get_raw_data_path, get_generated_data_path, get_artifacts_path
+model_path = Path(__file__).resolve().parents[2] 
+sys.path.append(str(model_path))
 from configs.config_model import get_model_config
-from src.training.train_model import train 
 
 
 def evaluate_model(model_config):
     """
-    Evaluate a model's performance using the calibration dataset (not yet present: test dataset).
+    Evaluate a model's performance from the calibration partition.
 
     This function loads a trained model from a pickle file, predicts outcomes for the calibration dataset,
-    calculates mean squared error (MSE), average precision, area under ROC curve, and Brier score for the predictions,
+    calculates mean squared error (MSE), average precision, and Brier score for the predictions,
     and prints the results.
 
     Args:
@@ -33,36 +24,65 @@ def evaluate_model(model_config):
 
     Returns:
         None
+
+    Notes/Questions:
+    - There are 36 predictions for every true value (given 36 steps), so I am taking the mean value of them. Open to discuss this further
+    - Code for area under ROC curve didn't work, but leaving in for future development
+    - Should this also include test partition?
+    - When running the script, I get the following error from sklearn.metrics: No positive class found in y_true, recall is set to one for all thresholds.
     """
     print("Evaluating...")
 
-    ######
-    df_calib = pd.read_parquet(model_path/"data"/"generated"/"calibration_predictions.parquet") #doesn't work
-    ######
+    df_calib = pd.read_parquet(model_path/"data"/"generated"/"calibration_predictions.parquet") 
 
     steps = model_config["steps"]
-    depvar = [model_config["depvar"]] #formerly stepcols, changed to depvar to also use in Line 58
+    depvar = [model_config["depvar"]] #formerly stepcols, changed to depvar to also use in true_values
 
     for step in steps: #new addition: don't hardcode 36
         depvar.append("step_pred_" + str(step))
 
     df_calib = df_calib.replace([np.inf, -np.inf], 0)[depvar] 
 
-    #changed Xiaolong's MSE code to accommodate other evaluation metrics
-    pred_cols = [f"step_pred_{str(i)}" for i in steps]
-    true_values = [row[depvar] for _, row in df_calib.iterrows()] #formetly hardcoded ged_sb_dep
-    predicted_values = [row[col] for col in pred_cols for _, row in df_calib.iterrows()]
+    pred_cols = [f"step_pred_{str(i)}" for i in steps] #constructs a list with step_pred_1 and so forth
+    
+    df_calib["mse"] = df_calib.apply(lambda row: mean_squared_error([row["ged_sb_dep"]] * 36,
+                                                        [row[col] for col in pred_cols]), axis=1)
+    
+    mean_mse = df_calib["mse"].mean()
 
-    mse = mean_squared_error(true_values, predicted_values)
-    avg_precision = average_precision_score(true_values, predicted_values)
-    roc_auc = roc_auc_score(true_values, predicted_values)
-    brier_score = brier_score_loss(true_values, predicted_values)
+    df_calib["avg_precision"] = df_calib.apply(lambda row: average_precision_score([row["ged_sb_dep"]] * 36,
+                                                                              [row[col] for col in pred_cols]), axis=1)
+    
+    mean_avg_precision = df_calib["avg_precision"].mean()
 
-    print("MSE:", mse)
-    print("Average Precision:", avg_precision)
-    print("Area under ROC curve:", roc_auc)
-    print("Brier Score:", brier_score)
 
+    df_calib["brier_score"] = df_calib.apply(lambda row: brier_score_loss([row["ged_sb_dep"]] * 36,
+                                                                      [row[col] for col in pred_cols]), axis=1)
+    mean_brier_score = df_calib["brier_score"].mean()
+
+
+    # Define the path for storing the evaluation metrics
+    metrics_dict_path = model_path / "artifacts" / "evaluation_metrics.py"
+
+    # Store the evaluation metrics in a dictionary
+    evaluation_metrics_calib = {
+        "Mean Mean Squared Error": mean_mse,
+        "Mean Average Precision": mean_avg_precision,
+        "Mean Brier Score": mean_brier_score
+    }
+
+    # Save the evaluation metrics dictionary to a Python file
+    with open(metrics_dict_path, 'w') as file:
+        file.write("evaluation_metrics = ")
+        file.write(repr(evaluation_metrics_calib))
+
+    #Doesn't work:
+    #df_calib["roc_auc"] = df_calib.apply(lambda row: roc_auc_score([row["ged_sb_dep"]] * 36,
+                                                               #[row[col] for col in pred_cols]), axis=1)
+    #mean_roc_auc = df_calib["roc_auc"].mean()
+    #print("Mean Area under ROC curve:", mean_roc_auc)
+
+    
 if __name__ == "__main__":
     # Define model configuration
     model_config = get_model_config()
