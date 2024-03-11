@@ -4,6 +4,8 @@ This folder contains code for Blank Space model, a machine learning model design
 
 The model utilizes Hurdle Model (XGBClassifier+XGBRegressor) for its predictions and is on pgm level of analysis.
 
+The model uses log fatalities.
+
 ## Repository Structure
 ```
 
