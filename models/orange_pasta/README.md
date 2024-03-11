@@ -6,6 +6,8 @@ The model was implemented during the VIEWS 2024 Cabin Hackathon.
 
 The model utilizes LightGBM for its predictions and is on pgm level of analysis.
 
+The model uses non-log fatalities.
+
 ## Repository Structure
 ```
 

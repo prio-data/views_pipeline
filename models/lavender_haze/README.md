@@ -4,6 +4,8 @@ This folder contains code for Lavender Haze model, a machine learning model desi
 
 The model utilizes Hurdle Model (LGBMClassifier+LGBMRegressor) for its predictions and is on pgm level of analysis.
 
+The model uses non-log fatalities.
+
 ## Repository Structure
 ```
 

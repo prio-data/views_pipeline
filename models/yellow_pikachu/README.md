@@ -6,6 +6,8 @@ The model was implemented during the VIEWS 2024 Cabin Hackathon.
 
 The model utilizes XGBoost for its predictions and is on pgm level of analysis.
 
+The modle uses non-log fatalities
+
 ## Repository Structure
 ```
 
