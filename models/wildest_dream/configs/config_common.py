@@ -4,7 +4,7 @@ def get_common_config():
         "algorithm": "HurdleRegression",
         "clf_name":"HistGradientBoostingClassifier",
         "reg_name":"HistGradientBoostingRegressor",
-        "depvar": "ged_sb_dep",
+        "depvar": "ln_ged_sb_dep",
         "queryset": "fatalities003_pgm_conflict_sptime_dist",
         "level": "pgm",
         'steps': [*range(1, 36 + 1, 1)],

@@ -8,9 +8,9 @@ def get_queryset():
 
     qs_sptime_dist = (Queryset("fatalities003_pgm_conflict_sptime_dist", "priogrid_month")
                       # target variable
-                      .with_column(Column("ged_sb_dep", from_table="ged2_pgm", from_column="ged_sb_best_sum_nokgi")
+                      .with_column(Column("ln_ged_sb_dep", from_table="ged2_pgm", from_column="ged_sb_best_sum_nokgi")
                                    .transform.missing.replace_na()
-                                   # .transform.ops.ln()
+                                   .transform.ops.ln()
                                    )
 
                       # dichotomous version, primarily for downsampling....
