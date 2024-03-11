@@ -47,9 +47,9 @@ def evaluate_sweep(common_config, para_config):
     df_test = df_test.replace([np.inf, -np.inf], 0)[stepcols]
 
     pred_cols = [f"step_pred_{str(i)}" for i in steps]
-    df_calib["mse"] = df_calib.apply(lambda row: mean_squared_error([row["ged_sb_dep"]] * 36,
+    df_calib["mse"] = df_calib.apply(lambda row: mean_squared_error([row[common_config["depvar"]]] * 36,
                                                         [row[col] for col in pred_cols]), axis=1)
-    df_test["mse"] = df_test.apply(lambda row: mean_squared_error([row["ged_sb_dep"]] * 36,
+    df_test["mse"] = df_test.apply(lambda row: mean_squared_error([row[common_config["depvar"]]] * 36,
                                                         [row[col] for col in pred_cols]), axis=1)
     
     wandb.log({'MSE_calib': df_calib['mse'].mean()})
