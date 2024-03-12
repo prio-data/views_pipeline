@@ -55,3 +55,24 @@ def setup_project_paths(PATH) -> None:
         if path.exists() and path_str not in sys.path: # whith the current implementation, PATH_COMMON_UTILS is already in sys.path and will not be added (or printed) again
             print(f"Adding {path_str} to sys.path") # debug
             sys.path.insert(0, path_str)
+
+
+def setup_data_paths(PATH) -> None:
+
+    """
+    Returns the raw, processed, and generated data paths for the specified model.
+
+    Args:
+    PATH (Path): The base path, typically the path of the script invoking this function (i.e., `Path(__file__)`).
+    config (str): The model configuration file.
+    
+    """    
+
+    PATH_MODEL = Path(*[i for i in PATH.parts[:PATH.parts.index("models")+2]]) # The +2 is to include the "models" and the individual model name in the path
+    
+    PATH_DATA = PATH_MODEL / "data"
+    PATH_RAW = PATH_DATA / "raw"
+    PATH_PROCCEDS = PATH_DATA / "processed"
+    PATH_GENERATED = PATH_DATA / "generated"
+
+    return PATH_RAW, PATH_PROCCEDS, PATH_GENERATED
