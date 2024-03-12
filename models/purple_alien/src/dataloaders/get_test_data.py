@@ -8,17 +8,17 @@ sys.path.insert(0, str(Path(*[i for i in PATH.parts[:PATH.parts.index("views_pip
 from set_path import setup_project_paths
 setup_project_paths(PATH)
 
-from viewser import Queryset, Column
-from ingester3.ViewsMonth import ViewsMonth
+#from viewser import Queryset, Column
+#from ingester3.ViewsMonth import ViewsMonth
 
-import os
-import pickle
+#import os
+#import pickle
 
-import numpy as np
-import pandas as pd
+#import numpy as np
+#import pandas as pd
 
 from config_hyperparameters import get_hp_config
-from config_partitioner import get_partitioner_dict
+#from config_partitioner import get_partitioner_dict
 from utils_dataloaders import get_views_date, df_to_vol, process_partition_data
  
 if __name__ == "__main__":
