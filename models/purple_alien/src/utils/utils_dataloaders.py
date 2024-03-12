@@ -12,8 +12,6 @@ from viewser import Queryset, Column
 from ingester3.ViewsMonth import ViewsMonth
 
 import os
-import pickle
-
 import numpy as np
 import pandas as pd
 
@@ -61,11 +59,20 @@ def get_views_date(partition):
 
         df = df[df['month_id'].isin(month_range)] # temp sub
  
-
     return df
 
 
 def df_to_vol(df):
+
+    """
+    Converts a dataframe to a volume.
+    
+    Args:
+        df (pandas.DataFrame): The input dataframe containing the data.
+
+    Returns:
+        numpy.ndarray: The volume representation of the dataframe.
+    """
 
     month_first = df['month_id'].min() # Jan 1990
     month_last =  df['month_id'].max() # minus 1 because the current month is not yet available,
@@ -94,3 +101,54 @@ def df_to_vol(df):
 
     return vol
 
+
+def process_partition_data(partition, get_hp_config, get_views_date, df_to_vol):
+    """
+    Processes data for a given partition by ensuring the existence of necessary directories,
+    downloading or loading existing data, and creating or loading a volume.
+
+    Args:
+        partition (str): The partition to process, e.g., 'calibration', 'forecasting', 'testing'.
+        get_hp_config (function): Function to get the hyperparameter configuration.
+        get_views_date (function): Function to download the VIEWSER data.
+        df_to_vol (function): Function to convert a DataFrame to a volume.
+
+    Returns:
+        tuple: A tuple containing the DataFrame `df` and the volume `vol`.
+    """
+    config = get_hp_config()
+
+    processed_location = config['path_processed_data']
+    raw_location = config['path_raw_data']
+
+    path_viewser_data = os.path.join(raw_location, f'{partition}_viewser_data.pkl')
+    path_vol = os.path.join(processed_location, f'{partition}_vol.npy')
+
+    # Create the folders if they don't exist
+    os.makedirs(raw_location, exist_ok=True)
+    os.makedirs(processed_location, exist_ok=True)
+
+    # Check if the VIEWSER data file exists
+    if os.path.isfile(path_viewser_data):
+        print('File already downloaded')
+        df = pd.read_pickle(path_viewser_data)
+    else:
+        print('Downloading file...')
+        df = get_views_date(partition)
+        print(f'Saving file to {path_viewser_data}')
+        df.to_pickle(path_viewser_data)
+
+    # Check if the volume exists
+    if os.path.isfile(path_vol):
+        print('Volume already created')
+        vol = np.load(path_vol)
+    else:
+        print('Creating volume...')
+        vol = df_to_vol(df)
+        print(f'shape of volume: {vol.shape}')
+        print(f'Saving volume to {path_vol}')
+        np.save(path_vol, vol)
+
+    print('Done')
+
+    return df, vol
