@@ -15,9 +15,7 @@ import os
 import numpy as np
 import pandas as pd
 
-from config_hyperparameters import get_hp_config
 from config_partitioner import get_partitioner_dict
-
 
 def get_views_date(partition):
 
@@ -102,7 +100,7 @@ def df_to_vol(df):
     return vol
 
 
-def process_partition_data(partition, get_hp_config, get_views_date, df_to_vol, PATH):
+def process_partition_data(partition, get_views_date, df_to_vol, PATH):
 
     """
     Processes data for a given partition by ensuring the existence of necessary directories,
@@ -110,7 +108,6 @@ def process_partition_data(partition, get_hp_config, get_views_date, df_to_vol, 
 
     Args:
         partition (str): The partition to process, e.g., 'calibration', 'forecasting', 'testing'.
-        get_hp_config (function): Function to get the hyperparameter configuration.
         get_views_date (function): Function to download the VIEWSER data.
         df_to_vol (function): Function to convert a DataFrame to a volume.
 
@@ -118,8 +115,7 @@ def process_partition_data(partition, get_hp_config, get_views_date, df_to_vol, 
         tuple: A tuple containing the DataFrame `df` and the volume `vol`.
     """
     
-    config = get_hp_config()
-    PATH_RAW, PATH_PROCESSED, _ = setup_data_paths(PATH, config)
+    PATH_RAW, PATH_PROCESSED, _ = setup_data_paths(PATH)
 
     path_viewser_data = os.path.join(str(PATH_RAW), f'{partition}_viewser_data.pkl')
     path_vol = os.path.join(str(PATH_PROCESSED), f'{partition}_vol.npy')

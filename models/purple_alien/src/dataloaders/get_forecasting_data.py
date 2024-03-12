@@ -15,4 +15,4 @@ if __name__ == "__main__":
     
     partition = 'forecasting' # 'calibration', 'forecasting', 'testing'
 
-    df, vol = process_partition_data(partition, get_hp_config, get_views_date, df_to_vol, PATH)    
+    df, vol = process_partition_data(partition, get_views_date, df_to_vol, PATH)    
