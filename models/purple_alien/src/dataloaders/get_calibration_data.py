@@ -1,6 +1,12 @@
 # Use viewser env
 
 import sys
+from pathlib import Path
+
+PATH = Path(__file__)
+sys.path.insert(0, str(Path(*[i for i in PATH.parts[:PATH.parts.index("views_pipeline")+1]]) / "common_utils")) # PATH_COMMON_UTILS  
+from set_path import setup_project_paths
+setup_project_paths(PATH)
 
 from viewser import Queryset, Column
 from ingester3.ViewsMonth import ViewsMonth
@@ -11,42 +17,15 @@ import pickle
 import numpy as np
 import pandas as pd
 
-# ------------------------- CHANGE TO A COMMON UTIL ---------------------------------
-from pathlib import Path
-
-def setup_project_paths():
-    root_path = Path(__file__).resolve().parents[3]
-
-    # Define common paths
-    common_utils_path = root_path / "common_utils"
-    common_configs_path = root_path / "common_configs"
-
-    # Define model-specific paths
-    model_path = Path(__file__).resolve().parents[1]
-    configs_path = model_path / "configs"
-    src_path = model_path / "src"
-    utils_path = src_path / "utils"
-    architectures_path = src_path / "architectures"
-
-    paths_to_add = [common_utils_path, common_configs_path, configs_path, utils_path, architectures_path]
-
-    for path in paths_to_add:
-        path_str = str(path)
-        if path.exists() and path_str not in sys.path:
-            sys.path.insert(0, path_str)
-
-# Call the function to setup the project paths
-setup_project_paths()
-# -----------------------------------------------------------------------------------
-
 from config_hyperparameters import get_hp_config
 from config_partitioner import get_partitioner_dict
 from utils_dataloaders import get_views_date, df_to_vol
-
  
 if __name__ == "__main__":
     
     partition = 'calibration' # 'calibration', 'forecasting', 'testing'
+
+    # Should be a function in a dataloaders utils (maybe in common_utils later on?)
 
     config = get_hp_config()
 
