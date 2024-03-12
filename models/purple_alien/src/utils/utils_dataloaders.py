@@ -5,7 +5,7 @@ from pathlib import Path
 
 PATH = Path(__file__)
 sys.path.insert(0, str(Path(*[i for i in PATH.parts[:PATH.parts.index("views_pipeline")+1]]) / "common_utils")) # PATH_COMMON_UTILS  
-from set_path import setup_project_paths
+from set_path import setup_project_paths, setup_data_paths
 setup_project_paths(PATH)
 
 from viewser import Queryset, Column
@@ -15,7 +15,7 @@ import os
 import numpy as np
 import pandas as pd
 
-#from config_hyperparameters import get_hp_config
+from config_hyperparameters import get_hp_config
 from config_partitioner import get_partitioner_dict
 
 
@@ -102,7 +102,8 @@ def df_to_vol(df):
     return vol
 
 
-def process_partition_data(partition, get_hp_config, get_views_date, df_to_vol):
+def process_partition_data(partition, get_hp_config, get_views_date, df_to_vol, PATH):
+
     """
     Processes data for a given partition by ensuring the existence of necessary directories,
     downloading or loading existing data, and creating or loading a volume.
@@ -116,17 +117,16 @@ def process_partition_data(partition, get_hp_config, get_views_date, df_to_vol):
     Returns:
         tuple: A tuple containing the DataFrame `df` and the volume `vol`.
     """
+    
     config = get_hp_config()
+    PATH_RAW, PATH_PROCESSED, _ = setup_data_paths(PATH, config)
 
-    processed_location = config['path_processed_data']
-    raw_location = config['path_raw_data']
-
-    path_viewser_data = os.path.join(raw_location, f'{partition}_viewser_data.pkl')
-    path_vol = os.path.join(processed_location, f'{partition}_vol.npy')
+    path_viewser_data = os.path.join(str(PATH_RAW), f'{partition}_viewser_data.pkl')
+    path_vol = os.path.join(str(PATH_PROCESSED), f'{partition}_vol.npy')
 
     # Create the folders if they don't exist
-    os.makedirs(raw_location, exist_ok=True)
-    os.makedirs(processed_location, exist_ok=True)
+    os.makedirs(str(PATH_RAW), exist_ok=True)
+    os.makedirs(str(PATH_PROCESSED), exist_ok=True)
 
     # Check if the VIEWSER data file exists
     if os.path.isfile(path_viewser_data):
