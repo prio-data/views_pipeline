@@ -15,7 +15,8 @@ import os
 import numpy as np
 import pandas as pd
 
-from config_partitioner import get_partitioner_dict
+#from config_partitioner import get_partitioner_dict
+from set_partition import get_partitioner_dict
 
 def get_views_date(partition):
 
@@ -41,20 +42,27 @@ def get_views_date(partition):
 
     df['in_viewser'] = True
 
-    month_first = df[df['year_id'] == 1990]['month_id'].min() # Jan 1990
-    month_last =  ViewsMonth.now().id - 2 # minus 1 because the current month is not yet available,
+    partitioner_dict = get_partitioner_dict(partition) # not that the partion includes both trainin and prediction/validation months
 
-    df = df[df['month_id'] <= month_last].copy()
+    month_first = partitioner_dict['train'][0]
+
+    if partition == 'forecasting':
+        month_last = partitioner_dict['train'][1] + 1 # no need to get the predict months as these are empty
+
+    elif partition == 'calibration' or partition == 'testing':
+        month_last = partitioner_dict['predict'][1] + 1 # predict[1] is the last month to predict, so we need to add 1 to include it.
+    
+    else:
+        raise ValueError('partition should be either "calibration", "testing" or "forecasting"')
+
+    
+    month_range = np.arange(month_first, month_last,1) # predict[1] is the last month to predict, so we need to add 1 to include it.
+
+    df = df[df['month_id'].isin(month_range)].copy() # temporal subset
+    
     df.loc[:,'abs_row'] = df.loc[:,'row'] - df.loc[:,'row'].min() 
     df.loc[:,'abs_col'] = df.loc[:,'col'] - df.loc[:,'col'].min()
     df.loc[:,'abs_month'] = df.loc[:,'month_id'] - month_first  
-
-
-    partitioner_dict = get_partitioner_dict(partition)
-
-    month_range = np.arange(partitioner_dict['train'][0], partitioner_dict['predict'][1]+1,1)
-
-    df = df[df['month_id'].isin(month_range)] # temporal subset
 
     return df
 
