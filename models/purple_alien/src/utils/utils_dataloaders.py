@@ -48,15 +48,14 @@ def get_views_date(partition):
     df.loc[:,'abs_row'] = df.loc[:,'row'] - df.loc[:,'row'].min() 
     df.loc[:,'abs_col'] = df.loc[:,'col'] - df.loc[:,'col'].min()
     df.loc[:,'abs_month'] = df.loc[:,'month_id'] - month_first  
- 
-    if partition != 'forecasting':
 
-        partitioner_dict = get_partitioner_dict(partition)
 
-        month_range = np.arange(partitioner_dict['train'][0], partitioner_dict['predict'][1]+1,1)
+    partitioner_dict = get_partitioner_dict(partition)
 
-        df = df[df['month_id'].isin(month_range)] # temp sub
- 
+    month_range = np.arange(partitioner_dict['train'][0], partitioner_dict['predict'][1]+1,1)
+
+    df = df[df['month_id'].isin(month_range)] # temporal subset
+
     return df
 
 
