@@ -1,8 +1,4 @@
 import numpy as np
-import random
-import pickle
-import time
-import sys
 
 import torch
 import torch.nn as nn
@@ -28,6 +24,15 @@ from mtloss import MultiTaskLoss
 # learning rate schedulers
 from torch.optim.lr_scheduler import ReduceLROnPlateau, StepLR, LinearLR, OneCycleLR, CyclicLR
 from warmup_decay_lr_scheduler import WarmupDecayLearningRateScheduler
+
+import sys
+from pathlib import Path
+
+PATH = Path(__file__)
+sys.path.insert(0, str(Path(*[i for i in PATH.parts[:PATH.parts.index("views_pipeline")+1]]) / "common_utils")) # PATH_COMMON_UTILS  
+from set_path import setup_project_paths, setup_data_paths
+setup_project_paths(PATH)
+
 
 def choose_model(config, device):
 
@@ -195,12 +200,15 @@ def get_data(config):
     """
 
     # Data
-    location = config.path_processed_data
+    #location = config.path_processed_data
+
+    _, PATH_PROCESSED, _ = setup_data_paths(PATH)
+
     model_type = config.model_type # 'calibration', 'testing' or 'forecasting'
 
     try:
-        file_name = f'/{model_type}_vol.npy'
-        views_vol = np.load(location + file_name)
+        file_name = f'/{model_type}_vol.npy' # NOT WINDOWS FRIENDLY
+        views_vol = np.load(str(PATH_PROCESSED) + file_name)
     
     except FileNotFoundError as e:
         print(f'File not found: {e}. Run correct dataloader get_calibration_data.py, get_test_data.py or get_forecasting_data.py. Now exiting...')
@@ -327,10 +335,10 @@ def get_window_coords(window_index, config):
     return(window_coords)
 
 
-
 def apply_dropout(m):
     if type(m) == nn.Dropout:
         m.train()
+
 
 def train_log(avg_loss_list, avg_loss_reg_list, avg_loss_class_list):
 
