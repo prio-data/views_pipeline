@@ -173,37 +173,34 @@ if __name__ == "__main__":
 
     wandb.login()
 
+    # model type is still a vary bad name here - it should be something like run_type... Change later!
     model_type_dict = {'a' : 'calibration', 'b' : 'testing', 'c' : 'forecasting'}
     model_type = model_type_dict[input("a) Calibration\nb) Testing\nc) Forecasting\n")]
     print(f'Run type: {model_type}\n')
 
-    project = f"imp_new_structure_{model_type}" # temp.
+    project = f"imp_new_structure_{model_type}" # temp. also a bad name. Change later!
 
     hyperparameters = get_hp_config()
 
-    hyperparameters['model_type'] = model_type
+    hyperparameters['model_type'] = model_type # bad name... ! Change later!
     hyperparameters['sweep'] = False
 
     start_t = time.time()
 
     model = model_pipeline(config = hyperparameters, project = project)
 
-    # save the model - should prolly use the state_dict instead of the model object... 
+    # this works because the specfic artifacts path is added to sys.path in set_path.py at the start of the script
+    PATH_ARTIFACTS = [i for i in sys.path if "artifacts" in i][0] # this is a list with one element (a str), so I can just index it with 0 
     
-    # for computerome
-    # artifacts_path = f"/home/projects/ku_00017/people/simpol/scripts/conflictNet/artifacts"
+    # create the artifacts folder if it does not exist
+    os.makedirs(PATH_ARTIFACTS, exist_ok=True)
+
+    # save the model
+    PATH_MODEL_ARTIFACT = os.path.join(PATH_ARTIFACTS, f"{model_type}_model.pt")
+    torch.save(model, PATH_MODEL_ARTIFACT)
+
+    print(f"Model saved as: {PATH_MODEL_ARTIFACT}")
     
-    # for fimbulthul
-#    artifacts_path = f"/home/simmaa/HydraNet_001/artifacts"
-
-    #artifacts_path = f"{hyperparameters['path_repo']}/artifacts"
-    artifacts_path = base_path.replace('src', 'artifacts')
-
-    os.makedirs(artifacts_path, exist_ok=True)
-
-    model = torch.save(model, f"{artifacts_path}/{model_type}_model.pt")
-    print("Model saved as: ", f"{artifacts_path}/{model_type}_model.pt")
-
     end_t = time.time()
     minutes = (end_t - start_t)/60
     print(f'Done. Runtime: {minutes:.3f} minutes')
