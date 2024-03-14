@@ -42,13 +42,18 @@ def setup_project_paths(PATH) -> None:
     print(f"Common utils path: {PATH_COMMON_UTILS}") # debug
     print(f"Common configs path: {PATH_COMMON_CONFIGS}") # debug
 
-    # Define model-specific paths
+    # Define model-specific paths - more can be added as needed
     PATH_CONFIGS = PATH_MODEL / "configs"
+    PATH_ARTIFACTS = PATH_MODEL / "artifacts"
+    PATH_DATA = PATH_MODEL / "data"
     PATH_SRC = PATH_MODEL / "src"
+    
+    # This way ensure that the paths stay machine-agnostic compared to say PATH_MODEL / "src/utils" 
     PATH_UTILS = PATH_SRC / "utils"
     PATH_ARCHITECTURES = PATH_SRC / "architectures"
 
-    paths_to_add = [PATH_COMMON_UTILS, PATH_COMMON_CONFIGS, PATH_CONFIGS, PATH_UTILS, PATH_ARCHITECTURES]
+
+    paths_to_add = [PATH_COMMON_UTILS, PATH_ARTIFACTS, PATH_DATA, PATH_COMMON_CONFIGS, PATH_CONFIGS, PATH_UTILS, PATH_ARCHITECTURES]
 
     for path in paths_to_add:
         path_str = str(path)
