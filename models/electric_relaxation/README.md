@@ -45,7 +45,8 @@ Once the model has been run locally, outputs will be generated. Please refer to 
 These are the areas where further development is needed:
 - Implementing another version of this model with the new stepshifter module Xiaolong has developed
 - Further develop readme generator in utils (this readme was hand-written)
-- Improve structure of evaluate_model (move repetitive code into utils?)
+- Improve structure of evaluate_model (move repetitive code into utils?) 
+- At some point, evaluations need to be monthly metrics. Simon created a [script to create a standard container for them in common_utils](https://github.com/prio-data/views_pipeline/blob/main/common_utils/utils_evaluation_metrics.py)
 - Integrating input and output drift detection
 - Hyperparameter tuning
 - Figure out standardised path solution
