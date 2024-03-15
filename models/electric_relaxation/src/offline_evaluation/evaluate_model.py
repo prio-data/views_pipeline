@@ -46,18 +46,18 @@ def evaluate_model(model_config):
 
     pred_cols = [f"step_pred_{str(i)}" for i in steps] 
     
-    df_calib["mse"] = df_calib.apply(lambda row: mean_squared_error([row["ged_sb_dep"]] * len(steps), #i tried replacing "ged_sb_dep" with depvar but it wouldn't work
+    df_calib["mse"] = df_calib.apply(lambda row: mean_squared_error([row[[model_config["depvar"]]]] * len(steps), #not sure why [model_config["depvar"]] works but depvar doesn't (I previously defined it)
                                                         [row[col] for col in pred_cols]), axis=1)
     
     mean_mse = df_calib["mse"].mean()
 
-    df_calib["avg_precision"] = df_calib.apply(lambda row: average_precision_score([row["ged_sb_dep"]] * len(steps),
+    df_calib["avg_precision"] = df_calib.apply(lambda row: average_precision_score([row[[model_config["depvar"]]]] * len(steps),
                                                                               [row[col] for col in pred_cols]), axis=1)
     
     mean_avg_precision = df_calib["avg_precision"].mean()
 
 
-    df_calib["brier_score"] = df_calib.apply(lambda row: brier_score_loss([row["ged_sb_dep"]] * len(steps),
+    df_calib["brier_score"] = df_calib.apply(lambda row: brier_score_loss([row[[model_config["depvar"]]]] * len(steps),
                                                                       [row[col] for col in pred_cols]), axis=1)
     mean_brier_score = df_calib["brier_score"].mean()
 
