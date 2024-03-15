@@ -178,8 +178,16 @@ cython_debug/
 *.mp4
 *.png
 *.svg
-*.parquet
-*.json
 
-# local versions of weights & biases runs
-wandb/
+# data files
+*.csv
+*.pkl
+*.npy
+*.parquet
+*.pt 
+
+# folders
+**/wandb/
+
+# mac specific 
+.DS_Store

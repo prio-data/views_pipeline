@@ -14,8 +14,10 @@ def get_partitioner_dict(partion, step=36):
 
     if partion == 'forecasting':
 
-        last_month =  ViewsMonth.now().id - 2
+        month_last =  ViewsMonth.now().id - 2 # minus 2 because the current month is not yet available. Verified but can be tested by chinging this and running the check_data notebook.
 
-        partitioner_dict = {"train":(121, last_month),"predict":(last_month +1, last_month + 1 + step)}  
+        partitioner_dict = {"train":(121, month_last),"predict":(month_last +1, month_last + 1 + step)}  # is it even meaningful to have a predict partition for forecasting? if not you can remove steps
+
+    print('partitioner_dict', partitioner_dict) 
 
     return partitioner_dict
