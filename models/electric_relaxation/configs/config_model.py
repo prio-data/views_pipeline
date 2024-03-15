@@ -10,7 +10,6 @@ def get_model_config():
         "algorithm": "RandomForestClassifier", 
         "depvar": "ged_sb_dep", #or target? 
         "queryset": "escwa001_cflong",
-        "data_train": "baseline", #unsure. e.g. baseline, conflict_treelag
         "level": "cm",
         "sweep": False,
         "force_retrain": False,
