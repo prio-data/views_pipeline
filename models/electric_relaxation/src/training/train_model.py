@@ -57,12 +57,8 @@ def train(model_config, hp_config, data_partitions):
 
         calib_partition = DataPartitioner({'calib': data_partitions["calib_partitioner_dict"]})
         future_partition = DataPartitioner({'future': data_partitions["future_partitioner_dict"]})
-        n_estimators = hp_config["n_estimators"]
-        n_jobs = hp_config["n_jobs"]
-        base_model = RandomForestClassifier(n_estimators=n_estimators, n_jobs=n_jobs)
-        steps = model_config["steps"]
-        target = model_config["depvar"]
-        stepshifter_def = StepshiftedModels(base_model, steps, target)
+        base_model = [model_config["algorithm"]](n_estimators=hp_config["n_estimators"], n_jobs=hp_config["n_jobs"])
+        stepshifter_def = StepshiftedModels(base_model, model_config["steps"], model_config["depvar"])
 
         model_calibration_partition = ViewsRun(calib_partition, stepshifter_def)
         model_calibration_partition.fit('calib', 'train', dataset)
