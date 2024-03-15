@@ -1,7 +1,7 @@
 import numpy as np
 from viewser import Queryset, Column
 
-def get_queryset():
+def get_input_data():
     
     qs_natsoc = (Queryset("fatalities003_pgm_natsoc", "priogrid_month")
 
