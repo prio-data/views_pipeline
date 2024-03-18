@@ -1,5 +1,4 @@
-# All zero baseline model
+# Test PGM model
 
-This model is at pgm level
-It predicts zeros as forecasts
+This model is a test pgm level
 
