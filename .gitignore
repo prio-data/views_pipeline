@@ -178,3 +178,16 @@ cython_debug/
 *.mp4
 *.png
 *.svg
+
+# data files
+*.csv
+*.pkl
+*.npy
+*.parquet
+*.pt 
+
+# folders
+**/wandb/
+
+# mac specific 
+.DS_Store
