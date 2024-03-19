@@ -1,49 +1,22 @@
 # Use viewser env
 
 import sys
+from pathlib import Path
+
+PATH = Path(__file__)
+sys.path.insert(0, str(Path(*[i for i in PATH.parts[:PATH.parts.index("views_pipeline")+1]]) / "common_utils")) # PATH_COMMON_UTILS  
+from set_path import setup_project_paths, setup_data_paths
+setup_project_paths(PATH)
 
 from viewser import Queryset, Column
 from ingester3.ViewsMonth import ViewsMonth
 
 import os
-import pickle
-
 import numpy as np
 import pandas as pd
 
-
-# ------------------------- CHANGE TO A COMMON UTIL ---------------------------------
-# Also do not think this is needed here... 
-from pathlib import Path
-
-def setup_project_paths():
-    root_path = Path(__file__).resolve().parents[3]
-
-    # Define common paths
-    common_utils_path = root_path / "common_utils"
-    common_configs_path = root_path / "common_configs"
-
-    # Define model-specific paths
-    model_path = Path(__file__).resolve().parents[1]
-    configs_path = model_path / "configs"
-    src_path = model_path / "src"
-    utils_path = src_path / "utils"
-    architectures_path = src_path / "architectures"
-
-    paths_to_add = [common_utils_path, common_configs_path, configs_path, utils_path, architectures_path]
-
-    for path in paths_to_add:
-        path_str = str(path)
-        if path.exists() and path_str not in sys.path:
-            sys.path.insert(0, path_str)
-
-# Call the function to setup the project paths
-setup_project_paths()
-# -----------------------------------------------------------------------------------
-
-from config_hyperparameters import get_hp_config
-from config_partitioner import get_partitioner_dict
-
+#from config_partitioner import get_partitioner_dict
+from set_partition import get_partitioner_dict
 
 def get_views_date(partition):
 
@@ -69,27 +42,42 @@ def get_views_date(partition):
 
     df['in_viewser'] = True
 
-    month_first = df[df['year_id'] == 1990]['month_id'].min() # Jan 1990
-    month_last =  ViewsMonth.now().id - 2 # minus 1 because the current month is not yet available,
+    partitioner_dict = get_partitioner_dict(partition) # not that the partion includes both trainin and prediction/validation months
 
-    df = df[df['month_id'] <= month_last].copy()
+    month_first = partitioner_dict['train'][0]
+
+    if partition == 'forecasting':
+        month_last = partitioner_dict['train'][1] + 1 # no need to get the predict months as these are empty
+
+    elif partition == 'calibration' or partition == 'testing':
+        month_last = partitioner_dict['predict'][1] + 1 # predict[1] is the last month to predict, so we need to add 1 to include it.
+    
+    else:
+        raise ValueError('partition should be either "calibration", "testing" or "forecasting"')
+
+    
+    month_range = np.arange(month_first, month_last,1) # predict[1] is the last month to predict, so we need to add 1 to include it.
+
+    df = df[df['month_id'].isin(month_range)].copy() # temporal subset
+    
     df.loc[:,'abs_row'] = df.loc[:,'row'] - df.loc[:,'row'].min() 
     df.loc[:,'abs_col'] = df.loc[:,'col'] - df.loc[:,'col'].min()
     df.loc[:,'abs_month'] = df.loc[:,'month_id'] - month_first  
- 
-    if partition != 'forecasting':
-
-        partitioner_dict = get_partitioner_dict(partition)
-
-        month_range = np.arange(partitioner_dict['train'][0], partitioner_dict['predict'][1]+1,1)
-
-        df = df[df['month_id'].isin(month_range)] # temp sub
- 
 
     return df
 
 
 def df_to_vol(df):
+
+    """
+    Converts a dataframe to a volume.
+    
+    Args:
+        df (pandas.DataFrame): The input dataframe containing the data.
+
+    Returns:
+        numpy.ndarray: The volume representation of the dataframe.
+    """
 
     month_first = df['month_id'].min() # Jan 1990
     month_last =  df['month_id'].max() # minus 1 because the current month is not yet available,
@@ -118,3 +106,52 @@ def df_to_vol(df):
 
     return vol
 
+
+def process_partition_data(partition, get_views_date, df_to_vol, PATH):
+
+    """
+    Processes data for a given partition by ensuring the existence of necessary directories,
+    downloading or loading existing data, and creating or loading a volume.
+
+    Args:
+        partition (str): The partition to process, e.g., 'calibration', 'forecasting', 'testing'.
+        get_views_date (function): Function to download the VIEWSER data.
+        df_to_vol (function): Function to convert a DataFrame to a volume.
+
+    Returns:
+        tuple: A tuple containing the DataFrame `df` and the volume `vol`.
+    """
+    
+    PATH_RAW, PATH_PROCESSED, _ = setup_data_paths(PATH)
+
+    path_viewser_data = os.path.join(str(PATH_RAW), f'{partition}_viewser_data.pkl')
+    path_vol = os.path.join(str(PATH_PROCESSED), f'{partition}_vol.npy')
+
+    # Create the folders if they don't exist
+    os.makedirs(str(PATH_RAW), exist_ok=True)
+    os.makedirs(str(PATH_PROCESSED), exist_ok=True)
+
+    # Check if the VIEWSER data file exists
+    if os.path.isfile(path_viewser_data):
+        print('File already downloaded')
+        df = pd.read_pickle(path_viewser_data)
+    else:
+        print('Downloading file...')
+        df = get_views_date(partition)
+        print(f'Saving file to {path_viewser_data}')
+        df.to_pickle(path_viewser_data)
+
+    # Check if the volume exists
+    if os.path.isfile(path_vol):
+        print('Volume already created')
+        vol = np.load(path_vol)
+    else:
+        print('Creating volume...')
+        vol = df_to_vol(df)
+        print(f'shape of volume: {vol.shape}')
+        print(f'Saving volume to {path_vol}')
+        np.save(path_vol, vol)
+
+    print('Done')
+
+    return df, vol
