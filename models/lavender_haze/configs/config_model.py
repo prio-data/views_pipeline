@@ -1,5 +1,5 @@
-def get_common_config():
-    common_config = {
+def get_model_config():
+    model_config = {
         "name": "lavender_haze",
         "algorithm": "HurdleRegression",
         "clf_name":"LGBMClassifier",
@@ -9,4 +9,4 @@ def get_common_config():
         "level": "pgm",
         'steps': [*range(1, 36 + 1, 1)],
     }
-    return common_config
+    return model_config

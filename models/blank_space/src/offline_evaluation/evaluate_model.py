@@ -5,7 +5,6 @@ import pandas as pd
 from sklearn.metrics import mean_squared_error
 
 PATH = Path(__file__)
-sys.path.insert(0, str(Path(*[i for i in PATH.parts[:PATH.parts.index("views_pipeline")+1]]) / "common_utils")) # PATH_COMMON_UTILS  
 from set_path import setup_project_paths, setup_data_paths, setup_artifacts_paths
 setup_project_paths(PATH)
 from get_data import get_partition_data

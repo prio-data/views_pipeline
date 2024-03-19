@@ -3,8 +3,7 @@ from pathlib import Path
 import pandas as pd
 import numpy as np
 
-PATH = Path(__file__)
-sys.path.insert(0, str(Path(*[i for i in PATH.parts[:PATH.parts.index("views_pipeline")+1]]) / "common_utils")) # PATH_COMMON_UTILS  
+PATH = Path(__file__) 
 from set_path import setup_project_paths, setup_data_paths
 setup_project_paths(PATH)
 

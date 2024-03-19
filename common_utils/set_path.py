@@ -33,15 +33,15 @@ def setup_project_paths(PATH) -> None:
     PATH_ROOT  = Path(*[i for i in PATH.parts[:PATH.parts.index("views_pipeline")+1]]) # The +1 is to include the "views_pipeline" part in the path
     PATH_MODEL = Path(*[i for i in PATH.parts[:PATH.parts.index("models")+2]]) # The +2 is to include the "models" and the individual model name in the path
     
-    print(f"Root path: {PATH_ROOT}") # debug
-    print(f"Model path: {PATH_MODEL}") # debug
+    # print(f"Root path: {PATH_ROOT}") # debug
+    # print(f"Model path: {PATH_MODEL}") # debug
 
     # Define common paths
     PATH_COMMON_UTILS = PATH_ROOT / "common_utils"
     PATH_COMMON_CONFIGS = PATH_ROOT / "common_configs"
 
-    print(f"Common utils path: {PATH_COMMON_UTILS}") # debug
-    print(f"Common configs path: {PATH_COMMON_CONFIGS}") # debug
+    # print(f"Common utils path: {PATH_COMMON_UTILS}") # debug
+    # print(f"Common configs path: {PATH_COMMON_CONFIGS}") # debug
 
     # Define model-specific paths
     PATH_CONFIGS = PATH_MODEL / "configs"
@@ -53,12 +53,12 @@ def setup_project_paths(PATH) -> None:
     PATH_OFFLINE_EVALUATION = PATH_SRC / "offline_evaluation"
     PATH_DATALOADERS = PATH_SRC / "dataloaders"
 
-    paths_to_add = [PATH_COMMON_UTILS, PATH_COMMON_CONFIGS, PATH_CONFIGS, PATH_UTILS, PATH_ARCHITECTURES, PATH_TRAINING, PATH_FORECASTING, PATH_OFFLINE_EVALUATION, PATH_DATALOADERS]
+    paths_to_add = [PATH_ROOT, PATH_COMMON_UTILS, PATH_COMMON_CONFIGS, PATH_CONFIGS, PATH_UTILS, PATH_ARCHITECTURES, PATH_TRAINING, PATH_FORECASTING, PATH_OFFLINE_EVALUATION, PATH_DATALOADERS]
 
     for path in paths_to_add:
         path_str = str(path)
         if path.exists() and path_str not in sys.path: # whith the current implementation, PATH_COMMON_UTILS is already in sys.path and will not be added (or printed) again
-            print(f"Adding {path_str} to sys.path") # debug
+            # print(f"Adding {path_str} to sys.path") # debug
             sys.path.insert(0, path_str)
 
 
@@ -97,5 +97,5 @@ def setup_artifacts_paths(PATH) -> None:
     PATH_MODEL = Path(*[i for i in PATH.parts[:PATH.parts.index("models")+2]]) # The +2 is to include the "models" and the individual model name in the path
     
     PATH_ARTIFACTS = PATH_MODEL / "artifacts"
-    print(f"Artifacts path: {PATH_ARTIFACTS}")
+    # print(f"Artifacts path: {PATH_ARTIFACTS}")
     return PATH_ARTIFACTS

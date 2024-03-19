@@ -5,7 +5,7 @@ def get_swep_config():
     }
 
     metric = {
-        'name': 'MSE_calib',
+        'name': 'MSE_test',
         'goal': 'minimize'   
     }
 

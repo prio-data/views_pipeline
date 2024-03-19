@@ -1,20 +1,21 @@
 import wandb
 from pathlib import Path
 import sys
-pipeline_path = f"{Path(__file__).parent.parent.parent}"
-sys.path.append(str(pipeline_path))
-sys.path.append(str(pipeline_path)+"/common_utils")
+PATH = Path(__file__)
+sys.path.insert(0, str(Path(*[i for i in PATH.parts[:PATH.parts.index("views_pipeline")+1]]) / "common_utils")) # PATH_COMMON_UTILS  
+from set_path import setup_project_paths
+setup_project_paths(PATH)
 
-from common_utils.set_partition import get_partitioner_dict
-from configs.config_hyperparameters import get_hp_config
-from configs.config_sweep import get_swep_config
-from configs.config_common import get_common_config
-from src.training.train_model import train
-from src.forecasting.generate_forecast import forecast
-from src.offline_evaluation.evaluate_model import evaluate_model
-from src.offline_evaluation.evaluate_sweep import evaluate_sweep
-from src.dataloaders.get_data import get_data
-from src.utils.utils import split_hurdle_parameters
+from set_partition import get_partitioner_dict
+from config_hyperparameters import get_hp_config
+from config_sweep import get_swep_config
+from config_model import get_model_config
+from train_model import train
+from generate_forecast import forecast
+from evaluate_model import evaluate_model
+from evaluate_sweep import evaluate_sweep
+from get_data import get_data
+from utils import split_hurdle_parameters
 
 
 def model_pipeline(config=None, project=None):
@@ -24,36 +25,36 @@ def model_pipeline(config=None, project=None):
         config = wandb.config
 
         # W&B does not directly support nested dictionaries for hyperparameters 
-        if common_config['sweep'] and common_config['algorithm'] == "HurdleRegression":
+        if model_config['sweep'] and model_config['algorithm'] == "HurdleRegression":
             config['clf'], config['reg'] = split_hurdle_parameters(config)
-            
-        train(common_config, config)
 
-        if common_config['sweep']:
-            evaluate_sweep(common_config, config)
+        train(model_config, config)
+
+        if model_config['sweep']:
+            evaluate_sweep(model_config, config)
         else:
-            evaluate_model(common_config)
-            forecast(common_config)
+            evaluate_model(model_config)
+            forecast(model_config)
 
 if __name__ == "__main__":
     wandb.login()
 
     sweep_config = get_swep_config()
     hp_config = get_hp_config()
-    common_config = get_common_config()
-    common_config['calib_partitioner_dict'] = get_partitioner_dict("calibration")
-    common_config['test_partitioner_dict'] = get_partitioner_dict("testing")
-    common_config['forecast_partitioner_dict'] = get_partitioner_dict("forecasting")
+    model_config = get_model_config()
+    model_config['calib_partitioner_dict'] = get_partitioner_dict("calibration")
+    model_config['test_partitioner_dict'] = get_partitioner_dict("testing")
+    model_config['forecast_partitioner_dict'] = get_partitioner_dict("forecasting")
 
-    data = get_data(common_config)
+    data = get_data()
 
     do_sweep = input(f'a) Do sweep \nb) Do one run \n')
 
     if do_sweep == 'a':
-        common_config['sweep'] = True
-        sweep_id = wandb.sweep(sweep_config, project=common_config["name"]+"_sweep")
+        model_config['sweep'] = True
+        sweep_id = wandb.sweep(sweep_config, project=model_config["name"]+"_sweep")
         wandb.agent(sweep_id, function=model_pipeline)
     
     elif do_sweep == 'b':
-        common_config['sweep'] = False
-        model_pipeline(hp_config, project=common_config["name"])
+        model_config['sweep'] = False
+        model_pipeline(hp_config, project=model_config["name"])

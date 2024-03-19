@@ -2,22 +2,27 @@ import pandas as pd
 from pathlib import Path
 
 import sys
-pipeline_path = f"{Path(__file__).parent.parent.parent.parent.parent}"
-sys.path.append(str(pipeline_path)+"/common_utils")
-from common_utils.set_path import get_artifacts_path, get_data_path
+PATH = Path(__file__)
+sys.path.insert(0, str(Path(*[i for i in PATH.parts[:PATH.parts.index("views_pipeline")+1]]) / "common_utils"))
+from set_path import setup_project_paths, setup_data_paths, setup_artifacts_paths
+setup_project_paths(PATH)
+
+from get_data import get_partition_data
 
 
-def forecast(common_config):
+def forecast(model_config):
     print('Predicting...')
 
-    stepshifter_model = pd.read_pickle(get_artifacts_path(common_config["name"], "forecast"))
-    dataset = pd.read_parquet(get_data_path(common_config["name"], "raw"))
+    PATH_RAW, _, PATH_GENERATED = setup_data_paths(PATH)
+    PATH_ARTIFACTS = setup_artifacts_paths(PATH)
+    dataset = pd.read_parquet(PATH_RAW / 'raw.parquet')
+    stepshifter_model = pd.read_pickle(PATH_ARTIFACTS / "model_forecast_partition.pkl")
+    
+    predictions = stepshifter_model.predict("forecast", "predict", get_partition_data(dataset, "forecasting"))
 
-    predictions = stepshifter_model.predict("forecast", "predict", dataset)
-
-    pred_cols = [f"step_pred_{str(i)}" for i in common_config["steps"]]
+    pred_cols = [f"step_pred_{str(i)}" for i in model_config["steps"]]
     predictions = predictions[pred_cols]
 
-    predictions.to_parquet(get_data_path(common_config["name"], "generated"))
+    predictions.to_parquet(PATH_GENERATED / 'generated.parquet')
 
     return predictions

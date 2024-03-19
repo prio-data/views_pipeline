@@ -1,6 +1,6 @@
 import numpy as np
 from viewser import Queryset, Column
-def get_queryset():
+def get_input_data():
     thetacrit_spatial = 0.7
     qs_treelag = (Queryset("fatalities003_pgm_conflict_treelag", "priogrid_month")
                   # target variable

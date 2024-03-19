@@ -5,17 +5,11 @@ import pandas as pd
 import wandb
 from sklearn.metrics import mean_squared_error
 
-PATH = Path(__file__)
-sys.path.insert(0, str(Path(*[i for i in PATH.parts[:PATH.parts.index("views_pipeline")+1]]) / "common_utils")) # PATH_COMMON_UTILS  
+PATH = Path(__file__)  
 from set_path import setup_project_paths, setup_data_paths
 setup_project_paths(PATH)
 
-from sklearn.ensemble import GradientBoostingClassifier, GradientBoostingRegressor
-from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier
-from sklearn.ensemble import HistGradientBoostingRegressor, HistGradientBoostingClassifier
 from xgboost import XGBRegressor, XGBClassifier
-from xgboost import XGBRFRegressor, XGBRFClassifier
-from lightgbm import LGBMClassifier, LGBMRegressor
 
 from views_partitioning.data_partitioner import DataPartitioner
 from views_forecasts.extensions import *

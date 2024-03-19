@@ -1,7 +1,7 @@
 import numpy as np
 from viewser import Queryset, Column
 
-def get_queryset():
+def get_input_data():
     qs_baseline = (Queryset("fatalities003_pgm_baseline", "priogrid_month")
 
                     # target variable
