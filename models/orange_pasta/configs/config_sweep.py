@@ -5,15 +5,16 @@ def get_swep_config():
     }
 
     metric = {
-        'name': 'mse',
+        'name': 'MSE_test',
         'goal': 'minimize'   
     }
 
     sweep_config['metric'] = metric
 
     parameters_dict = {
-        "n_estimators": {"values": [100, 200]},
-        "learning_rate": {"values": [0.05]},
+        "n_estimators": {"values": [100, 150, 200]},
+        "learning_rate": {"values": [0.05, 0.1]},
+        "max_depth": {"values": [3, 6, 9, 12]},
         "n_jobs": {"values": [12]}
     }
 

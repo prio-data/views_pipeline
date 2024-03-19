@@ -5,7 +5,6 @@ from views_partitioning import DataPartitioner
 from views_schema.models import ModelMetadata
 import pandas as pd
 import pickle
-
 from . import validation
 
 class ViewsRun():
