@@ -9,7 +9,7 @@
 )](https://twitter.com/PRIOresearch)
 [![LinkedIn](https://img.shields.io/badge/PRIO_on_linkedin-LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/company/prio/?originalSubdomain=no)]
 
-VIEWS Zero Baseline model is designed to facilitate generating baseline forecasts. The value chosen is the mean the target variable in the training data.
+VIEWS Zero Baseline model is designed to facilitate generating baseline forecasts. The value of predictions is the mean of the target variable in the training data.
 
 A zero baseline model, also known as a baseline model or null model, serves as a basic reference point for evaluating the performance of more complex models.
 
