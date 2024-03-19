@@ -9,7 +9,7 @@
 )](https://twitter.com/PRIOresearch)
 [![LinkedIn](https://img.shields.io/badge/PRIO_on_linkedin-LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/company/prio/?originalSubdomain=no)]
 
-VIEWS No Change Baseline model is designed to facilitate generating baseline forecasts. The predictions are the same as the target variable in the training data.
+VIEWS No Change Baseline model is designed to facilitate generating baseline forecasts. The predictions are the same as the target variable in the training data shifted in time.
 
 The "no change baseline model" is one of the simplest baseline models used in predictive modeling tasks, especially in time-series analysis. This baseline assumes that the target variable will remain unchanged from the previous observation. It's particularly relevant in scenarios where there is no underlying trend or seasonality, and the data is expected to be relatively stable over time.
 
