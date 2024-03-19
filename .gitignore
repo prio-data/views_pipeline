@@ -191,3 +191,7 @@ cython_debug/
 
 # mac specific 
 .DS_Store
+
+# vscode
+.idea/
+.vscode
