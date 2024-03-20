@@ -189,5 +189,5 @@ cython_debug/
 # folders
 **/wandb/
 
-# mac specific 
-.DS_Store
+# add .DS_Store files for all folders and subfolders
+**/.DS_Store
