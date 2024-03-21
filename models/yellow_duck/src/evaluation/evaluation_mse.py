@@ -1,9 +1,9 @@
 import pandas as pd
 from pathlib import Path
 from sklearn.metrics import mean_squared_error
-from ...configs import wandb_config
+from configs import wandb_config
 import wandb
-from ..utils.utils import wandb_log
+from src.utils.utils import wandb_log
 def evaluate_mse() -> float:
     data = pd.read_parquet(
         f"{Path(__file__).parent.parent.parent}/data/generated/forecasts.parquet")
