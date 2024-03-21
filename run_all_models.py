@@ -1,20 +1,12 @@
-# from models.blue_sea import main as zero_baseline_model
-# from models.yellow_duck import main as no_change_baseline_model
-
-# def main():
-#     zero_baseline_model.main()
-#     no_change_baseline_model.main()
-
-
-# if __name__ == "__main__":
-#     main()
-
 import subprocess
+import time
 
 
 def main():
-    subprocess.run(["python3", "models/blue_sea/main.py"])
-    subprocess.run(["python3", "models/yellow_duck/main.py"])
+    while True:
+        subprocess.run(["python3", "models/blue_sea/main.py"])
+        subprocess.run(["python3", "models/yellow_duck/main.py"])
+        time.sleep(20)  # Pause for 300 seconds (5 minutes)
 
 
 if __name__ == "__main__":
