@@ -1,4 +1,4 @@
-from ..dataloaders.queryset import get_querysets
+from src.dataloaders.queryset import get_querysets
 from pathlib import Path
 
 

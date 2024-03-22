@@ -17,5 +17,4 @@ def get_querysets():
     # save to parquet using pathlib
     data.to_parquet(
         f"{Path(__file__).parent.parent.parent}/data/raw/raw.parquet")
-    # data["ln_ged_sb_dep"] = 0
     return data
