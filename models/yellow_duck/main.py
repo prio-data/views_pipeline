@@ -4,6 +4,13 @@ from src.evaluation.evaluation_mse import evaluate_mse
 from configs import config
 
 def main():
+    '''
+    This is the main function that will be called to run the entire pipeline
+    
+    1. Fetch data
+    2. Forecast
+    3. Evaluate MSE
+    '''
     data_for_training = fetch_data()
     start_month, end_month = config.common_config['future_partitioner_dict']['predict']
     forecasts = forecast(data_for_training.loc[start_month:end_month])    

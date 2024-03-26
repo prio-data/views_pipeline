@@ -3,6 +3,12 @@ from pathlib import Path
 from sklearn.metrics import mean_squared_error
 
 def evaluate_mse() -> float:
+    '''
+    This function evaluates the Mean Squared Error (MSE) of the model.
+    
+    Returns:
+    mse_mean/36: The Mean Squared Error (MSE) of the model taking the average of the 36 steps
+    '''
     data = pd.read_parquet(
         f"{Path(__file__).parent.parent.parent}/data/generated/forecasts.parquet")
     mse_mean = 0

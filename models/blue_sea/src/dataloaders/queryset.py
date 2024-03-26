@@ -5,6 +5,13 @@ from pathlib import Path
 
 
 def get_querysets():
+    '''
+    This function fetches the data from database and saves it to a parquet file.
+    
+    Returns:
+    data: The data fetched from the querysets.
+    
+    '''
 
     allzero_query = (Queryset("pgm_allzero", "priogrid_month")
 

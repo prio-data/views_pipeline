@@ -5,6 +5,12 @@ from configs import wandb_config
 import wandb
 from src.utils.utils import wandb_log
 def evaluate_mse() -> float:
+    '''
+    This function reads the forecasts.parquet file and calculates the mean squared error for the 36 months forecast
+    
+    Returns:
+    mse_mean/36: The mean squared error for the 36 months forecast averaged over all the steps.
+    '''
     data = pd.read_parquet(
         f"{Path(__file__).parent.parent.parent}/data/generated/forecasts.parquet")
     mse_mean = 0

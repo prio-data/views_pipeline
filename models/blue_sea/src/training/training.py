@@ -3,6 +3,15 @@ from pathlib import Path
 
 
 def training(data_for_training):
+    '''
+    This function is used to train the model.
+    
+    Args:
+    data_for_training: The data to be used for training.
+    
+    Returns:
+    data_for_forecasting: The data with the forecasts for the next 36 months.
+    '''
     for i in range(1, 37):
         data_for_forecasting[f"step_pred_{i}"] = 0
     print(data_for_forecasting)
