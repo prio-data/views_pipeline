@@ -3,8 +3,8 @@ def get_sweep_config():
     Configurations for hyperparameter sweeps during experimentation phases (W&B specific).
     """
     sweep_config = {
-        "name": "grapefruit_soda",
-        'method': 'grid' #cm?
+        "name": "electric_relaxation",
+        'method': 'cm' 
     }
 
     metric = {
