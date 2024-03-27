@@ -1,6 +1,8 @@
 def get_sweep_config():
     """
     Configurations for hyperparameter sweeps during experimentation phases (W&B specific).
+
+    Comment: add "criterion" and "max_depth" 
     """
     sweep_config = {
         "name": "electric_relaxation",
