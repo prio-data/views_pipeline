@@ -6,7 +6,9 @@ This pipeline is made up of a series of machine learning models, structured in t
 > [!CAUTION]
 > Please note that this pipeline is **actively under construction**. We're in the **early stages of development**, meaning it's **not yet ready for operational use**. We're working hard to bring you a robust and fully-functional tool, so stay tuned for updates!
 
-<img alt="VIEWS pipeline schematics." src="https://github.com/prio-data/views_pipeline/blob/main/documentation/pipeline_diagram001.pdf" width="100%">
+<img alt="VIEWS pipeline schematics." src="https://github.com/prio-data/views_pipeline/blob/update_documentation/documentation/pipeline_diagram001.jpg" width="100%">
+
+![VIEWS pipeline schematics.](documentation/pipeline_diagram001.jpg)
 
 
 ## Table of contents
