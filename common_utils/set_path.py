@@ -53,7 +53,7 @@ def setup_project_paths(PATH) -> None:
     PATH_OFFLINE_EVALUATION = PATH_SRC / "offline_evaluation"
     PATH_DATALOADERS = PATH_SRC / "dataloaders"
 
-    paths_to_add = [PATH_ROOT, PATH_COMMON_UTILS, PATH_COMMON_CONFIGS, PATH_CONFIGS, PATH_UTILS, PATH_ARCHITECTURES, PATH_TRAINING, PATH_FORECASTING, PATH_OFFLINE_EVALUATION, PATH_DATALOADERS]
+    paths_to_add = [PATH_ROOT, PATH_COMMON_UTILS, PATH_COMMON_CONFIGS, PATH_CONFIGS, PATH_UTILS, PATH_ARCHITECTURES, PATH_TRAINING, PATH_FORECASTING, PATH_OFFLINE_EVALUATION, PATH_DATALOADERS, PATH_SRC]
 
     for path in paths_to_add:
         path_str = str(path)
@@ -77,10 +77,10 @@ def setup_data_paths(PATH) -> None:
     
     PATH_DATA = PATH_MODEL / "data"
     PATH_RAW = PATH_DATA / "raw"
-    PATH_PROCCEDS = PATH_DATA / "processed"
+    PATH_PROCESSED = PATH_DATA / "processed"
     PATH_GENERATED = PATH_DATA / "generated"
 
-    return PATH_RAW, PATH_PROCCEDS, PATH_GENERATED
+    return PATH_RAW, PATH_PROCESSED, PATH_GENERATED
 
 
 def setup_artifacts_paths(PATH) -> None:
@@ -99,3 +99,22 @@ def setup_artifacts_paths(PATH) -> None:
     PATH_ARTIFACTS = PATH_MODEL / "artifacts"
     # print(f"Artifacts path: {PATH_ARTIFACTS}")
     return PATH_ARTIFACTS
+
+def setup_generated_data_path(partition_name) -> Path:
+    """
+    Set up the path to the generated data for a specific partition.
+
+    Args:
+    partition_name (str): The name of the data partition.
+
+    Returns:
+    Path: The path to the generated data file for the specified partition.
+
+    Note:
+    - Temporary fix?
+    """
+    PATH_MODEL = Path(*[i for i in PATH.parts[:PATH.parts.index("models")+2]]) # The +2 is to include the "models" and the individual model name in the path
+    
+    PATH_DATA_GENERATED = Path(PATH_MODEL / "data" / "generated" / f"{partition_name}_predictions.parquet")
+    print(f"Generated data path: {PATH_DATA_GENERATED}")
+    return PATH_DATA_GENERATED

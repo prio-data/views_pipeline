@@ -4,15 +4,18 @@ import pandas as pd
 
 from views_runs import DataPartitioner
 
-model_path = Path(__file__).resolve().parents[2] 
-sys.path.append(str(model_path))
+PATH = Path(__file__)
+print(PATH)
+sys.path.insert(0, str(Path(*[i for i in PATH.parts[:PATH.parts.index("views_pipeline")+1]]) / "common_utils")) # PATH_COMMON_UTILS
 print(sys.path)
+from set_path import setup_project_paths, setup_data_paths, setup_generated_data_path
+setup_project_paths(PATH)
 
-from configs.config_data_partitions import get_data_partitions 
-from configs.config_hyperparameters import get_hp_config
-from configs.config_model import get_model_config
-from src.training.train_model import train 
-from src.utils.set_paths import get_data_path, get_generated_data_path
+from config_data_partitions import get_data_partitions 
+from config_hyperparameters import get_hp_config
+from config_model import get_model_config
+from training.train_model import train 
+#from src.utils.set_paths import get_data_path, get_generated_data_path
 
 def forecast(data_partitions, model_calibration_partition, model_future_partition):
     """
@@ -31,7 +34,7 @@ def forecast(data_partitions, model_calibration_partition, model_future_partitio
 
     print("Generating forecasts...")
 
-    data = pd.read_parquet(get_data_path("raw"))
+    data = pd.read_parquet(setup_data_paths("raw")) #formerly get_data_path("raw")
     future_partitioner_dict = data_partitions["future_partitioner_dict"]
 
     calib_predictions = model_calibration_partition.predict('calib','predict',data, proba=True)
@@ -40,9 +43,9 @@ def forecast(data_partitions, model_calibration_partition, model_future_partitio
     future_predictions = model_future_partition.future_predict('future','predict',data)
     future_point_predictions = model_future_partition.future_point_predict(time=529, data=data, proba=True)
 
-    calib_predictions.to_parquet(get_generated_data_path("calibration"))
-    future_predictions.to_parquet(get_generated_data_path("future"))
-    future_point_predictions.to_parquet(get_generated_data_path("future_point"))
+    calib_predictions.to_parquet(setup_generated_data_path("calibration"))
+    future_predictions.to_parquet(setup_generated_data_path("future"))
+    future_point_predictions.to_parquet(setup_generated_data_path("future_point"))
 
     print("Forecasts generated and saved in data/generated!")
 
