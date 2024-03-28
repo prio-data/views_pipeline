@@ -11,10 +11,9 @@ This pipeline is made up of a series of machine learning models, structured in t
 <!-- toc -->
 - [Repository Structure and Explanations](#repository-structure-and-explanations)
 - [Pipeline Execution](#pipeline-execution)
-- [VIEWS Modelling](#views-modelling)
-  * [Fatalities002](fatalities002)
-- [Practical guides](#practical-guides)
-- [Citation](#citation)
+- [Pipeline Documentation](#pipeline-documentation)
+- [Other Documentation](#other-documentation)
+
 
 <!-- tocstop -->
 
@@ -22,6 +21,7 @@ This pipeline is made up of a series of machine learning models, structured in t
 
 <details>
   <summary>See repository structure and explanations:</summary>
+
 ```
 pipeline_root/
 |
@@ -228,22 +228,27 @@ prefect server start
 
 Once models are run, you can also check their logs and visualizations in [Weights & Biases](https://wandb.ai/views_pipeline).
 
-## VIEWS Modelling and Infrastructure
-### Modelling
-Please refer to relevant Fatalities002 documentation:
-- Prediction models
-- Levels of analysis and dependent variables
-- Partitioning and time shifting
+## Pipeline Documentation
+More detailed documentation on the pipeline and its components can be found in the folder [`documentation`](https://github.com/prio-data/views_pipeline/tree/main/documentation). More specifically there are entries on:
+- Beginner Guide
+- Model
+- Pipeline
+
+## Other Documentation
+This pipeline repository relies on a lot of previous work documented in other papers and repositories.
+
+The fatalities model generates forecasts for state-based armed conflict during each month in a rolling 3-year window. 
+The latest iteration, currently in production, is called [Fatalities002](https://viewsforecasting.org/early-warning-system/models/fatalities002/).
+
+The following links cover **modelling documentation** for Fatalities002:
+- [Prediction models and input variables in main ensemble](https://viewsforecasting.org/views_documentation_models_fatalities002/)
+- [Levels of analysis and dependent variables](https://viewsforecasting.org/wp-content/uploads/VIEWS_documentation_LevelsandOutcomes.pdf)
+- [Partitioning and time shifting data for training, calibration, testing/forecasting, model weighting, and out-of-sample evaluation](https://viewsforecasting.org/wp-content/uploads/VIEWS_Documentation_Partitioningandtimeshifting_Fatalities002.pdf)
 - [Ensembling and calibration](https://viewsforecasting.org/wp-content/uploads/VIEWS_documentation_Ensembling_Fatalities002.pdf)
 
-- Step-shifting procedure
-
-
-### Infrastructure
-Please refer to relevant documentation:
+For VIEWS-specific **infrastructure documentation**, please refer to following GitHub repositories:
 - [Loading input data into the views database](https://github.com/UppsalaConflictDataProgram/ingester3)
 - [Accessing input data from views database](https://github.com/prio-data/viewser)
 - [Our API for accessing predictions](https://github.com/prio-data/views_api)
+- [New forecasting data drift detection system created for this pipeline](https://github.com/prio-data/ForecastDrift)
 
-## Documentation
-- 
