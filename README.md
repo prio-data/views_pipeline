@@ -6,6 +6,9 @@ This pipeline is made up of a series of machine learning models, structured in t
 > [!CAUTION]
 > Please note that this pipeline is **actively under construction**. We're in the **early stages of development**, meaning it's **not yet ready for operational use**. We're working hard to bring you a robust and fully-functional tool, so stay tuned for updates!
 
+<img alt="VIEWS pipeline schematics." src="https://github.com/prio-data/views_pipeline/blob/main/documentation/pipeline_diagram001.pdf" width="100%">
+
+
 ## Table of contents
 
 <!-- toc -->
@@ -20,7 +23,7 @@ This pipeline is made up of a series of machine learning models, structured in t
 ## Repository Structure and Explanations
 
 <details>
-  <summary>See repository structure and explanations:</summary>
+  <summary>See repository structure and explanations below:</summary>
 
 ```
 pipeline_root/
@@ -181,7 +184,7 @@ pipeline_root/
 
 ## Pipeline Execution
 > [!CAUTION]
-> We are still in the process of migrating our models to this repository. Until then, the monthly VIEWS run is conducted with the [viewsforecastin repository](https://github.com/prio-data/viewsforecasting).
+> We are still in the process of migrating our models to this repository. Until then, the monthly VIEWS run is conducted with the [viewsforecasting repository](https://github.com/prio-data/viewsforecasting).
 
 For the monthly run, ensure that the latest input data has been ingested into the VIEWS database before.
 
@@ -247,8 +250,8 @@ The following links cover **modelling documentation** for Fatalities002:
 - [Ensembling and calibration](https://viewsforecasting.org/wp-content/uploads/VIEWS_documentation_Ensembling_Fatalities002.pdf)
 
 For VIEWS-specific **infrastructure documentation**, please refer to following GitHub repositories:
-- [Loading input data into the views database](https://github.com/UppsalaConflictDataProgram/ingester3)
-- [Accessing input data from views database](https://github.com/prio-data/viewser)
-- [Our API for accessing predictions](https://github.com/prio-data/views_api)
-- [New forecasting data drift detection system created for this pipeline](https://github.com/prio-data/ForecastDrift)
+- [`ingester3`: Loading input data into the views database](https://github.com/UppsalaConflictDataProgram/ingester3)
+- [`viewser`: Accessing input data from views database](https://github.com/prio-data/viewser)
+- [`views_api`: Our API for accessing predictions](https://github.com/prio-data/views_api)
+- [`ForecastDrift`: New forecasting data drift detection system created for this pipeline](https://github.com/prio-data/ForecastDrift)
 
