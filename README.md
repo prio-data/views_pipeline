@@ -1,69 +1,28 @@
-
-
----
-
-# 🚧 Early Access Alert! 🚧
-
-Welcome to our project! Please note that this pipeline is **actively under construction**. We're in the **early stages of development**, meaning it's **not yet ready for operational use**. We're working hard to bring you a robust and fully-functional tool, so stay tuned for updates!
-
----
-
 # views_pipeline
-VIEWS forecasting pipeline for monthly prediction runs. For more detailed documentation of rationale and components see **`documentation/pipeline_documentation.md`**
+The Violence & Impacts Early Warning System (VIEWS) produces monthly predictions of future violent conflict. This repository contains code, configuration files, and documentation that encapsulates the entire process of developing, training, evaluating, and deploying the VIEWS machine learning model pipeline.
 
-## How to Run This Pipeline
-### Prerequisites
+This pipeline is made up of a series of machine learning models, structured in their own sub-folders. 
 
-- Python 3.x
-- Required Python packages: scikit-learn, pandas, TensorFlow, Prefect, wandb, viewser, ingester3, stepshift
+> [!CAUTION]
+> Please note that this pipeline is **actively under construction**. We're in the **early stages of development**, meaning it's **not yet ready for operational use**. We're working hard to bring you a robust and fully-functional tool, so stay tuned for updates!
 
-### Execution Steps
+![VIEWS pipeline diagram](documentation/pipeline_diagram001.png)
 
-1. **Clone the Repository:**
+## Table of contents
 
-   ```bash
-   git clone <https://github.com/prio-data/views_pipeline>
+<!-- toc -->
+- [Repository Structure and Explanations](#repository-structure-and-explanations)
+- [Pipeline Execution](#pipeline-execution)
+- [Pipeline Documentation](#pipeline-documentation)
+- [Other Documentation](#other-documentation)
 
-2. **Make sure Prefect is set up**
 
-In your viewser environment, make sure prefect is pip installed.
-You can check with ```pip show prefect```
-
-To login to your account write:
-```bash
-prefect cloud login
-```
-and subsequently login online.
-
-3. **Find Orchestration Script:**
-
-Open the Python script containing the Prefect orchestration flow. 
-Currently, it is in [views_pipeline/orchestration.py (in branch production_models)](https://github.com/prio-data/views_pipeline/blob/production_models/orchestration.py).
-
-At this point you could configure the script.
-
-4. **Run the Orchestration Script:**
-Execute the Prefect flow script to run the ML pipeline.
-```bash
-python orchestration.py
-```
-The script executes every main.py file in every model and ensemble folder. For every model, you will be prompted in the terminal to:
-    a) Do sweep 
-    b) Do one run and pickle results
-To conduct the monthly run, type `b` and enter.
-
-The progress will be logged online on Prefect.
-
-5. **Monitor Pipeline Execution:**
-Once the pipeline is initiated, you can monitor its execution using the Prefect UI dashboard or CLI. You can copy the link given in the terminal, go to the website, or use the following command to launch the Prefect UI:
-```bash
-prefect server start
-```
-
-Once models are run, you can also check their logs and visualizations in [Weights & Biases](https://wandb.ai/views_pipeline).
+<!-- tocstop -->
 
 ## Repository Structure and Explanations
 
+<details>
+  <summary>See the model repository structure and explanations below.</summary>
 
 ```
 pipeline_root/
@@ -220,3 +179,78 @@ pipeline_root/
         |-- assess_model_dir.py                     # Check structure and presence of obligatory scripts
         |-- assess_ensemble_dir.py                  # Check structure and presence of obligatory scripts  
 ```
+</details>
+
+## Pipeline Execution
+> [!CAUTION]
+> We are still in the process of migrating our models to this repository. Until then, the monthly VIEWS run is conducted with the [viewsforecasting repository](https://github.com/prio-data/viewsforecasting).
+
+For the monthly run, ensure that the latest input data has been ingested into the VIEWS database prior.
+
+This pipeline uses two tools for logging relevant information, in order to enhance transparency and collaboration. For the individual models, we use Weights & Biases (W&B / wandb) as a centralized platform for logging and monitoring model outputs, system metrics, and experiment metadata. This is especially relevant when tuning hyperparameters, for which we conduct so-called sweeps. For the entire pipeline, we use Prefect to log as a "flow run". 
+
+Follow the steps below to execute / orchestrate an entire run of the VIEWS pipeline.
+
+1. **Clone the Repository:**
+
+   ```bash
+   git clone <https://github.com/prio-data/views_pipeline>
+
+2. **Make sure Prefect is set up**
+
+In your viewser environment, make sure prefect is pip installed.
+You can check with ```pip show prefect```
+
+To login to your account write:
+```bash
+prefect cloud login
+```
+and subsequently login online.
+
+3. **Make desired changes to common configs and utils**
+For changing the months in data partitions, go to [common_utils/set_partition.py](https://github.com/prio-data/views_pipeline/blob/main/common_utils/set_partition.py).
+
+4. **Run the Orchestration Script:**
+Execute the Prefect flow script to run all models in this repository.
+```bash
+python orchestration.py
+```
+The script executes every main.py file in every model and ensemble folder. For every model, you will be prompted in the terminal to:
+    a) Do sweep 
+    b) Do one run and pickle results
+To conduct the monthly run, type `b` and enter.
+
+The progress of the pipeline execution will be logged online on Prefect.
+
+5. **Monitor Pipeline Execution:**
+Once the pipeline is initiated, you can monitor its execution using the Prefect UI dashboard or CLI. You can copy the link given in the terminal, go to the website, or use the following command to launch the Prefect UI:
+```bash
+prefect server start
+```
+
+Once models are run, you can also check their logs and visualizations in [Weights & Biases](https://wandb.ai/views_pipeline).
+
+## Pipeline Documentation
+More detailed documentation on the pipeline and its components can be found in the folder [`documentation`](https://github.com/prio-data/views_pipeline/tree/main/documentation). There are currently entries covering:
+- Beginner Guide on Terminology
+- Model Documentation
+- Pipeline Documentation
+
+## Other Documentation
+This pipeline repository relies on a lot of previous work documented in other papers and repositories.
+
+The fatalities model generates forecasts for state-based armed conflict during each month in a rolling 3-year window. 
+The latest iteration, currently in production, is called [Fatalities002](https://viewsforecasting.org/early-warning-system/models/fatalities002/).
+
+The following links cover **modelling documentation** for Fatalities002:
+- [Prediction models and input variables in main ensemble](https://viewsforecasting.org/views_documentation_models_fatalities002/)
+- [Levels of analysis and dependent variables](https://viewsforecasting.org/wp-content/uploads/VIEWS_documentation_LevelsandOutcomes.pdf)
+- [Partitioning and time shifting data for training, calibration, testing/forecasting, model weighting, and out-of-sample evaluation](https://viewsforecasting.org/wp-content/uploads/VIEWS_Documentation_Partitioningandtimeshifting_Fatalities002.pdf)
+- [Ensembling and calibration](https://viewsforecasting.org/wp-content/uploads/VIEWS_documentation_Ensembling_Fatalities002.pdf)
+
+For VIEWS-specific **infrastructure documentation**, please refer to following GitHub repositories:
+- [`ingester3`: Loading input data into the views database](https://github.com/UppsalaConflictDataProgram/ingester3)
+- [`viewser`: Accessing input data from views database](https://github.com/prio-data/viewser)
+- [`views_api`: Our API for accessing predictions](https://github.com/prio-data/views_api)
+- [`ForecastDrift`: New forecasting data drift detection system created for this pipeline](https://github.com/prio-data/ForecastDrift)
+
