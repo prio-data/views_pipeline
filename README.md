@@ -22,7 +22,7 @@ This pipeline is made up of a series of machine learning models, structured in t
 ## Repository Structure and Explanations
 
 <details>
-  <summary>See repository structure and explanations below:</summary>
+  <summary>See the model repository structure and explanations below.</summary>
 
 ```
 pipeline_root/
@@ -185,11 +185,11 @@ pipeline_root/
 > [!CAUTION]
 > We are still in the process of migrating our models to this repository. Until then, the monthly VIEWS run is conducted with the [viewsforecasting repository](https://github.com/prio-data/viewsforecasting).
 
-For the monthly run, ensure that the latest input data has been ingested into the VIEWS database before.
+For the monthly run, ensure that the latest input data has been ingested into the VIEWS database prior.
 
-This pipeline uses two tools for logging relevant information, to enhance transparency and collaboration. For the individual models, we use Weights & Biases (W&B / wandb) as a centralized platform for logging and monitoring model outputs, system metrics, and experiment metadata. This is especially relevant when tuning hyperparameters, for which we conduct so-called sweeps. For the entire pipeline, we use Prefect to log as a "flow run". 
+This pipeline uses two tools for logging relevant information, in order to enhance transparency and collaboration. For the individual models, we use Weights & Biases (W&B / wandb) as a centralized platform for logging and monitoring model outputs, system metrics, and experiment metadata. This is especially relevant when tuning hyperparameters, for which we conduct so-called sweeps. For the entire pipeline, we use Prefect to log as a "flow run". 
 
-Follow the steps below to execute an entire run of the VIEWS pipeline.
+Follow the steps below to execute / orchestrate an entire run of the VIEWS pipeline.
 
 1. **Clone the Repository:**
 
@@ -231,10 +231,10 @@ prefect server start
 Once models are run, you can also check their logs and visualizations in [Weights & Biases](https://wandb.ai/views_pipeline).
 
 ## Pipeline Documentation
-More detailed documentation on the pipeline and its components can be found in the folder [`documentation`](https://github.com/prio-data/views_pipeline/tree/main/documentation). More specifically there are entries on:
-- Beginner Guide
-- Model
-- Pipeline
+More detailed documentation on the pipeline and its components can be found in the folder [`documentation`](https://github.com/prio-data/views_pipeline/tree/main/documentation). There are currently entries covering:
+- Beginner Guide on Terminology
+- Model Documentation
+- Pipeline Documentation
 
 ## Other Documentation
 This pipeline repository relies on a lot of previous work documented in other papers and repositories.
