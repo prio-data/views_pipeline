@@ -92,10 +92,8 @@ def setup_artifacts_paths(PATH) -> None:
     PATH (Path): The base path, typically the path of the script invoking this function (i.e., `Path(__file__)`).
     config (str): The model configuration file.
     
-    """    
-
-    PATH_MODEL = Path(*[i for i in PATH.parts[:PATH.parts.index("models")+2]]) # The +2 is to include the "models" and the individual model name in the path
-    
+    """
+    PATH_MODEL = Path(*[i for i in PATH.parts[:PATH.parts.index("models")+2]]) 
     PATH_ARTIFACTS = PATH_MODEL / "artifacts"
     # print(f"Artifacts path: {PATH_ARTIFACTS}")
     return PATH_ARTIFACTS
