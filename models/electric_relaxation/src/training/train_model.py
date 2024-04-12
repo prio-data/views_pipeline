@@ -41,7 +41,7 @@ def train(model_config, hp_config, data_partitions):
 
     print("Training...")
 
-    artifacts_path = setup_artifacts_paths()
+    artifacts_path = setup_artifacts_paths(PATH)
     calib_pickle_path = artifacts_path / "model_calibration_partition.pkl"
     future_pickle_path = artifacts_path / "model_future_partition.pkl"
     
