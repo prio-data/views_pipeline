@@ -1,3 +1,5 @@
+from sklearn.ensemble import RandomForestClassifier
+
 def get_model_config():
     """
     Contains the common configuration settings for the model (model architecture, name, target variable, level of analysis and deployment status).
@@ -7,7 +9,7 @@ def get_model_config():
     """
     model_config = {
         "name": "electric_relaxation",
-        "algorithm": "RandomForestClassifier", 
+        "algorithm": RandomForestClassifier, 
         "depvar": "ged_sb_dep", #or target? 
         "queryset": "escwa001_cflong",
         "level": "cm",
