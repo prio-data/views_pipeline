@@ -3,7 +3,7 @@ from pathlib import Path
 import pandas as pd
 import pickle
 
-from sklearn.ensemble import RandomForestClassifier
+#from sklearn.ensemble import RandomForestClassifier
 
 from stepshift.views import StepshiftedModels
 from views_runs import DataPartitioner, ViewsRun
@@ -53,13 +53,14 @@ def train(model_config, hp_config, data_partitions):
             model_future_partition = pickle.load(file)
     
     else:
-        setup_data_paths(Path(__file__))
-        dataset = pd.read_parquet("raw") # Load from raw data path
+        PATH_RAW, _, _ = setup_data_paths(PATH)
+        dataset = pd.read_parquet(PATH_RAW / 'raw.parquet')
         assert not dataset.empty, "Data loading failed."
 
         calib_partition = DataPartitioner({'calib': data_partitions["calib_partitioner_dict"]})
         future_partition = DataPartitioner({'future': data_partitions["future_partitioner_dict"]})
-        base_model = [model_config["algorithm"]](n_estimators=hp_config["n_estimators"], n_jobs=hp_config["n_jobs"])
+        #base_model = [model_config["algorithm"]](n_estimators=hp_config["n_estimators"], n_jobs=hp_config["n_jobs"])
+        base_model = model_config["algorithm"](n_estimators=hp_config["n_estimators"], n_jobs=hp_config["n_jobs"])
         stepshifter_def = StepshiftedModels(base_model, model_config["steps"], model_config["depvar"])
 
         model_calibration_partition = ViewsRun(calib_partition, stepshifter_def)
