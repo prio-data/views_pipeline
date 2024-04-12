@@ -98,18 +98,26 @@ def setup_artifacts_paths(PATH) -> None:
     # print(f"Artifacts path: {PATH_ARTIFACTS}")
     return PATH_ARTIFACTS
 
-def setup_generated_data_path(partition_name) -> Path:
+def setup_generated_data_path(PATH, partition_name) -> Path:
     """
     Set up the path to the generated data for a specific partition.
 
     Args:
     partition_name (str): The name of the data partition.
+    PATH (Path): The base path, typically the path of the script invoking this function (i.e., `Path(__file__)`).
 
     Returns:
     Path: The path to the generated data file for the specified partition.
 
-    Note:
-    - Temporary fix?
+    Usage Example:
+    ```python
+    PATH = Path(__file__)
+    sys.path.insert(0, str(Path(*[i for i in PATH.parts[:PATH.parts.index("views_pipeline")+1]]) / "common_utils")) # PATH_COMMON_UTILS
+    from set_path import setup_project_paths, setup_generated_data_path
+    setup_project_paths(PATH)
+    setup_generated_data_path(PATH, "calibration")
+    ```
+
     """
     PATH_MODEL = Path(*[i for i in PATH.parts[:PATH.parts.index("models")+2]]) # The +2 is to include the "models" and the individual model name in the path
     
