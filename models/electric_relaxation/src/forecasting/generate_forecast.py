@@ -41,8 +41,8 @@ def forecast(data_partitions, model_calibration_partition, model_future_partitio
 
     future_partition = DataPartitioner({'future':future_partitioner_dict}) #is this being used? we don't define an equivalent for calib_predictions
     future_predictions = model_future_partition.future_predict('future','predict',data)
-    future_point_predictions = model_future_partition.future_point_predict(time=529, data=data, proba=True)
-
+    future_point_predictions = model_future_partition.future_point_predict(time=future_partitioner_dict['future_start'], data=data, proba=True)
+    
     calib_predictions.to_parquet(setup_generated_data_path(PATH, "calibration"))
     future_predictions.to_parquet(setup_generated_data_path(PATH, "future"))
     future_point_predictions.to_parquet(setup_generated_data_path(PATH, "future_point"))
