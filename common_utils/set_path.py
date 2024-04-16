@@ -80,7 +80,7 @@ def setup_data_paths(PATH) -> None:
     PATH_PROCCEDS = PATH_DATA / "processed"
     PATH_GENERATED = PATH_DATA / "generated"
 
-    return PATH_RAW, PATH_PROCCEDS, PATH_GENERATED
+    return PATH_MODEL, PATH_RAW, PATH_PROCCEDS, PATH_GENERATED
 
 
 def setup_artifacts_paths(PATH) -> None:

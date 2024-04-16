@@ -19,7 +19,7 @@ from get_data import get_partition_data
 def train(model_config, para_config):
     print("Training...")
     if not model_config["sweep"]:
-        PATH_RAW, _, _ = setup_data_paths(PATH)
+        _, PATH_RAW, _, _ = setup_data_paths(PATH)
         PATH_ARTIFACTS = setup_artifacts_paths(PATH)
         dataset = pd.read_parquet(PATH_RAW / 'raw.parquet')
         if model_config["algorithm"] == "HurdleRegression":

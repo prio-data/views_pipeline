@@ -23,7 +23,7 @@ def evaluate_sweep(model_config, para_config):
         model = HurdleRegression(clf_name=model_config["clf_name"], reg_name=model_config["reg_name"], clf_params=para_config["clf"], reg_params=para_config["reg"])
     else:
         model = globals()[model_config["algorithm"]](**para_config)
-    PATH_RAW, _, _ = setup_data_paths(PATH)
+    _, PATH_RAW, _, _ = setup_data_paths(PATH)
     dataset = pd.read_parquet(PATH_RAW / 'raw.parquet')
 
     stepshifter_model_calib = stepshift_training(model_config, "calib", model, get_partition_data(dataset, "calibration"))

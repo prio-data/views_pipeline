@@ -13,7 +13,7 @@ from get_data import get_partition_data
 def forecast(model_config):
     print('Predicting...')
 
-    PATH_RAW, _, PATH_GENERATED = setup_data_paths(PATH)
+    _, PATH_RAW, _, PATH_GENERATED = setup_data_paths(PATH)
     PATH_ARTIFACTS = setup_artifacts_paths(PATH)
     dataset = pd.read_parquet(PATH_RAW / 'raw.parquet')
     stepshifter_model = pd.read_pickle(PATH_ARTIFACTS / "model_forecast_partition.pkl")
