@@ -18,6 +18,6 @@ def get_partitioner_dict(partion, step=36):
 
         partitioner_dict = {"train":(121, month_last),"predict":(month_last +1, month_last + 1 + step)}  # is it even meaningful to have a predict partition for forecasting? if not you can remove steps
 
-    print('partitioner_dict', partitioner_dict) 
+    # print('partitioner_dict', partitioner_dict) 
 
     return partitioner_dict

@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 from typing import Optional
 import pandas as pd
+from statistics import mean, stdev, median
+
 
 @dataclass
 class EvaluationMetrics:
@@ -74,3 +76,33 @@ class EvaluationMetrics:
 
         """
         return pd.DataFrame.from_dict(evaluation_dict, orient='index')
+
+    @staticmethod
+    def calculate_aggregate_metrics(evaluation_dict: dict) -> dict:
+        metrics_aggregate = {
+            'mean': {},
+            'std': {},
+            'median': {}
+        }
+
+        for metric in EvaluationMetrics.__annotations__.keys():
+            metric_values = [getattr(evaluation, metric) for evaluation in evaluation_dict.values() if getattr(evaluation, metric) is not None]
+            if metric_values: 
+                metrics_aggregate['mean'][metric] = mean(metric_values)
+                metrics_aggregate['std'][metric] = stdev(metric_values)
+                metrics_aggregate['median'][metric] = median(metric_values)
+            else:
+                metrics_aggregate['mean'][metric] = None
+                metrics_aggregate['std'][metric] = None
+                metrics_aggregate['median'][metric] = None
+
+        return metrics_aggregate
+
+    @staticmethod
+    def output_metrics(evaluation_dict):
+        aggregate = EvaluationMetrics.calculate_aggregate_metrics(evaluation_dict)
+        step_metrics_dict = {step: vars(metrics) for step, metrics in evaluation_dict.items()}
+        step_metrics_dict['mean'] = aggregate['mean']
+        step_metrics_dict['std'] = aggregate['std']
+        step_metrics_dict['median'] = aggregate['median']
+        return step_metrics_dict
