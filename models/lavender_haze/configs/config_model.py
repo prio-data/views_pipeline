@@ -4,7 +4,7 @@ def get_model_config():
         "algorithm": "HurdleRegression",
         "clf_name":"LGBMClassifier",
         "reg_name":"LGBMRegressor",
-        "depvar": "ged_sb_dep",
+        "depvar": "ln_ged_sb_dep",
         "queryset": "fatalities003_pgm_broad",
         "level": "pgm",
         'steps': [*range(1, 36 + 1, 1)],

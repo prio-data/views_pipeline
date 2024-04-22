@@ -11,9 +11,9 @@ def get_input_data():
     qs_broad = (Queryset("fatalities003_pgm_broad", "priogrid_month")
 
                 # target variable
-                .with_column(Column("ged_sb_dep", from_loa="priogrid_month", from_column="ged_sb_best_sum_nokgi")
+                .with_column(Column("ln_ged_sb_dep", from_loa="priogrid_month", from_column="ged_sb_best_sum_nokgi")
                              .transform.missing.replace_na()
-                             # .transform.ops.ln()
+                             .transform.ops.ln()
                              )
 
                 # timelags 0 of conflict variables, ged_best versions
@@ -84,17 +84,17 @@ def get_input_data():
                 # sptime
 
                 # continuous, sptime_dist, nu=1
-                .with_column(Column("sptime_dist_k1_ged_sb", from_loa="priogrid_month", from_column="ged_sb_best_sum_nokgi")
+                .with_column(Column("sptime_dist_k1_1_ged_sb", from_loa="priogrid_month", from_column="ged_sb_best_sum_nokgi")
                              .transform.missing.replace_na()
                              .transform.spatial.sptime_dist(return_values, n_nearest, 1.0, power)
                              )
 
-                .with_column(Column("sptime_dist_k1_ged_sb", from_loa="priogrid_month", from_column="ged_sb_best_sum_nokgi")
+                .with_column(Column("sptime_dist_k1_2_ged_sb", from_loa="priogrid_month", from_column="ged_sb_best_sum_nokgi")
                              .transform.missing.replace_na()
                              .transform.spatial.sptime_dist(return_values, n_nearest, 10.0, power)
                              )
 
-                .with_column(Column("sptime_dist_k1_ged_sb", from_loa="priogrid_month", from_column="ged_sb_best_sum_nokgi")
+                .with_column(Column("sptime_dist_k1_3_ged_sb", from_loa="priogrid_month", from_column="ged_sb_best_sum_nokgi")
                              .transform.missing.replace_na()
                              .transform.spatial.sptime_dist(return_values, n_nearest, 0.01, power)
                              )
