@@ -7,16 +7,16 @@ from sklearn.metrics import mean_squared_error, mean_absolute_error, mean_square
 from utils_evaluation_metrics import EvaluationMetrics
 from views_forecasts.extensions import *
 
-def generate_metric_dict(df, steps):
+def generate_metric_dict(df, steps, depvar):
     evaluation_dict = EvaluationMetrics.make_evaluation_dict(steps=steps[-1])
     for step in steps:
-        evaluation_dict[f"step{str(step).zfill(2)}"].MSE = mean_squared_error(df["ged_sb_dep"], df[f"step_pred_{step}"])
-        evaluation_dict[f"step{str(step).zfill(2)}"].MAE = mean_absolute_error(df["ged_sb_dep"], df[f"step_pred_{step}"])
-        # evaluation_dict[f"step{str(step).zfill(2)}"].MSLE = mean_squared_log_error(df["ged_sb_dep"], df[f"step_pred_{step}"])
-        evaluation_dict[f"step{str(step).zfill(2)}"].CRPS = ps.crps_ensemble(df["ged_sb_dep"], df[f"step_pred_{step}"]).mean()
-        # evaluation_dict[f"step{str(step).zfill(2)}"].Brier = brier_score_loss(df["ged_sb_dep"], df[f"step_pred_{step}"])
-        # evaluation_dict[f"step{str(step).zfill(2)}"].AUC = roc_auc_score(df["ged_sb_dep"], df[f"step_pred_{step}"])
-        # evaluation_dict[f"step{str(step).zfill(2)}"].AP = average_precision_score(df["ged_sb_dep"], df[f"step_pred_{step}"])
+        evaluation_dict[f"step{str(step).zfill(2)}"].MSE = mean_squared_error(df[depvar], df[f"step_pred_{step}"])
+        evaluation_dict[f"step{str(step).zfill(2)}"].MAE = mean_absolute_error(df[depvar], df[f"step_pred_{step}"])
+        # evaluation_dict[f"step{str(step).zfill(2)}"].MSLE = mean_squared_log_error(df[depvar], df[f"step_pred_{step}"])
+        evaluation_dict[f"step{str(step).zfill(2)}"].CRPS = ps.crps_ensemble(df[depvar], df[f"step_pred_{step}"]).mean()
+        # evaluation_dict[f"step{str(step).zfill(2)}"].Brier = brier_score_loss(df[depvar], df[f"step_pred_{step}"])
+        # evaluation_dict[f"step{str(step).zfill(2)}"].AUC = roc_auc_score(df[depvar], df[f"step_pred_{step}"])
+        # evaluation_dict[f"step{str(step).zfill(2)}"].AP = average_precision_score(df[depvar], df[f"step_pred_{step}"])
     evaluation_dict = EvaluationMetrics.output_metrics(evaluation_dict)
     df_evaluation_dict = EvaluationMetrics.evaluation_dict_to_dataframe(evaluation_dict)  
     return evaluation_dict, df_evaluation_dict
