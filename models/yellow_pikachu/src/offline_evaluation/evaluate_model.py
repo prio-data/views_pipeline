@@ -44,8 +44,8 @@ def evaluate_model(model_config):
     df_calib = df_calib.replace([np.inf, -np.inf], 0)[stepcols]
     df_test = df_test.replace([np.inf, -np.inf], 0)[stepcols]
 
-    evaluation_calib, df_evaluation_calib = generate_metric_dict(df_calib, steps)
-    evaluation_test, df_evaluation_test = generate_metric_dict(df_test, steps)
+    evaluation_calib, df_evaluation_calib = generate_metric_dict(df_calib, steps, model_config["depvar"])
+    evaluation_test, df_evaluation_test = generate_metric_dict(df_test, steps, model_config["depvar"])
 
     print("MSE_calib:", df_evaluation_calib.loc["mean"]["MSE"])
     print("MSE_test:", df_evaluation_test.loc["mean"]["MSE"])
