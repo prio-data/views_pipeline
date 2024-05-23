@@ -189,9 +189,6 @@ if __name__ == "__main__":
 
     model = model_pipeline(config = hyperparameters, project = project)
 
-    # this works because the specfic artifacts path is added to sys.path in set_path.py at the start of the script
-    # PATH_ARTIFACTS = [i for i in sys.path if "artifacts" in i][0] # this is a list with one element (a str), so I can just index it with 0 
-
     PATH_ARTIFACTS = setup_artifacts_paths(PATH)
 
     # create the artifacts folder if it does not exist
