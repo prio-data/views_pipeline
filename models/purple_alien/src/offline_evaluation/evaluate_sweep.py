@@ -329,7 +329,7 @@ def model_pipeline(config = None, project = None):
     print(device)
 
     # tell wandb to get started
-    with wandb.init(project=project, entity="nornir", config=config): # project and config ignored when runnig a sweep
+    with wandb.init(project=project, entity="views_pipeline", config=config): # project and config ignored when runnig a sweep
 
         wandb.define_metric("monthly/out_sample_month")
         wandb.define_metric("monthly/*", step_metric="monthly/out_sample_month")
