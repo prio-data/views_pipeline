@@ -204,10 +204,10 @@ def get_data(config):
 
     _, PATH_PROCESSED, _ = setup_data_paths(PATH)
 
-    model_type = config.model_type # 'calibration', 'testing' or 'forecasting'
+    run_type = config.run_type # 'calibration', 'testing' or 'forecasting'
 
     try:
-        file_name = f'/{model_type}_vol.npy' # NOT WINDOWS FRIENDLY
+        file_name = f'/{run_type}_vol.npy' # NOT WINDOWS FRIENDLY
         views_vol = np.load(str(PATH_PROCESSED) + file_name)
     
     except FileNotFoundError as e:

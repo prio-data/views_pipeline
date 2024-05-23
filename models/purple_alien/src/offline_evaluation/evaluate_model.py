@@ -175,13 +175,13 @@ def get_posterior(model, views_vol, config, device):
     metric_dict = {'out_sample_month_list' : out_sample_month_list, 'mse_list': mse_list,
                     'ap_list' : ap_list, 'auc_list': auc_list, 'brier_list' : brier_list}
 
-    with open(f'{dump_location}posterior_dict_{config.time_steps}_{config.model_type}.pkl', 'wb') as file:
+    with open(f'{dump_location}posterior_dict_{config.time_steps}_{config.run_type}.pkl', 'wb') as file:
         pickle.dump(posterior_dict, file)       
 
-    with open(f'{dump_location}metric_dict_{config.time_steps}_{config.model_type}.pkl', 'wb') as file:
+    with open(f'{dump_location}metric_dict_{config.time_steps}_{config.run_type}.pkl', 'wb') as file:
         pickle.dump(metric_dict, file)
 
-    with open(f'{dump_location}test_vol_{config.time_steps}_{config.model_type}.pkl', 'wb') as file: # make it numpy
+    with open(f'{dump_location}test_vol_{config.time_steps}_{config.run_type}.pkl', 'wb') as file: # make it numpy
         pickle.dump(test_tensor.cpu().numpy(), file)
 
     print('Posterior dict, metric dict and test vol pickled and dumped!')
@@ -233,16 +233,16 @@ if __name__ == "__main__":
 
     time_steps = time_steps_dict[input('a) 12 months\nb) 24 months\nc) 36 months\nd) 48 months\nNote: 48 is the current VIEWS standard.\n')]
 
-    model_type_dict = {'a' : 'calibration', 'b' : 'testing'}
-    model_type = model_type_dict[input("a) Calibration\nb) Testing\n")]
-    print(f'Run type: {model_type}\n')
+    run_type_dict = {'a' : 'calibration', 'b' : 'testing'}
+    run_type = run_type_dict[input("a) Calibration\nb) Testing\n")]
+    print(f'Run type: {run_type}\n')
 
-    project = f"imp_new_structure_{model_type}" # temp.
+    project = f"imp_new_structure_{run_type}" # temp.
 
     hyperparameters = get_hp_config()
 
     hyperparameters['time_steps'] = time_steps
-    hyperparameters['model_type'] = model_type
+    hyperparameters['run_type'] = run_type
     hyperparameters['sweep'] = False
 
     start_t = time.time()

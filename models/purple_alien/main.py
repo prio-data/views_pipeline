@@ -58,15 +58,15 @@ if __name__ == "__main__":
 
     # model type is still a vary bad name here - it should be something like run_type... Change later!
     # Also, can you even choose testing and forecasting here?
-    model_type_dict = {'a' : 'calibration', 'b' : 'testing', 'c' : 'forecasting'}
-    model_type = model_type_dict[input("a) Calibration\nb) Testing\nc) Forecasting\n")]
-    print(f'Run type: {model_type}\n')
+    run_type_dict = {'a' : 'calibration', 'b' : 'testing', 'c' : 'forecasting'}
+    run_type = run_type_dict[input("a) Calibration\nb) Testing\nc) Forecasting\n")]
+    print(f'Run type: {run_type}\n')
 
-    project = f"imp_new_structure_{model_type}" # temp. also a bad name. Change later!
+    project = f"imp_new_structure_{run_type}" # temp. also a bad name. Change later!
 
     hyperparameters = get_hp_config()
 
-    hyperparameters['model_type'] = model_type # bad name... ! Change later!
+    hyperparameters['run_type'] = run_type # bad name... ! Change later!
     hyperparameters['sweep'] = False
 
     start_t = time.time()
@@ -79,7 +79,7 @@ if __name__ == "__main__":
     os.makedirs(PATH_ARTIFACTS, exist_ok=True)
 
     # save the model
-    PATH_MODEL_ARTIFACT = os.path.join(PATH_ARTIFACTS, f"{model_type}_model.pt")
+    PATH_MODEL_ARTIFACT = os.path.join(PATH_ARTIFACTS, f"{run_type}_model.pt")
     torch.save(model, PATH_MODEL_ARTIFACT)
 
     print(f"Model saved as: {PATH_MODEL_ARTIFACT}")
