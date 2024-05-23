@@ -364,8 +364,8 @@ if __name__ == "__main__":
     time_steps = time_steps_dict[input('a) 12 months\nb) 24 months\nc) 36 months\nd) 48 months\nNote: 48 is the current VIEWS standard.\n')]
 
 
-    runtype_dict = {'a' : 'calib', 'b' : 'test'}
-    run_type = runtype_dict[input("a) Calibration\nb) Testing\n")]
+    run_type_dict = {'a' : 'calibration', 'b' : 'testing', 'c' : 'forecasting'}
+    run_type = run_type_dict[input("a) Calibration\nb) Testing\n")]
     print(f'Run type: {run_type}\n')
 
     do_sweep = input(f'a) Do sweep \nb) Do one run and pickle results \n')
