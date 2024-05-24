@@ -1,5 +1,6 @@
 | model | algorithm | queryset | 
 | -------------------------------------------------- | ------ | ------ |
+| [black_lodge](https://github.com/prio-data/views_pipeline/tree/main/models/black_lodge) | XGBRFRegressor | qs_baseline |
 | [blank_space](https://github.com/prio-data/views_pipeline/tree/main/models/blank_space) | HurdleRegression | fatalities003_pgm_natsoc |
 | [electric_relaxation](https://github.com/prio-data/views_pipeline/tree/main/models/electric_relaxation) | RandomForestClassifier | escwa001_cflong |
 | [lavender_haze](https://github.com/prio-data/views_pipeline/tree/main/models/lavender_haze) | HurdleRegression | fatalities003_pgm_broad |
