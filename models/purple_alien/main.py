@@ -19,7 +19,7 @@ from set_path import setup_project_paths, setup_artifacts_paths
 setup_project_paths(PATH)
 
 from utils import choose_model, choose_loss, choose_sheduler, get_train_tensors, get_test_tensor, apply_dropout, execute_freeze_h_option, get_log_dict, train_log, init_weights, get_data
-#from config_sweep import get_swep_config
+from config_sweep import get_swep_config
 from config_hyperparameters import get_hp_config
 from train_model import make, training_loop
 
@@ -88,21 +88,29 @@ if __name__ == "__main__":
 
     if args.sweep:
         
-        print('not implemented yet')
-        os.exit()
-        
-        #sweep_config = get_swep_config()
-        #wandb.agent(sweep_config, function = model_pipeline)
-        #sys.exit()
+        print('Running sweep...')
 
+        project = f"purple_alien_sweep" # check naming convention
+
+        sweep_config = get_swep_config()
+        sweep_config['parameters']['run_type'] = {'value' : "calibration"} # I see no reason to run the other types in the sweep
+        sweep_config['parameters']['sweep'] = {'value' : True}
+
+        sweep_id = wandb.sweep(sweep_config, project=project) # and then you put in the right project name
+
+        start_t = time.time()
+        wandb.agent(sweep_id, model_pipeline)
+            
     else:
+
+        print('Train one model and save it as an artifact...')
 
         # Extract run_type from parsed arguments
         run_type = args.run_type
         print(f'Run type: {run_type}\n')
 
 
-        project = f"imp_new_structure_{run_type}"
+        project = f"purple_alien_{run_type}" # check naming convention
 
         hyperparameters = get_hp_config()
 
