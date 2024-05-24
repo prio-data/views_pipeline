@@ -51,7 +51,7 @@ def model_pipeline(config = None, project = None):
         print('Done training')
 
         if config.sweep:
-            get_posterior(unet, views_vol, config, device) # actually since you give config now you do not need: time_steps, run_type, is_sweep,
+            get_posterior(model, views_vol, config, device) # actually since you give config now you do not need: time_steps, run_type, is_sweep,
             print('Done testing')
 
         else:
