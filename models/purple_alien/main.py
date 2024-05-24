@@ -24,8 +24,6 @@ from config_hyperparameters import get_hp_config
 from train_model import make, training_loop
 from evaluate_sweep import get_posterior # see if it can be more genrel to a single model as well... 
 
-print('Imports done...')
-
 
 def model_pipeline(config = None, project = None):
 
@@ -57,28 +55,79 @@ def model_pipeline(config = None, project = None):
         else:
             return(model) 
 
+
+
+# ---------------------------
+
 import argparse
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Run model pipeline with specified run type.')
 
-    parser.add_argument('--run_type',
+    parser.add_argument('-r', '--run_type',
                         choices=['calibration', 'testing', 'forecasting'],
                         type=str,
                         default='calibration',
                         help='Choose the run type for the model: calibration, testing, or forecasting. Default is calibration.')
 
-    parser.add_argument('--sweep',
+    parser.add_argument('-s', '--sweep',
                         choices=[True, False],
                         type=bool,
                         default=False,
                         help='Choose whether to run the model pipeline as part of a sweep. Default is False.')
 
+
+    parser.add_argument('-t', '--train',
+                        choices=[True, False],
+                        type=bool,
+                        default=False,
+                        help='Flag to indicate if a new model should be trained - if not, a model will be loaded from an artifact.')
+
+    parser.add_argument('-e', '--evaluate',
+                        choices=[True, False],
+                        type=bool,
+                        default=False,
+                        help='Flag to indicate if the model should be evaluated.')
+
+
     return parser.parse_args()
+
+
+def validate_arguments(args):
+
+    if args.sweep:
+        if args.run_type != 'calibration':
+            print("Sweep runs must have run_type set to 'calibration'. Exiting.")
+            sys.exit(1)
+
+        print("Sweep runs must train and evaluate the model. Setting train and evaluate flags to True.")
+        args.train = True
+        args.evaluate = True
+
+    if args.run_type in ['testing', 'forecasting'] and args.sweep:
+        print("Sweep cannot be performed with testing or forecasting run types. Exiting.")
+        sys.exit(1)
+
+    if args.run_type == 'forecasting' and args.evaluate:
+        print("Forecasting runs cannot be evaluated. Exiting.")
+        sys.exit(1)
+
+    if args.run_type in ['calibration', 'testing'] and not args.train and not args.evaluate:
+        print(f"Run type is {args.run_type} but neither train nor evaluate flag is set. Nothing to do... Exiting.")
+        sys.exit(1)
+
+# ---------------------------
 
 
 if __name__ == "__main__":
 
+    # new argpars solution.
+    args = parse_args()
+
+    # validate arguments to ensure that only correct combinations of flags are set
+    validate_arguments(args)
+
+    # wandb login
     wandb.login()
 
     # can you even choose testing and forecasting here?
@@ -86,8 +135,7 @@ if __name__ == "__main__":
     #run_type = run_type_dict[input("a) Calibration\nb) Testing\nc) Forecasting\n")]
     #print(f'Run type: {run_type}\n')
 
-    # new argpars solution.
-    args = parse_args()
+
 
     if args.sweep:
         
