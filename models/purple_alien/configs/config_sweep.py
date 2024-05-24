@@ -43,6 +43,7 @@ def get_swep_config():
         'first_feature_idx' : {'value' : 5},
         'norm_target' : {'value' : False},
         'freeze_h' : {'value' : "hl"},
+        'time_steps' : {'value' : 36}
         }
 
     sweep_config['parameters'] = parameters_dict
