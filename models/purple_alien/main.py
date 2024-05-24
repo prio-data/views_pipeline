@@ -56,8 +56,6 @@ def model_pipeline(config = None, project = None):
             return(model) 
 
 
-
-
 if __name__ == "__main__":
 
     # new argpars solution.
@@ -70,6 +68,7 @@ if __name__ == "__main__":
     # wandb login
     wandb.login()
 
+    start_t = time.time()
     # can you even choose testing and forecasting here?
     #run_type_dict = {'a' : 'calibration', 'b' : 'testing', 'c' : 'forecasting'}
     #run_type = run_type_dict[input("a) Calibration\nb) Testing\nc) Forecasting\n")]
@@ -89,7 +88,6 @@ if __name__ == "__main__":
 
         sweep_id = wandb.sweep(sweep_config, project=project) # and then you put in the right project name
 
-        start_t = time.time()
         wandb.agent(sweep_id, model_pipeline)
 
  
@@ -103,7 +101,6 @@ if __name__ == "__main__":
         
         if args.train:
             print(f"Training one model for run type: {run_type} and saving it as an artifact...")
-            start_t = time.time()
             model = model_pipeline(config = hyperparameters, project = project)
             PATH_ARTIFACTS = setup_artifacts_paths(PATH)
 
