@@ -22,7 +22,7 @@ from utils import choose_model, choose_loss, choose_sheduler, get_train_tensors,
 from config_sweep import get_swep_config
 from config_hyperparameters import get_hp_config
 from train_model import make, training_loop
-
+from offline_evaluation import get_posterior
 
 print('Imports done...')
 
@@ -55,7 +55,7 @@ def model_pipeline(config = None, project = None):
             print('Done testing')
 
         else:
-            return(model)        
+            return(model) 
 
 import argparse
 

@@ -29,133 +29,6 @@ from config_sweep import get_swep_config
 from config_hyperparameters import get_hp_config
 
 
-# SHOULD BE TRAIN SCRIPT ------------------------------------------------------------------
-
-def make(config, device):
-
-    unet = choose_model(config, device)
-
-    # Create a partial function with the initialization function and the config parameter
-    init_fn = functools.partial(init_weights, config=config)
-
-    # Apply the initialization function to the modeli
-    unet.apply(init_fn)
-
-    # choose loss function
-    criterion = choose_loss(config, device) # this is a touple of the reg and the class criteria
-
-    # choose sheduler - the optimizer is always AdamW right now
-    optimizer, scheduler = choose_sheduler(config, unet)
-
-    return(unet, criterion, optimizer, scheduler) #, dataloaders, dataset_sizes)
-
-
-def train(model, optimizer, scheduler, criterion_reg, criterion_class, multitaskloss_instance, views_vol, sample, config, device): # views vol and sample
-
-    wandb.watch(model, [criterion_reg, criterion_class], log= None, log_freq=2048)
-
-    avg_loss_reg_list = []
-    avg_loss_class_list = []
-    avg_loss_list = []
-    total_loss = 0
-
-    model.train()  # train mode
-    multitaskloss_instance.train() # meybe another place...
-
-
-    # Batch loops:
-    for batch in range(config.batch_size):
-
-        # Getting the train_tensor
-        train_tensor = get_train_tensors(views_vol, sample, config, device)
-        seq_len = train_tensor.shape[1]
-        window_dim = train_tensor.shape[-1] # the last dim should always be a spatial dim (H or W)
-
-        # initialize a hidden state
-        h = model.init_h(hidden_channels = model.base, dim = window_dim).float().to(device)
-
-        # Sequens loop rnn style
-        for i in range(seq_len-1): # so your sequnce is the full time len - last month.
-            print(f'\t\t month: {i+1}/{seq_len}...', end='\r')
-
-            t0 = train_tensor[:, i, :, :, :]
-
-            t1 = train_tensor[:, i+1, :, :, :]
-            t1_binary = (t1.clone().detach().requires_grad_(True) > 0) * 1.0 # 1.0 to ensure float. Should avoid cloning warning now.
-
-            # forward-pass
-            t1_pred, t1_pred_class, h = model(t0, h.detach())
-        
-            losses_list = []
-
-            for j in range(t1_pred.shape[1]): # first each reggression loss. Should be 1 channel, as I conccat the reg heads on dim = 1
-
-                losses_list.append(criterion_reg(t1_pred[:,j,:,:], t1[:,j,:,:])) # index 0 is batch dim, 1 is channel dim (here pred), 2 is H dim, 3 is W dim
-
-            for j in range(t1_pred_class.shape[1]): # then each classification loss. Should be 1 channel, as I conccat the class heads on dim = 1
-
-                losses_list.append(criterion_class(t1_pred_class[:,j,:,:], t1_binary[:,j,:,:])) # index 0 is batch dim, 1 is channel dim (here pred), 2 is H dim, 3 is W dim
-
-            losses = torch.stack(losses_list)
-            loss = multitaskloss_instance(losses)
-
-            total_loss += loss
-
-            # traning output
-            loss_reg = losses[:t1_pred.shape[1]].sum() # sum the reg losses
-            loss_class = losses[-t1_pred.shape[1]:].sum() # assuming 
-
-            avg_loss_reg_list.append(loss_reg.detach().cpu().numpy().item())
-            avg_loss_class_list.append(loss_class.detach().cpu().numpy().item())
-            avg_loss_list.append(loss.detach().cpu().numpy().item())
-
-
-    # log each sequence/timeline/batch
-    train_log(avg_loss_list, avg_loss_reg_list, avg_loss_class_list) # FIX!!!
-
-    # Backpropagation and optimization - after a full sequence... 
-    optimizer.zero_grad()
-    total_loss.backward()
-
-    # Gradient Clipping
-    if config.clip_grad_norm == True:
-        clip_value = 1.0
-        torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=clip_value)
-
-    else:
-        pass
-
-    # optimize
-    optimizer.step()
-
-    # Adjust learning rate based on the loss
-    scheduler.step()
-
-
-def training_loop(config, model, criterion, optimizer, scheduler, views_vol, device):
-
-    # # add spatail transformer
-
-    criterion_reg, criterion_class, multitaskloss_instance = criterion
-
-    np.random.seed(config.np_seed)
-    torch.manual_seed(config.torch_seed)
-    print(f'Training initiated...')
-
-    for sample in range(config.samples):
-
-        print(f'Sample: {sample+1}/{config.samples}', end = '\r')
-
-        train(model, optimizer, scheduler , criterion_reg, criterion_class, multitaskloss_instance, views_vol, sample, config, device)
-
-    print('training done...')
-
-
-
-
-# SHOULD BE TEST SCRIPT ------------------------------------------------------------------
-
-
 def test(model, test_tensor, time_steps, config, device): # should be called eval/validation
 
     """
@@ -199,7 +72,6 @@ def test(model, test_tensor, time_steps, config, device): # should be called eva
     return pred_np_list, pred_class_np_list
 
 
-
 def sample_posterior(model, views_vol, config, device): 
 
     """
@@ -235,7 +107,6 @@ def sample_posterior(model, views_vol, config, device):
         print(f'Posterior sample: {i}/{config.test_samples}', end = '\r')
 
     return posterior_list, posterior_list_class, out_of_sample_vol, test_tensor
-
 
 
 def get_posterior(model, views_vol, config, device):
@@ -287,29 +158,29 @@ def get_posterior(model, views_vol, config, device):
         auc_list.append(auc)
         brier_list.append(brier)
 
-    if not config.sweep:
+#    if not config.sweep:
+#
+#    # DUMP 2
+#        dump_location = '/home/projects/ku_00017/data/generated/conflictNet/' # should be in config
+#        
+#        posterior_dict = {'posterior_list' : posterior_list, 'posterior_list_class': posterior_list_class, 'out_of_sample_vol' : out_of_sample_vol}
+#        
+#        metric_dict = {'out_sample_month_list' : out_sample_month_list, 'mse_list': mse_list,
+#                    'ap_list' : ap_list, 'auc_list': auc_list, 'brier_list' : brier_list}
+#
+#        with open(f'{dump_location}posterior_dict_{config.time_steps}_{config.run_type}.pkl', 'wb') as file:
+#            pickle.dump(posterior_dict, file)       
+#
+#        with open(f'{dump_location}metric_dict_{config.time_steps}_{config.run_type}.pkl', 'wb') as file:
+#            pickle.dump(metric_dict, file)
+#
+#        with open(f'{dump_location}test_vol_{config.time_steps}_{config.run_type}.pkl', 'wb') as file: # make it numpy
+#            pickle.dump(test_tensor.cpu().numpy(), file)
+#
+#        print('Posterior dict, metric dict and test vol pickled and dumped!')
 
-    # DUMP 2
-        dump_location = '/home/projects/ku_00017/data/generated/conflictNet/' # should be in config
-        
-        posterior_dict = {'posterior_list' : posterior_list, 'posterior_list_class': posterior_list_class, 'out_of_sample_vol' : out_of_sample_vol}
-        
-        metric_dict = {'out_sample_month_list' : out_sample_month_list, 'mse_list': mse_list,
-                    'ap_list' : ap_list, 'auc_list': auc_list, 'brier_list' : brier_list}
-
-        with open(f'{dump_location}posterior_dict_{config.time_steps}_{config.run_type}.pkl', 'wb') as file:
-            pickle.dump(posterior_dict, file)       
-
-        with open(f'{dump_location}metric_dict_{config.time_steps}_{config.run_type}.pkl', 'wb') as file:
-            pickle.dump(metric_dict, file)
-
-        with open(f'{dump_location}test_vol_{config.time_steps}_{config.run_type}.pkl', 'wb') as file: # make it numpy
-            pickle.dump(test_tensor.cpu().numpy(), file)
-
-        print('Posterior dict, metric dict and test vol pickled and dumped!')
-
-    else:
-        print('Running sweep. NO posterior dict, metric dict, or test vol pickled+dumped')
+#    else:
+    print('Running sweep. NO posterior dict, metric dict, or test vol pickled+dumped')
 
     # ------------------------------------------------------------------------------------
     wandb.log({f"{config.time_steps}month_mean_squared_error": np.mean(mse_list)})
