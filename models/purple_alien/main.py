@@ -23,7 +23,7 @@ from config_sweep import get_swep_config
 from config_hyperparameters import get_hp_config
 from train_model import make, training_loop
 from evaluate_sweep import get_posterior # see if it can be more genrel to a single model as well... 
-from cli_parser import parse_args, validate_arguments
+from cli_parser_utils import parse_args, validate_arguments
 
 def model_pipeline(config = None, project = None):
 
