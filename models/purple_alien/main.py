@@ -75,7 +75,7 @@ if __name__ == "__main__":
     #print(f'Run type: {run_type}\n')
 
 
-
+    # first you need to check if you are running a sweep or not, because the sweep will overwrite the train and evaluate flags
     if args.sweep:
         
         print('Running sweep...')
@@ -90,37 +90,38 @@ if __name__ == "__main__":
 
         start_t = time.time()
         wandb.agent(sweep_id, model_pipeline)
-            
+
+ 
     else:
-
-        print('Train one model and save it as an artifact...')
-
-        # Extract run_type from parsed arguments
+        print('Running single model operation...')
         run_type = args.run_type
-        print(f'Run type: {run_type}\n')
-
-
-        project = f"purple_alien_{run_type}" # check naming convention
-
+        project = f"purple_alien_{run_type}"
         hyperparameters = get_hp_config()
-
-        hyperparameters['run_type'] = run_type 
+        hyperparameters['run_type'] = run_type
         hyperparameters['sweep'] = False
+        
+        if args.train:
+            print(f"Training one model for run type: {run_type} and saving it as an artifact...")
+            start_t = time.time()
+            model = model_pipeline(config = hyperparameters, project = project)
+            PATH_ARTIFACTS = setup_artifacts_paths(PATH)
 
-        start_t = time.time()
+            # create the artifacts folder if it does not exist
+            os.makedirs(PATH_ARTIFACTS, exist_ok=True)
 
-        model = model_pipeline(config = hyperparameters, project = project)
+            # save the model
+            PATH_MODEL_ARTIFACT = os.path.join(PATH_ARTIFACTS, f"{run_type}_model.pt")
+            torch.save(model, PATH_MODEL_ARTIFACT)
 
-        PATH_ARTIFACTS = setup_artifacts_paths(PATH)
+            print(f"Model saved as: {PATH_MODEL_ARTIFACT}")
 
-        # create the artifacts folder if it does not exist
-        os.makedirs(PATH_ARTIFACTS, exist_ok=True)
-
-        # save the model
-        PATH_MODEL_ARTIFACT = os.path.join(PATH_ARTIFACTS, f"{run_type}_model.pt")
-        torch.save(model, PATH_MODEL_ARTIFACT)
-
-        print(f"Model saved as: {PATH_MODEL_ARTIFACT}")
+        if args.evaluate:
+            print(f"Evaluating model for run type: {run_type}...")
+            print('not implemented yet...') # you need to implement this part.
+            
+            #model = torch.load(PATH_MODEL_ARTIFACT)
+            #model.eval()
+            #get_posterior(model, views_vol, config, device)
     
     end_t = time.time()
     minutes = (end_t - start_t)/60
