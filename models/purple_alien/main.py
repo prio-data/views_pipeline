@@ -65,6 +65,12 @@ def parse_args():
                         default='calibration',
                         help='Choose the run type for the model: calibration, testing, or forecasting. Default is calibration.')
 
+    parser.add_argument('--sweep',
+                        choices=[True, False],
+                        type=bool,
+                        default=False,
+                        help='Choose whether to run the model pipeline as part of a sweep. Default is False.')
+
     return parser.parse_args()
 
 
@@ -80,32 +86,43 @@ if __name__ == "__main__":
     # new argpars solution.
     args = parse_args()
 
-    # Extract run_type from parsed arguments
-    run_type = args.run_type
-    print(f'Run type: {run_type}\n')
+    if args.sweep:
+        
+        print('not implemented yet')
+        os.exit()
+        
+        #sweep_config = get_swep_config()
+        #wandb.agent(sweep_config, function = model_pipeline)
+        #sys.exit()
+
+    else:
+
+        # Extract run_type from parsed arguments
+        run_type = args.run_type
+        print(f'Run type: {run_type}\n')
 
 
-    project = f"imp_new_structure_{run_type}"
+        project = f"imp_new_structure_{run_type}"
 
-    hyperparameters = get_hp_config()
+        hyperparameters = get_hp_config()
 
-    hyperparameters['run_type'] = run_type 
-    hyperparameters['sweep'] = False
+        hyperparameters['run_type'] = run_type 
+        hyperparameters['sweep'] = False
 
-    start_t = time.time()
+        start_t = time.time()
 
-    model = model_pipeline(config = hyperparameters, project = project)
+        model = model_pipeline(config = hyperparameters, project = project)
 
-    PATH_ARTIFACTS = setup_artifacts_paths(PATH)
+        PATH_ARTIFACTS = setup_artifacts_paths(PATH)
 
-    # create the artifacts folder if it does not exist
-    os.makedirs(PATH_ARTIFACTS, exist_ok=True)
+        # create the artifacts folder if it does not exist
+        os.makedirs(PATH_ARTIFACTS, exist_ok=True)
 
-    # save the model
-    PATH_MODEL_ARTIFACT = os.path.join(PATH_ARTIFACTS, f"{run_type}_model.pt")
-    torch.save(model, PATH_MODEL_ARTIFACT)
+        # save the model
+        PATH_MODEL_ARTIFACT = os.path.join(PATH_ARTIFACTS, f"{run_type}_model.pt")
+        torch.save(model, PATH_MODEL_ARTIFACT)
 
-    print(f"Model saved as: {PATH_MODEL_ARTIFACT}")
+        print(f"Model saved as: {PATH_MODEL_ARTIFACT}")
     
     end_t = time.time()
     minutes = (end_t - start_t)/60
