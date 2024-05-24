@@ -120,6 +120,12 @@ if __name__ == "__main__":
             #model = torch.load(PATH_MODEL_ARTIFACT)
             #model.eval()
             #get_posterior(model, views_vol, config, device)
+
+
+        # I guess you also need some kind of forecasting here...
+        if run_type == 'forecasting':
+            print('Forecasting...')
+            print('not implemented yet...')
     
     end_t = time.time()
     minutes = (end_t - start_t)/60
