@@ -62,6 +62,7 @@ if __name__ == "__main__":
 
     # new argpars solution.
     args = parse_args()
+    print(args)
 
     # validate arguments to ensure that only correct combinations of flags are set
     validate_arguments(args)
