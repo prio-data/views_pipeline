@@ -53,21 +53,43 @@ def model_pipeline(config = None, project = None):
         return(model)
 
 
+
+import argparse
+
+def parse_args():
+    parser = argparse.ArgumentParser(description='Run model pipeline with specified run type.')
+
+    parser.add_argument('--run_type',
+                        choices=['calibration', 'testing', 'forecasting'],
+                        type=str,
+                        default='calibration',
+                        help='Choose the run type for the model: calibration, testing, or forecasting. Default is calibration.')
+
+    return parser.parse_args()
+
+
 if __name__ == "__main__":
 
     wandb.login()
 
-    # model type is still a vary bad name here - it should be something like run_type... Change later!
-    # Also, can you even choose testing and forecasting here?
-    run_type_dict = {'a' : 'calibration', 'b' : 'testing', 'c' : 'forecasting'}
-    run_type = run_type_dict[input("a) Calibration\nb) Testing\nc) Forecasting\n")]
+    # can you even choose testing and forecasting here?
+    #run_type_dict = {'a' : 'calibration', 'b' : 'testing', 'c' : 'forecasting'}
+    #run_type = run_type_dict[input("a) Calibration\nb) Testing\nc) Forecasting\n")]
+    #print(f'Run type: {run_type}\n')
+
+    # new argpars solution.
+    args = parse_args()
+
+    # Extract run_type from parsed arguments
+    run_type = args.run_type
     print(f'Run type: {run_type}\n')
 
-    project = f"imp_new_structure_{run_type}" # temp. also a bad name. Change later!
+
+    project = f"imp_new_structure_{run_type}"
 
     hyperparameters = get_hp_config()
 
-    hyperparameters['run_type'] = run_type # bad name... ! Change later!
+    hyperparameters['run_type'] = run_type 
     hyperparameters['sweep'] = False
 
     start_t = time.time()
