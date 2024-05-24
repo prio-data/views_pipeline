@@ -76,7 +76,7 @@ if __name__ == "__main__":
 
 
     # first you need to check if you are running a sweep or not, because the sweep will overwrite the train and evaluate flags
-    if args.sweep:
+    if args.sweep == True:
         
         print('Running sweep...')
 
@@ -92,7 +92,7 @@ if __name__ == "__main__":
         wandb.agent(sweep_id, model_pipeline)
 
  
-    else:
+    elif args.sweep == False:
         print('Running single model operation...')
         run_type = args.run_type
         project = f"purple_alien_{run_type}"
