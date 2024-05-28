@@ -19,7 +19,9 @@ def parse_args():
     parser.add_argument('-s', '--sweep',
                         action='store_true',
                         help='Set flag to run the model pipeline as part of a sweep. No explicit flag means no sweep.'
-                             'Note: If --sweep is flagged, --run_type must be calibration, and both the --train and --evaluate flag will be activated automatically.')
+                             'Note: If --sweep is flagged, --run_type must be calibration') #, and both the --train and --evaluate flag will be activated automatically.')
+    
+                            # well, perhaps not, since sweeps handle trianing and evaluation in a different way...
 
     parser.add_argument('-t', '--train',
                         action='store_true',
@@ -40,8 +42,8 @@ def validate_arguments(args):
             print("Error: Sweep runs must have --run_type set to 'calibration'. Exiting.")
             print("To fix: Use --run_type calibration when --sweep is flagged.")
             sys.exit(1)
-        args.train = True
-        args.evaluate = True
+        #args.train = True
+        #args.evaluate = True
 
     if args.run_type in ['testing', 'forecasting'] and args.sweep:
         print("Error: Sweep cannot be performed with testing or forecasting run types. Exiting.")
