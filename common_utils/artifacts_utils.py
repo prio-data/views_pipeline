@@ -28,8 +28,8 @@ def get_latest_model_artifact(path, run_type):
     model_files.sort(reverse=True)
 
     #print statements for debugging
-    print(model_files)
-    print(model_files[0])
+    print(f"artifacts availible: {model_files}")
+    print(f"artifact used: {model_files[0]}")
     
     # Return the latest model file
     return os.path.join(path, model_files[0])
