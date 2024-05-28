@@ -3,6 +3,7 @@ import pickle
 import time
 import os
 import functools
+from datetime import datetime
 
 import torch
 import torch.nn as nn
@@ -24,9 +25,14 @@ from config_hyperparameters import get_hp_config
 from train_model import make, training_loop
 from evaluate_sweep import get_posterior # see if it can be more genrel to a single model as well... 
 from cli_parser_utils import parse_args, validate_arguments
+from artifacts_utils import get_latest_model_artifact
 
-def model_pipeline(config = None, project = None, train = None, eval = None):
+def model_pipeline(config = None, project = None, train = None, eval = None, artifact_name = None):
 
+    # Define the path for the artifacts
+    PATH_ARTIFACTS = setup_artifacts_paths(PATH)
+
+    # Set the device
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print(f"Using device: {device}")
 
@@ -37,12 +43,13 @@ def model_pipeline(config = None, project = None, train = None, eval = None):
         wandb.define_metric("monthly/out_sample_month")
         wandb.define_metric("monthly/*", step_metric="monthly/out_sample_month")
         
-        # Access all HPs through wandb.config, so logging matches execution
+        # Update config from WandB initialization above
         config = wandb.config
 
-        # Retrieve data (pertition) based on the configuration
+        # Retrieve data (partition) based on the configuration
         views_vol = get_data(config)
 
+        # Handle the sweep runs
         if config.sweep:  # If we are running a sweep, always train and evaluate
             model, criterion, optimizer, scheduler = make(config, device)
             training_loop(config, model, criterion, optimizer, scheduler, views_vol, device)
@@ -51,19 +58,52 @@ def model_pipeline(config = None, project = None, train = None, eval = None):
             get_posterior(model, views_vol, config, device)
             print('Done testing')
 
+        # Handle the single model runs: train and save the model as an artifact
         if train:
+
+            # Create the model, criterion, optimizer and scheduler
             model, criterion, optimizer, scheduler = make(config, device)
             training_loop(config, model, criterion, optimizer, scheduler, views_vol, device)
             print('Done training')
-            return model
 
+            # create the artifacts folder if it does not exist
+            os.makedirs(PATH_ARTIFACTS, exist_ok=True)
+
+            # Define the path for the artifacts with a timestamp and a run type
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            model_filename = f"{config.run_type}_model_{timestamp}.pt"
+            PATH_MODEL_ARTIFACT = os.path.join(PATH_ARTIFACTS, model_filename)
+
+            # save the model
+            torch.save(model, PATH_MODEL_ARTIFACT)
+
+            print(f"Model saved as: {PATH_MODEL_ARTIFACT}")
+            #return model # dont return anything, the model is saved as an artifact
+
+        # Handle the single model runs: evaluate a trained model (artifact)
         if eval:
-            # Ensure the model path is correctly handled and the model exists
-            PATH_MODEL_ARTIFACT = os.path.join(PATH_ARTIFACTS, f"{config.run_type}_model.pt")  # Replace with the correct path handling
+
+            # Determine the artifact path: 
+            # If an artifact name is provided, use it. Otherwise, get the latest model artifact based on the run type
+            if artifact_name is not None:
+                
+                # Check if the artifact name has the correct file extension
+                if not artifact_name.endswith('.pt'):
+                    artifact_name += '.pt'
+
+                # Define the full (model specific) path for the artifact
+                PATH_MODEL_ARTIFACT = os.path.join(PATH_ARTIFACTS, artifact_name)
             
+            else:
+                # Get the latest model artifact based on the run type and the (models specific) artifacts path
+                PATH_MODEL_ARTIFACT = get_latest_model_artifact(PATH_ARTIFACTS, config.run_type)
+
+            # Check if the model artifact exists - if not, raise an error
             if not os.path.exists(PATH_MODEL_ARTIFACT):
                 raise FileNotFoundError(f"Model artifact not found at {PATH_MODEL_ARTIFACT}")
 
+
+            # load the model
             model = torch.load(PATH_MODEL_ARTIFACT)
             #model.eval() # this is done in the get_posterior function
 
@@ -110,40 +150,49 @@ if __name__ == "__main__":
         hyperparameters['sweep'] = False
 
         # setup the paths for the artifacts (but should you not timestamp the artifacts as well?)
-        PATH_ARTIFACTS = setup_artifacts_paths(PATH)
 
         if args.train:
             print(f"Training one model for run type: {run_type} and saving it as an artifact...")
             model = model_pipeline(config = hyperparameters, project = project, train=True)
 
             # create the artifacts folder if it does not exist
-            os.makedirs(PATH_ARTIFACTS, exist_ok=True)
+            #os.makedirs(PATH_ARTIFACTS, exist_ok=True)
 
             # save the model
-            PATH_MODEL_ARTIFACT = os.path.join(PATH_ARTIFACTS, f"{run_type}_model.pt") # THIS NEEDS TO BE CHANGED TO A TIMESTAMPED VERSION
-            torch.save(model, PATH_MODEL_ARTIFACT)
+            #PATH_MODEL_ARTIFACT = os.path.join(PATH_ARTIFACTS, f"{run_type}_model.pt") # THIS NEEDS TO BE CHANGED TO A TIMESTAMPED VERSION
+            #torch.save(model, PATH_MODEL_ARTIFACT)
 
-            print(f"Model saved as: {PATH_MODEL_ARTIFACT}")
+            #print(f"Model saved as: {PATH_MODEL_ARTIFACT}")
 
         if args.evaluate:
             print(f"Evaluating model for run type: {run_type}...")
-            print('not implemented yet...') # you need to implement this part.
+
+            # alright, but then the argspars should be able to take in an artifact name as well and pass it to the model_pipeline function here.
+
+            #print('not implemented yet...') # you need to implement this part.
 
             # get the artifact path
-            PATH_MODEL_ARTIFACT = os.path.join(PATH_ARTIFACTS, f"{run_type}_model.pt") # THIS NEEDS TO BE CHANGED TO A TIMESTAMPED VERSION
+            #PATH_MODEL_ARTIFACT = os.path.join(PATH_ARTIFACTS, f"{run_type}_model.pt") # THIS NEEDS TO BE CHANGED TO A TIMESTAMPED VERSION
 
             # load the model
-            model = torch.load(PATH_MODEL_ARTIFACT) 
+            #model = torch.load(PATH_MODEL_ARTIFACT) 
 
             #model.eval() # this is done in the get_posterior function
             model_pipeline(config = hyperparameters, project = project, eval=True)
 
-            print('Done testing')
+            #print('Done testing')
 
 
         # I guess you also need some kind of forecasting here...
         if run_type == 'forecasting':
             print('Forecasting...')
+
+
+            # notes:
+            # should always be a trained artifact?
+            # should always de the last artifact?
+
+
             print('not implemented yet...')
     
     end_t = time.time()
