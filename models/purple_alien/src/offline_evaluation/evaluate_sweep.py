@@ -163,45 +163,46 @@ def get_posterior(model, views_vol, config, device):
         auc_list.append(auc)
         brier_list.append(brier)
 
-        if not config.sweep:
+
+    if not config.sweep:
             
-            _ , _, PATH_GENERATED = setup_data_paths(PATH)
+        _ , _, PATH_GENERATED = setup_data_paths(PATH)
 
-            # if the path does not exist, create it
-            if not os.path.exists(PATH_GENERATED):
-                os.makedirs(PATH_GENERATED)
+        # if the path does not exist, create it
+        if not os.path.exists(PATH_GENERATED):
+            os.makedirs(PATH_GENERATED)
 
-            # print for debugging
-            print(f'PATH to generated data: {PATH_GENERATED}')
+        # print for debugging
+        print(f'PATH to generated data: {PATH_GENERATED}')
 
-            # pickle the posterior dict, metric dict, and test vol
-            # Should be time_steps and run_type in the name....
+        # pickle the posterior dict, metric dict, and test vol
+        # Should be time_steps and run_type in the name....
 
-            posterior_dict = {'posterior_list' : posterior_list, 'posterior_list_class': posterior_list_class, 'out_of_sample_vol' : out_of_sample_vol}
+        posterior_dict = {'posterior_list' : posterior_list, 'posterior_list_class': posterior_list_class, 'out_of_sample_vol' : out_of_sample_vol}
 
-            metric_dict = {'out_sample_month_list' : out_sample_month_list, 'mse_list': mse_list,
-                            'ap_list' : ap_list, 'auc_list': auc_list, 'brier_list' : brier_list}
+        metric_dict = {'out_sample_month_list' : out_sample_month_list, 'mse_list': mse_list,
+                        'ap_list' : ap_list, 'auc_list': auc_list, 'brier_list' : brier_list}
 
-            with open(f'{PATH_GENERATED}posterior_dict_{config.time_steps}_{config.run_type}.pkl', 'wb') as file:
-                pickle.dump(posterior_dict, file)       
+        with open(f'{PATH_GENERATED}posterior_dict_{config.time_steps}_{config.run_type}.pkl', 'wb') as file:
+            pickle.dump(posterior_dict, file)       
 
-            with open(f'{PATH_GENERATED}metric_dict_{config.time_steps}_{config.run_type}.pkl', 'wb') as file:
-                pickle.dump(metric_dict, file)
+        with open(f'{PATH_GENERATED}metric_dict_{config.time_steps}_{config.run_type}.pkl', 'wb') as file:
+            pickle.dump(metric_dict, file)
 
-            with open(f'{PATH_GENERATED}test_vol_{config.time_steps}_{config.run_type}.pkl', 'wb') as file: # make it numpy
-                pickle.dump(test_tensor.cpu().numpy(), file)
+        with open(f'{PATH_GENERATED}test_vol_{config.time_steps}_{config.run_type}.pkl', 'wb') as file: # make it numpy
+            pickle.dump(test_tensor.cpu().numpy(), file)
 
-            print('Posterior dict, metric dict and test vol pickled and dumped!')
+        print('Posterior dict, metric dict and test vol pickled and dumped!')
 
 
-        else:
-            print('Running sweep. NO posterior dict, metric dict, or test vol pickled+dumped')
+    else:
+        print('Running sweep. NO posterior dict, metric dict, or test vol pickled+dumped')
 
-        # ------------------------------------------------------------------------------------
-        wandb.log({f"{config.time_steps}month_mean_squared_error": np.mean(mse_list)})
-        wandb.log({f"{config.time_steps}month_average_precision_score": np.mean(ap_list)})
-        wandb.log({f"{config.time_steps}month_roc_auc_score": np.mean(auc_list)})
-        wandb.log({f"{config.time_steps}month_brier_score_loss":np.mean(brier_list)})
+
+    wandb.log({f"{config.time_steps}month_mean_squared_error": np.mean(mse_list)})
+    wandb.log({f"{config.time_steps}month_average_precision_score": np.mean(ap_list)})
+    wandb.log({f"{config.time_steps}month_roc_auc_score": np.mean(auc_list)})
+    wandb.log({f"{config.time_steps}month_brier_score_loss":np.mean(brier_list)})
 
 
 
