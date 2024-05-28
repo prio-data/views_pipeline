@@ -146,42 +146,25 @@ if __name__ == "__main__":
         run_type = args.run_type
         project = f"purple_alien_{run_type}"
         hyperparameters = get_hp_config()
-        hyperparameters['run_type'] = run_type
+        hyperparameters['run_type'] = run_type # this is also how the forecast if statement is informed below
         hyperparameters['sweep'] = False
 
-        # setup the paths for the artifacts (but should you not timestamp the artifacts as well?)
-
+        # if train is flagged, train the model and save it as an artifact
         if args.train:
             print(f"Training one model for run type: {run_type} and saving it as an artifact...")
-            model = model_pipeline(config = hyperparameters, project = project, train=True)
+            model_pipeline(config = hyperparameters, project = project, train=True)
 
-            # create the artifacts folder if it does not exist
-            #os.makedirs(PATH_ARTIFACTS, exist_ok=True)
-
-            # save the model
-            #PATH_MODEL_ARTIFACT = os.path.join(PATH_ARTIFACTS, f"{run_type}_model.pt") # THIS NEEDS TO BE CHANGED TO A TIMESTAMPED VERSION
-            #torch.save(model, PATH_MODEL_ARTIFACT)
-
-            #print(f"Model saved as: {PATH_MODEL_ARTIFACT}")
-
+        # if evaluate is flagged, evaluate the model
         if args.evaluate:
             print(f"Evaluating model for run type: {run_type}...")
 
-            # alright, but then the argspars should be able to take in an artifact name as well and pass it to the model_pipeline function here.
-
-            #print('not implemented yet...') # you need to implement this part.
-
-            # get the artifact path
-            #PATH_MODEL_ARTIFACT = os.path.join(PATH_ARTIFACTS, f"{run_type}_model.pt") # THIS NEEDS TO BE CHANGED TO A TIMESTAMPED VERSION
-
-            # load the model
-            #model = torch.load(PATH_MODEL_ARTIFACT) 
-
-            #model.eval() # this is done in the get_posterior function
-            model_pipeline(config = hyperparameters, project = project, eval=True)
-
-            #print('Done testing')
-
+            # if an artifact name is provided, use it. 
+            if args.artifact_name is not None:
+                model_pipeline(config = hyperparameters, project = project, eval=True, artifact_name=args.artifact_name)
+            
+            # Otherwise, get the default - I.e. latest model artifact give the specific run type
+            else:
+                model_pipeline(config = hyperparameters, project = project, eval=True)
 
         # I guess you also need some kind of forecasting here...
         if run_type == 'forecasting':
