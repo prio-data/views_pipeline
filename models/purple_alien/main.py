@@ -86,6 +86,9 @@ def model_pipeline(config = None, project = None, train = None, eval = None, art
             # Determine the artifact path: 
             # If an artifact name is provided, use it. Otherwise, get the latest model artifact based on the run type
             if artifact_name is not None:
+
+                # pritn statement for debugging
+                print(f"Using (non default) artifact: {artifact_name}")
                 
                 # Check if the artifact name has the correct file extension
                 if not artifact_name.endswith('.pt'):
@@ -95,6 +98,9 @@ def model_pipeline(config = None, project = None, train = None, eval = None, art
                 PATH_MODEL_ARTIFACT = os.path.join(PATH_ARTIFACTS, artifact_name)
             
             else:
+                # print statement for debugging
+                print(f"Using lastest (default) run type ({config.run_type}) specific artifact")
+
                 # Get the latest model artifact based on the run type and the (models specific) artifacts path
                 PATH_MODEL_ARTIFACT = get_latest_model_artifact(PATH_ARTIFACTS, config.run_type)
 
