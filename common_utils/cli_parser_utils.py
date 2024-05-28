@@ -19,10 +19,8 @@ def parse_args():
     parser.add_argument('-s', '--sweep',
                         action='store_true',
                         help='Set flag to run the model pipeline as part of a sweep. No explicit flag means no sweep.'
-                             'Note: If --sweep is flagged, --run_type must be calibration') #, and both the --train and --evaluate flag will be activated automatically.')
+                             'Note: If --sweep is flagged, --run_type must be calibration, and both training and evaluation is automatically implied.')
     
-                            # well, perhaps not, since sweeps handle trianing and evaluation in a different way...
-
     parser.add_argument('-t', '--train',
                         action='store_true',
                         help='Flag to indicate if a new model should be trained. '
@@ -34,6 +32,14 @@ def parse_args():
                              'Note: If --sweep is specified, --evaluate will also automatically be flagged. '
                              'Cannot be used with --run_type forecasting.')
 
+    parser.add_argument('-a', '--artifact_name',
+                        type=str,
+                        help='Specify the name of the model artifact to be used for evaluation. '
+                             'The file extension will be added in the main and fit with the specific model algorithm.'
+                             'The artifact name should be in the format: <run_type>_model_<timestamp>.pt.'
+                             'where <run_type> is calibration, testing, or forecasting, and <timestamp> is in the format %Y%m%d_%H%M%S.'
+                             'If not provided, the latest artifact will be used by default.')
+
     return parser.parse_args()
 
 def validate_arguments(args):
@@ -42,8 +48,6 @@ def validate_arguments(args):
             print("Error: Sweep runs must have --run_type set to 'calibration'. Exiting.")
             print("To fix: Use --run_type calibration when --sweep is flagged.")
             sys.exit(1)
-        #args.train = True
-        #args.evaluate = True
 
     if args.run_type in ['testing', 'forecasting'] and args.sweep:
         print("Error: Sweep cannot be performed with testing or forecasting run types. Exiting.")
