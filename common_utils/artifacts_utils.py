@@ -35,7 +35,7 @@ def get_latest_model_artifact(path, run_type):
     return os.path.join(path, model_files[0])
 
     # notes on stepshifted models:
-    # There will be some thinnking here in regards to how we store, denote (naming convention), and retrieve the model artifacts from stepshifted models.
+    # There will be some thinking here in regards to how we store, denote (naming convention), and retrieve the model artifacts from stepshifted models.
     # It is not a big issue, but it is something to consider os we don't do something headless. 
     # A possible format could be: <run_type>_model_s<step>_<timestamp>.pt example: calibration_model_s00_20210831_123456.pt, calibration_model_s01_20210831_123456.pt, etc.
     # And the rest of the code maded in a way to handle this naming convention without any issues. Could be a simple fix.
