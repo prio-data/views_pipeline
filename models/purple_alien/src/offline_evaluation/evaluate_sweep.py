@@ -118,6 +118,8 @@ def get_posterior(model, views_vol, config, device):
     posterior_list, posterior_list_class, out_of_sample_vol, test_tensor = sample_posterior(model, views_vol, config, device)
 
     # YOU ARE MISSING SOMETHING ABOUT FEATURES HERE WHICH IS WHY YOU REPORTED AP ON WandB IS BIASED DOWNWARDS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!RYRYRYRYERYERYR
+    # need to check you "offline" evaluation script which is correctlly implemented before you use this function for forecasting.
+    
     # Get mean and std
     mean_array = np.array(posterior_list).mean(axis = 0) # get mean for each month!
     std_array = np.array(posterior_list).std(axis = 0)
@@ -158,130 +160,138 @@ def get_posterior(model, views_vol, config, device):
         auc_list.append(auc)
         brier_list.append(brier)
 
-#    if not config.sweep:
-#
-#    # DUMP 2
-#        dump_location = '/home/projects/ku_00017/data/generated/conflictNet/' # should be in config
-#        
-#        posterior_dict = {'posterior_list' : posterior_list, 'posterior_list_class': posterior_list_class, 'out_of_sample_vol' : out_of_sample_vol}
-#        
-#        metric_dict = {'out_sample_month_list' : out_sample_month_list, 'mse_list': mse_list,
-#                    'ap_list' : ap_list, 'auc_list': auc_list, 'brier_list' : brier_list}
-#
-#        with open(f'{dump_location}posterior_dict_{config.time_steps}_{config.run_type}.pkl', 'wb') as file:
-#            pickle.dump(posterior_dict, file)       
-#
-#        with open(f'{dump_location}metric_dict_{config.time_steps}_{config.run_type}.pkl', 'wb') as file:
-#            pickle.dump(metric_dict, file)
-#
-#        with open(f'{dump_location}test_vol_{config.time_steps}_{config.run_type}.pkl', 'wb') as file: # make it numpy
-#            pickle.dump(test_tensor.cpu().numpy(), file)
-#
-#        print('Posterior dict, metric dict and test vol pickled and dumped!')
+        if not config.sweep:
+            
+            # fimbulthul dump location
+            dump_location = config.path_generated_data #'/home/simmaa/HydraNet_001/data/generated/' # should be in config <---------------------------------------------------------------------------------------------------
 
-#    else:
-    print('Running sweep. NO posterior dict, metric dict, or test vol pickled+dumped')
 
-    # ------------------------------------------------------------------------------------
-    wandb.log({f"{config.time_steps}month_mean_squared_error": np.mean(mse_list)})
-    wandb.log({f"{config.time_steps}month_average_precision_score": np.mean(ap_list)})
-    wandb.log({f"{config.time_steps}month_roc_auc_score": np.mean(auc_list)})
-    wandb.log({f"{config.time_steps}month_brier_score_loss":np.mean(brier_list)})
+            posterior_dict = {'posterior_list' : posterior_list, 'posterior_list_class': posterior_list_class, 'out_of_sample_vol' : out_of_sample_vol}
+
+            metric_dict = {'out_sample_month_list' : out_sample_month_list, 'mse_list': mse_list,
+                            'ap_list' : ap_list, 'auc_list': auc_list, 'brier_list' : brier_list}
+
+            with open(f'{dump_location}posterior_dict_{config.time_steps}_{config.run_type}.pkl', 'wb') as file:
+                pickle.dump(posterior_dict, file)       
+
+            with open(f'{dump_location}metric_dict_{config.time_steps}_{config.run_type}.pkl', 'wb') as file:
+                pickle.dump(metric_dict, file)
+
+            with open(f'{dump_location}test_vol_{config.time_steps}_{config.run_type}.pkl', 'wb') as file: # make it numpy
+                pickle.dump(test_tensor.cpu().numpy(), file)
+
+            print('Posterior dict, metric dict and test vol pickled and dumped!')
+
+#            wandb.log({f"{config.time_steps}month_mean_squared_error": np.mean(mse_list)})
+#            wandb.log({f"{config.time_steps}month_average_precision_score": np.mean(ap_list)})
+#            wandb.log({f"{config.time_steps}month_roc_auc_score": np.mean(auc_list)})
+#            wandb.log({f"{config.time_steps}month_brier_score_loss":np.mean(brier_list)})
+#
+
+        else:
+            print('Running sweep. NO posterior dict, metric dict, or test vol pickled+dumped')
+
+        # ------------------------------------------------------------------------------------
+        wandb.log({f"{config.time_steps}month_mean_squared_error": np.mean(mse_list)})
+        wandb.log({f"{config.time_steps}month_average_precision_score": np.mean(ap_list)})
+        wandb.log({f"{config.time_steps}month_roc_auc_score": np.mean(auc_list)})
+        wandb.log({f"{config.time_steps}month_brier_score_loss":np.mean(brier_list)})
 
 
 
 # SHOULD BE MAIN SCRIPT ------------------------------------------------------------------
 
-
-
-def model_pipeline(config = None, project = None):
-
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    print(device)
-
-    # tell wandb to get started
-    with wandb.init(project=project, entity="views_pipeline", config=config): # project and config ignored when runnig a sweep
-
-        wandb.define_metric("monthly/out_sample_month")
-        wandb.define_metric("monthly/*", step_metric="monthly/out_sample_month")
-
-        # access all HPs through wandb.config, so logging matches execution!
-        config = wandb.config
-
-        views_vol = get_data(config)
-
-        # make the model, data, and optimization problem
-        unet, criterion, optimizer, scheduler = make(config, device)
-
-        training_loop(config, unet, criterion, optimizer, scheduler, views_vol, device)
-        print('Done training')
-
-        get_posterior(unet, views_vol, config, device) # actually since you give config now you do not need: time_steps, run_type, is_sweep,
-        print('Done testing')
-
-        if config.sweep == False: # if it is not a sweep, return the model for pickling (not pickled right now...), pth
-            return(unet)
-
-
-if __name__ == "__main__":
-
-    wandb.login()
-
-    time_steps_dict = {'a':12,
-                       'b':24,
-                       'c':36,
-                       'd':48,}
-
-    time_steps = time_steps_dict[input('a) 12 months\nb) 24 months\nc) 36 months\nd) 48 months\nNote: 48 is the current VIEWS standard.\n')]
-
-
-    run_type_dict = {'a' : 'calibration', 'b' : 'testing', 'c' : 'forecasting'}
-    run_type = run_type_dict[input("a) Calibration\nb) Testing\n")]
-    print(f'Run type: {run_type}\n')
-
-    do_sweep = input(f'a) Do sweep \nb) Do one run and pickle results \n')
-
-    if do_sweep == 'a':
-
-        print('Doing a sweep!')
-
-        project = f"RUNET_VIEWSER_{time_steps}_{run_type}_experiments_016_sbnsos" # 4 is without h freeze... See if you have all the outputs now???
-
-        sweep_config = get_swep_config()
-        sweep_config['parameters']['time_steps'] = {'value' : time_steps}
-        sweep_config['parameters']['run_type'] = {'value' : run_type}
-        sweep_config['parameters']['sweep'] = {'value' : True}
-
-        sweep_id = wandb.sweep(sweep_config, project=project) # and then you put in the right project name
-
-        #device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        #print(device)
-
-        start_t = time.time()
-        wandb.agent(sweep_id, model_pipeline)
-
-    elif do_sweep == 'b':
-
-        print(f'One run and pickle!')
-
-        project = f"RUNET_VIEWS_{time_steps}_{run_type}_pickled_sbnsos"
-
-        hyperparameters = get_hp_config()
-        hyperparameters['time_steps'] = time_steps
-        hyperparameters['run_type'] = run_type
-        hyperparameters['sweep'] = False
-
-        print(f"using: {hyperparameters['model']}")
-
-        #device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        #print(device)
-
-        start_t = time.time()
-
-        unet = model_pipeline(config = hyperparameters, project = project)
-
-    end_t = time.time()
-    minutes = (end_t - start_t)/60
-    print(f'Done. Runtime: {minutes:.3f} minutes')
-
-
+# 
+# 
+# def model_pipeline(config = None, project = None):
+# 
+#     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+#     print(device)
+# 
+#     # tell wandb to get started
+#     with wandb.init(project=project, entity="views_pipeline", config=config): # project and config ignored when runnig a sweep
+# 
+#         wandb.define_metric("monthly/out_sample_month")
+#         wandb.define_metric("monthly/*", step_metric="monthly/out_sample_month")
+# 
+#         # access all HPs through wandb.config, so logging matches execution!
+#         config = wandb.config
+# 
+#         views_vol = get_data(config)
+# 
+#         # make the model, data, and optimization problem
+#         unet, criterion, optimizer, scheduler = make(config, device)
+# 
+#         training_loop(config, unet, criterion, optimizer, scheduler, views_vol, device)
+#         print('Done training')
+# 
+#         get_posterior(unet, views_vol, config, device) # actually since you give config now you do not need: time_steps, run_type, is_sweep,
+#         print('Done testing')
+# 
+#         if config.sweep == False: # if it is not a sweep, return the model for pickling (not pickled right now...), pth
+#             return(unet)
+# 
+# 
+# if __name__ == "__main__":
+# 
+#     wandb.login()
+# 
+#     time_steps_dict = {'a':12,
+#                        'b':24,
+#                        'c':36,
+#                        'd':48,}
+# 
+#     time_steps = time_steps_dict[input('a) 12 months\nb) 24 months\nc) 36 months\nd) 48 months\nNote: 48 is the current VIEWS standard.\n')]
+# 
+# 
+#     run_type_dict = {'a' : 'calibration', 'b' : 'testing', 'c' : 'forecasting'}
+#     run_type = run_type_dict[input("a) Calibration\nb) Testing\n")]
+#     print(f'Run type: {run_type}\n')
+# 
+#     do_sweep = input(f'a) Do sweep \nb) Do one run and pickle results \n')
+# 
+#     if do_sweep == 'a':
+# 
+#         print('Doing a sweep!')
+# 
+#         project = f"RUNET_VIEWSER_{time_steps}_{run_type}_experiments_016_sbnsos" # 4 is without h freeze... See if you have all the outputs now???
+# 
+#         sweep_config = get_swep_config()
+#         sweep_config['parameters']['time_steps'] = {'value' : time_steps}
+#         sweep_config['parameters']['run_type'] = {'value' : run_type}
+#         sweep_config['parameters']['sweep'] = {'value' : True}
+# 
+#         sweep_id = wandb.sweep(sweep_config, project=project) # and then you put in the right project name
+# 
+#         #device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+#         #print(device)
+# 
+#         start_t = time.time()
+#         wandb.agent(sweep_id, model_pipeline)
+# 
+#     elif do_sweep == 'b':
+# 
+#         print(f'One run and pickle!')
+# 
+#         project = f"RUNET_VIEWS_{time_steps}_{run_type}_pickled_sbnsos"
+# 
+#         hyperparameters = get_hp_config()
+#         hyperparameters['time_steps'] = time_steps
+#         hyperparameters['run_type'] = run_type
+#         hyperparameters['sweep'] = False
+# 
+#         print(f"using: {hyperparameters['model']}")
+# 
+#         #device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+#         #print(device)
+# 
+#         start_t = time.time()
+# 
+#         unet = model_pipeline(config = hyperparameters, project = project)
+# 
+#     end_t = time.time()
+#     minutes = (end_t - start_t)/60
+#     print(f'Done. Runtime: {minutes:.3f} minutes')
+# 
+# 
+# 
