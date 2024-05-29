@@ -8,9 +8,9 @@ This is very simple model with only five data columns (each column representing 
 
 ## To-Dos
 - [x] Take over model configs from [viewsforecasting](https://github.com/prio-data/viewsforecasting/blob/4dbc2cd2b6edb3169fc585f7dbb868b65fab0e2c/SystemUpdates/ModelDefinitions.py#L36)
-- [ ] Tidy config files (currently everything is in config_model)
+- [x] Tidy config files (currently everything is in config_model)
 - [x] Dataloader: Rewrite queryset for vimur
-- [ ] Training script
+- [x] Training script
 - [ ] Forecasting script
 - [ ] Evaluation script
 - [ ] Orchestration script
