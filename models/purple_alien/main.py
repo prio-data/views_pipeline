@@ -23,7 +23,8 @@ from utils import choose_model, choose_loss, choose_sheduler, get_train_tensors,
 from config_sweep import get_swep_config
 from config_hyperparameters import get_hp_config
 from train_model import make, training_loop
-from evaluate_sweep import get_posterior # see if it can be more genrel to a single model as well... 
+# from evaluate_sweep import get_posterior # see if it can be more genrel to a single model as well... 
+from evaluation import get_posterior
 from cli_parser_utils import parse_args, validate_arguments
 from artifacts_utils import get_latest_model_artifact
 
@@ -174,7 +175,16 @@ if __name__ == "__main__":
 
         # I guess you also need some kind of forecasting here...
         if run_type == 'forecasting':
-            print('Forecasting...')
+            print('True forecasting ->->->->')
+
+             # if an artifact name is provided, use it. 
+            if args.artifact_name is not None:
+                model_pipeline(config = hyperparameters, project = project, artifact_name=args.artifact_name)
+            
+            # Otherwise, get the default - I.e. latest model artifact give the specific run type
+            else:
+                model_pipeline(config = hyperparameters, project = project)
+
 
 
             # notes:
