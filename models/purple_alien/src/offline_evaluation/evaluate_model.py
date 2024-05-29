@@ -1,6 +1,9 @@
+import os
+
 import numpy as np
 import pickle
 import time
+import functools
 
 import torch
 import torch.nn as nn
@@ -20,13 +23,12 @@ from pathlib import Path
 
 PATH = Path(__file__)
 sys.path.insert(0, str(Path(*[i for i in PATH.parts[:PATH.parts.index("views_pipeline")+1]]) / "common_utils")) # PATH_COMMON_UTILS  
-from set_path import setup_project_paths
+from set_path import setup_project_paths, setup_data_paths
 setup_project_paths(PATH)
 
-from config_hyperparameters import get_hp_config
 
 from utils import choose_model, choose_loss, choose_sheduler, get_train_tensors, get_test_tensor, apply_dropout, execute_freeze_h_option, get_log_dict, train_log, init_weights, get_data
-#from config_sweep import get_swep_config
+from config_sweep import get_swep_config
 from config_hyperparameters import get_hp_config
 
 
@@ -46,7 +48,7 @@ def test(model, test_tensor, time_steps, config, device): # should be called eva
     pred_np_list = []
     pred_class_np_list = []
 
-    h_tt = model.init_hTtime(hidden_channels = model.base, H = 180, W  = 180).float().to(device) # should infere the dim...
+    h_tt = model.init_hTtime(hidden_channels = model.base, H = 180, W  = 180).float().to(device) # coul auto the...
     seq_len = test_tensor.shape[1] # og nu køre eden bare helt til roden
     print(f'\t\t\t\t sequence length: {seq_len}', end= '\r')
 
@@ -71,7 +73,6 @@ def test(model, test_tensor, time_steps, config, device): # should be called eva
             pred_class_np_list.append(t1_pred_class.cpu().detach().numpy().squeeze()) # squeeze to remove the batch dim. So this is a list of 3x180x180 arrays
 
     return pred_np_list, pred_class_np_list
-
 
 
 def sample_posterior(model, views_vol, config, device): 
@@ -111,7 +112,6 @@ def sample_posterior(model, views_vol, config, device):
     return posterior_list, posterior_list_class, out_of_sample_vol, test_tensor
 
 
-
 def get_posterior(model, views_vol, config, device):
 
     """
@@ -121,6 +121,8 @@ def get_posterior(model, views_vol, config, device):
     posterior_list, posterior_list_class, out_of_sample_vol, test_tensor = sample_posterior(model, views_vol, config, device)
 
     # YOU ARE MISSING SOMETHING ABOUT FEATURES HERE WHICH IS WHY YOU REPORTED AP ON WandB IS BIASED DOWNWARDS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!RYRYRYRYERYERYR
+    # need to check you "offline" evaluation script which is correctlly implemented before you use this function for forecasting.
+    
     # Get mean and std
     mean_array = np.array(posterior_list).mean(axis = 0) # get mean for each month!
     std_array = np.array(posterior_list).std(axis = 0)
@@ -161,96 +163,47 @@ def get_posterior(model, views_vol, config, device):
         auc_list.append(auc)
         brier_list.append(brier)
 
-    # DUMP
-        
-    # computerome dump location
-    #dump_location = '/home/projects/ku_00017/data/generated/conflictNet/' # should be in config
 
-    # fimbulthul dump location
-    dump_location = config.path_generated_data #'/home/simmaa/HydraNet_001/data/generated/' # should be in config <---------------------------------------------------------------------------------------------------
+    if not config.sweep:
+            
+        _ , _, PATH_GENERATED = setup_data_paths(PATH)
 
-        
-    posterior_dict = {'posterior_list' : posterior_list, 'posterior_list_class': posterior_list_class, 'out_of_sample_vol' : out_of_sample_vol}
-        
-    metric_dict = {'out_sample_month_list' : out_sample_month_list, 'mse_list': mse_list,
-                    'ap_list' : ap_list, 'auc_list': auc_list, 'brier_list' : brier_list}
+        # if the path does not exist, create it
+        if not os.path.exists(PATH_GENERATED):
+            os.makedirs(PATH_GENERATED)
 
-    with open(f'{dump_location}posterior_dict_{config.time_steps}_{config.run_type}.pkl', 'wb') as file:
-        pickle.dump(posterior_dict, file)       
+        # print for debugging
+        print(f'PATH to generated data: {PATH_GENERATED}')
 
-    with open(f'{dump_location}metric_dict_{config.time_steps}_{config.run_type}.pkl', 'wb') as file:
-        pickle.dump(metric_dict, file)
+        # pickle the posterior dict, metric dict, and test vol
+        # Should be time_steps and run_type in the name....
 
-    with open(f'{dump_location}test_vol_{config.time_steps}_{config.run_type}.pkl', 'wb') as file: # make it numpy
-        pickle.dump(test_tensor.cpu().numpy(), file)
+        posterior_dict = {'posterior_list' : posterior_list, 'posterior_list_class': posterior_list_class, 'out_of_sample_vol' : out_of_sample_vol}
 
-    print('Posterior dict, metric dict and test vol pickled and dumped!')
+        metric_dict = {'out_sample_month_list' : out_sample_month_list, 'mse_list': mse_list,
+                        'ap_list' : ap_list, 'auc_list': auc_list, 'brier_list' : brier_list}
+
+        with open(f'{PATH_GENERATED}/posterior_dict_{config.time_steps}_{config.run_type}_{config.model_time_stamp}.pkl', 'wb') as file:
+            pickle.dump(posterior_dict, file)       
+
+        with open(f'{PATH_GENERATED}/metric_dict_{config.time_steps}_{config.run_type}{config.model_time_stamp}.pkl', 'wb') as file:
+            pickle.dump(metric_dict, file)
+
+        with open(f'{PATH_GENERATED}/test_vol_{config.time_steps}_{config.run_type}_{config.model_time_stamp}.pkl', 'wb') as file: # make it numpy
+            pickle.dump(test_tensor.cpu().numpy(), file)
+
+        print('Posterior dict, metric dict and test vol pickled and dumped!')
+
+
+    else:
+        print('Running sweep. NO posterior dict, metric dict, or test vol pickled+dumped')
+
 
     wandb.log({f"{config.time_steps}month_mean_squared_error": np.mean(mse_list)})
     wandb.log({f"{config.time_steps}month_average_precision_score": np.mean(ap_list)})
     wandb.log({f"{config.time_steps}month_roc_auc_score": np.mean(auc_list)})
     wandb.log({f"{config.time_steps}month_brier_score_loss":np.mean(brier_list)})
 
-
-def model_pipeline(config = None, project = None):
-
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    print(device)
-
-    # tell wandb to get started
-    with wandb.init(project=project, entity="views_pipeline", config=config): # project and config ignored when runnig a sweep
-
-        wandb.define_metric("monthly/out_sample_month")
-        wandb.define_metric("monthly/*", step_metric="monthly/out_sample_month")
-
-        # access all HPs through wandb.config, so logging matches execution!
-        config = wandb.config
-
-        views_vol = get_data(config)
-
-        # computerome artifacts path
-        #artifacts_path = f"/home/projects/ku_00017/people/simpol/scripts/conflictNet/artifacts"
-        
-        # fimbulthul artifacts path
-        artifacts_path = config.path_artifacts # f"/home/simmaa/HydraNet_001/artifacts" # should be in config <---------------------------------------------------------------------------------------------------
-
-        model = torch.load(f"{artifacts_path}/calibration_model.pt") # you rpolly need configs for both train and test...
-
-        get_posterior(model, views_vol, config, device) # actually since you give config now you do not need: time_steps, run_type, is_sweep,
-        print('Done testing')
-
-        return(model)
-
-
-if __name__ == "__main__":
-
-    wandb.login()
-
-    time_steps_dict = {'a':12,
-                       'b':24,
-                       'c':36,
-                       'd':48,}
-
-    time_steps = time_steps_dict[input('a) 12 months\nb) 24 months\nc) 36 months\nd) 48 months\nNote: 48 is the current VIEWS standard.\n')]
-
-    run_type_dict = {'a' : 'calibration', 'b' : 'testing'}
-    run_type = run_type_dict[input("a) Calibration\nb) Testing\n")]
-    print(f'Run type: {run_type}\n')
-
-    project = f"imp_new_structure_{run_type}" # temp.
-
-    hyperparameters = get_hp_config()
-
-    hyperparameters['time_steps'] = time_steps
-    hyperparameters['run_type'] = run_type
-    hyperparameters['sweep'] = False
-
-    start_t = time.time()
-
-    model = model_pipeline(config = hyperparameters, project = project)
-
-    end_t = time.time()
-    minutes = (end_t - start_t)/60
-    print(f'Done. Runtime: {minutes:.3f} minutes')
-
-
+# note:
+# Going with the argparser, there is less of a clear reason to have to separate .py files for evaluation sweeps and single models. I think. Let me know if you disagree.
+# naturally its a question of generalization and reusability, and i could see I had a lot of copy paste code between the two scripts.

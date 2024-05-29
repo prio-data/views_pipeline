@@ -24,7 +24,7 @@ from config_sweep import get_swep_config
 from config_hyperparameters import get_hp_config
 from train_model import make, training_loop
 # from evaluate_sweep import get_posterior # see if it can be more genrel to a single model as well... 
-from evaluation import get_posterior
+from evaluate_model import get_posterior
 from cli_parser_utils import parse_args, validate_arguments
 from artifacts_utils import get_latest_model_artifact
 
