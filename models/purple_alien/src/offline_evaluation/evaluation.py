@@ -204,3 +204,6 @@ def get_posterior(model, views_vol, config, device):
     wandb.log({f"{config.time_steps}month_roc_auc_score": np.mean(auc_list)})
     wandb.log({f"{config.time_steps}month_brier_score_loss":np.mean(brier_list)})
 
+# note:
+# Going with the argparser, there is less of a clear reason to have to separate .py files for evaluation sweeps and single models. I think. Let me know if you disagree.
+# naturally its a question of generalization and reusability, and i could see I had a lot of copy paste code between the two scripts.
