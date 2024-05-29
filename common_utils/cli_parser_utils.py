@@ -37,7 +37,7 @@ def parse_args():
                         help='Specify the name of the model artifact to be used for evaluation. '
                              'The file extension will be added in the main and fit with the specific model algorithm.'
                              'The artifact name should be in the format: <run_type>_model_<timestamp>.pt.'
-                             'where <run_type> is calibration, testing, or forecasting, and <timestamp> is in the format %Y%m%d_%H%M%S.'
+                             'where <run_type> is calibration, testing, or forecasting, and <timestamp> is in the format YMD_HMS.'
                              'If not provided, the latest artifact will be used by default.')
 
     return parser.parse_args()
