@@ -350,6 +350,7 @@ def train_log(avg_loss_list, avg_loss_reg_list, avg_loss_class_list):
     wandb.log({"avg_loss": avg_loss, "avg_loss_reg": avg_loss_reg, "avg_loss_class": avg_loss_class})
 
 
+# Should rename to sub_tensor or something like that... But it is used for training.. 
 def get_train_tensors(views_vol, sample, config, device): 
 
     """Uses the get_window_index and get_window_coords functions to sample a window from the training tensor. 
@@ -387,31 +388,25 @@ def get_train_tensors(views_vol, sample, config, device):
     train_tensor = train_tensor.reshape(N, C, D, H, W)
 
 
-    return(train_tensor)
+    return train_tensor
 
 
+def get_full_tensor(views_vol, config, device):
 
-
-
-def get_test_tensor(views_vol, config, device):
-
-    """Uses to get the features for the test tensor. The test tensor is of size 1 x config.time_steps x config.input_channels x 180 x 180."""
+    """Uses to get the features for the full tensor
+    Used for out-of-sample predictions for both evaluation and forecasting, depending on the run_type (partition). 
+    The test tensor is of size 1 x config.time_steps x config.input_channels x 180 x 180."""
 
     ln_best_sb_idx = config.first_feature_idx # 5 = ln_best_sb
     last_feature_idx = ln_best_sb_idx + config.input_channels
 
-    # !!!!!!!!!!!!!! why is this test tensor put on device here? !!!!!!!!!!!!!!!!!!
-    #test_tensor = torch.tensor(views_vol).float().to(device).unsqueeze(dim=0).permute(0,1,4,2,3)[:, :, ln_best_sb_idx:last_feature_idx, :, :] 
-
     print(f'views_vol shape {views_vol.shape}')
 
-    test_tensor = torch.tensor(views_vol).float().unsqueeze(dim=0).permute(0,1,4,2,3)[:, :, ln_best_sb_idx:last_feature_idx, :, :] 
+    full_tensor = torch.tensor(views_vol).float().unsqueeze(dim=0).permute(0,1,4,2,3)[:, :, ln_best_sb_idx:last_feature_idx, :, :] 
 
-    print(f'test_tensor shape {test_tensor.shape}')
+    print(f'test_tensor shape {full_tensor.shape}')
 
-    return test_tensor
-
-
+    return full_tensor 
 
 
 
@@ -447,7 +442,7 @@ def get_log_dict(i, mean_array, mean_class_array, std_array, std_class_array, ou
         log_dict[f"monthly/roc_auc_score{j}"] = auc
         log_dict[f"monthly/brier_score_loss{j}"] = brier
 
-    return (log_dict)
+    return log_dict
 
 
 def execute_freeze_h_option(config, model, t0, h_tt):
