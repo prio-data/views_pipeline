@@ -59,9 +59,9 @@ def validate_arguments(args):
         print("To fix: Remove --evaluate flag when --run_type is 'forecasting'.")
         sys.exit(1)
 
-    if args.run_type in ['calibration', 'testing'] and not args.train and not args.evaluate:
-        print(f"Error: Run type is {args.run_type} but neither --train nor --evaluate flag is set. Nothing to do... Exiting.")
-        print("To fix: Add --train and/or --evaluate flag.")
+    if args.run_type in ['calibration', 'testing'] and not args.train and not args.evaluate and not args.sweep:
+        print(f"Error: Run type is {args.run_type} but neither --train, --evaluate, nor --sweep flag is set. Nothing to do... Exiting.")
+        print("To fix: Add --train and/or --evaluate flag. Or use --sweep to run both training and evaluation in a WadnB sweep loop.")
         sys.exit(1)
 
 
