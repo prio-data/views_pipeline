@@ -183,13 +183,13 @@ def get_posterior(model, views_vol, config, device):
         metric_dict = {'out_sample_month_list' : out_sample_month_list, 'mse_list': mse_list,
                         'ap_list' : ap_list, 'auc_list': auc_list, 'brier_list' : brier_list}
 
-        with open(f'{PATH_GENERATED}posterior_dict_{config.time_steps}_{config.run_type}.pkl', 'wb') as file:
+        with open(f'{PATH_GENERATED}/posterior_dict_{config.time_steps}_{config.run_type}.pkl', 'wb') as file:
             pickle.dump(posterior_dict, file)       
 
-        with open(f'{PATH_GENERATED}metric_dict_{config.time_steps}_{config.run_type}.pkl', 'wb') as file:
+        with open(f'{PATH_GENERATED}/metric_dict_{config.time_steps}_{config.run_type}.pkl', 'wb') as file:
             pickle.dump(metric_dict, file)
 
-        with open(f'{PATH_GENERATED}test_vol_{config.time_steps}_{config.run_type}.pkl', 'wb') as file: # make it numpy
+        with open(f'{PATH_GENERATED}/test_vol_{config.time_steps}_{config.run_type}.pkl', 'wb') as file: # make it numpy
             pickle.dump(test_tensor.cpu().numpy(), file)
 
         print('Posterior dict, metric dict and test vol pickled and dumped!')
