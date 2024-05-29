@@ -118,7 +118,7 @@ def get_input_data():
                              .transform.missing.replace_na()
                              )
 
-                .with_column(Column("dist_diamsec", from_table="priogrid", from_column="dist_diamsec_s_wgs")
+                .with_column(Column("dist_diamsec", from_loa="priogrid", from_column="dist_diamsec_s_wgs")
                              .transform.missing.fill()
                              .transform.missing.replace_na()
                              )
@@ -129,22 +129,22 @@ def get_input_data():
                              )
 
                 # From drought
-                .with_column(Column("tlag1_dr_mod_gs", from_table="hack_temp_escwa_pgm_pgm",
+                .with_column(Column("tlag1_dr_mod_gs", from_loa="priogrid",
                                     from_column="tlag1_dr_mod_gs")
                              .transform.missing.replace_na(0)
                              )
 
-                .with_column(Column("spei1_gs_prev10_anom", from_table="hack_temp_escwa_pgm_pgm",
+                .with_column(Column("spei1_gs_prev10_anom", from_loa="priogrid",
                                     from_column="spei1_gs_prev10_anom")
                              .transform.missing.replace_na(0)
                              )
 
-                .with_column(Column("tlag_12_crop_sum", from_table="hack_temp_escwa_pgm_pgm",
+                .with_column(Column("tlag_12_crop_sum", from_loa="priogrid",
                                     from_column="tlag_12_crop_sum")
                              .transform.missing.replace_na(0)
                              )
 
-                .with_column(Column("spei1gsy_lowermedian_count", from_table="hack_temp_escwa_pgm_pgm",
+                .with_column(Column("spei1gsy_lowermedian_count", from_loa="priogrid",
                                     from_column="spei1gsy_lowermedian_count")
                              .transform.missing.replace_na(0)
                              )

@@ -108,12 +108,12 @@ def get_input_data():
                               .transform.missing.replace_na()
                               )
 
-                 .with_column(Column("dist_diamsec", from_table="priogrid", from_column="dist_diamsec_s_wgs")
+                 .with_column(Column("dist_diamsec", from_loa="priogrid", from_column="dist_diamsec_s_wgs")
                               .transform.missing.fill()
                               .transform.missing.replace_na()
                               )
 
-                 .with_column(Column("dist_petroleum", from_table="priogrid", from_column="dist_petroleum_s_wgs")
+                 .with_column(Column("dist_petroleum", from_loa="priogrid", from_column="dist_petroleum_s_wgs")
                               .transform.missing.fill()
                               .transform.missing.replace_na()
                               )
