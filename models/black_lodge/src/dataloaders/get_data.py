@@ -66,6 +66,19 @@ def get_partition_data(df, partition):
 
     return df
 
+
+def check_data():
+    """
+    Check missingness and infinity values in the input data
+    """
+    data = get_data()
+    print("Checking missingness and infinity values in the input data...")
+    print("Missing values in the input data:")
+    print(data.isnull().sum())
+    print("Infinity values in the input data:")
+    print(data.isin([np.inf, -np.inf]).sum())
+
+
 if __name__ == "__main__":
     get_data()
     print("Data fetched successfully.")
