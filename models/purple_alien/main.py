@@ -62,6 +62,8 @@ def model_pipeline(config = None, project = None, train = None, eval = None, art
         # Handle the single model runs: train and save the model as an artifact
         if train:
 
+            # All wandb logging is done in the training loop. 
+            
             # Create the model, criterion, optimizer and scheduler
             model, criterion, optimizer, scheduler = make(config, device)
             training_loop(config, model, criterion, optimizer, scheduler, views_vol, device)
@@ -77,6 +79,8 @@ def model_pipeline(config = None, project = None, train = None, eval = None, art
 
             # save the model
             torch.save(model, PATH_MODEL_ARTIFACT)
+
+            # Currently the artifacts are only sotred locally. Putting them on WandB is a good idea, but I need to understand thier model storage better first.
 
             print(f"Model saved as: {PATH_MODEL_ARTIFACT}")
             #return model # dont return anything, the model is saved as an artifact
