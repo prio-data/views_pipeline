@@ -1,5 +1,3 @@
-from xgboost import XGBRFRegressor
-
 def get_model_config():
     """
     Contains the common configuration settings for the model (model architecture, name, target variable, level of analysis and deployment status).
@@ -9,7 +7,7 @@ def get_model_config():
     """
     model_config = {
         "name": "black_lodge",
-        "algorithm": XGBRFRegressor, 
+        "algorithm": "XGBRFRegressor", 
         "depvar": "ln_ged_sb_dep", 
         "queryset": "fatalities002_baseline",
         "level": "cm",
@@ -19,8 +17,6 @@ def get_model_config():
         "deployment_status": "production",
         "creator": "Sara",
         "preprocessing": "float_it", #new
-        "data_train": "baseline002", #new
-        "n_jobs": 12, #new, move to hyperparameters
-        "n_estimators": 300 #new, move to hyperparameters
-    }
+        "data_train": "baseline002", #new    
+        }
     return model_config 
