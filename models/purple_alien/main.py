@@ -113,6 +113,15 @@ def model_pipeline(config = None, project = None, train = None, eval = None, art
             # load the model
             model = torch.load(PATH_MODEL_ARTIFACT)
             #model.eval() # this is done in the get_posterior function
+            
+            # Get the excact model date_time stamp for the pkl files made in the get_posterior from evaluation.py
+            model_time_stamp = os.path.basename(PATH_MODEL_ARTIFACT).split('.')[0]
+
+            # debug print statement
+            print(f"model_time_stamp: {model_time_stamp}")
+
+            # save to config for logging and concisness
+            config.model_time_stamp = model_time_stamp
 
             get_posterior(model, views_vol, config, device)
             print('Done testing')
