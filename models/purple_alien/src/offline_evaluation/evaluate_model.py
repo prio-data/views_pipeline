@@ -27,52 +27,70 @@ from set_path import setup_project_paths, setup_data_paths
 setup_project_paths(PATH)
 
 
-from utils import choose_model, choose_loss, choose_sheduler, get_train_tensors, get_test_tensor, apply_dropout, execute_freeze_h_option, get_log_dict, train_log, init_weights, get_data
+from utils import choose_model, choose_loss, choose_sheduler, get_train_tensors, get_full_tensor, apply_dropout, execute_freeze_h_option, get_log_dict, train_log, init_weights, get_data
 from config_sweep import get_swep_config
 from config_hyperparameters import get_hp_config
 
 
-def test(model, test_tensor, time_steps, config, device): # should be called eval/validation
+def predict(model, full_tensor, config, device, forecast = False):
 
     """
-    Function to test the model on the hold-out test set.
+    Function to create predictions for the Hydranet model.
     The function takes the model, the test tensor, the number of time steps to predict, the config, and the device as input.
     The function returns **two lists of numpy arrays**. One list of the predicted magnitudes and one list of the predicted probabilities.
     Each array is of the shap **fx180x180**, where f is the number of features (currently 3 types of violence).
     """
 
-    model.eval() # remove to allow dropout to do its thing as a poor mans ensamble. but you need a high dropout..
+    # Set the model to evaluation mode
+    model.eval() 
+
+    # Apply dropout which is otherwise not applied during eval mode
     model.apply(apply_dropout)
 
-    # wait until you know if this work as usually
+    # create empty lists to store the predictions both counts and probabilities
     pred_np_list = []
     pred_class_np_list = []
 
+    # initialize the hidden state
     h_tt = model.init_hTtime(hidden_channels = model.base, H = 180, W  = 180).float().to(device) # coul auto the...
-    seq_len = test_tensor.shape[1] # og nu køre eden bare helt til roden
+
+    # get the sequence length   
+    seq_len = full_tensor.shape[1] # get the sequence length 
+    
+    # print the sequence length four tabs out to leave room for the sample prints
     print(f'\t\t\t\t sequence length: {seq_len}', end= '\r')
 
+    for i in range(seq_len-1): # You are predicting one step ahead so the -1
 
-    for i in range(seq_len-1): # need to get hidden state... You are predicting one step ahead so the -1
 
-        if i < seq_len-1-time_steps: # take form the test set
+        if i < seq_len-1-config.time_steps: # take form the test set. This is the in-sample part and where the out sample part is defined (seq_len-1-time_steps)
 
             print(f'\t\t\t\t\t\t\t in sample. month: {i+1}', end= '\r')
 
-            t0 = test_tensor[:, i, :, :, :].to(device) # THIS IS ALL YOU NEED TO PUT ON DEVICE!!!!!!!!!
+            # get the tensor for the current month
+            t0 = full_tensor[:, i, :, :, :].to(device) # This is all you need to put on device.
+            
+            # predict the next month, both the magnitudes and the probabilities and get the updated hidden state (which both cell and hidden state concatenated)
             t1_pred, t1_pred_class, h_tt = model(t0, h_tt)
 
-        else: # take the last t1_pred
+
+        else: # take the last t1_pred. This is the out-of-sample part.
             print(f'\t\t\t\t\t\t\t Out of sample. month: {i+1}', end= '\r')
             t0 = t1_pred.detach()
 
+            # Execute  whatever freeze option you have set in the config out of sample
             t1_pred, t1_pred_class, h_tt = execute_freeze_h_option(config, model, t0, h_tt)
 
+            # Only save the out-of-sample predictions
             t1_pred_class = torch.sigmoid(t1_pred_class) # there is no sigmoid in the model (the loss takes logits) so you need to do it here.
             pred_np_list.append(t1_pred.cpu().detach().numpy().squeeze()) # squeeze to remove the batch dim. So this is a list of 3x180x180 arrays
             pred_class_np_list.append(t1_pred_class.cpu().detach().numpy().squeeze()) # squeeze to remove the batch dim. So this is a list of 3x180x180 arrays
 
+    # return the lists of predictions
     return pred_np_list, pred_class_np_list
+
+
+
 
 
 def sample_posterior(model, views_vol, config, device): 
@@ -92,24 +110,25 @@ def sample_posterior(model, views_vol, config, device):
 
     print(f'Drawing {config.test_samples} posterior samples...')
 
+    # REALLY BAD NAME!!!!
     # Why do you put this test tensor on device here??!? 
-    test_tensor = get_test_tensor(views_vol, config, device) # better cal thiis evel tensor
-    out_of_sample_vol = test_tensor[:,-config.time_steps:,:,:,:].cpu().numpy() # From the test tensor get the out-of-sample time_steps. 
+    full_tensor = get_full_tensor(views_vol, config, device) # better cal this evel tensor
+    out_of_sample_vol = full_tensor[:,-config.time_steps:,:,:,:].cpu().numpy() # From the test tensor get the out-of-sample time_steps. 
 
     posterior_list = []
     posterior_list_class = []
 
     for i in range(config.test_samples): # number of posterior samples to draw - just set config.test_samples, no? 
 
-        # test_tensor is need on device here, but maybe just do it inside the test function? 
-        pred_np_list, pred_class_np_list = test(model, test_tensor, config.time_steps, config, device) # Returns two lists of numpy arrays (shape 3/180/180). One list of the predicted magnitudes and one list of the predicted probabilities.
+        # full_tensor is need on device here, but maybe just do it inside the test function? 
+        pred_np_list, pred_class_np_list = predict(model, full_tensor, config, device) # Returns two lists of numpy arrays (shape 3/180/180). One list of the predicted magnitudes and one list of the predicted probabilities.
         posterior_list.append(pred_np_list)
         posterior_list_class.append(pred_class_np_list)
 
         #if i % 10 == 0: # print steps 10
         print(f'Posterior sample: {i}/{config.test_samples}', end = '\r')
 
-    return posterior_list, posterior_list_class, out_of_sample_vol, test_tensor
+    return posterior_list, posterior_list_class, out_of_sample_vol, full_tensor
 
 
 def get_posterior(model, views_vol, config, device):
@@ -118,7 +137,7 @@ def get_posterior(model, views_vol, config, device):
     Function to get the posterior distribution of Hydranet.
     """
 
-    posterior_list, posterior_list_class, out_of_sample_vol, test_tensor = sample_posterior(model, views_vol, config, device)
+    posterior_list, posterior_list_class, out_of_sample_vol, full_tensor = sample_posterior(model, views_vol, config, device)
 
     # YOU ARE MISSING SOMETHING ABOUT FEATURES HERE WHICH IS WHY YOU REPORTED AP ON WandB IS BIASED DOWNWARDS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!RYRYRYRYERYERYR
     # need to check you "offline" evaluation script which is correctlly implemented before you use this function for forecasting.
@@ -190,7 +209,7 @@ def get_posterior(model, views_vol, config, device):
             pickle.dump(metric_dict, file)
 
         with open(f'{PATH_GENERATED}/test_vol_{config.time_steps}_{config.run_type}_{config.model_time_stamp}.pkl', 'wb') as file: # make it numpy
-            pickle.dump(test_tensor.cpu().numpy(), file)
+            pickle.dump(full_tensor.cpu().numpy(), file)
 
         print('Posterior dict, metric dict and test vol pickled and dumped!')
 
