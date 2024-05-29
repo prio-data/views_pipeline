@@ -404,7 +404,7 @@ def get_full_tensor(views_vol, config, device):
 
     full_tensor = torch.tensor(views_vol).float().unsqueeze(dim=0).permute(0,1,4,2,3)[:, :, ln_best_sb_idx:last_feature_idx, :, :] 
 
-    print(f'test_tensor shape {full_tensor.shape}')
+    print(f'full_tensor shape {full_tensor.shape}')
 
     return full_tensor 
 
