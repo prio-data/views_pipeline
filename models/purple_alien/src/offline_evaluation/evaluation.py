@@ -186,7 +186,7 @@ def get_posterior(model, views_vol, config, device):
         with open(f'{PATH_GENERATED}/posterior_dict_{config.time_steps}_{config.run_type}_{config.model_time_stamp}.pkl', 'wb') as file:
             pickle.dump(posterior_dict, file)       
 
-        with open(f'{PATH_GENERATED}/metric_dict_{config.time_steps}_{config.run_type_}{config.model_time_stamp}.pkl', 'wb') as file:
+        with open(f'{PATH_GENERATED}/metric_dict_{config.time_steps}_{config.run_type}{config.model_time_stamp}.pkl', 'wb') as file:
             pickle.dump(metric_dict, file)
 
         with open(f'{PATH_GENERATED}/test_vol_{config.time_steps}_{config.run_type}_{config.model_time_stamp}.pkl', 'wb') as file: # make it numpy
