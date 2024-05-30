@@ -59,27 +59,23 @@ def predict(model, full_tensor, config, device, is_evalutaion = True):
     
     if is_evalutaion:
 
-        print(f'\t\t\t\t\t\t\t \t\t\t\t\t\t\t\t Evaluation mode. retaining hold out set', end= '\r')
-
         full_seq_len = seq_len -1 # we loop over the full sequence. you need -1 because you are predicting the next month.
         in_sample_seq_len = seq_len - 1 - config.time_steps # but retain the last time_steps for hold-out evaluation
 
+        print(f'\t\t\t\t\t\t\t Evaluation mode. retaining hold out set. Full sequence length: {full_seq_len}', end= '\r')
+    
     else:
-
-        print(f'\t\t\t\t\t\t\t \t\t\t\t\t\t\t\t Forecasting mode. No hold out set', end= '\r')
 
         full_seq_len = seq_len - 1 + config.time_steps # we loop over the entire sequence plus the additional time_steps for forecasting
         in_sample_seq_len = seq_len - 1 # the in-sample part is now the entire sequence
 
-
-    # print the sequence length four tabs out to leave room for the sample prints
-    print(f'\t\t\t\t\t\t\t\t\t\t\t\t\t full sequence length: {full_seq_len}', end= '\r')
+        print(f'\t\t\t\t\t\t\t Forecasting mode. No hold out set. Full sequence length: {full_seq_len}', end= '\r')
 
     for i in range(full_seq_len): 
 
         if i < in_sample_seq_len: # This is the in-sample part and where the out sample part is defined (seq_len-1-time_steps)
 
-            print(f'\t\t\t\t\t\t\t in sample. month: {i+1}', end= '\r')
+            print(f'\t\t\t\t in sample. month: {i+1}', end= '\r')
 
             # get the tensor for the current month
             t0 = full_tensor[:, i, :, :, :].to(device) # This is all you need to put on device.
@@ -89,7 +85,7 @@ def predict(model, full_tensor, config, device, is_evalutaion = True):
 
 
         else: # take the last t1_pred. This is the out-of-sample part.
-            print(f'\t\t\t\t\t\t\t Out of sample. month: {i+1}', end= '\r')
+            print(f'\t\t\t\t Out of sample. month: {i+1}', end= '\r')
             t0 = t1_pred.detach()
 
             # Execute  whatever freeze option you have set in the config out of sample
