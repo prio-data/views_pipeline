@@ -18,8 +18,8 @@ def get_data():
     parquet_path = PATH_RAW / 'raw.parquet'
     # print('PARQUET PATH', parquet_path)
     if not parquet_path.exists():
-        qs_baseline = get_input_data()
-        data = qs_baseline.publish().fetch()
+        qs = get_input_data()
+        data = qs.publish().fetch()
         data = ensure_float64(data)
         data.to_parquet(parquet_path)
     else: 
