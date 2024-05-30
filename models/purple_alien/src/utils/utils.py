@@ -208,6 +208,8 @@ def get_data(config):
 
     try:
         file_name = f'/{run_type}_vol.npy' # NOT WINDOWS FRIENDLY
+        # debug print
+        print(f'Loading {run_type} data from {file_name}...')
         views_vol = np.load(str(PATH_PROCESSED) + file_name)
     
     except FileNotFoundError as e:
