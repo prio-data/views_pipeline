@@ -32,7 +32,7 @@ from config_sweep import get_swep_config
 from config_hyperparameters import get_hp_config
 
 
-def predict(model, full_tensor, config, device, forecast = False):
+def predict(model, full_tensor, config, device, is_evalutaion = True):
 
     """
     Function to create predictions for the Hydranet model.
@@ -60,10 +60,17 @@ def predict(model, full_tensor, config, device, forecast = False):
     # print the sequence length four tabs out to leave room for the sample prints
     print(f'\t\t\t\t sequence length: {seq_len}', end= '\r')
 
+    # define the hold out set
+    hold_out = config.time_steps * is_evalutaion # if for_evel is True, hold_out is is the time_steps, else it is 0
+
+    # print for debugging
+    print(f'\t\t\t\t hold out size for evaluation: {hold_out}', end= '\r')
+
+
     for i in range(seq_len-1): # You are predicting one step ahead so the -1
 
 
-        if i < seq_len-1-config.time_steps: # take form the test set. This is the in-sample part and where the out sample part is defined (seq_len-1-time_steps)
+        if i < seq_len-1-hold_out: # take form the test set. This is the in-sample part and where the out sample part is defined (seq_len-1-time_steps)
 
             print(f'\t\t\t\t\t\t\t in sample. month: {i+1}', end= '\r')
 
