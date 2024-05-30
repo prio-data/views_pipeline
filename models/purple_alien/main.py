@@ -158,9 +158,10 @@ def handle_evaluation(config, device, views_vol, PATH_ARTIFACTS, artifact_name=N
     print('Done testing') 
 
 
-def handle_forecasting(args):
+# could be better...
+def handle_forecasting(config, device, views_vol, PATH_ARTIFACTS, artifact_name=None):
 
-    run_type = args.run_type
+    run_type = "forecasting"
     project = f"purple_alien_{run_type}"
     hyperparameters = get_hp_config()
     hyperparameters['run_type'] = run_type
@@ -294,7 +295,7 @@ def model_pipeline(config = None, project = None, train = None, eval = None, for
 
 # ---------------------------------------------------------------------
         if forecast:
-            handle_forecasting(config, device, views_vol, PATH_ARTIFACTS)
+            handle_forecasting(config, device, views_vol, PATH_ARTIFACTS, artifact_name)
             #raise NotImplementedError('Forecasting not implemented yet')
             #print('Done forecasting')
 
