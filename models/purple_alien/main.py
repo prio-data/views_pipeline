@@ -56,14 +56,13 @@ def handle_sweep_run(args):
 
 def handle_single_run(args):
     
-    # get run type and denoting project name - check convention!
-    run_type = args.run_type
-    project = f"purple_alien_{run_type}"
-
     # get hyperparameters
     hyperparameters = get_hp_config()
-    hyperparameters['run_type'] = run_type
+    hyperparameters['run_type'] = args.run_type
     hyperparameters['sweep'] = False
+
+    # get run type and denoting project name - check convention!
+    project = f"purple_alien_{args.run_type}"
 
     if args.run_type == 'calibration' or args.run_type == 'testing':
 
