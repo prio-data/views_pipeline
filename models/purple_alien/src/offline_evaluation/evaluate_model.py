@@ -32,7 +32,7 @@ from config_sweep import get_swep_config
 from config_hyperparameters import get_hp_config
 
 
-def predict(model, full_tensor, config, device, is_evalutaion = False):
+def predict(model, full_tensor, config, device, is_evalutaion = True):
 
     """
     Function to create predictions for the Hydranet model.
@@ -57,20 +57,27 @@ def predict(model, full_tensor, config, device, is_evalutaion = False):
     # get the sequence length   
     seq_len = full_tensor.shape[1] # get the sequence length 
     
+    if is_evalutaion:
+
+        print(f'\t\t\t\t\t\t\t Evaluation mode. retaining hold out set', end= '\r')
+
+        full_seq_len = seq_len -1 # we loop over the full sequence. you need -1 because you are predicting the next month.
+        in_sample_seq_len = seq_len - 1 - config.time_steps # but retain the last time_steps for hold-out evaluation
+
+    else:
+
+        print(f'\t\t\t\t\t\t\t Forecasting mode. No hold out set', end= '\r')
+
+        full_seq_len = seq_len - 1 + config.time_steps # we loop over the entire sequence plus the additional time_steps for forecasting
+        in_sample_seq_len = seq_len - 1 # the in-sample part is now the entire sequence
+
+
     # print the sequence length four tabs out to leave room for the sample prints
-    print(f'\t\t\t\t sequence length: {seq_len}', end= '\r')
+    print(f'\t\t\t\t full sequence length: {full_seq_len}', end= '\r')
 
-    # define the hold out set
-    hold_out = config.time_steps * is_evalutaion # if for_evel is True, hold_out is is the time_steps, else it is 0
+    for i in range(full_seq_len): 
 
-    # print for debugging
-    print(f'\t\t\t\t\t\t\t\t\t\t\t\t hold out size for evaluation: {hold_out}', end= '\r')
-
-
-    for i in range(seq_len-1): # You are predicting one step ahead so the -1
-
-
-        if i < seq_len-1-hold_out: # take form the test set. This is the in-sample part and where the out sample part is defined (seq_len-1-time_steps)
+        if i < in_sample_seq_len: # This is the in-sample part and where the out sample part is defined (seq_len-1-time_steps)
 
             print(f'\t\t\t\t\t\t\t in sample. month: {i+1}', end= '\r')
 
