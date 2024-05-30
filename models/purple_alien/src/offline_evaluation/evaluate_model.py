@@ -64,7 +64,7 @@ def predict(model, full_tensor, config, device, is_evalutaion = True):
     hold_out = config.time_steps * is_evalutaion # if for_evel is True, hold_out is is the time_steps, else it is 0
 
     # print for debugging
-    print(f'\t\t\t\t hold out size for evaluation: {hold_out}', end= '\r')
+    print(f'\t\t\t\t\t\t\t\t\t\t\t\t hold out size for evaluation: {hold_out}', end= '\r')
 
 
     for i in range(seq_len-1): # You are predicting one step ahead so the -1
