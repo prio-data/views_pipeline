@@ -31,7 +31,7 @@ from artifacts_utils import get_latest_model_artifact
 
 def setup_device(): 
     # set the device
-    evice = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print(f"Using device: {device}")
 
 def add_wandb_monthly_metrics():
