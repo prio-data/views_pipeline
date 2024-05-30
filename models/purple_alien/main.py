@@ -28,22 +28,177 @@ from evaluate_model import evaluate_posterior
 from cli_parser_utils import parse_args, validate_arguments
 from artifacts_utils import get_latest_model_artifact
 
-def model_pipeline(config = None, project = None, train = None, eval = None, artifact_name = None):
+
+def setup_device(): 
+    # set the device
+    evice = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    print(f"Using device: {device}")
+
+def add_wandb_monthly_metrics():
+        
+    # Define "new" monthly metrics for WandB logging
+    wandb.define_metric("monthly/out_sample_month")
+    wandb.define_metric("monthly/*", step_metric="monthly/out_sample_month")
+                
+
+def handle_sweep_run(args):
+    print('Running sweep...')
+
+    project = f"purple_alien_sweep" # check naming convention
+    sweep_config = get_swep_config()
+    sweep_config['parameters']['run_type'] = {'value' : "calibration"} # I see no reason to run the other types in the sweep
+    sweep_config['parameters']['sweep'] = {'value' : True}
+
+    sweep_id = wandb.sweep(sweep_config, project=project) # and then you put in the right project name
+
+    wandb.agent(sweep_id, model_pipeline)
+
+
+def handle_single_run(args):
+    
+    # get run type and denoting project name - check convention!
+    run_type = args.run_type
+    project = f"purple_alien_{run_type}"
+
+    # get hyperparameters
+    hyperparameters = get_hp_config()
+    hyperparameters['run_type'] = run_type
+    hyperparameters['sweep'] = False
+
+    if args.train:
+        print(f"Training one model for run type: {run_type} and saving it as an artifact...")
+        model_pipeline(args, config = hyperparameters, project = project, train=True)
+
+    if args.evaluate:
+        print(f"Evaluating model for run type: {run_type}...")
+        model_pipeline(args, config = hyperparameters, project = project, eval=True)
+
+        #if args.artifact_name is not None:
+        #    model_pipeline(config = hyperparameters, project = project, eval=True, artifact_name=args.artifact_name)
+        
+        #else:
+#            model_pipeline(config = hyperparameters, project = project, eval=True)
+
+    if args.run_type == 'forecasting':
+        print('True forecasting ->->->->')
+        model_pipeline(args, config = hyperparameters, project = project, forecast=True)     
+
+
+
+def handle_training(config, device, views_vol, PATH_ARTIFACTS):
+    
+    # Create the model, criterion, optimizer and scheduler
+    model, criterion, optimizer, scheduler = make(config, device)
+    
+    # Train the model
+    training_loop(config, model, criterion, optimizer, scheduler, views_vol, device)
+    print('Done training')
+
+    # just in case the artifacts folder does not exist
+    os.makedirs(PATH_ARTIFACTS, exist_ok=True)
+
+    # Define the path for the artifacts with a timestamp and a run type
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    model_filename = f"{config.run_type}_model_{timestamp}.pt"
+    PATH_MODEL_ARTIFACT = os.path.join(PATH_ARTIFACTS, model_filename)
+    
+    # save the model
+    torch.save(model, PATH_MODEL_ARTIFACT)
+    
+    # done
+    print(f"Model saved as: {PATH_MODEL_ARTIFACT}")
+
+
+def handle_evaluation(config, device, views_vol, PATH_ARTIFACTS, artifact_name=None):
+
+    # if an artifact name is provided through the CLI, use it. Otherwise, get the latest model artifact based on the run type
+    if artifact_name:
+        print(f"Using (non-default) artifact: {artifact_name}")
+        
+        # If it lacks the file extension, add it
+        if not artifact_name.endswith('.pt'):
+            artifact_name += '.pt'
+        
+        # Define the full (model specific) path for the artifact
+        PATH_MODEL_ARTIFACT = os.path.join(PATH_ARTIFACTS, artifact_name)
+    
+    else:
+        # use the latest model artifact based on the run type
+        print(f"Using latest (default) run type ({config.run_type}) specific artifact")
+        
+        # Get the latest model artifact based on the run type and the (models specific) artifacts path
+        PATH_MODEL_ARTIFACT = get_latest_model_artifact(PATH_ARTIFACTS, config.run_type)
+
+    # Check if the model artifact exists - if not, raise an error
+    if not os.path.exists(PATH_MODEL_ARTIFACT):
+        raise FileNotFoundError(f"Model artifact not found at {PATH_MODEL_ARTIFACT}")
+
+    # load the model
+    model = torch.load(PATH_MODEL_ARTIFACT)
+    
+    # get the exact model date_time stamp for the pkl files made in the evaluate_posterior from evaluation.py
+    model_time_stamp = os.path.basename(PATH_MODEL_ARTIFACT).split('.')[0]
+
+    # print for debugging
+    print(f"model_time_stamp: {model_time_stamp}")
+
+    # add to config for logging and conciseness
+    config.model_time_stamp = model_time_stamp
+
+    # evaluate the model posterior distribution
+    evaluate_posterior(model, views_vol, config, device)
+    
+    # done. 
+    print('Done testing') 
+
+
+def handle_forecasting(args):
+
+    run_type = args.run_type
+    project = f"purple_alien_{run_type}"
+    hyperparameters = get_hp_config()
+    hyperparameters['run_type'] = run_type
+    hyperparameters['sweep'] = False
+
+    if args.artifact_name is not None:
+        model_pipeline(config = hyperparameters, project = project, artifact_name=args.artifact_name)
+
+    else:
+        model_pipeline(config = hyperparameters, project = project)
+
+    raise NotImplementedError('Forecasting not implemented yet')
+
+    #print('Done forecasting')
+
+
+    # but right now there is no forecasting implemented in model pipeline..... 
+
+
+
+
+
+# ----------------- Model Pipeline -----------------  NOW THIS IS TOO BIG...
+
+def model_pipeline(config = None, project = None, train = None, eval = None, forecast = None, artifact_name = None):
 
     # Define the path for the artifacts
     PATH_ARTIFACTS = setup_artifacts_paths(PATH)
 
     # Set the device
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    print(f"Using device: {device}")
+    #device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    #print(f"Using device: {device}")
+
+    device = setup_device()
 
     # Initialize WandB
     with wandb.init(project=project, entity="views_pipeline", config=config): # project and config ignored when running a sweep
         
         # Define "new" monthly metrics for WandB logging
-        wandb.define_metric("monthly/out_sample_month")
-        wandb.define_metric("monthly/*", step_metric="monthly/out_sample_month")
+        #wandb.define_metric("monthly/out_sample_month")
+        #wandb.define_metric("monthly/*", step_metric="monthly/out_sample_month")
         
+        add_wandb_monthly_metrics() # add the monthly metrics to WandB
+
         # Update config from WandB initialization above
         config = wandb.config
 
@@ -52,6 +207,7 @@ def model_pipeline(config = None, project = None, train = None, eval = None, art
 
         # Handle the sweep runs
         if config.sweep:  # If we are running a sweep, always train and evaluate
+
             model, criterion, optimizer, scheduler = make(config, device)
             training_loop(config, model, criterion, optimizer, scheduler, views_vol, device)
             print('Done training')
@@ -61,119 +217,82 @@ def model_pipeline(config = None, project = None, train = None, eval = None, art
 
         # Handle the single model runs: train and save the model as an artifact
         if train:
+            handle_training(config, device, views_vol, PATH_ARTIFACTS)
+           # # All wandb logging is done in the training loop. 
+           # 
+           # # Create the model, criterion, optimizer and scheduler
+           # model, criterion, optimizer, scheduler = make(config, device)
+           # training_loop(config, model, criterion, optimizer, scheduler, views_vol, device)
+           # print('Done training')
 
-            # All wandb logging is done in the training loop. 
-            
-            # Create the model, criterion, optimizer and scheduler
-            model, criterion, optimizer, scheduler = make(config, device)
-            training_loop(config, model, criterion, optimizer, scheduler, views_vol, device)
-            print('Done training')
+           # # create the artifacts folder if it does not exist
+           # os.makedirs(PATH_ARTIFACTS, exist_ok=True)
 
-            # create the artifacts folder if it does not exist
-            os.makedirs(PATH_ARTIFACTS, exist_ok=True)
+           # # Define the path for the artifacts with a timestamp and a run type
+           # timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+           # model_filename = f"{config.run_type}_model_{timestamp}.pt"
+           # PATH_MODEL_ARTIFACT = os.path.join(PATH_ARTIFACTS, model_filename)
 
-            # Define the path for the artifacts with a timestamp and a run type
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            model_filename = f"{config.run_type}_model_{timestamp}.pt"
-            PATH_MODEL_ARTIFACT = os.path.join(PATH_ARTIFACTS, model_filename)
+           # # save the model
+           # torch.save(model, PATH_MODEL_ARTIFACT)
 
-            # save the model
-            torch.save(model, PATH_MODEL_ARTIFACT)
+           # # Currently the artifacts are only sotred locally. Putting them on WandB is a good idea, but I need to understand thier model storage better first.
 
-            # Currently the artifacts are only sotred locally. Putting them on WandB is a good idea, but I need to understand thier model storage better first.
-
-            print(f"Model saved as: {PATH_MODEL_ARTIFACT}")
-            #return model # dont return anything, the model is saved as an artifact
+           # print(f"Model saved as: {PATH_MODEL_ARTIFACT}")
+           # #return model # dont return anything, the model is saved as an artifact
 
         # Handle the single model runs: evaluate a trained model (artifact)
         if eval:
+            handle_evaluation(config, device, views_vol, PATH_ARTIFACTS, artifact_name)
+       #     # Determine the artifact path: 
+       #     # If an artifact name is provided, use it. Otherwise, get the latest model artifact based on the run type
+       #     if artifact_name is not None:
 
-            # Determine the artifact path: 
-            # If an artifact name is provided, use it. Otherwise, get the latest model artifact based on the run type
-            if artifact_name is not None:
+       #         # pritn statement for debugging
+       #         print(f"Using (non default) artifact: {artifact_name}")
+       #         
+       #         # Check if the artifact name has the correct file extension
+       #         if not artifact_name.endswith('.pt'):
+       #             artifact_name += '.pt'
 
-                # pritn statement for debugging
-                print(f"Using (non default) artifact: {artifact_name}")
-                
-                # Check if the artifact name has the correct file extension
-                if not artifact_name.endswith('.pt'):
-                    artifact_name += '.pt'
+       #         # Define the full (model specific) path for the artifact
+       #         PATH_MODEL_ARTIFACT = os.path.join(PATH_ARTIFACTS, artifact_name)
+       #     
+       #     else:
+       #         # print statement for debugging
+       #         print(f"Using lastest (default) run type ({config.run_type}) specific artifact")
 
-                # Define the full (model specific) path for the artifact
-                PATH_MODEL_ARTIFACT = os.path.join(PATH_ARTIFACTS, artifact_name)
-            
-            else:
-                # print statement for debugging
-                print(f"Using lastest (default) run type ({config.run_type}) specific artifact")
+       #         # Get the latest model artifact based on the run type and the (models specific) artifacts path
+       #         PATH_MODEL_ARTIFACT = get_latest_model_artifact(PATH_ARTIFACTS, config.run_type)
 
-                # Get the latest model artifact based on the run type and the (models specific) artifacts path
-                PATH_MODEL_ARTIFACT = get_latest_model_artifact(PATH_ARTIFACTS, config.run_type)
-
-            # Check if the model artifact exists - if not, raise an error
-            if not os.path.exists(PATH_MODEL_ARTIFACT):
-                raise FileNotFoundError(f"Model artifact not found at {PATH_MODEL_ARTIFACT}")
+       #     # Check if the model artifact exists - if not, raise an error
+       #     if not os.path.exists(PATH_MODEL_ARTIFACT):
+       #         raise FileNotFoundError(f"Model artifact not found at {PATH_MODEL_ARTIFACT}")
 
 
-            # load the model
-            model = torch.load(PATH_MODEL_ARTIFACT)
-            #model.eval() # this is done in the evaluate_posterior function
-            
-            # Get the excact model date_time stamp for the pkl files made in the evaluate_posterior from evaluation.py
-            model_time_stamp = os.path.basename(PATH_MODEL_ARTIFACT).split('.')[0]
+       #     # load the model
+       #     model = torch.load(PATH_MODEL_ARTIFACT)
+       #     #model.eval() # this is done in the evaluate_posterior function
+       #     
+       #     # Get the excact model date_time stamp for the pkl files made in the evaluate_posterior from evaluation.py
+       #     model_time_stamp = os.path.basename(PATH_MODEL_ARTIFACT).split('.')[0]
 
-            # debug print statement
-            print(f"model_time_stamp: {model_time_stamp}")
+       #     # debug print statement
+       #     print(f"model_time_stamp: {model_time_stamp}")
 
-            # save to config for logging and concisness
-            config.model_time_stamp = model_time_stamp
+       #     # save to config for logging and concisness
+       #     config.model_time_stamp = model_time_stamp
 
-            evaluate_posterior(model, views_vol, config, device)
-            print('Done testing')
+       #     evaluate_posterior(model, views_vol, config, device)
+       #     print('Done testing')
 
-#        GENERATED CODE. I NEED TO THINK ABOUT HOW MASSIVE THE MODEL FUNCTION IS BECOMING.
-#        if forecast:
-#
-#            # Determine the artifact path: 
-#            # If an artifact name is provided, use it. Otherwise, get the latest model artifact based on the run type
-#            if artifact_name is not None:
-#
-#                # pritn statement for debugging
-#                print(f"Using (non default) artifact: {artifact_name}")
-#                
-#                # Check if the artifact name has the correct file extension
-#                if not artifact_name.endswith('.pt'):
-#                    artifact_name += '.pt'
-#
-#                # Define the full (model specific) path for the artifact
-#                PATH_MODEL_ARTIFACT = os.path.join(PATH_ARTIFACTS, artifact_name)
-#            
-#            else:
-#                # print statement for debugging
-#                print(f"Using lastest (default) run type ({config.run_type}) specific artifact")
-#
-#                # Get the latest model artifact based on the run type and the (models specific) artifacts path
-#                PATH_MODEL_ARTIFACT = get_latest_model_artifact(PATH_ARTIFACTS, config.run_type)
-#
-#            # Check if the model artifact exists - if not, raise an error
-#            if not os.path.exists(PATH_MODEL_ARTIFACT):
-#                raise FileNotFoundError(f"Model artifact not found at {PATH_MODEL_ARTIFACT}")
-#
-#            # load the model
-#            model = torch.load(PATH_MODEL_ARTIFACT)
-#            #model.eval() # this is done in the evaluate_posterior function
-#            
-#            # Get the excact model date_time stamp for the pkl files made in the evaluate_posterior from evaluation.py
-#            model_time_stamp = os.path.basename(PATH_MODEL_ARTIFACT).split('.')[0]
-#
-#            # debug print statement
-#            print(f"model_time_stamp: {model_time_stamp}")
-#
-#            # save to config for logging and concisness
-#            config.model_time_stamp = model_time_stamp
-#
-#            evaluate_posterior(model, views_vol, config, device)
-#            print('Done testing')
-#
+# ---------------------------------------------------------------------
+        if forecast:
+            handle_forecasting(config, device, views_vol, PATH_ARTIFACTS)
+            #raise NotImplementedError('Forecasting not implemented yet')
+            #print('Done forecasting')
+
+
 
 if __name__ == "__main__":
 
@@ -191,65 +310,71 @@ if __name__ == "__main__":
 
     # first you need to check if you are running a sweep or not, because the sweep will overwrite the train and evaluate flags
     if args.sweep == True:
-        
-        print('Running sweep...')
 
-        project = f"purple_alien_sweep" # check naming convention
+        handle_sweep_run(args)
+ 
+       # print('Running sweep...')
 
-        sweep_config = get_swep_config()
-        sweep_config['parameters']['run_type'] = {'value' : "calibration"} # I see no reason to run the other types in the sweep
-        sweep_config['parameters']['sweep'] = {'value' : True}
+       # project = f"purple_alien_sweep" # check naming convention
 
-        sweep_id = wandb.sweep(sweep_config, project=project) # and then you put in the right project name
+       # sweep_config = get_swep_config()
+       # sweep_config['parameters']['run_type'] = {'value' : "calibration"} # I see no reason to run the other types in the sweep
+       # sweep_config['parameters']['sweep'] = {'value' : True}
 
-        wandb.agent(sweep_id, model_pipeline)
+       # sweep_id = wandb.sweep(sweep_config, project=project) # and then you put in the right project name
+
+       # wandb.agent(sweep_id, model_pipeline)
 
  
     elif args.sweep == False:
-        print('Running single model operation...')
-        run_type = args.run_type
-        project = f"purple_alien_{run_type}"
-        hyperparameters = get_hp_config()
-        hyperparameters['run_type'] = run_type # this is also how the forecast if statement is informed below
-        hyperparameters['sweep'] = False
+        
+        handle_single_run(args)
 
-        # if train is flagged, train the model and save it as an artifact
-        if args.train:
-            print(f"Training one model for run type: {run_type} and saving it as an artifact...")
-            model_pipeline(config = hyperparameters, project = project, train=True)
-
-        # if evaluate is flagged, evaluate the model
-        if args.evaluate:
-            print(f"Evaluating model for run type: {run_type}...")
-
-            # if an artifact name is provided, use it. 
-            if args.artifact_name is not None:
-                model_pipeline(config = hyperparameters, project = project, eval=True, artifact_name=args.artifact_name)
-            
-            # Otherwise, get the default - I.e. latest model artifact give the specific run type
-            else:
-                model_pipeline(config = hyperparameters, project = project, eval=True)
+#        print('Running single model operation...')
+#        run_type = args.run_type
+#        project = f"purple_alien_{run_type}"
+#        hyperparameters = get_hp_config()
+#        hyperparameters['run_type'] = run_type # this is also how the forecast if statement is informed below
+#        hyperparameters['sweep'] = False
+#
+#        # if train is flagged, train the model and save it as an artifact
+#        if args.train:
+#            print(f"Training one model for run type: {run_type} and saving it as an artifact...")
+#            model_pipeline(config = hyperparameters, project = project, train=True)
+#
+#        # if evaluate is flagged, evaluate the model
+#        if args.evaluate:
+#            print(f"Evaluating model for run type: {run_type}...")
+#
+#            # if an artifact name is provided, use it. 
+#            if args.artifact_name is not None:
+#                model_pipeline(config = hyperparameters, project = project, eval=True, artifact_name=args.artifact_name)
+#            
+#            # Otherwise, get the default - I.e. latest model artifact give the specific run type
+#            else:
+#                model_pipeline(config = hyperparameters, project = project, eval=True)
 
         # I guess you also need some kind of forecasting here...
-        if run_type == 'forecasting':
-            print('True forecasting ->->->->')
-
-             # if an artifact name is provided, use it. 
-            if args.artifact_name is not None:
-                model_pipeline(config = hyperparameters, project = project, artifact_name=args.artifact_name)
+        #if args.run_type == 'forecasting':
             
-            # Otherwise, get the default - I.e. latest model artifact give the specific run type
-            else:
-                model_pipeline(config = hyperparameters, project = project)
+        #    handle_single_run(args)
 
+#            print('True forecasting ->->->->')
+#
+#             # if an artifact name is provided, use it. 
+#            if args.artifact_name is not None:
+#                model_pipeline(config = hyperparameters, project = project, artifact_name=args.artifact_name)
+#            
+#            # Otherwise, get the default - I.e. latest model artifact give the specific run type
+#            else:
+#                model_pipeline(config = hyperparameters, project = project)
+#
 
 
             # notes:
             # should always be a trained artifact?
             # should always de the last artifact?
 
-
-            print('not implemented yet...')
     
     end_t = time.time()
     minutes = (end_t - start_t)/60
