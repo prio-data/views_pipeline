@@ -32,7 +32,7 @@ from config_sweep import get_swep_config
 from config_hyperparameters import get_hp_config
 
 
-def predict(model, full_tensor, config, device, is_evalutaion = True):
+def predict(model, full_tensor, config, device, is_evalutaion = False):
 
     """
     Function to create predictions for the Hydranet model.
