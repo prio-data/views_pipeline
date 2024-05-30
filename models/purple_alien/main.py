@@ -65,13 +65,17 @@ def handle_single_run(args):
     hyperparameters['run_type'] = run_type
     hyperparameters['sweep'] = False
 
-    if args.train:
-        print(f"Training one model for run type: {run_type} and saving it as an artifact...")
-        model_pipeline(args, config = hyperparameters, project = project, train=True)
+    if args.run_type == 'calibration' or args.run_type == 'testing':
 
-    if args.evaluate:
-        print(f"Evaluating model for run type: {run_type}...")
-        model_pipeline(args, config = hyperparameters, project = project, eval=True)
+        model_pipeline(args, config = hyperparameters, project = project, train = args.train, eval = args.evaluate, forecast = False, artifact_name = args.artifact_name)        
+
+#    if args.train:
+#        print(f"Training one model for run type: {run_type} and saving it as an artifact...")
+#        model_pipeline(args, config = hyperparameters, project = project, train=True)
+#
+#    if args.evaluate:
+#        print(f"Evaluating model for run type: {run_type}...")
+#        model_pipeline(args, config = hyperparameters, project = project, eval=True)
 
         #if args.artifact_name is not None:
         #    model_pipeline(config = hyperparameters, project = project, eval=True, artifact_name=args.artifact_name)
@@ -79,10 +83,13 @@ def handle_single_run(args):
         #else:
 #            model_pipeline(config = hyperparameters, project = project, eval=True)
 
-    if args.run_type == 'forecasting':
-        print('True forecasting ->->->->')
-        model_pipeline(args, config = hyperparameters, project = project, forecast=True)     
+    elif args.run_type == 'forecasting':
 
+        #print('True forecasting ->->->->')
+        model_pipeline(args, config = hyperparameters, project = project, train = False, eval = False, forecast=True, artifact_name = args.artifact_name)     
+
+    else:
+        raise ValueError(f"Invalid run type: {args.run_type}")
 
 
 def handle_training(config, device, views_vol, PATH_ARTIFACTS):
