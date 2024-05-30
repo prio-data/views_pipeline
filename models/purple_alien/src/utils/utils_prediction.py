@@ -75,7 +75,7 @@ def predict(model, full_tensor, config, device, is_evalutaion = True):
 
         if i < in_sample_seq_len: # This is the in-sample part and where the out sample part is defined (seq_len-1-time_steps)
 
-            print(f'\t\t\t\t in sample. month: {i+1}', end= '\r')
+            print(f'\t\t\t in sample. month: {i+1}', end= '\r')
 
             # get the tensor for the current month
             t0 = full_tensor[:, i, :, :, :].to(device) # This is all you need to put on device.
@@ -85,7 +85,7 @@ def predict(model, full_tensor, config, device, is_evalutaion = True):
 
 
         else: # take the last t1_pred. This is the out-of-sample part.
-            print(f'\t\t\t\t Out of sample. month: {i+1}', end= '\r')
+            print(f'\t\t\t Out of sample. month: {i+1}', end= '\r')
             t0 = t1_pred.detach()
 
             # Execute  whatever freeze option you have set in the config out of sample
