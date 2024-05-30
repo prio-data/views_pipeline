@@ -130,6 +130,50 @@ def model_pipeline(config = None, project = None, train = None, eval = None, art
             evaluate_posterior(model, views_vol, config, device)
             print('Done testing')
 
+#        GENERATED CODE. I NEED TO THINK ABOUT HOW MASSIVE THE MODEL FUNCTION IS BECOMING.
+#        if forecast:
+#
+#            # Determine the artifact path: 
+#            # If an artifact name is provided, use it. Otherwise, get the latest model artifact based on the run type
+#            if artifact_name is not None:
+#
+#                # pritn statement for debugging
+#                print(f"Using (non default) artifact: {artifact_name}")
+#                
+#                # Check if the artifact name has the correct file extension
+#                if not artifact_name.endswith('.pt'):
+#                    artifact_name += '.pt'
+#
+#                # Define the full (model specific) path for the artifact
+#                PATH_MODEL_ARTIFACT = os.path.join(PATH_ARTIFACTS, artifact_name)
+#            
+#            else:
+#                # print statement for debugging
+#                print(f"Using lastest (default) run type ({config.run_type}) specific artifact")
+#
+#                # Get the latest model artifact based on the run type and the (models specific) artifacts path
+#                PATH_MODEL_ARTIFACT = get_latest_model_artifact(PATH_ARTIFACTS, config.run_type)
+#
+#            # Check if the model artifact exists - if not, raise an error
+#            if not os.path.exists(PATH_MODEL_ARTIFACT):
+#                raise FileNotFoundError(f"Model artifact not found at {PATH_MODEL_ARTIFACT}")
+#
+#            # load the model
+#            model = torch.load(PATH_MODEL_ARTIFACT)
+#            #model.eval() # this is done in the evaluate_posterior function
+#            
+#            # Get the excact model date_time stamp for the pkl files made in the evaluate_posterior from evaluation.py
+#            model_time_stamp = os.path.basename(PATH_MODEL_ARTIFACT).split('.')[0]
+#
+#            # debug print statement
+#            print(f"model_time_stamp: {model_time_stamp}")
+#
+#            # save to config for logging and concisness
+#            config.model_time_stamp = model_time_stamp
+#
+#            evaluate_posterior(model, views_vol, config, device)
+#            print('Done testing')
+#
 
 if __name__ == "__main__":
 
