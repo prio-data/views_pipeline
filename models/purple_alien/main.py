@@ -67,7 +67,7 @@ def handle_single_run(args):
 
     if args.run_type == 'calibration' or args.run_type == 'testing':
 
-        model_pipeline(args, config = hyperparameters, project = project, train = args.train, eval = args.evaluate, forecast = False, artifact_name = args.artifact_name)        
+        model_pipeline(config = hyperparameters, project = project, train = args.train, eval = args.evaluate, forecast = False, artifact_name = args.artifact_name)        
 
 #    if args.train:
 #        print(f"Training one model for run type: {run_type} and saving it as an artifact...")
@@ -86,7 +86,7 @@ def handle_single_run(args):
     elif args.run_type == 'forecasting':
 
         #print('True forecasting ->->->->')
-        model_pipeline(args, config = hyperparameters, project = project, train = False, eval = False, forecast=True, artifact_name = args.artifact_name)     
+        model_pipeline(config = hyperparameters, project = project, train = False, eval = False, forecast=True, artifact_name = args.artifact_name)     
 
     else:
         raise ValueError(f"Invalid run type: {args.run_type}")
