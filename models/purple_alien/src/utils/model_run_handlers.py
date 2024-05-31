@@ -10,7 +10,7 @@ setup_project_paths(PATH)
 
 from config_sweep import get_swep_config
 from config_hyperparameters import get_hp_config
-from mode_run_manager import model_run_manager
+from model_run_manager import model_run_manager
 
 
 def handle_sweep_run(args):
