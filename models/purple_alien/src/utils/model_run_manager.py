@@ -15,7 +15,7 @@ from utils_device import setup_device
 from train_model import make, training_loop, handle_training
 # from evaluate_sweep import evaluate_posterior # see if it can be more genrel to a single model as well... 
 from evaluate_model import evaluate_posterior, handle_evaluation
-from forecast_model import handle_forecasting
+from generate_forecast import handle_forecasting
 
 
 def model_run_manager(config = None, project = None, train = None, eval = None, forecast = None, artifact_name = None):
