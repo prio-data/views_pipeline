@@ -45,7 +45,11 @@ def generate_forecast(model, views_vol, config, device, PATH):
     model.apply(apply_dropout)
 
     # Generate posterior samples and out-of-sample volumes
-    posterior_list, posterior_list_class, out_of_sample_vol, full_tensor = sample_posterior(model, views_vol, config, device)
+    posterior_list, posterior_list_class, out_of_sample_vol, _ = sample_posterior(model, views_vol, config, device) # the _ is the full tensor. 
+    
+    # I suspect you'll need the out_of_sample_vol to create the df (it has pg and ocean info)
+    # However, I see in the test_prediction_store notebook in "conflictnet" repo that I load the "calibration_vol" from the pickle file.... Investigate... 
+
 
     # Set up paths for storing generated data
     _, _, PATH_GENERATED = setup_data_paths(PATH)
@@ -60,7 +64,7 @@ def generate_forecast(model, views_vol, config, device, PATH):
     posterior_dict = {
         'posterior_list': posterior_list,
         'posterior_list_class': posterior_list_class,
-        'out_of_sample_vol': out_of_sample_vol
+        'out_of_sample_vol': out_of_sample_vol          # you might need this for the df creation before predstore. Experiments in notebook test_to_prediction_store.ipynb
     }
 
     # Save the posterior data to a pickle file
@@ -69,6 +73,15 @@ def generate_forecast(model, views_vol, config, device, PATH):
         pickle.dump(posterior_dict, file)
 
     print('Posterior dict and test vol pickled and dumped!')
+
+
+def handle_forecasting(config, device, views_vol, PATH_ARTIFACTS, artifact_name=None):
+
+    # the thing above might work, but it needs to be tested thoroughly....
+    raise NotImplementedError('Forecasting not implemented yet')
+
+
+
 
 # Ensure utils_prediction.py and any other dependencies are imported correctly
 # from utils_prediction import sample_posterior, apply_dropout
