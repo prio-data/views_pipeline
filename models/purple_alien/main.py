@@ -31,6 +31,9 @@ setup_project_paths(PATH)
 from cli_parser_utils import parse_args, validate_arguments
 #from artifacts_utils import get_latest_model_artifact
 
+from model_run_handlers import handle_sweep_run, handle_single_run
+
+
 #from mode_run_manager import model_run_manager
 
 #def setup_device(): 
