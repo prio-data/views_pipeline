@@ -121,11 +121,56 @@ def evaluate_posterior(model, views_vol, config, device):
     else:
         print('Running sweep. NO posterior dict, metric dict, or test vol pickled+dumped')
 
-
+    # could be a function in utils_wandb....
     wandb.log({f"{config.time_steps}month_mean_squared_error": np.mean(mse_list)})
     wandb.log({f"{config.time_steps}month_average_precision_score": np.mean(ap_list)})
     wandb.log({f"{config.time_steps}month_roc_auc_score": np.mean(auc_list)})
     wandb.log({f"{config.time_steps}month_brier_score_loss":np.mean(brier_list)})
+
+
+def handle_evaluation(config, device, views_vol, PATH_ARTIFACTS, artifact_name=None):
+
+    # if an artifact name is provided through the CLI, use it. Otherwise, get the latest model artifact based on the run type
+    if artifact_name:
+        print(f"Using (non-default) artifact: {artifact_name}")
+        
+        # If it lacks the file extension, add it
+        if not artifact_name.endswith('.pt'):
+            artifact_name += '.pt'
+        
+        # Define the full (model specific) path for the artifact
+        PATH_MODEL_ARTIFACT = os.path.join(PATH_ARTIFACTS, artifact_name)
+    
+    else:
+        # use the latest model artifact based on the run type
+        print(f"Using latest (default) run type ({config.run_type}) specific artifact")
+        
+        # Get the latest model artifact based on the run type and the (models specific) artifacts path
+        PATH_MODEL_ARTIFACT = get_latest_model_artifact(PATH_ARTIFACTS, config.run_type)
+
+    # Check if the model artifact exists - if not, raise an error
+    if not os.path.exists(PATH_MODEL_ARTIFACT):
+        raise FileNotFoundError(f"Model artifact not found at {PATH_MODEL_ARTIFACT}")
+
+    # load the model
+    model = torch.load(PATH_MODEL_ARTIFACT)
+    
+    # get the exact model date_time stamp for the pkl files made in the evaluate_posterior from evaluation.py
+    model_time_stamp = os.path.basename(PATH_MODEL_ARTIFACT).split('.')[0]
+
+    # print for debugging
+    print(f"model_time_stamp: {model_time_stamp}")
+
+    # add to config for logging and conciseness
+    config.model_time_stamp = model_time_stamp
+
+    # evaluate the model posterior distribution
+    evaluate_posterior(model, views_vol, config, device)
+    
+    # done. 
+    print('Done testing') 
+
+
 
 # note:
 # Going with the argparser, there is less of a clear reason to have to separate .py files for evaluation sweeps and single models. I think. Let me know if you disagree.
