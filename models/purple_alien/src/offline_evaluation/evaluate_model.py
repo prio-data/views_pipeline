@@ -110,7 +110,7 @@ def evaluate_posterior(model, views_vol, config, device):
         with open(f'{PATH_GENERATED}/posterior_dict_{config.time_steps}_{config.run_type}_{config.model_time_stamp}.pkl', 'wb') as file:
             pickle.dump(posterior_dict, file)       
 
-        with open(f'{PATH_GENERATED}/metric_dict_{config.time_steps}_{config.run_type}{config.model_time_stamp}.pkl', 'wb') as file:
+        with open(f'{PATH_GENERATED}/metric_dict_{config.time_steps}_{config.run_type}_{config.model_time_stamp}.pkl', 'wb') as file:
             pickle.dump(metric_dict, file)
 
         with open(f'{PATH_GENERATED}/test_vol_{config.time_steps}_{config.run_type}_{config.model_time_stamp}.pkl', 'wb') as file: # make it numpy
@@ -157,7 +157,7 @@ def handle_evaluation(config, device, views_vol, PATH_ARTIFACTS, artifact_name=N
     model = torch.load(PATH_MODEL_ARTIFACT)
     
     # get the exact model date_time stamp for the pkl files made in the evaluate_posterior from evaluation.py
-    model_time_stamp = os.path.basename(PATH_MODEL_ARTIFACT).split('.')[0]
+    model_time_stamp = os.path.basename(PATH_MODEL_ARTIFACT)[-18:-3] # 18 is the length of the timestamp string, and -3 is to remove the .pt file extension. a bit hardcoded, but very simple and should not change.
 
     # print for debugging
     print(f"model_time_stamp: {model_time_stamp}")
