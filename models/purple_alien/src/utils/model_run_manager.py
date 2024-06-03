@@ -35,7 +35,7 @@ def model_run_manager(config = None, project = None, train = None, eval = None, 
         config = wandb.config
 
         # Retrieve data (partition) based on the configuration
-        views_vol = get_data(config)
+        views_vol = get_data(config) # a bit HydraNet specific, but it is fine for now. If statment or move to handle_training, handle_evaluation, and handle_forecasting?
 
         # Handle the sweep runs
         if config.sweep:  # If we are running a sweep, always train and evaluate
