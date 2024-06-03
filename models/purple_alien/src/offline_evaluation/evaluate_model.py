@@ -107,6 +107,12 @@ def evaluate_posterior(model, views_vol, config, device):
         metric_dict = {'out_sample_month_list' : out_sample_month_list, 'mse_list': mse_list,
                         'ap_list' : ap_list, 'auc_list': auc_list, 'brier_list' : brier_list}
 
+
+        # Note: we are using the model_time_stamp from the model artifact to denote the time stamp for the pkl files
+        # This is to ensure that the pkl files are easily identifiable and associated with the correct model artifact
+        # But it also means that running evaluation on the same model artifact multiple times will overwrite the pkl files
+        # I think this is fine, but we should think about cases where we might want to evaluate the same model artifact multiple times - maybe for robustiness checks or something for publication. 
+
         with open(f'{PATH_GENERATED}/posterior_dict_{config.time_steps}_{config.run_type}_{config.model_time_stamp}.pkl', 'wb') as file:
             pickle.dump(posterior_dict, file)       
 
