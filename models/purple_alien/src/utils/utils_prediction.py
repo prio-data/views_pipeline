@@ -62,6 +62,7 @@ def predict(model, full_tensor, config, device, is_evalutaion = True):
         full_seq_len = seq_len -1 # we loop over the full sequence. you need -1 because you are predicting the next month.
         in_sample_seq_len = seq_len - 1 - config.time_steps # but retain the last time_steps for hold-out evaluation
 
+        # These print staments are informative while the model is running, but the implementation is not optimal....
         print(f'\t\t\t\t\t\t\t Evaluation mode. retaining hold out set. Full sequence length: {full_seq_len}', end= '\r')
     
     else:
