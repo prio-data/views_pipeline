@@ -30,6 +30,7 @@ setup_project_paths(PATH)
 from utils import choose_model, choose_loss, choose_sheduler, get_train_tensors, get_full_tensor, apply_dropout, execute_freeze_h_option, get_log_dict, train_log, init_weights, get_data
 from utils_prediction import predict, sample_posterior
 from artifacts_utils import get_latest_model_artifact
+from utils_wandb import log_wandb_monthly_metrics
 from config_sweep import get_swep_config
 from config_hyperparameters import get_hp_config
 
@@ -39,7 +40,17 @@ from config_hyperparameters import get_hp_config
 def evaluate_posterior(model, views_vol, config, device):
 
     """
-    Function to sample from and evaluate the posterior distribution of Hydranet.
+    Samples from and evaluates the posterior distribution of the model.
+
+    This function evaluates the posterior distribution of the model, computes metrics
+    such as mean squared error, average precision, AUC, and Brier score, and logs the results.
+    If not running a sweep, it also pickles and saves the posterior, metrics, and test volumes.
+
+    Args:
+        model: The trained model to evaluate.
+        views_vol: The input data volume.
+        config: Configuration object containing parameters and settings.
+        device: The device (CPU or GPU) on which to run the evaluation.    
     """
 
     posterior_list, posterior_list_class, out_of_sample_vol, full_tensor = sample_posterior(model, views_vol, config, device)
@@ -72,14 +83,16 @@ def evaluate_posterior(model, views_vol, config, device):
         y_true = out_of_sample_vol[:,i].reshape(-1)  # nu 180x180 . dim 0 is time
         y_true_binary = (y_true > 0) * 1
 
+        # log the metrics to WandB - but why here? 
+        log_dict = get_log_dict(i, mean_array, mean_class_array, std_array, std_class_array, out_of_sample_vol, config)# so at least it gets reported sep.
+
+        wandb.log(log_dict)
+
+        # this could be a function in utils_wandb or in common_utils... 
         mse = mean_squared_error(y_true, y_score)  
         ap = average_precision_score(y_true_binary, y_score_prob)
         auc = roc_auc_score(y_true_binary, y_score_prob)
         brier = brier_score_loss(y_true_binary, y_score_prob)
-
-        log_dict = get_log_dict(i, mean_array, mean_class_array, std_array, std_class_array, out_of_sample_vol, config)# so at least it gets reported sep.
-
-        wandb.log(log_dict)
 
         out_sample_month_list.append(i) # only used for pickle...
         mse_list.append(mse)
@@ -129,10 +142,13 @@ def evaluate_posterior(model, views_vol, config, device):
         print('Running sweep. NO posterior dict, metric dict, or test vol pickled+dumped')
 
     # could be a function in utils_wandb....
-    wandb.log({f"{config.time_steps}month_mean_squared_error": np.mean(mse_list)})
-    wandb.log({f"{config.time_steps}month_average_precision_score": np.mean(ap_list)})
-    wandb.log({f"{config.time_steps}month_roc_auc_score": np.mean(auc_list)})
-    wandb.log({f"{config.time_steps}month_brier_score_loss":np.mean(brier_list)})
+    #wandb.log({f"{config.time_steps}month_mean_squared_error": np.mean(mse_list)})
+    #wandb.log({f"{config.time_steps}month_average_precision_score": np.mean(ap_list)})
+    #wandb.log({f"{config.time_steps}month_roc_auc_score": np.mean(auc_list)})
+    #wandb.log({f"{config.time_steps}month_brier_score_loss":np.mean(brier_list)})
+
+    log_wandb_monthly_metrics(config, mse_list, ap_list, auc_list, brier_list)
+
 
 
 def evaluate_model_artifact(config, device, views_vol, PATH_ARTIFACTS, artifact_name=None):
