@@ -24,7 +24,7 @@ def execute_sweep_run(args):
 
     sweep_id = wandb.sweep(sweep_config, project=project) # and then you put in the right project name
 
-    wandb.agent(sweep_id, model_run_manager)
+    wandb.agent(sweep_id, execute_model_tasks)
 
 
 def execute_single_run(args):
