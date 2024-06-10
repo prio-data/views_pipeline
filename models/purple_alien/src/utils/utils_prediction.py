@@ -32,7 +32,7 @@ from config_sweep import get_swep_config
 from config_hyperparameters import get_hp_config
 
 
-def predict(model, full_tensor, config, device, is_evalutaion = True):
+def predict(model, full_tensor, config, device, sample, is_evalutaion = True):
 
     """
     Function to create predictions for the Hydranet model.
@@ -40,6 +40,9 @@ def predict(model, full_tensor, config, device, is_evalutaion = True):
     The function returns **two lists of numpy arrays**. One list of the predicted magnitudes and one list of the predicted probabilities.
     Each array is of the shap **fx180x180**, where f is the number of features (currently 3 types of violence).
     """
+
+    print(f'Posterior sample: {sample}/{config.test_samples}', end = '\r') # could and should put this in the predict function above.
+
 
     # Set the model to evaluation mode
     model.eval() 
@@ -126,15 +129,15 @@ def sample_posterior(model, views_vol, config, device):
     posterior_list = []
     posterior_list_class = []
 
-    for i in range(config.test_samples): # number of posterior samples to draw - just set config.test_samples, no? 
+    for sample in range(config.test_samples): # number of posterior samples to draw - just set config.test_samples, no? 
 
         # full_tensor is need on device here, but maybe just do it inside the test function? 
-        pred_np_list, pred_class_np_list = predict(model, full_tensor, config, device) # Returns two lists of numpy arrays (shape 3/180/180). One list of the predicted magnitudes and one list of the predicted probabilities.
+        pred_np_list, pred_class_np_list = predict(model, full_tensor, config, device, sample) # Returns two lists of numpy arrays (shape 3/180/180). One list of the predicted magnitudes and one list of the predicted probabilities.
         posterior_list.append(pred_np_list)
         posterior_list_class.append(pred_class_np_list)
 
         #if i % 10 == 0: # print steps 10
-        print(f'Posterior sample: {i}/{config.test_samples}', end = '\r')
+        #print(f'Posterior sample: {sample}/{config.test_samples}', end = '\r') # could and should put this in the predict function above.
 
     return posterior_list, posterior_list_class, out_of_sample_vol, full_tensor
 
