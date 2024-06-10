@@ -32,7 +32,7 @@ from config_sweep import get_swep_config
 from config_hyperparameters import get_hp_config
 
 
-def predict(model, full_tensor, config, device, sample, is_evalutaion = True):
+def predict(model, full_tensor, config, device, sample_i, is_evalutaion = True):
 
     """
     Function to create predictions for the Hydranet model.
@@ -41,7 +41,7 @@ def predict(model, full_tensor, config, device, sample, is_evalutaion = True):
     Each array is of the shap **fx180x180**, where f is the number of features (currently 3 types of violence).
     """
 
-    print(f'Posterior sample: {sample}/{config.test_samples}', end = '\r') # could and should put this in the predict function above.
+    print(f'Posterior sample: {sample_i}/{config.test_samples}', end = '\r') # could and should put this in the predict function above.
 
 
     # Set the model to evaluation mode
@@ -66,14 +66,14 @@ def predict(model, full_tensor, config, device, sample, is_evalutaion = True):
         in_sample_seq_len = seq_len - 1 - config.time_steps # but retain the last time_steps for hold-out evaluation
 
         # These print staments are informative while the model is running, but the implementation is not optimal....
-        print(f'\t\t\t\t\t\t\t Evaluation mode. retaining hold out set. Full sequence length: {full_seq_len}', end= '\r')
+        #print(f'\t\t\t\t\t\t\t Evaluation mode. retaining hold out set. Full sequence length: {full_seq_len}', end= '\r')
     
     else:
 
         full_seq_len = seq_len - 1 + config.time_steps # we loop over the entire sequence plus the additional time_steps for forecasting
         in_sample_seq_len = seq_len - 1 # the in-sample part is now the entire sequence
 
-        print(f'\t\t\t\t\t\t\t Forecasting mode. No hold out set. Full sequence length: {full_seq_len}', end= '\r')
+        #print(f'\t\t\t\t\t\t\t Forecasting mode. No hold out set. Full sequence length: {full_seq_len}', end= '\r')
 
     for i in range(full_seq_len): 
 
@@ -129,10 +129,10 @@ def sample_posterior(model, views_vol, config, device):
     posterior_list = []
     posterior_list_class = []
 
-    for sample in range(config.test_samples): # number of posterior samples to draw - just set config.test_samples, no? 
+    for sample_i in range(config.test_samples): # number of posterior samples to draw - just set config.test_samples, no? 
 
         # full_tensor is need on device here, but maybe just do it inside the test function? 
-        pred_np_list, pred_class_np_list = predict(model, full_tensor, config, device, sample) # Returns two lists of numpy arrays (shape 3/180/180). One list of the predicted magnitudes and one list of the predicted probabilities.
+        pred_np_list, pred_class_np_list = predict(model, full_tensor, config, device, sample_i) # Returns two lists of numpy arrays (shape 3/180/180). One list of the predicted magnitudes and one list of the predicted probabilities.
         posterior_list.append(pred_np_list)
         posterior_list_class.append(pred_class_np_list)
 
