@@ -1,5 +1,26 @@
 import os
 
+
+def get_model_files(path, run_type):
+    """
+    Retrieve model files from a directory that match the given run type and common extensions.
+
+    Args:
+        path (str): The directory path where model files are stored.
+        run_type (str): The type of run (e.g., calibration, testing).
+
+    Returns:
+        list: List of matching model file paths.
+    """
+    # Define the common model file extensions - more can be added as needed
+    common_extensions = ['.pt', '.pth', '.h5', '.hdf5', '.pkl', '.json', '.bst', '.txt', '.bin', '.cbm', '.onnx']
+
+    # Retrieve files that start with run_type and end with any of the common extensions
+    model_files = [f for f in os.listdir(path) if f.startswith(f"{run_type}_model_") and any(f.endswith(ext) for ext in common_extensions)]
+    
+    return model_files
+
+
 def get_latest_model_artifact(path, run_type):
     """
     Retrieve the latest model artifact for a given run type based on the modification time.
@@ -19,7 +40,7 @@ def get_latest_model_artifact(path, run_type):
     """
 
     # List all model files for the given specific run_type with the expected filename pattern
-    model_files = [f for f in os.listdir(path) if f.startswith(f"{run_type}_model_") and f.endswith('.pt')]
+    model_files = get_model_files(path, run_type) #[f for f in os.listdir(path) if f.startswith(f"{run_type}_model_") and f.endswith('.pt')]
     
     if not model_files:
         raise FileNotFoundError(f"No model artifacts found for run type '{run_type}' in path '{path}'")
