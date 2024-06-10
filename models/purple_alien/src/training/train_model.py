@@ -147,7 +147,17 @@ def train_model_artifact(config, device, views_vol, PATH_ARTIFACTS):
 #def handle_training(config, device, views_vol, PATH_ARTIFACTS):
     
     """
-    ...
+    Creates, trains, and saves a model artifact.
+
+    This function creates the model, criterion, optimizer, and scheduler. It then trains the model
+    using the provided training loop and saves the trained model with a timestamp and run type as an artifact
+    in the specified artifacts path.
+
+    Args:
+        config: Configuration object containing parameters and settings.
+        device: The device (torch.device) to run the model on (CPU or GPU).
+        views_vol: The tensor containing the input data for training.
+        PATH_ARTIFACTS: The path where model artifacts are stored.
     """
 
     # Create the model, criterion, optimizer and scheduler

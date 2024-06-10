@@ -139,7 +139,22 @@ def evaluate_model_artifact(config, device, views_vol, PATH_ARTIFACTS, artifact_
 #def handle_evaluation(config, device, views_vol, PATH_ARTIFACTS, artifact_name=None):
 
     """
-    ...
+    Loads a model artifact and evaluates it given the respective trian and eval set within each data partition (Calibration, Testing).
+
+    This function handles the loading of a model artifact either by using a specified artifact name
+    or by selecting the latest model artifact based on the run type (default). It then evaluates the model's
+    posterior distribution and prints the result.
+
+    Args:
+        config: Configuration object containing parameters and settings.
+        device: The device to run the model on (CPU or GPU).
+        views_vol: The tensor containing the input data for evaluation.
+        PATH_ARTIFACTS: The path where model artifacts are stored.
+        artifact_name (optional): The specific name of the model artifact to load. Defaults to None.
+
+    Raises:
+        FileNotFoundError: If the specified or default model artifact cannot be found.
+
     """
 
     # if an artifact name is provided through the CLI, use it. Otherwise, get the latest model artifact based on the run type

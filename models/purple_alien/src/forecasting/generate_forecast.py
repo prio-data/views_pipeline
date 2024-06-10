@@ -79,7 +79,22 @@ def forecast_with_model_artifact(config, device, views_vol, PATH_ARTIFACTS, arti
 #def handle_forecasting(config, device, views_vol, PATH_ARTIFACTS, artifact_name=None):
 
     """
-    ...
+    Loads a model artifact and performs true forecasting.
+
+    This function handles loading a model artifact either by using a specified artifact name
+    or by selecting the latest model artifact based on the run type (default). It then performs forecasting
+    using the model and the current forecasting partition.
+
+    Args:
+        config: Configuration object containing parameters and settings.
+        device: The (torch) device to run the model on (CPU or GPU).
+        views_vol: The tensor containing the input data for forecasting.
+        PATH_ARTIFACTS: The path where model artifacts are stored.
+        artifact_name(optional): The specific name of the model artifact to load. Defaults to None which will lead to the latest runtype-specific artifact being loaded.
+
+    Raises:
+        FileNotFoundError: If the specified or default model artifact cannot be found.
+        NotImplementedError: Indicates that forecasting is not yet implemented.
     """
 
     # the thing above might work, but it needs to be tested thoroughly....
