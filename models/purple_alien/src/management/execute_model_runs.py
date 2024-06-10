@@ -14,7 +14,7 @@ from config_hyperparameters import get_hp_config
 from execute_model_tasks import execute_model_tasks
 
 
-def handle_sweep_run(args):
+def execute_sweep_run(args):
     print('Running sweep...')
 
     project = f"purple_alien_sweep" # check naming convention
@@ -27,7 +27,7 @@ def handle_sweep_run(args):
     wandb.agent(sweep_id, model_run_manager)
 
 
-def handle_single_run(args):
+def execute_single_run(args):
     
     # get hyperparameters. IS THE ISSUE UP HERE?
     hyperparameters = get_hp_config()

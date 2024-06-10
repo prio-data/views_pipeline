@@ -13,7 +13,8 @@ setup_project_paths(PATH)
 from cli_parser_utils import parse_args, validate_arguments
 #from artifacts_utils import get_latest_model_artifact
 
-from model_run_handlers import handle_sweep_run, handle_single_run
+#from model_run_handlers import handle_sweep_run, handle_single_run
+from execute_model_runs import execute_sweep_run, execute_single_run
 
 #from mode_run_manager import model_run_manager
 
@@ -36,12 +37,15 @@ if __name__ == "__main__":
     # first you need to check if you are running a sweep or not, because the sweep will overwrite the train and evaluate flags
     if args.sweep == True:
 
-        handle_sweep_run(args)
+        #handle_sweep_run(args)
+        execute_sweep_run(args)
 
     elif args.sweep == False:
         
-        handle_single_run(args)
-    
+        #handle_single_run(args)
+        execute_single_run(args)
+
+
     end_t = time.time()
     minutes = (end_t - start_t)/60
     print(f'Done. Runtime: {minutes:.3f} minutes')
