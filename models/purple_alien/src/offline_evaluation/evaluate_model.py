@@ -105,9 +105,12 @@ def evaluate_posterior(model, views_vol, config, device):
             
         _ , _, PATH_GENERATED = setup_data_paths(PATH)
 
-        # if the path does not exist, create it
-        if not os.path.exists(PATH_GENERATED):
-            os.makedirs(PATH_GENERATED)
+        # if the path does not exist, create it - maybe doable with Pathlib, but this is a well recognized way of doing it.
+        #if not os.path.exists(PATH_GENERATED):
+        #    os.makedirs(PATH_GENERATED)
+
+        # Pathlib alternative 
+        Path(PATH_GENERATED).mkdir(parents=True, exist_ok=True)
 
         # print for debugging
         print(f'PATH to generated data: {PATH_GENERATED}')
@@ -177,12 +180,15 @@ def evaluate_model_artifact(config, device, views_vol, PATH_ARTIFACTS, artifact_
     if artifact_name:
         print(f"Using (non-default) artifact: {artifact_name}")
         
-        # If it lacks the file extension, add it
+        # If the pytorch artifact lacks the file extension, add it. This is obviously specific to pytorch artifacts, but we are deep in the model code here, so it is fine.
         if not artifact_name.endswith('.pt'):
             artifact_name += '.pt'
         
         # Define the full (model specific) path for the artifact
-        PATH_MODEL_ARTIFACT = os.path.join(PATH_ARTIFACTS, artifact_name)
+        #PATH_MODEL_ARTIFACT = os.path.join(PATH_ARTIFACTS, artifact_name)
+
+        # pathlib alternative as per sara's comment
+        PATH_MODEL_ARTIFACT = PATH_ARTIFACTS / artifact_name # PATH_ARTIFACTS is already a Path object
     
     else:
         # use the latest model artifact based on the run type
@@ -192,14 +198,22 @@ def evaluate_model_artifact(config, device, views_vol, PATH_ARTIFACTS, artifact_
         PATH_MODEL_ARTIFACT = get_latest_model_artifact(PATH_ARTIFACTS, config.run_type)
 
     # Check if the model artifact exists - if not, raise an error
-    if not os.path.exists(PATH_MODEL_ARTIFACT):
+    #if not os.path.exists(PATH_MODEL_ARTIFACT):
+    #    raise FileNotFoundError(f"Model artifact not found at {PATH_MODEL_ARTIFACT}")
+    
+    # Pathlib alternative as per sara's comment
+    if not PATH_MODEL_ARTIFACT.exists(): # PATH_MODEL_ARTIFACT is already a Path object
         raise FileNotFoundError(f"Model artifact not found at {PATH_MODEL_ARTIFACT}")
 
     # load the model
     model = torch.load(PATH_MODEL_ARTIFACT)
     
     # get the exact model date_time stamp for the pkl files made in the evaluate_posterior from evaluation.py
-    model_time_stamp = os.path.basename(PATH_MODEL_ARTIFACT)[-18:-3] # 18 is the length of the timestamp string, and -3 is to remove the .pt file extension. a bit hardcoded, but very simple and should not change.
+    #model_time_stamp = os.path.basename(PATH_MODEL_ARTIFACT)[-18:-3] # 18 is the length of the timestamp string + ".pt", and -3 is to remove the .pt file extension. a bit hardcoded, but very simple and should not change.
+
+
+    # Pathlib alternative as per sara's comment
+    model_time_stamp = PATH_MODEL_ARTIFACT.stem[-15:] # 15 is the length of the timestamp string. This is more robust than the os.path.basename solution above since it does not rely on the file extension.
 
     # print for debugging
     print(f"model_time_stamp: {model_time_stamp}")
