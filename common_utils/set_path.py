@@ -18,6 +18,7 @@ def setup_root_paths(PATH) -> Path:
     PATH_ROOT  = Path(*[i for i in PATH.parts[:PATH.parts.index("views_pipeline")+1]]) # The +1 is to include the "views_pipeline" part in the path
     return PATH_ROOT
 
+
 def setup_model_paths(PATH):
 
     """
@@ -85,13 +86,14 @@ def setup_project_paths(PATH) -> None:
     PATH_CONFIGS = PATH_MODEL / "configs"
     PATH_SRC = PATH_MODEL / "src"
     PATH_UTILS = PATH_SRC / "utils"
+    PATH_MANAGEMENT = PATH_SRC / "management" # added to keep the management scripts in a separate folder the utils according to Sara's point
     PATH_ARCHITECTURES = PATH_SRC / "architectures"
     PATH_TRAINING = PATH_SRC / "training"
     PATH_FORECASTING = PATH_SRC / "forecasting"
     PATH_OFFLINE_EVALUATION = PATH_SRC / "offline_evaluation"
     PATH_DATALOADERS = PATH_SRC / "dataloaders"
 
-    paths_to_add = [PATH_ROOT, PATH_COMMON_UTILS, PATH_COMMON_CONFIGS, PATH_CONFIGS, PATH_UTILS, PATH_ARCHITECTURES, PATH_TRAINING, PATH_FORECASTING, PATH_OFFLINE_EVALUATION, PATH_DATALOADERS]
+    paths_to_add = [PATH_ROOT, PATH_COMMON_UTILS, PATH_COMMON_CONFIGS, PATH_CONFIGS, PATH_UTILS, PATH_MANAGEMENT, PATH_ARCHITECTURES, PATH_TRAINING, PATH_FORECASTING, PATH_OFFLINE_EVALUATION, PATH_DATALOADERS]
 
     for path in paths_to_add:
         path_str = str(path)
