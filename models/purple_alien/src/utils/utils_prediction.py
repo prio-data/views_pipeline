@@ -116,7 +116,7 @@ def sample_posterior(model, views_vol, config, device):
     - tuple: (posterior_magnitudes, posterior_probabilities, out_of_sample_data)
     """
 
-    print(f'Drawing {config.test_samples} posterior samples...')
+    print(f'Drawing {config.test_samples} posterior samples...', end = '\r')
 
     # REALLY BAD NAME!!!!
     # Why do you put this test tensor on device here??!? 
