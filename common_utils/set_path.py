@@ -4,7 +4,7 @@ from pathlib import Path
 def setup_root_paths(PATH) -> Path:
 
     """
-    Extracts and returns the root path up to and including the "views_pipeline" directory from any given path.
+    Extracts and returns the root path (pathlib path object) up to and including the "views_pipeline" directory from any given path.
     This function identifies the "views_pipeline" directory within the provided path and constructs a new path up to and including this directory. 
     This is useful for setting up root paths for project-wide resources and utilities.
 
@@ -12,7 +12,7 @@ def setup_root_paths(PATH) -> Path:
         PATH (Path): The base path, typically the path of the script invoking this function (e.g., `PATH = Path(__file__)`).
 
     Returns:
-        PATH_ROOT: The root path including the "views_pipeline" directory.
+        PATH_ROOT: The root path (pathlib path object) including the "views_pipeline" directory.
     """
 
     PATH_ROOT  = Path(*[i for i in PATH.parts[:PATH.parts.index("views_pipeline")+1]]) # The +1 is to include the "views_pipeline" part in the path
@@ -22,7 +22,7 @@ def setup_root_paths(PATH) -> Path:
 def setup_model_paths(PATH):
 
     """
-    Extracts and returns the model-specific path including the "models" directory and its immediate subdirectory.
+    Extracts and returns the model-specific path (pathlib path object) including the "models" directory and its immediate subdirectory.
     This function identifies the "models" (e.g. purple_alien or orange_pasta) directory within the provided path and constructs a new path up to and including the next subdirectory after "models". 
     This is useful for setting up paths specific to a model within the project.
 
@@ -30,7 +30,7 @@ def setup_model_paths(PATH):
         PATH (Path): The base path, typically the path of the script invoking this function (e.g., `PATH = Path(__file__)`).
 
     Returns:
-        PATH_model: The path including the "models" directory and its immediate subdirectory.
+        PATH_model: The path (pathlib path object) including the "models" directory and its immediate subdirectory.
     """
     
     PATH_MODEL = Path(*[i for i in PATH.parts[:PATH.parts.index("models")+2]]) # The +2 is to include the "models" and the individual model name in the path
@@ -105,7 +105,7 @@ def setup_project_paths(PATH) -> None:
 def setup_data_paths(PATH) -> Path:
 
     """
-    Returns the raw, processed, and generated data paths for the specified model.
+    Returns the raw, processed, and generated data paths (pathlib path object) for the specified model.
 
     Args:
     PATH (Path): The base path, typically the path of the script invoking this function (i.e., `Path(__file__)`).
@@ -127,7 +127,7 @@ def setup_data_paths(PATH) -> Path:
 def setup_artifacts_paths(PATH) -> Path:
 
     """
-    Returns the paths for the artifacts for the specified model.
+    Returns the paths (pathlib path object) for the artifacts for the specified model.
 
     Args:
     PATH (Path): The base path, typically the path of the script invoking this function (i.e., `Path(__file__)`).
