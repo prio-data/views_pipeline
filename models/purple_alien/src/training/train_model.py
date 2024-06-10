@@ -143,9 +143,13 @@ def training_loop(config, model, criterion, optimizer, scheduler, views_vol, dev
 
     print('training done...')
 
-
-def handle_training(config, device, views_vol, PATH_ARTIFACTS):
+def train_model_artifact(config, device, views_vol, PATH_ARTIFACTS):
+#def handle_training(config, device, views_vol, PATH_ARTIFACTS):
     
+    """
+    ...
+    """
+
     # Create the model, criterion, optimizer and scheduler
     model, criterion, optimizer, scheduler = make(config, device)
     

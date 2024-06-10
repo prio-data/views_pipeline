@@ -135,7 +135,12 @@ def evaluate_posterior(model, views_vol, config, device):
     wandb.log({f"{config.time_steps}month_brier_score_loss":np.mean(brier_list)})
 
 
-def handle_evaluation(config, device, views_vol, PATH_ARTIFACTS, artifact_name=None):
+def evaluate_model_artifact(config, device, views_vol, PATH_ARTIFACTS, artifact_name=None):
+#def handle_evaluation(config, device, views_vol, PATH_ARTIFACTS, artifact_name=None):
+
+    """
+    ...
+    """
 
     # if an artifact name is provided through the CLI, use it. Otherwise, get the latest model artifact based on the run type
     if artifact_name:

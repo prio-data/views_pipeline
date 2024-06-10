@@ -75,7 +75,12 @@ def generate_forecast(model, views_vol, config, device, PATH):
     print('Posterior dict and test vol pickled and dumped!')
 
 
-def handle_forecasting(config, device, views_vol, PATH_ARTIFACTS, artifact_name=None):
+def forecast_with_model_artifact(config, device, views_vol, PATH_ARTIFACTS, artifact_name=None):
+#def handle_forecasting(config, device, views_vol, PATH_ARTIFACTS, artifact_name=None):
+
+    """
+    ...
+    """
 
     # the thing above might work, but it needs to be tested thoroughly....
     raise NotImplementedError('Forecasting not implemented yet')

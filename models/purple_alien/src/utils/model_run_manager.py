@@ -12,10 +12,10 @@ setup_project_paths(PATH)
 from utils import choose_model, choose_loss, choose_sheduler, get_train_tensors, get_full_tensor, apply_dropout, execute_freeze_h_option, get_log_dict, train_log, init_weights, get_data
 from utils_wandb import add_wandb_monthly_metrics
 from utils_device import setup_device
-from train_model import make, training_loop, handle_training
+from train_model import make, training_loop, train_model_artifact #handle_training
 # from evaluate_sweep import evaluate_posterior # see if it can be more genrel to a single model as well... 
-from evaluate_model import evaluate_posterior, handle_evaluation
-from generate_forecast import handle_forecasting
+from evaluate_model import evaluate_posterior, evaluate_model_artifact #handle_evaluation
+from generate_forecast import forecast_with_model_artifact #handle_forecasting
 
 
 def model_run_manager(config = None, project = None, train = None, eval = None, forecast = None, artifact_name = None):
@@ -49,12 +49,16 @@ def model_run_manager(config = None, project = None, train = None, eval = None, 
 
         # Handle the single model runs: train and save the model as an artifact
         if train:
-            handle_training(config, device, views_vol, PATH_ARTIFACTS)
+            #handle_training(config, device, views_vol, PATH_ARTIFACTS)
+            train_model_artifact(config, device, views_vol, PATH_ARTIFACTS)
 
         # Handle the single model runs: evaluate a trained model (artifact)
         if eval:
-            handle_evaluation(config, device, views_vol, PATH_ARTIFACTS, artifact_name)
+            #handle_evaluation(config, device, views_vol, PATH_ARTIFACTS, artifact_name)
+            evaluate_model_artifact(config, device, views_vol, PATH_ARTIFACTS, artifact_name)
 
         if forecast:
-            handle_forecasting(config, device, views_vol, PATH_ARTIFACTS, artifact_name)
+            #handle_forecasting(config, device, views_vol, PATH_ARTIFACTS, artifact_name)
+            forecast_with_model_artifact(config, device, views_vol, PATH_ARTIFACTS, artifact_name)
+
 
