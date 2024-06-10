@@ -10,7 +10,8 @@ setup_project_paths(PATH)
 
 from config_sweep import get_swep_config
 from config_hyperparameters import get_hp_config
-from model_run_manager import model_run_manager
+#from model_run_manager import model_run_manager
+from execute_model_tasks import execute_model_tasks
 
 
 def handle_sweep_run(args):
@@ -38,12 +39,14 @@ def handle_single_run(args):
 
     if args.run_type == 'calibration' or args.run_type == 'testing':
 
-        model_run_manager(config = hyperparameters, project = project, train = args.train, eval = args.evaluate, forecast = False, artifact_name = args.artifact_name)        
+        #model_run_manager(config = hyperparameters, project = project, train = args.train, eval = args.evaluate, forecast = False, artifact_name = args.artifact_name)        
+        execute_model_tasks(config = hyperparameters, project = project, train = args.train, eval = args.evaluate, forecast = False, artifact_name = args.artifact_name)
 
     elif args.run_type == 'forecasting':
 
         #print('True forecasting ->->->->')
-        model_run_manager(config = hyperparameters, project = project, train = False, eval = False, forecast=True, artifact_name = args.artifact_name)     
+        #model_run_manager(config = hyperparameters, project = project, train = False, eval = False, forecast=True, artifact_name = args.artifact_name)     
+        execute_model_tasks(config = hyperparameters, project = project, train = False, eval = False, forecast=True, artifact_name = args.artifact_name)
 
     else:
         raise ValueError(f"Invalid run type: {args.run_type}")

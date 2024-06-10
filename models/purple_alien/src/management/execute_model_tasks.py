@@ -18,7 +18,23 @@ from evaluate_model import evaluate_posterior, evaluate_model_artifact #handle_e
 from generate_forecast import forecast_with_model_artifact #handle_forecasting
 
 
-def model_run_manager(config = None, project = None, train = None, eval = None, forecast = None, artifact_name = None):
+def execute_model_tasks(config = None, project = None, train = None, eval = None, forecast = None, artifact_name = None):
+
+    """
+        Executes various model-related tasks including training, evaluation, and forecasting.
+
+    This function manages the execution of different tasks such as training the model,
+    evaluating an existing model, or performing forecasting.
+    It also initializes the WandB project. 
+
+    Args:
+        config: Configuration object containing parameters and settings.
+        project: The WandB project name.
+        train: Flag to indicate if the model should be trained.
+        eval: Flag to indicate if the model should be evaluated.
+        forecast: Flag to indicate if forecasting should be performed.
+        artifact_name (optional): Specific name of the model artifact to load for evaluation or forecasting.
+    """
 
     # Define the path for the artifacts
     PATH_ARTIFACTS = setup_artifacts_paths(PATH)
