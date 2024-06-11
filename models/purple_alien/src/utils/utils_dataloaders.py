@@ -2,6 +2,7 @@
 
 import sys
 from pathlib import Path
+import argparse
 
 PATH = Path(__file__)
 sys.path.insert(0, str(Path(*[i for i in PATH.parts[:PATH.parts.index("views_pipeline")+1]]) / "common_utils")) # PATH_COMMON_UTILS  
@@ -14,6 +15,7 @@ from ingester3.ViewsMonth import ViewsMonth
 import os
 import numpy as np
 import pandas as pd
+
 
 #from config_partitioner import get_partitioner_dict
 from set_partition import get_partitioner_dict
@@ -107,7 +109,7 @@ def df_to_vol(df):
     return vol
 
 
-def process_partition_data(partition, get_views_date, df_to_vol, PATH):
+def process_partition_data(partition, PATH):
 
     """
     Processes data for a given partition by ensuring the existence of necessary directories,
@@ -115,8 +117,6 @@ def process_partition_data(partition, get_views_date, df_to_vol, PATH):
 
     Args:
         partition (str): The partition to process, e.g., 'calibration', 'forecasting', 'testing'.
-        get_views_date (function): Function to download the VIEWSER data.
-        df_to_vol (function): Function to convert a DataFrame to a volume.
 
     Returns:
         tuple: A tuple containing the DataFrame `df` and the volume `vol`.
@@ -156,5 +156,26 @@ def process_partition_data(partition, get_views_date, df_to_vol, PATH):
 
     return df, vol
 
+def parse_args():
+    parser = argparse.ArgumentParser(description='Process data for different partitions')
 
-# Should this be more general?
+    # Add binary flags for each partition
+    parser.add_argument('-c', '--calibration', action='store_true', help='Process calibration data')
+    parser.add_argument('-t', '--testing', action='store_true', help='Process testing data')
+    parser.add_argument('-f', '--forecasting', action='store_true', help='Process forecasting data')
+
+    return parser.parse_args()
+
+def process_data(partition, PATH):
+    """
+    Processes the data for the given partition.
+
+    Args:
+        partition (str): The partition type (e.g., 'calibration', 'testing', 'forecasting').
+        PTAH (Path): The base path for data.
+
+    Returns:
+        tuple: DataFrame and volume array for the partition.
+    """
+    df, vol = process_partition_data(partition, PATH)
+    return df, vol
