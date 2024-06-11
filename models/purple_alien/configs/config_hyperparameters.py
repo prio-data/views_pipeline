@@ -8,7 +8,7 @@ def get_hp_config():
     'scheduler' : 'WarmupDecay', #  'CosineAnnealingLR' 'OneCycleLR'
     'total_hidden_channels' : 32,
     'min_events' : 5,
-    'samples': 600, # 600 for actual trainnig, 10 for debug
+    'samples': 300, # 600 for actual trainnig, 10 for debug
     'batch_size': 3, 
     'dropout_rate' : 0.125,
     'learning_rate' :  0.001,
