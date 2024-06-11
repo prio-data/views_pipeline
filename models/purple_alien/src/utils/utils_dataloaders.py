@@ -19,6 +19,7 @@ import pandas as pd
 
 #from config_partitioner import get_partitioner_dict
 from set_partition import get_partitioner_dict
+from config_input_data import get_input_data_config
 
 def get_views_date(partition):
 
@@ -26,16 +27,18 @@ def get_views_date(partition):
 
     print('Beginning file download through viewser...')
 
-    queryset_base = (Queryset("simon_tests", "priogrid_month")
-        .with_column(Column("ln_sb_best", from_table = "ged2_pgm", from_column = "ged_sb_best_count_nokgi").transform.ops.ln().transform.missing.replace_na())
-        .with_column(Column("ln_ns_best", from_table = "ged2_pgm", from_column = "ged_ns_best_count_nokgi").transform.ops.ln().transform.missing.replace_na())
-        .with_column(Column("ln_os_best", from_table = "ged2_pgm", from_column = "ged_os_best_count_nokgi").transform.ops.ln().transform.missing.replace_na())
-        .with_column(Column("month", from_table = "month", from_column = "month"))
-        .with_column(Column("year_id", from_table = "country_year", from_column = "year_id"))
-        .with_column(Column("c_id", from_table = "country_year", from_column = "country_id"))
-        .with_column(Column("col", from_table = "priogrid", from_column = "col"))
-        .with_column(Column("row", from_table = "priogrid", from_column = "row")))
+    queryset_base = get_input_data_config()
 
+#    queryset_base = (Queryset("simon_tests", "priogrid_month")
+#        .with_column(Column("ln_sb_best", from_table = "ged2_pgm", from_column = "ged_sb_best_count_nokgi").transform.ops.ln().transform.missing.replace_na())
+#        .with_column(Column("ln_ns_best", from_table = "ged2_pgm", from_column = "ged_ns_best_count_nokgi").transform.ops.ln().transform.missing.replace_na())
+#        .with_column(Column("ln_os_best", from_table = "ged2_pgm", from_column = "ged_os_best_count_nokgi").transform.ops.ln().transform.missing.replace_na())
+#        .with_column(Column("month", from_table = "month", from_column = "month"))
+#        .with_column(Column("year_id", from_table = "country_year", from_column = "year_id"))
+#        .with_column(Column("c_id", from_table = "country_year", from_column = "country_id"))
+#        .with_column(Column("col", from_table = "priogrid", from_column = "col"))
+#        .with_column(Column("row", from_table = "priogrid", from_column = "row")))
+#
 
     df = queryset_base.publish().fetch()
     df.reset_index(inplace = True)
