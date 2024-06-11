@@ -21,10 +21,6 @@ sys.path.insert(0, str(Path(*[i for i in PATH.parts[:PATH.parts.index("views_pip
 from set_path import setup_project_paths
 setup_project_paths(PATH)
 
-# Import necessary functions
-from config_hyperparameters import get_hp_config
-from utils_dataloaders import get_views_date, df_to_vol, process_partition_data
-
 if __name__ == "__main__":
     # Parse CLI arguments
     args = parse_args()
