@@ -29,6 +29,7 @@ def get_views_date(partition):
 
     queryset_base = get_input_data_config()
 
+# old viewser 5 code
 #    queryset_base = (Queryset("simon_tests", "priogrid_month")
 #        .with_column(Column("ln_sb_best", from_table = "ged2_pgm", from_column = "ged_sb_best_count_nokgi").transform.ops.ln().transform.missing.replace_na())
 #        .with_column(Column("ln_ns_best", from_table = "ged2_pgm", from_column = "ged_ns_best_count_nokgi").transform.ops.ln().transform.missing.replace_na())
