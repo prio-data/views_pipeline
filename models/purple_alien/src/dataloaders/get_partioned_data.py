@@ -38,7 +38,7 @@ if __name__ == "__main__":
         print("Error: No partition flag provided. Use -c, -t, and/or -f.")
         sys.exit(1)
 
-    print(f"Partitions to be processed: {', '.join(partitions_to_process)}")
+    print(f"Partitions to be fetched from viewser: {', '.join(partitions_to_process)}")
 
     # Process calibration data if flag is set
     if args.calibration:
