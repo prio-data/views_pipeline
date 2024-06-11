@@ -115,7 +115,7 @@ def df_to_vol(df):
 def process_partition_data(partition, PATH):
 
     """
-    Processes data for a given partition by ensuring the existence of necessary directories,
+    Fetches data for a given partition by ensuring the existence of necessary directories,
     downloading or loading existing data, and creating or loading a volume.
 
     Args:
@@ -160,18 +160,18 @@ def process_partition_data(partition, PATH):
     return df, vol
 
 def parse_args():
-    parser = argparse.ArgumentParser(description='Process data for different partitions')
+    parser = argparse.ArgumentParser(description='Fetch data for different partitions')
 
     # Add binary flags for each partition
-    parser.add_argument('-c', '--calibration', action='store_true', help='Process calibration data')
-    parser.add_argument('-t', '--testing', action='store_true', help='Process testing data')
-    parser.add_argument('-f', '--forecasting', action='store_true', help='Process forecasting data')
+    parser.add_argument('-c', '--calibration', action='store_true', help='Fetch calibration data from viewser')
+    parser.add_argument('-t', '--testing', action='store_true', help='Fetch testing data from viewser')
+    parser.add_argument('-f', '--forecasting', action='store_true', help='Fetch forecasting data from viewser')
 
     return parser.parse_args()
 
 def process_data(partition, PATH):
     """
-    Processes the data for the given partition.
+    Fetch the data for the given partition from viewser.
 
     Args:
         partition (str): The partition type (e.g., 'calibration', 'testing', 'forecasting').
