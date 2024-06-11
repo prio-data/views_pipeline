@@ -13,9 +13,9 @@ def get_input_data_config():
 
     # VIEWSER 6
     queryset_base = (Queryset("purple_alien", "priogrid_month")
-        .with_column(Column("ln_sb_best", from_loa = "ged2_pgm", from_column = "ged_sb_best_count_nokgi").transform.ops.ln().transform.missing.replace_na())
-        .with_column(Column("ln_ns_best", from_loa = "ged2_pgm", from_column = "ged_ns_best_count_nokgi").transform.ops.ln().transform.missing.replace_na())
-        .with_column(Column("ln_os_best", from_loa = "ged2_pgm", from_column = "ged_os_best_count_nokgi").transform.ops.ln().transform.missing.replace_na())
+        .with_column(Column("ln_sb_best", from_loa = "priogrid_month", from_column = "ged_sb_best_count_nokgi").transform.ops.ln().transform.missing.replace_na())
+        .with_column(Column("ln_ns_best", from_loa = "priogrid_month", from_column = "ged_ns_best_count_nokgi").transform.ops.ln().transform.missing.replace_na())
+        .with_column(Column("ln_os_best", from_loa = "priogrid_month", from_column = "ged_os_best_count_nokgi").transform.ops.ln().transform.missing.replace_na())
         .with_column(Column("month", from_loa = "month", from_column = "month"))
         .with_column(Column("year_id", from_loa = "country_year", from_column = "year_id"))
         .with_column(Column("c_id", from_loa = "country_year", from_column = "country_id"))
