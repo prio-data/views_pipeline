@@ -43,20 +43,20 @@ if __name__ == "__main__":
     # Process calibration data if flag is set
     if args.calibration:
         df_cal, vol_cal = process_data('calibration', PATH)
-        print(f"Processed calibration data:")
+        print(f"Fetch calibration data from viewser:")
         print(f"DataFrame shape: {df_cal.shape if df_cal is not None else 'None'}")
         print(f"Volume shape: {vol_cal.shape if vol_cal is not None else 'None'}")
 
     # Process testing data if flag is set
     if args.testing:
         df_test, vol_test = process_data('testing', PATH)
-        print(f"Processed testing data:")
+        print(f"Fetch testing data from viewser:")
         print(f"DataFrame shape: {df_test.shape if df_test is not None else 'None'}")
         print(f"Volume shape: {vol_test.shape if vol_test is not None else 'None'}")
 
     # Process forecasting data if flag is set
     if args.forecasting:
         df_forecast, vol_forecast = process_data('forecasting', PATH)
-        print(f"Processed forecasting data:")
+        print(f"Fetch forecasting data from viewser:")
         print(f"DataFrame shape: {df_forecast.shape if df_forecast is not None else 'None'}")
         print(f"Volume shape: {vol_forecast.shape if vol_forecast is not None else 'None'}")
