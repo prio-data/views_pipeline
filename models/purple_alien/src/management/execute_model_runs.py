@@ -22,9 +22,9 @@ def execute_sweep_run(args):
     sweep_config['parameters']['run_type'] = {'value' : "calibration"} # I see no reason to run the other types in the sweep
     sweep_config['parameters']['sweep'] = {'value' : True}
 
-    sweep_id = wandb.sweep(sweep_config, project=project) # and then you put in the right project name
+    sweep_id = wandb.sweep(sweep_config, project=project, entity='views_pipeline') # entity is the team name
 
-    wandb.agent(sweep_id, execute_model_tasks)
+    wandb.agent(sweep_id, execute_model_tasks, entity='views_pipeline') # entity is the team name - Seem like it needs to be botb in sweep_id and agent
 
 
 def execute_single_run(args):
