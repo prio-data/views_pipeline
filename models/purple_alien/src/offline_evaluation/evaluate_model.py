@@ -1,6 +1,9 @@
+import os
+
 import numpy as np
 import pickle
 import time
+import functools
 
 import torch
 import torch.nn as nn
@@ -20,107 +23,41 @@ from pathlib import Path
 
 PATH = Path(__file__)
 sys.path.insert(0, str(Path(*[i for i in PATH.parts[:PATH.parts.index("views_pipeline")+1]]) / "common_utils")) # PATH_COMMON_UTILS  
-from set_path import setup_project_paths
+from set_path import setup_project_paths, setup_data_paths
 setup_project_paths(PATH)
 
+
+from utils import choose_model, choose_loss, choose_sheduler, get_train_tensors, get_full_tensor, apply_dropout, execute_freeze_h_option, get_log_dict, train_log, init_weights, get_data
+from utils_prediction import predict, sample_posterior
+from artifacts_utils import get_latest_model_artifact
+from utils_wandb import log_wandb_monthly_metrics
+from config_sweep import get_swep_config
 from config_hyperparameters import get_hp_config
 
-from utils import choose_model, choose_loss, choose_sheduler, get_train_tensors, get_test_tensor, apply_dropout, execute_freeze_h_option, get_log_dict, train_log, init_weights, get_data
-#from config_sweep import get_swep_config
-from config_hyperparameters import get_hp_config
 
 
-def test(model, test_tensor, time_steps, config, device): # should be called eval/validation
+# should be called evaluate_posterior.... 
+def evaluate_posterior(model, views_vol, config, device):
 
     """
-    Function to test the model on the hold-out test set.
-    The function takes the model, the test tensor, the number of time steps to predict, the config, and the device as input.
-    The function returns **two lists of numpy arrays**. One list of the predicted magnitudes and one list of the predicted probabilities.
-    Each array is of the shap **fx180x180**, where f is the number of features (currently 3 types of violence).
-    """
+    Samples from and evaluates the posterior distribution of the model.
 
-    model.eval() # remove to allow dropout to do its thing as a poor mans ensamble. but you need a high dropout..
-    model.apply(apply_dropout)
-
-    # wait until you know if this work as usually
-    pred_np_list = []
-    pred_class_np_list = []
-
-    h_tt = model.init_hTtime(hidden_channels = model.base, H = 180, W  = 180).float().to(device) # should infere the dim...
-    seq_len = test_tensor.shape[1] # og nu køre eden bare helt til roden
-    print(f'\t\t\t\t sequence length: {seq_len}', end= '\r')
-
-
-    for i in range(seq_len-1): # need to get hidden state... You are predicting one step ahead so the -1
-
-        if i < seq_len-1-time_steps: # take form the test set
-
-            print(f'\t\t\t\t\t\t\t in sample. month: {i+1}', end= '\r')
-
-            t0 = test_tensor[:, i, :, :, :].to(device) # THIS IS ALL YOU NEED TO PUT ON DEVICE!!!!!!!!!
-            t1_pred, t1_pred_class, h_tt = model(t0, h_tt)
-
-        else: # take the last t1_pred
-            print(f'\t\t\t\t\t\t\t Out of sample. month: {i+1}', end= '\r')
-            t0 = t1_pred.detach()
-
-            t1_pred, t1_pred_class, h_tt = execute_freeze_h_option(config, model, t0, h_tt)
-
-            t1_pred_class = torch.sigmoid(t1_pred_class) # there is no sigmoid in the model (the loss takes logits) so you need to do it here.
-            pred_np_list.append(t1_pred.cpu().detach().numpy().squeeze()) # squeeze to remove the batch dim. So this is a list of 3x180x180 arrays
-            pred_class_np_list.append(t1_pred_class.cpu().detach().numpy().squeeze()) # squeeze to remove the batch dim. So this is a list of 3x180x180 arrays
-
-    return pred_np_list, pred_class_np_list
-
-
-
-def sample_posterior(model, views_vol, config, device): 
-
-    """
-    Samples from the posterior distribution of Hydranet.
+    This function evaluates the posterior distribution of the model, computes metrics
+    such as mean squared error, average precision, AUC, and Brier score, and logs the results.
+    If not running a sweep, it also pickles and saves the posterior, metrics, and test volumes.
 
     Args:
-    - model: HydraNet
-    - views_vol (torch.Tensor): Input views data.
-    - config: Configuration file
-    - device: Device for computations.
-
-    Returns:
-    - tuple: (posterior_magnitudes, posterior_probabilities, out_of_sample_data)
+        model: The trained model to evaluate.
+        views_vol: The input data volume.
+        config: Configuration object containing parameters and settings.
+        device: The device (CPU or GPU) on which to run the evaluation.    
     """
 
-    print(f'Drawing {config.test_samples} posterior samples...')
-
-    # Why do you put this test tensor on device here??!? 
-    test_tensor = get_test_tensor(views_vol, config, device) # better cal thiis evel tensor
-    out_of_sample_vol = test_tensor[:,-config.time_steps:,:,:,:].cpu().numpy() # From the test tensor get the out-of-sample time_steps. 
-
-    posterior_list = []
-    posterior_list_class = []
-
-    for i in range(config.test_samples): # number of posterior samples to draw - just set config.test_samples, no? 
-
-        # test_tensor is need on device here, but maybe just do it inside the test function? 
-        pred_np_list, pred_class_np_list = test(model, test_tensor, config.time_steps, config, device) # Returns two lists of numpy arrays (shape 3/180/180). One list of the predicted magnitudes and one list of the predicted probabilities.
-        posterior_list.append(pred_np_list)
-        posterior_list_class.append(pred_class_np_list)
-
-        #if i % 10 == 0: # print steps 10
-        print(f'Posterior sample: {i}/{config.test_samples}', end = '\r')
-
-    return posterior_list, posterior_list_class, out_of_sample_vol, test_tensor
-
-
-
-def get_posterior(model, views_vol, config, device):
-
-    """
-    Function to get the posterior distribution of Hydranet.
-    """
-
-    posterior_list, posterior_list_class, out_of_sample_vol, test_tensor = sample_posterior(model, views_vol, config, device)
+    posterior_list, posterior_list_class, out_of_sample_vol, full_tensor = sample_posterior(model, views_vol, config, device)
 
     # YOU ARE MISSING SOMETHING ABOUT FEATURES HERE WHICH IS WHY YOU REPORTED AP ON WandB IS BIASED DOWNWARDS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!RYRYRYRYERYERYR
+    # need to check you "offline" evaluation script which is correctlly implemented before you use this function for forecasting.
+    
     # Get mean and std
     mean_array = np.array(posterior_list).mean(axis = 0) # get mean for each month!
     std_array = np.array(posterior_list).std(axis = 0)
@@ -146,14 +83,16 @@ def get_posterior(model, views_vol, config, device):
         y_true = out_of_sample_vol[:,i].reshape(-1)  # nu 180x180 . dim 0 is time
         y_true_binary = (y_true > 0) * 1
 
+        # log the metrics to WandB - but why here? 
+        log_dict = get_log_dict(i, mean_array, mean_class_array, std_array, std_class_array, out_of_sample_vol, config)# so at least it gets reported sep.
+
+        wandb.log(log_dict)
+
+        # this could be a function in utils_wandb or in common_utils... 
         mse = mean_squared_error(y_true, y_score)  
         ap = average_precision_score(y_true_binary, y_score_prob)
         auc = roc_auc_score(y_true_binary, y_score_prob)
         brier = brier_score_loss(y_true_binary, y_score_prob)
-
-        log_dict = get_log_dict(i, mean_array, mean_class_array, std_array, std_class_array, out_of_sample_vol, config)# so at least it gets reported sep.
-
-        wandb.log(log_dict)
 
         out_sample_month_list.append(i) # only used for pickle...
         mse_list.append(mse)
@@ -161,96 +100,135 @@ def get_posterior(model, views_vol, config, device):
         auc_list.append(auc)
         brier_list.append(brier)
 
-    # DUMP
+
+    if not config.sweep:
+            
+        _ , _, PATH_GENERATED = setup_data_paths(PATH)
+
+        # if the path does not exist, create it - maybe doable with Pathlib, but this is a well recognized way of doing it.
+        #if not os.path.exists(PATH_GENERATED):
+        #    os.makedirs(PATH_GENERATED)
+
+        # Pathlib alternative 
+        Path(PATH_GENERATED).mkdir(parents=True, exist_ok=True)
+
+        # print for debugging
+        print(f'PATH to generated data: {PATH_GENERATED}')
+
+        # pickle the posterior dict, metric dict, and test vol
+        # Should be time_steps and run_type in the name....
+
+        posterior_dict = {'posterior_list' : posterior_list, 'posterior_list_class': posterior_list_class, 'out_of_sample_vol' : out_of_sample_vol}
+
+        metric_dict = {'out_sample_month_list' : out_sample_month_list, 'mse_list': mse_list,
+                        'ap_list' : ap_list, 'auc_list': auc_list, 'brier_list' : brier_list}
+
+
+        # Note: we are using the model_time_stamp from the model artifact to denote the time stamp for the pkl files
+        # This is to ensure that the pkl files are easily identifiable and associated with the correct model artifact
+        # But it also means that running evaluation on the same model artifact multiple times will overwrite the pkl files
+        # I think this is fine, but we should think about cases where we might want to evaluate the same model artifact multiple times - maybe for robustiness checks or something for publication. 
+
+        with open(f'{PATH_GENERATED}/posterior_dict_{config.time_steps}_{config.run_type}_{config.model_time_stamp}.pkl', 'wb') as file:
+            pickle.dump(posterior_dict, file)       
+
+        with open(f'{PATH_GENERATED}/metric_dict_{config.time_steps}_{config.run_type}_{config.model_time_stamp}.pkl', 'wb') as file:
+            pickle.dump(metric_dict, file)
+
+        with open(f'{PATH_GENERATED}/test_vol_{config.time_steps}_{config.run_type}_{config.model_time_stamp}.pkl', 'wb') as file: # make it numpy
+            pickle.dump(full_tensor.cpu().numpy(), file)
+
+        print('Posterior dict, metric dict and test vol pickled and dumped!')
+
+
+    else:
+        print('Running sweep. NO posterior dict, metric dict, or test vol pickled+dumped')
+
+    # could be a function in utils_wandb....
+    #wandb.log({f"{config.time_steps}month_mean_squared_error": np.mean(mse_list)})
+    #wandb.log({f"{config.time_steps}month_average_precision_score": np.mean(ap_list)})
+    #wandb.log({f"{config.time_steps}month_roc_auc_score": np.mean(auc_list)})
+    #wandb.log({f"{config.time_steps}month_brier_score_loss":np.mean(brier_list)})
+
+    log_wandb_monthly_metrics(config, mse_list, ap_list, auc_list, brier_list)
+
+
+
+def evaluate_model_artifact(config, device, views_vol, PATH_ARTIFACTS, artifact_name=None):
+#def handle_evaluation(config, device, views_vol, PATH_ARTIFACTS, artifact_name=None):
+
+    """
+    Loads a model artifact and evaluates it given the respective trian and eval set within each data partition (Calibration, Testing).
+
+    This function handles the loading of a model artifact either by using a specified artifact name
+    or by selecting the latest model artifact based on the run type (default). It then evaluates the model's
+    posterior distribution and prints the result.
+
+    Args:
+        config: Configuration object containing parameters and settings.
+        device: The device to run the model on (CPU or GPU).
+        views_vol: The tensor containing the input data for evaluation.
+        PATH_ARTIFACTS: The path where model artifacts are stored.
+        artifact_name (optional): The specific name of the model artifact to load. Defaults to None.
+
+    Raises:
+        FileNotFoundError: If the specified or default model artifact cannot be found.
+
+    """
+
+    # if an artifact name is provided through the CLI, use it. Otherwise, get the latest model artifact based on the run type
+    if artifact_name:
+        print(f"Using (non-default) artifact: {artifact_name}")
         
-    # computerome dump location
-    #dump_location = '/home/projects/ku_00017/data/generated/conflictNet/' # should be in config
-
-    # fimbulthul dump location
-    dump_location = config.path_generated_data #'/home/simmaa/HydraNet_001/data/generated/' # should be in config <---------------------------------------------------------------------------------------------------
-
+        # If the pytorch artifact lacks the file extension, add it. This is obviously specific to pytorch artifacts, but we are deep in the model code here, so it is fine.
+        if not artifact_name.endswith('.pt'):
+            artifact_name += '.pt'
         
-    posterior_dict = {'posterior_list' : posterior_list, 'posterior_list_class': posterior_list_class, 'out_of_sample_vol' : out_of_sample_vol}
+        # Define the full (model specific) path for the artifact
+        #PATH_MODEL_ARTIFACT = os.path.join(PATH_ARTIFACTS, artifact_name)
+
+        # pathlib alternative as per sara's comment
+        PATH_MODEL_ARTIFACT = PATH_ARTIFACTS / artifact_name # PATH_ARTIFACTS is already a Path object
+    
+    else:
+        # use the latest model artifact based on the run type
+        print(f"Using latest (default) run type ({config.run_type}) specific artifact")
         
-    metric_dict = {'out_sample_month_list' : out_sample_month_list, 'mse_list': mse_list,
-                    'ap_list' : ap_list, 'auc_list': auc_list, 'brier_list' : brier_list}
+        # Get the latest model artifact based on the run type and the (models specific) artifacts path
+        PATH_MODEL_ARTIFACT = get_latest_model_artifact(PATH_ARTIFACTS, config.run_type)
 
-    with open(f'{dump_location}posterior_dict_{config.time_steps}_{config.model_type}.pkl', 'wb') as file:
-        pickle.dump(posterior_dict, file)       
+    # Check if the model artifact exists - if not, raise an error
+    #if not os.path.exists(PATH_MODEL_ARTIFACT):
+    #    raise FileNotFoundError(f"Model artifact not found at {PATH_MODEL_ARTIFACT}")
+    
+    # Pathlib alternative as per sara's comment
+    if not PATH_MODEL_ARTIFACT.exists(): # PATH_MODEL_ARTIFACT is already a Path object
+        raise FileNotFoundError(f"Model artifact not found at {PATH_MODEL_ARTIFACT}")
 
-    with open(f'{dump_location}metric_dict_{config.time_steps}_{config.model_type}.pkl', 'wb') as file:
-        pickle.dump(metric_dict, file)
-
-    with open(f'{dump_location}test_vol_{config.time_steps}_{config.model_type}.pkl', 'wb') as file: # make it numpy
-        pickle.dump(test_tensor.cpu().numpy(), file)
-
-    print('Posterior dict, metric dict and test vol pickled and dumped!')
-
-    wandb.log({f"{config.time_steps}month_mean_squared_error": np.mean(mse_list)})
-    wandb.log({f"{config.time_steps}month_average_precision_score": np.mean(ap_list)})
-    wandb.log({f"{config.time_steps}month_roc_auc_score": np.mean(auc_list)})
-    wandb.log({f"{config.time_steps}month_brier_score_loss":np.mean(brier_list)})
+    # load the model
+    model = torch.load(PATH_MODEL_ARTIFACT)
+    
+    # get the exact model date_time stamp for the pkl files made in the evaluate_posterior from evaluation.py
+    #model_time_stamp = os.path.basename(PATH_MODEL_ARTIFACT)[-18:-3] # 18 is the length of the timestamp string + ".pt", and -3 is to remove the .pt file extension. a bit hardcoded, but very simple and should not change.
 
 
-def model_pipeline(config = None, project = None):
+    # Pathlib alternative as per sara's comment
+    model_time_stamp = PATH_MODEL_ARTIFACT.stem[-15:] # 15 is the length of the timestamp string. This is more robust than the os.path.basename solution above since it does not rely on the file extension.
 
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    print(device)
+    # print for debugging
+    print(f"model_time_stamp: {model_time_stamp}")
 
-    # tell wandb to get started
-    with wandb.init(project=project, entity="nornir", config=config): # project and config ignored when runnig a sweep
+    # add to config for logging and conciseness
+    config.model_time_stamp = model_time_stamp
 
-        wandb.define_metric("monthly/out_sample_month")
-        wandb.define_metric("monthly/*", step_metric="monthly/out_sample_month")
-
-        # access all HPs through wandb.config, so logging matches execution!
-        config = wandb.config
-
-        views_vol = get_data(config)
-
-        # computerome artifacts path
-        #artifacts_path = f"/home/projects/ku_00017/people/simpol/scripts/conflictNet/artifacts"
-        
-        # fimbulthul artifacts path
-        artifacts_path = config.path_artifacts # f"/home/simmaa/HydraNet_001/artifacts" # should be in config <---------------------------------------------------------------------------------------------------
-
-        model = torch.load(f"{artifacts_path}/calibration_model.pt") # you rpolly need configs for both train and test...
-
-        get_posterior(model, views_vol, config, device) # actually since you give config now you do not need: time_steps, run_type, is_sweep,
-        print('Done testing')
-
-        return(model)
+    # evaluate the model posterior distribution
+    evaluate_posterior(model, views_vol, config, device)
+    
+    # done. 
+    print('Done testing') 
 
 
-if __name__ == "__main__":
 
-    wandb.login()
-
-    time_steps_dict = {'a':12,
-                       'b':24,
-                       'c':36,
-                       'd':48,}
-
-    time_steps = time_steps_dict[input('a) 12 months\nb) 24 months\nc) 36 months\nd) 48 months\nNote: 48 is the current VIEWS standard.\n')]
-
-    model_type_dict = {'a' : 'calibration', 'b' : 'testing'}
-    model_type = model_type_dict[input("a) Calibration\nb) Testing\n")]
-    print(f'Run type: {model_type}\n')
-
-    project = f"imp_new_structure_{model_type}" # temp.
-
-    hyperparameters = get_hp_config()
-
-    hyperparameters['time_steps'] = time_steps
-    hyperparameters['model_type'] = model_type
-    hyperparameters['sweep'] = False
-
-    start_t = time.time()
-
-    model = model_pipeline(config = hyperparameters, project = project)
-
-    end_t = time.time()
-    minutes = (end_t - start_t)/60
-    print(f'Done. Runtime: {minutes:.3f} minutes')
-
-
+# note:
+# Going with the argparser, there is less of a clear reason to have to separate .py files for evaluation sweeps and single models. I think. Let me know if you disagree.
+# naturally its a question of generalization and reusability, and i could see I had a lot of copy paste code between the two scripts.
