@@ -1,14 +1,3 @@
-Just an empty placeholder for now...
-
-
-
-
-
-
-
-OLD STUFF: (maybe delete maybe reuse...)
-
-
 # Ex-ante Hackathon:
 
 + [x] Deployment Strategy

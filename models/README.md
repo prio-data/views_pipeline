@@ -1,0 +1,9 @@
+| model | algorithm | queryset | 
+| -------------------------------------------------- | ------ | ------ |
+| [blank_space](https://github.com/prio-data/views_pipeline/tree/main/models/blank_space) | HurdleRegression | fatalities003_pgm_natsoc |
+| [electric_relaxation](https://github.com/prio-data/views_pipeline/tree/main/models/electric_relaxation) | RandomForestClassifier | escwa001_cflong |
+| [lavender_haze](https://github.com/prio-data/views_pipeline/tree/main/models/lavender_haze) | HurdleRegression | fatalities003_pgm_broad |
+| [orange_pasta](https://github.com/prio-data/views_pipeline/tree/main/models/orange_pasta) | LGBMRegressor | fatalities003_pgm_baseline |
+| [purple_alien](https://github.com/prio-data/views_pipeline/tree/main/models/purple_alien) | HydraNet | simon_tests |
+| [wildest_dream](https://github.com/prio-data/views_pipeline/tree/main/models/wildest_dream) | HurdleRegression | fatalities003_pgm_conflict_sptime_dist |
+| [yellow_pikachu](https://github.com/prio-data/views_pipeline/tree/main/models/yellow_pikachu) | XGBRegressor | fatalities003_pgm_conflict_treelag |

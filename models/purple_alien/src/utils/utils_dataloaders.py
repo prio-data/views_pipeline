@@ -2,6 +2,7 @@
 
 import sys
 from pathlib import Path
+import argparse
 
 PATH = Path(__file__)
 sys.path.insert(0, str(Path(*[i for i in PATH.parts[:PATH.parts.index("views_pipeline")+1]]) / "common_utils")) # PATH_COMMON_UTILS  
@@ -15,8 +16,10 @@ import os
 import numpy as np
 import pandas as pd
 
+
 #from config_partitioner import get_partitioner_dict
 from set_partition import get_partitioner_dict
+from config_input_data import get_input_data_config
 
 def get_views_date(partition):
 
@@ -24,16 +27,19 @@ def get_views_date(partition):
 
     print('Beginning file download through viewser...')
 
-    queryset_base = (Queryset("simon_tests", "priogrid_month")
-        .with_column(Column("ln_sb_best", from_table = "ged2_pgm", from_column = "ged_sb_best_count_nokgi").transform.ops.ln().transform.missing.replace_na())
-        .with_column(Column("ln_ns_best", from_table = "ged2_pgm", from_column = "ged_ns_best_count_nokgi").transform.ops.ln().transform.missing.replace_na())
-        .with_column(Column("ln_os_best", from_table = "ged2_pgm", from_column = "ged_os_best_count_nokgi").transform.ops.ln().transform.missing.replace_na())
-        .with_column(Column("month", from_table = "month", from_column = "month"))
-        .with_column(Column("year_id", from_table = "country_year", from_column = "year_id"))
-        .with_column(Column("c_id", from_table = "country_year", from_column = "country_id"))
-        .with_column(Column("col", from_table = "priogrid", from_column = "col"))
-        .with_column(Column("row", from_table = "priogrid", from_column = "row")))
+    queryset_base = get_input_data_config()
 
+# old viewser 5 code
+#    queryset_base = (Queryset("simon_tests", "priogrid_month")
+#        .with_column(Column("ln_sb_best", from_table = "ged2_pgm", from_column = "ged_sb_best_count_nokgi").transform.ops.ln().transform.missing.replace_na())
+#        .with_column(Column("ln_ns_best", from_table = "ged2_pgm", from_column = "ged_ns_best_count_nokgi").transform.ops.ln().transform.missing.replace_na())
+#        .with_column(Column("ln_os_best", from_table = "ged2_pgm", from_column = "ged_os_best_count_nokgi").transform.ops.ln().transform.missing.replace_na())
+#        .with_column(Column("month", from_table = "month", from_column = "month"))
+#        .with_column(Column("year_id", from_table = "country_year", from_column = "year_id"))
+#        .with_column(Column("c_id", from_table = "country_year", from_column = "country_id"))
+#        .with_column(Column("col", from_table = "priogrid", from_column = "col"))
+#        .with_column(Column("row", from_table = "priogrid", from_column = "row")))
+#
 
     df = queryset_base.publish().fetch()
     df.reset_index(inplace = True)
@@ -107,16 +113,14 @@ def df_to_vol(df):
     return vol
 
 
-def process_partition_data(partition, get_views_date, df_to_vol, PATH):
+def process_partition_data(partition, PATH):
 
     """
-    Processes data for a given partition by ensuring the existence of necessary directories,
+    Fetches data for a given partition by ensuring the existence of necessary directories,
     downloading or loading existing data, and creating or loading a volume.
 
     Args:
         partition (str): The partition to process, e.g., 'calibration', 'forecasting', 'testing'.
-        get_views_date (function): Function to download the VIEWSER data.
-        df_to_vol (function): Function to convert a DataFrame to a volume.
 
     Returns:
         tuple: A tuple containing the DataFrame `df` and the volume `vol`.
@@ -154,4 +158,28 @@ def process_partition_data(partition, get_views_date, df_to_vol, PATH):
 
     print('Done')
 
+    return df, vol
+
+def parse_args():
+    parser = argparse.ArgumentParser(description='Fetch data for different partitions')
+
+    # Add binary flags for each partition
+    parser.add_argument('-c', '--calibration', action='store_true', help='Fetch calibration data from viewser')
+    parser.add_argument('-t', '--testing', action='store_true', help='Fetch testing data from viewser')
+    parser.add_argument('-f', '--forecasting', action='store_true', help='Fetch forecasting data from viewser')
+
+    return parser.parse_args()
+
+def process_data(partition, PATH):
+    """
+    Fetch the data for the given partition from viewser.
+
+    Args:
+        partition (str): The partition type (e.g., 'calibration', 'testing', 'forecasting').
+        PTAH (Path): The base path for data.
+
+    Returns:
+        tuple: DataFrame and volume array for the partition.
+    """
+    df, vol = process_partition_data(partition, PATH)
     return df, vol
