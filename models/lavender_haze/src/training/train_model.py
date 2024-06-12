@@ -6,7 +6,7 @@ PATH = Path(__file__)
 from set_path import setup_project_paths, setup_data_paths, setup_artifacts_paths
 setup_project_paths(PATH)
 
-from lightgbm import LGBMClassifier, LGBMRegressor
+from lightgbm import LGBMRegressor
 
 from views_partitioning.data_partitioner import DataPartitioner
 from views_forecasts.extensions import *
@@ -16,45 +16,37 @@ from hurdle_model import HurdleRegression
 from get_data import get_partition_data
 
 
-def train(model_config, para_config):
-    print("Training...")
-    if not model_config["sweep"]:
-        _, PATH_RAW, _, _ = setup_data_paths(PATH)
-        PATH_ARTIFACTS = setup_artifacts_paths(PATH)
-        dataset = pd.read_parquet(PATH_RAW / 'raw.parquet')
-        if model_config["algorithm"] == "HurdleRegression":
-            model = HurdleRegression(clf_name=model_config["clf_name"], reg_name=model_config["reg_name"], clf_params=para_config["clf"], reg_params=para_config["reg"])
-        else:
-            model = globals()[model_config["algorithm"]](**para_config)
-        # print(model)
-            
-        # Train partition
-        try:
-            stepshifter_model_calib = pd.read_pickle(PATH_ARTIFACTS / "model_calib_partition.pkl")
-        except:
-            stepshifter_model_calib = stepshift_training(model_config, "calib", model, get_partition_data(dataset, "calibration"))
-            stepshifter_model_calib.save(PATH_ARTIFACTS /"model_calib_partition.pkl")
+def get_model(model_config, para_config):
+    if model_config["algorithm"] == "HurdleRegression":
+        model = HurdleRegression(clf_name=model_config["clf_name"], reg_name=model_config["reg_name"],
+                                 clf_params=para_config["clf"], reg_params=para_config["reg"])
+    else:
+        model = globals()[model_config["algorithm"]](**para_config)
+    # print(model)
+    return model
 
-        # Test partition
-        try:
-            stepshifter_model_test = pd.read_pickle(PATH_ARTIFACTS / "model_test_partition.pkl")
-        except:
-            stepshifter_model_test = stepshift_training(model_config, "test", model, get_partition_data(dataset, "testing"))
-            stepshifter_model_test.save(PATH_ARTIFACTS / "model_test_partition.pkl")
+def train_model(model, model_config):
+    _, PATH_RAW, _, _ = setup_data_paths(PATH)
+    PATH_ARTIFACTS = setup_artifacts_paths(PATH)
+    dataset = pd.read_parquet(PATH_RAW / 'raw.parquet')
+    run_type = model_config['run_type']
 
-        # Future partition
+    if model_config["sweep"]:
+        stepshift_model = stepshift_training(model_config, run_type, model, get_partition_data(dataset, run_type))
+    else:
         try:
-            stepshifter_model_future = pd.read_pickle(PATH_ARTIFACTS / "model_forecast_partition.pkl")
+            stepshift_model = pd.read_pickle(PATH_ARTIFACTS / f"model_{run_type}_partition.pkl")
         except:
-            stepshifter_model_future = stepshift_training(model_config, "forecast", model, get_partition_data(dataset, "forecasting"))
-            stepshifter_model_future.save(PATH_ARTIFACTS / "model_forecast_partition.pkl")
+            stepshift_model = stepshift_training(model_config, run_type, model, get_partition_data(dataset, run_type))
+            stepshift_model.save(PATH_ARTIFACTS / f"model_{run_type}_partition.pkl")
+    return stepshift_model
 
 
 def stepshift_training(model_config, partition_name, model, dataset):
     steps = model_config["steps"]
     target = model_config["depvar"]
     partition = DataPartitioner({partition_name: model_config[f"{partition_name}_partitioner_dict"]})
-    stepshifter_def = StepshiftedModels(model, steps, target)
-    stepshifter_model = ViewsRun(partition, stepshifter_def)
-    stepshifter_model.fit(partition_name, "train", dataset)
-    return stepshifter_model
+    stepshift_def = StepshiftedModels(model, steps, target)
+    stepshift_model = ViewsRun(partition, stepshift_def)
+    stepshift_model.fit(partition_name, "train", dataset)
+    return stepshift_model
