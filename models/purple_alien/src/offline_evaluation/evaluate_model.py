@@ -36,7 +36,7 @@ from config_hyperparameters import get_hp_config
 
 
 
-# should be called evaluate_posterior.... 
+# Why is this not in the utils_prediction.py file? 
 def evaluate_posterior(model, views_vol, config, device):
 
     """
