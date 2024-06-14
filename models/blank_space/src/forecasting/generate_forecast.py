@@ -15,7 +15,7 @@ from get_data import get_partition_data
 def forecast_model(model_config):
     print('Predicting...')
 
-    _, PATH_RAW, _, PATH_GENERATED = setup_data_paths(PATH)
+    PATH_RAW, _, PATH_GENERATED = setup_data_paths(PATH)
     PATH_ARTIFACTS = setup_artifacts_paths(PATH)
     dataset = pd.read_parquet(PATH_RAW / 'raw.parquet')
     try:

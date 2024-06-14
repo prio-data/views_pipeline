@@ -26,7 +26,7 @@ def get_model(model_config, para_config):
     return model
 
 def train_model(model, model_config):
-    _, PATH_RAW, _, _ = setup_data_paths(PATH)
+    PATH_RAW, _, _ = setup_data_paths(PATH)
     PATH_ARTIFACTS = setup_artifacts_paths(PATH)
     dataset = pd.read_parquet(PATH_RAW / 'raw.parquet')
     run_type = model_config['run_type']

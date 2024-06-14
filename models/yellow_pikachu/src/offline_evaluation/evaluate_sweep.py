@@ -23,7 +23,7 @@ from get_data import get_partition_data
 def evaluate_sweep(stepshift_model, model_config):
     print('Evaluating...')
 
-    _, PATH_RAW, _, _ = setup_data_paths(PATH)
+    PATH_RAW, _, _ = setup_data_paths(PATH)
 
     run_type = model_config["run_type"]
     steps = model_config["steps"]
