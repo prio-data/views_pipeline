@@ -402,11 +402,11 @@ def get_full_tensor(views_vol, config, device):
     ln_best_sb_idx = config.first_feature_idx # 5 = ln_best_sb
     last_feature_idx = ln_best_sb_idx + config.input_channels
 
-    print(f'views_vol shape {views_vol.shape}')
+    print(f'views_vol shape {views_vol.shape}')  # (months, 180, 180, 8)
 
     full_tensor = torch.tensor(views_vol).float().unsqueeze(dim=0).permute(0,1,4,2,3)[:, :, ln_best_sb_idx:last_feature_idx, :, :] 
 
-    print(f'full_tensor shape {full_tensor.shape}')
+    print(f'full_tensor shape {full_tensor.shape}') # (1, months, 3, 180, 180) 
 
     return full_tensor 
 

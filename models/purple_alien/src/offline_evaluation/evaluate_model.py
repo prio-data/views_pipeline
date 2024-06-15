@@ -29,7 +29,7 @@ setup_project_paths(PATH)
 
 from utils import choose_model, choose_loss, choose_sheduler, get_train_tensors, get_full_tensor, apply_dropout, execute_freeze_h_option, get_log_dict, train_log, init_weights, get_data
 from utils_prediction import predict, sample_posterior
-from artifacts_utils import get_latest_model_artifact
+from utils_artifacts import get_latest_model_artifact
 from utils_wandb import log_wandb_monthly_metrics
 from config_sweep import get_swep_config
 from config_hyperparameters import get_hp_config

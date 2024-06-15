@@ -10,7 +10,7 @@ sys.path.insert(0, str(Path(*[i for i in PATH.parts[:PATH.parts.index("views_pip
 from set_path import setup_project_paths, setup_artifacts_paths
 setup_project_paths(PATH)
 
-from cli_parser_utils import parse_args, validate_arguments
+from utils_cli_parser import parse_args, validate_arguments
 #from artifacts_utils import get_latest_model_artifact
 
 #from model_run_handlers import handle_sweep_run, handle_single_run
