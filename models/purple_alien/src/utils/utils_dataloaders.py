@@ -21,57 +21,159 @@ import pandas as pd
 from set_partition import get_partitioner_dict
 from config_input_data import get_input_data_config
 
-def get_views_date(partition):
 
-    """partition can be 'calibration', 'testing' or 'forecasting'"""
+def fetch_data_from_viewser():
+    """
+    Fetches and prepares the initial DataFrame from viewser.
 
+    Returns:
+        pd.DataFrame: The prepared DataFrame with initial processing done.
+    """
     print('Beginning file download through viewser...')
-
     queryset_base = get_input_data_config()
-
-# old viewser 5 code
-#    queryset_base = (Queryset("simon_tests", "priogrid_month")
-#        .with_column(Column("ln_sb_best", from_table = "ged2_pgm", from_column = "ged_sb_best_count_nokgi").transform.ops.ln().transform.missing.replace_na())
-#        .with_column(Column("ln_ns_best", from_table = "ged2_pgm", from_column = "ged_ns_best_count_nokgi").transform.ops.ln().transform.missing.replace_na())
-#        .with_column(Column("ln_os_best", from_table = "ged2_pgm", from_column = "ged_os_best_count_nokgi").transform.ops.ln().transform.missing.replace_na())
-#        .with_column(Column("month", from_table = "month", from_column = "month"))
-#        .with_column(Column("year_id", from_table = "country_year", from_column = "year_id"))
-#        .with_column(Column("c_id", from_table = "country_year", from_column = "country_id"))
-#        .with_column(Column("col", from_table = "priogrid", from_column = "col"))
-#        .with_column(Column("row", from_table = "priogrid", from_column = "row")))
-#
-
     df = queryset_base.publish().fetch()
-    df.reset_index(inplace = True)
-
-    df.rename(columns={'priogrid_gid': 'pg_id'}, inplace= True)
-
+    df.reset_index(inplace=True)
+    df.rename(columns={'priogrid_gid': 'pg_id'}, inplace=True)
     df['in_viewser'] = True
+    return df
 
-    partitioner_dict = get_partitioner_dict(partition) # not that the partion includes both trainin and prediction/validation months
 
+def get_month_range(partition):
+    """
+    Determines the month range based on the partition type.
+
+    Args:
+        partition (str): The partition type ('calibration', 'testing', or 'forecasting').
+
+    Returns:
+        tuple: The start and end month IDs for the partition.
+
+    Raises:
+        ValueError: If partition is not 'calibration', 'testing', or 'forecasting'.
+    """
+    partitioner_dict = get_partitioner_dict(partition)
     month_first = partitioner_dict['train'][0]
 
     if partition == 'forecasting':
-        month_last = partitioner_dict['train'][1] + 1 # no need to get the predict months as these are empty
-
+        month_last = partitioner_dict['train'][1] + 1
     elif partition == 'calibration' or partition == 'testing':
-        month_last = partitioner_dict['predict'][1] + 1 # predict[1] is the last month to predict, so we need to add 1 to include it.
-    
+        month_last = partitioner_dict['predict'][1] + 1
     else:
         raise ValueError('partition should be either "calibration", "testing" or "forecasting"')
 
-    
-    month_range = np.arange(month_first, month_last,1) # predict[1] is the last month to predict, so we need to add 1 to include it.
+    return month_first, month_last
 
-    df = df[df['month_id'].isin(month_range)].copy() # temporal subset
-    
-    df.loc[:,'abs_row'] = df.loc[:,'row'] - df.loc[:,'row'].min() 
-    df.loc[:,'abs_col'] = df.loc[:,'col'] - df.loc[:,'col'].min()
-    df.loc[:,'abs_month'] = df.loc[:,'month_id'] - month_first  
 
+def filter_dataframe_by_month_range(df, month_first, month_last):
+    """
+    Filters the DataFrame to include only the specified month range.
+
+    Args:
+        df (pd.DataFrame): The input DataFrame to be filtered.
+        month_first (int): The first month ID to include.
+        month_last (int): The last month ID to include.
+
+    Returns:
+        pd.DataFrame: The filtered DataFrame.
+    """
+    month_range = np.arange(month_first, month_last)
+    return df[df['month_id'].isin(month_range)].copy()
+
+
+
+def calculate_absolute_indices(df, month_first):
+    """
+    Calculates absolute row, column, and month indices for the DataFrame.
+
+    Args:
+        df (pd.DataFrame): The DataFrame to update.
+        month_first (int): The first month ID in the month range.
+
+    Returns:
+        pd.DataFrame: The updated DataFrame with absolute indices.
+    """
+    df['abs_row'] = df['row'] - df['row'].min()
+    df['abs_col'] = df['col'] - df['col'].min()
+    df['abs_month'] = df['month_id'] - month_first
     return df
 
+
+def get_views_df(partition):
+    """
+    Fetches and processes a DataFrame containing spatial-temporal data for the specified partition type.
+    
+    This function combines fetching data, determining the month range, filtering the DataFrame,
+    and calculating absolute indices based on the provided partition type ('calibration', 'testing', or 'forecasting').
+
+    Args:
+        partition (str): Specifies the type of partition to retrieve. Must be one of 'calibration', 'testing', 
+                         or 'forecasting'.
+                         - 'calibration': Use months specified for calibration.
+                         - 'testing': Use months specified for testing.
+                         - 'forecasting': Use months specified for forecasting future data.
+
+    Returns:
+        pd.DataFrame: A DataFrame filtered and processed to include only the data within the specified partition's
+                      temporal range. The DataFrame includes:
+                      - 'pg_id': Priogrid ID (renamed from 'priogrid_gid').
+                      - 'month_id': Month identifier.
+                      - 'in_viewser': Boolean flag indicating data presence.
+                      - 'abs_row': Absolute row index (row - minimum row).
+                      - 'abs_col': Absolute column index (col - minimum col).
+                      - 'abs_month': Absolute month index (month_id - first month in partition range).
+
+    Raises:
+        ValueError: If `partition` is not one of 'calibration', 'testing', or 'forecasting'.
+    """
+    df = fetch_data_from_viewser()
+    month_first, month_last = get_month_range(partition)
+    df = filter_dataframe_by_month_range(df, month_first, month_last)
+    df = calculate_absolute_indices(df, month_first)
+    return df
+
+
+
+
+
+#def get_views_date(partition):
+#
+#    """partition can be 'calibration', 'testing' or 'forecasting'"""
+#
+#    print('Beginning file download through viewser...')
+#
+#    queryset_base = get_input_data_config()
+#
+#    df = queryset_base.publish().fetch()
+#    df.reset_index(inplace = True)
+#
+#    df.rename(columns={'priogrid_gid': 'pg_id'}, inplace= True)
+#
+#    df['in_viewser'] = True
+#
+#    partitioner_dict = get_partitioner_dict(partition) # not that the partion includes both trainin and prediction/validation months
+#
+#    month_first = partitioner_dict['train'][0]
+#
+#    if partition == 'forecasting':
+#        month_last = partitioner_dict['train'][1] + 1 # no need to get the predict months as these are empty
+#
+#    elif partition == 'calibration' or partition == 'testing':
+#        month_last = partitioner_dict['predict'][1] + 1 # predict[1] is the last month to predict, so we need to add 1 to include it.
+#    
+#    else:
+#        raise ValueError('partition should be either "calibration", "testing" or "forecasting"')
+#
+#    
+#    month_range = np.arange(month_first, month_last,1) # predict[1] is the last month to predict, so we need to add 1 to include it.
+#
+#    df = df[df['month_id'].isin(month_range)].copy() # temporal subset
+#    
+#    df.loc[:,'abs_row'] = df.loc[:,'row'] - df.loc[:,'row'].min() 
+#    df.loc[:,'abs_col'] = df.loc[:,'col'] - df.loc[:,'col'].min()
+#    df.loc[:,'abs_month'] = df.loc[:,'month_id'] - month_first  
+#
+#    return df
+#
 
 def df_to_vol(df):
 
@@ -128,7 +230,7 @@ def process_partition_data(partition, PATH):
     
     PATH_RAW, PATH_PROCESSED, _ = setup_data_paths(PATH)
 
-    path_viewser_data = os.path.join(str(PATH_RAW), f'{partition}_viewser_data.pkl')
+    path_viewser_data = os.path.join(str(PATH_RAW), f'{partition}_viewser_df.pkl') #maby change to df...
     path_vol = os.path.join(str(PATH_PROCESSED), f'{partition}_vol.npy')
 
     # Create the folders if they don't exist
@@ -141,7 +243,7 @@ def process_partition_data(partition, PATH):
         df = pd.read_pickle(path_viewser_data)
     else:
         print('Downloading file...')
-        df = get_views_date(partition)
+        df = get_views_df(partition)
         print(f'Saving file to {path_viewser_data}')
         df.to_pickle(path_viewser_data)
 
