@@ -19,8 +19,10 @@ import pandas as pd
 
 #from config_partitioner import get_partitioner_dict
 from set_partition import get_partitioner_dict
-from config_input_data import get_input_data_config
-from utils_data_conversion import df_to_vol
+from config_input_data import get_input_data_config # this is model specific... this is thi issue.. .
+from utils_df_to_vol_conversion import df_to_vol
+
+
 
 def fetch_data_from_viewser():
     """
@@ -131,46 +133,6 @@ def get_views_df(partition):
     #df = calculate_absolute_indices(df, month_first) # could go in the volume creation function...
     return df
 
-# moved to common_utils/data_conversion_utils.py
-#def df_to_vol(df): # arguably HydraNet or at lest vol specific move to new utlis file
-#
-#    """
-#    Converts a dataframe to a volume.
-#    
-#    Args:
-#        df (pandas.DataFrame): The input dataframe containing the data.
-#
-#    Returns:
-#        numpy.ndarray: The volume representation of the dataframe.
-#    """
-#
-#    month_first = df['month_id'].min() # Jan 1990
-#    month_last =  df['month_id'].max() # minus 1 because the current month is not yet available,
-#
-#    month_range = month_last - month_first + 1
-#    space_range = 180
-#
-#    features_num = 8 # should be inferred from the number of columns in the dataframe... 
-#    
-#    
-#    vol = np.zeros([space_range, space_range, month_range, features_num])
-#    
-#    vol[df['abs_row'], df['abs_col'], df['abs_month'], 0] = df['pg_id']
-#    vol[df['abs_row'], df['abs_col'], df['abs_month'], 1] = df['col'] # this is not what I want, I want the xcoord but...
-#    vol[df['abs_row'], df['abs_col'], df['abs_month'], 2] = df['row'] # this is not what I want, I want the ycoord but...
-#    vol[df['abs_row'], df['abs_col'], df['abs_month'], 3] = df['month_id']
-#    vol[df['abs_row'], df['abs_col'], df['abs_month'], 4] = df['c_id']
-#    vol[df['abs_row'], df['abs_col'], df['abs_month'], 5] = df['ln_sb_best']
-#    vol[df['abs_row'], df['abs_col'], df['abs_month'], 6] = df['ln_ns_best']
-#    vol[df['abs_row'], df['abs_col'], df['abs_month'], 7] = df['ln_os_best']
-#    
-#    vol = np.flip(vol, axis = 0) # flip the rows, so north is up.
-#    vol = np.transpose(vol, (2,0,1,3) ) # move the month dim to the front. Could just do it above but.. # move the month dim to the front. Could just do it above but.. should be something like (324, 180, 180, 8)
-#    
-#    print(f'Volume of shape {vol.shape} created. Should be (n_month, 180, 180, 8)')
-#
-#    return vol
-#
 
 def process_partition_data(partition, PATH):
 

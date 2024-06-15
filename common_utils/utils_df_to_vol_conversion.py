@@ -1,19 +1,6 @@
-# Use viewser env
-import sys
-from pathlib import Path
-import argparse
-import pickle
-
-PATH = Path(__file__)
-sys.path.insert(0, str(Path(*[i for i in PATH.parts[:PATH.parts.index("views_pipeline")+1]]) / "common_utils")) # PATH_COMMON_UTILS  
-from set_path import setup_project_paths, setup_data_paths
-setup_project_paths(PATH)
-
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from matplotlib.colors import LinearSegmentedColormap
-
 
 
 def get_requried_columns_for_vol():
