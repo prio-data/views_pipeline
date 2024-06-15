@@ -33,8 +33,8 @@ def fetch_data_from_viewser():
     queryset_base = get_input_data_config()
     df = queryset_base.publish().fetch()
     df.reset_index(inplace=True)
-    df.rename(columns={'priogrid_gid': 'pg_id'}, inplace=True)
-    df['in_viewser'] = True
+    df.rename(columns={'priogrid_gid': 'pg_id'}, inplace=True) # arguably HydraNet or at lest vol specific
+    df['in_viewser'] = True  # arguably HydraNet or at lest vol specific
     return df
 
 
@@ -81,7 +81,7 @@ def filter_dataframe_by_month_range(df, month_first, month_last):
 
 
 
-def calculate_absolute_indices(df, month_first):
+def calculate_absolute_indices(df, month_first): # arguably HydraNet or at lest vol specific
     """
     Calculates absolute row, column, and month indices for the DataFrame.
 
@@ -92,7 +92,7 @@ def calculate_absolute_indices(df, month_first):
     Returns:
         pd.DataFrame: The updated DataFrame with absolute indices.
     """
-    df['abs_row'] = df['row'] - df['row'].min()
+    df['abs_row'] = df['row'] - df['row'].min()         
     df['abs_col'] = df['col'] - df['col'].min()
     df['abs_month'] = df['month_id'] - month_first
     return df
@@ -128,52 +128,9 @@ def get_views_df(partition):
     df = fetch_data_from_viewser()
     month_first, month_last = get_month_range(partition)
     df = filter_dataframe_by_month_range(df, month_first, month_last)
-    df = calculate_absolute_indices(df, month_first)
+    #df = calculate_absolute_indices(df, month_first) # could go in the volume creation function...
     return df
 
-
-
-
-
-#def get_views_date(partition):
-#
-#    """partition can be 'calibration', 'testing' or 'forecasting'"""
-#
-#    print('Beginning file download through viewser...')
-#
-#    queryset_base = get_input_data_config()
-#
-#    df = queryset_base.publish().fetch()
-#    df.reset_index(inplace = True)
-#
-#    df.rename(columns={'priogrid_gid': 'pg_id'}, inplace= True)
-#
-#    df['in_viewser'] = True
-#
-#    partitioner_dict = get_partitioner_dict(partition) # not that the partion includes both trainin and prediction/validation months
-#
-#    month_first = partitioner_dict['train'][0]
-#
-#    if partition == 'forecasting':
-#        month_last = partitioner_dict['train'][1] + 1 # no need to get the predict months as these are empty
-#
-#    elif partition == 'calibration' or partition == 'testing':
-#        month_last = partitioner_dict['predict'][1] + 1 # predict[1] is the last month to predict, so we need to add 1 to include it.
-#    
-#    else:
-#        raise ValueError('partition should be either "calibration", "testing" or "forecasting"')
-#
-#    
-#    month_range = np.arange(month_first, month_last,1) # predict[1] is the last month to predict, so we need to add 1 to include it.
-#
-#    df = df[df['month_id'].isin(month_range)].copy() # temporal subset
-#    
-#    df.loc[:,'abs_row'] = df.loc[:,'row'] - df.loc[:,'row'].min() 
-#    df.loc[:,'abs_col'] = df.loc[:,'col'] - df.loc[:,'col'].min()
-#    df.loc[:,'abs_month'] = df.loc[:,'month_id'] - month_first  
-#
-#    return df
-#
 
 def df_to_vol(df):
 
@@ -285,3 +242,9 @@ def process_data(partition, PATH):
     """
     df, vol = process_partition_data(partition, PATH)
     return df, vol
+
+
+
+# It could be argued that a cuple of the designs above are only relevant for HydraNet, or at leat the volume creation part.
+# But, it is really just the addition of a couple of features that can be sorted out downstream.
+# So, I would keep it as is for now, but let me know if this is a huge bother for the stepsifted models.
