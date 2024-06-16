@@ -134,7 +134,7 @@ def get_views_df(partition):
     return df
 
 
-def process_partition_data(partition, PATH):
+def process_partition_data(partition, PATH_RAW, PATH_PROCESSED):
 
     """
     Fetches data for a given partition by ensuring the existence of necessary directories,
@@ -145,9 +145,7 @@ def process_partition_data(partition, PATH):
 
     Returns:
         tuple: A tuple containing the DataFrame `df` and the volume `vol`.
-    """
-    
-    PATH_RAW, PATH_PROCESSED, _ = setup_data_paths(PATH)
+    """ 
 
     path_viewser_data = os.path.join(str(PATH_RAW), f'{partition}_viewser_df.pkl') #maby change to df...
     path_vol = os.path.join(str(PATH_PROCESSED), f'{partition}_vol.npy')
@@ -191,20 +189,21 @@ def parse_args():
 
     return parser.parse_args()
 
-def process_data(partition, PATH):
-    """
-    Fetch the data for the given partition from viewser.
-
-    Args:
-        partition (str): The partition type (e.g., 'calibration', 'testing', 'forecasting').
-        PTAH (Path): The base path for data.
-
-    Returns:
-        tuple: DataFrame and volume array for the partition.
-    """
-    df, vol = process_partition_data(partition, PATH)
-    return df, vol
-
+# seems rrdundent... 
+#def process_data(partition, PATH):
+#    """
+#    Fetch the data for the given partition from viewser.
+#
+#    Args:
+#        partition (str): The partition type (e.g., 'calibration', 'testing', 'forecasting').
+#        PTAH (Path): The base path for data.
+#
+#    Returns:
+#        tuple: DataFrame and volume array for the partition.
+#    """
+#    df, vol = process_partition_data(partition, PATH)
+#    return df, vol
+#
 
 
 # It could be argued that a cuple of the designs above are only relevant for HydraNet, or at leat the volume creation part.
