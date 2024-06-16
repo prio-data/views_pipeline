@@ -134,17 +134,28 @@ def get_views_df(partition):
     return df
 
 
-def fetch_or_load_views_df(partition, PATH_RAW, PATH_PROCESSED):
+def fetch_or_load_views_df(partition, PATH_RAW):
 
     """
-    ...
+    Fetches or loads a DataFrame for a given partition from viewser.
+
+    This function handles the retrieval or loading of raw data for the specified partition.
+    If the data file exists locally, it loads the DataFrame; otherwise, it fetches the data from viewser,
+    saves it locally, and returns the DataFrame.
+
+    Args:
+        partition (str): The partition to process. Valid options are 'calibration', 'forecasting', 'testing'.
+        PATH_RAW (str or Path): The path to the model-specific directory where raw data should be stored.
+
+    Returns:
+        pd.DataFrame: The DataFrame fetched or loaded from viewser, with minimum preprocessing applied.
     """
 
     path_viewser_df = os.path.join(str(PATH_RAW), f'{partition}_viewser_df.pkl') #maby change to df...
 
     # Create the folders if they don't exist
     os.makedirs(str(PATH_RAW), exist_ok=True)
-    os.makedirs(str(PATH_PROCESSED), exist_ok=True)
+    #os.makedirs(str(PATH_PROCESSED), exist_ok=True)
 
     # Check if the VIEWSER data file exists
     if os.path.isfile(path_viewser_df):
@@ -161,16 +172,29 @@ def fetch_or_load_views_df(partition, PATH_RAW, PATH_PROCESSED):
     return df
 
 
-def create_or_load_views_vol(partition, PATH_RAW, PATH_PROCESSED):
+def create_or_load_views_vol(partition, PATH_PROCESSED):
 
     """
-    ...
+    Creates or loads a volume from a DataFrame for a specified partition.
+
+    This function manages the creation or loading of a 4D volume array based on the DataFrame 
+    associated with the given partition. It ensures that the volume file is available locally,
+    either by loading it if it exists or creating it from the DataFrame if it does not.
+    This volume array is used as input data for CNN-based models such as HydraNet.
+
+    Args:
+        partition (str): The partition to process. Valid options are 'calibration', 'forecasting', 'testing'.
+        PATH_PROCESSED (str or Path): The path to the directory where processed volume data should be stored.
+
+    Returns:
+        np.ndarray: The 4D volume array created or loaded from the DataFrame, with shape 
+                    [n_months, height, width, n_features].
+
     """
 
     path_vol = os.path.join(str(PATH_PROCESSED), f'{partition}_vol.npy')
 
     # Create the folders if they don't exist
-    os.makedirs(str(PATH_RAW), exist_ok=True)
     os.makedirs(str(PATH_PROCESSED), exist_ok=True)
 
     # Check if the volume exists
@@ -187,6 +211,8 @@ def create_or_load_views_vol(partition, PATH_RAW, PATH_PROCESSED):
     print('Done')
 
     return vol
+
+
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Fetch data for different partitions')
