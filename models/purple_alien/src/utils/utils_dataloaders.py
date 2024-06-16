@@ -134,35 +134,44 @@ def get_views_df(partition):
     return df
 
 
-def process_partition_data(partition, PATH_RAW, PATH_PROCESSED):
+def fetch_or_load_views_df(partition, PATH_RAW, PATH_PROCESSED):
 
     """
-    Fetches data for a given partition by ensuring the existence of necessary directories,
-    downloading or loading existing data, and creating or loading a volume.
+    ...
+    """
 
-    Args:
-        partition (str): The partition to process, e.g., 'calibration', 'forecasting', 'testing'.
-
-    Returns:
-        tuple: A tuple containing the DataFrame `df` and the volume `vol`.
-    """ 
-
-    path_viewser_data = os.path.join(str(PATH_RAW), f'{partition}_viewser_df.pkl') #maby change to df...
-    path_vol = os.path.join(str(PATH_PROCESSED), f'{partition}_vol.npy')
+    path_viewser_df = os.path.join(str(PATH_RAW), f'{partition}_viewser_df.pkl') #maby change to df...
 
     # Create the folders if they don't exist
     os.makedirs(str(PATH_RAW), exist_ok=True)
     os.makedirs(str(PATH_PROCESSED), exist_ok=True)
 
     # Check if the VIEWSER data file exists
-    if os.path.isfile(path_viewser_data):
+    if os.path.isfile(path_viewser_df):
         print('File already downloaded')
-        df = pd.read_pickle(path_viewser_data)
+        df = pd.read_pickle(path_viewser_df)
     else:
         print('Downloading file...')
         df = get_views_df(partition) # which is then used here 
-        print(f'Saving file to {path_viewser_data}')
-        df.to_pickle(path_viewser_data)
+        print(f'Saving file to {path_viewser_df}')
+        df.to_pickle(path_viewser_df)
+
+    print('Done')
+
+    return df
+
+
+def create_or_load_views_vol(partition, PATH_RAW, PATH_PROCESSED):
+
+    """
+    ...
+    """
+
+    path_vol = os.path.join(str(PATH_PROCESSED), f'{partition}_vol.npy')
+
+    # Create the folders if they don't exist
+    os.makedirs(str(PATH_RAW), exist_ok=True)
+    os.makedirs(str(PATH_PROCESSED), exist_ok=True)
 
     # Check if the volume exists
     if os.path.isfile(path_vol):
@@ -177,7 +186,7 @@ def process_partition_data(partition, PATH_RAW, PATH_PROCESSED):
 
     print('Done')
 
-    return df, vol
+    return vol
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Fetch data for different partitions')
