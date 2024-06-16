@@ -28,7 +28,6 @@ def get_requried_columns_for_vol():
     return required_columns
 
 
-
 def calculate_absolute_indices(df): # arguably HydraNet or at lest vol specific
     """
     Computes absolute indices for 'row', 'col', and 'month_id' in the DataFrame.    
@@ -51,7 +50,6 @@ def calculate_absolute_indices(df): # arguably HydraNet or at lest vol specific
     df['abs_month'] = df['month_id'] - month_first
 
     return df
-
 
 
 def df_to_vol(df, height = 180, width = 180, forecast_features = ['ln_sb_best', 'ln_ns_best', 'ln_os_best']):
@@ -117,7 +115,6 @@ def df_to_vol(df, height = 180, width = 180, forecast_features = ['ln_sb_best', 
     return vol
 
 
-
 def vol_to_df(vol, forecast_features = ['ln_sb_best', 'ln_ns_best', 'ln_os_best']):
 
     """
@@ -148,10 +145,6 @@ def vol_to_df(vol, forecast_features = ['ln_sb_best', 'ln_ns_best', 'ln_os_best'
         ValueError: If the number of features in the volume does not match the expected number 
                     of features (length of required + forecast features)    
     """
-
-
-    # in a loop:
-#    required_columns = ['pg_id', 'col', 'row', 'month_id', 'c_id']
 
     required_columns = get_requried_columns_for_vol()
 
@@ -218,8 +211,6 @@ def df_vol_conversion_test(df, vol, forecast_features = ['ln_sb_best', 'ln_ns_be
     required_columns = ['pg_id', 'col', 'row', 'month_id', 'c_id']
     vol_features =  required_columns + forecast_features
     df_trimmed = df[vol_features]
-
-    #df_trimmed = df[['pg_id', 'col', 'row', 'month_id', 'c_id', 'ln_sb_best', 'ln_ns_best', 'ln_os_best']]
 
     # Sort both DataFrames by 'pg_id' and 'month_id'
     df_trimmed = df_trimmed.sort_values(by=['pg_id', 'month_id'])

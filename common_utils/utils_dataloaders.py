@@ -1,17 +1,4 @@
-# Use viewser env
-
-#import sys
-#from pathlib import Path
 import argparse
-
-#PATH = Path(__file__)
-#sys.path.insert(0, str(Path(*[i for i in PATH.parts[:PATH.parts.index("views_pipeline")+1]]) / "common_utils")) # PATH_COMMON_UTILS  
-#from set_path import setup_project_paths, setup_data_paths
-#setup_project_paths(PATH)
-#
-#from viewser import Queryset, Column
-#from ingester3.ViewsMonth import ViewsMonth
-#
 import os
 import numpy as np
 import pandas as pd
@@ -21,7 +8,6 @@ import pandas as pd
 from set_partition import get_partitioner_dict
 from config_input_data import get_input_data_config # this is model specific... this is thi issue.. .
 from utils_df_to_vol_conversion import df_to_vol
-
 
 
 def fetch_data_from_viewser():
@@ -82,24 +68,6 @@ def filter_dataframe_by_month_range(df, month_first, month_last):
     return df[df['month_id'].isin(month_range)].copy()
 
 
-# moved to utils_df_to_vol_conversion.py as that is where it is used..
-#def calculate_absolute_indices(df, month_first): # arguably HydraNet or at lest vol specific
-#    """
-#    Calculates absolute row, column, and month indices for the DataFrame.
-#
-#    Args:
-#        df (pd.DataFrame): The DataFrame to update.
-#        month_first (int): The first month ID in the month range.
-#
-#    Returns:
-#        pd.DataFrame: The updated DataFrame with absolute indices.
-#    """
-#    df['abs_row'] = df['row'] - df['row'].min()         
-#    df['abs_col'] = df['col'] - df['col'].min()
-#    df['abs_month'] = df['month_id'] - month_first
-#    return df
-#
-
 def get_views_df(partition):
     """
     Fetches and processes a DataFrame containing spatial-temporal data for the specified partition type.
@@ -130,7 +98,6 @@ def get_views_df(partition):
     df = fetch_data_from_viewser() # then it is used here..... 
     month_first, month_last = get_month_range(partition)
     df = filter_dataframe_by_month_range(df, month_first, month_last)
-    #df = calculate_absolute_indices(df, month_first) # could go in the volume creation function...
     return df
 
 
@@ -172,6 +139,7 @@ def fetch_or_load_views_df(partition, PATH_RAW):
     return df
 
 
+# could be moved to common_utils/utils_df_to_vol_conversion.py but it is not really a conversion function so I would keep it here for now.
 def create_or_load_views_vol(partition, PATH_PROCESSED):
 
     """
@@ -213,7 +181,6 @@ def create_or_load_views_vol(partition, PATH_PROCESSED):
     return vol
 
 
-
 def parse_args():
     parser = argparse.ArgumentParser(description='Fetch data for different partitions')
 
@@ -223,24 +190,3 @@ def parse_args():
     parser.add_argument('-f', '--forecasting', action='store_true', help='Fetch forecasting data from viewser')
 
     return parser.parse_args()
-
-# seems rrdundent... 
-#def process_data(partition, PATH):
-#    """
-#    Fetch the data for the given partition from viewser.
-#
-#    Args:
-#        partition (str): The partition type (e.g., 'calibration', 'testing', 'forecasting').
-#        PTAH (Path): The base path for data.
-#
-#    Returns:
-#        tuple: DataFrame and volume array for the partition.
-#    """
-#    df, vol = process_partition_data(partition, PATH)
-#    return df, vol
-#
-
-
-# It could be argued that a cuple of the designs above are only relevant for HydraNet, or at leat the volume creation part.
-# But, it is really just the addition of a couple of features that can be sorted out downstream.
-# So, I would keep it as is for now, but let me know if this is a huge bother for the stepsifted models.
