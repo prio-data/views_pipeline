@@ -42,12 +42,17 @@ def assess_model_dir(model_dir):
     
     # Check for obligatory scripts
     obligatory_scripts = [
-        "configs/config_common.py", #or config_partitioner depending on what we decide
-        "configs/config_hyperparameters.py",
-        "src/dataloaders/get_forecasting_data.py"
-        "src/training/train_forecasting_model.py",
-        "src/online_evaluation/evaluate_forecast.py",
-        "src/forecasting/generate_forecast.py",
+       "configs/config_deployment.py", 
+        "configs/config_hyperparameters.py", 
+        "configs/config_input_data.py",
+        "configs/config_meta.py",
+        "configs/config_sweep.py",
+        "src/dataloaders/get_data.py"
+        "src/training/train_ensemble.py",
+        "src/forecasting/generate_forececast.py",
+        "src/offline_evaluation/evaluate_model.py",
+        "src/management/execute_model_runs.py",
+        "src/management/execute_model_tasks.py",
         "main.py",
         "README.md"
         ]
