@@ -1,3 +1,5 @@
+import numpy as np
+
 def ensure_float64(df):
     """
     Check if the DataFrame only contains np.float64 types. If not, raise a warning
