@@ -1,4 +1,13 @@
 def get_swep_config():
+
+    """
+    Contains the configuration for hyperparameter sweeps using WandB.
+    This configuration is "operational" so modifying it will change the search strategy, parameter ranges, and other settings for hyperparameter tuning aimed at optimizing model performance.
+    
+    Returns:
+    - sweep_config (dict): A dictionary containing the configuration for hyperparameter sweeps, defining the methods and parameter ranges used to search for optimal hyperparameters.
+    """
+ 
     sweep_config = {
     'method': 'grid'
     }
@@ -17,7 +26,7 @@ def get_swep_config():
         'scheduler' : {'value': 'WarmupDecay'}, #CosineAnnealingLR004  'CosineAnnealingLR' 'OneCycleLR'
         'total_hidden_channels': {'value': 32}, # you like need 32, it seems from qualitative results
         'min_events': {'value': 5},
-        'samples': {'value': 600}, # should be a function of batches becaus batch 3 and sample 1000 = 3000....
+        'samples': {'value': 600}, # 600 for run 10 for debug. should be a function of batches becaus batch 3 and sample 1000 = 3000....
         'batch_size': {'value':  3}, # just speed running here..
         "dropout_rate" : {'value' : 0.125},
         'learning_rate': {'value' :  0.001}, #0.001 default, but 0.005 might be better
@@ -33,7 +42,7 @@ def get_swep_config():
         'loss_reg' : { 'value' :  'b'},
         'loss_reg_a' : { 'value' : 256},
         'loss_reg_c' : { 'value' : 0.001},
-        'test_samples': { 'value' : 128},
+        'test_samples': { 'value' :128}, # 128 for actual testing, 10 for debug
         'np_seed' : {'values' : [4,8]},
         'torch_seed' : {'values' : [4,8]},
         'window_dim' : {'value' : 32},
@@ -43,6 +52,7 @@ def get_swep_config():
         'first_feature_idx' : {'value' : 5},
         'norm_target' : {'value' : False},
         'freeze_h' : {'value' : "hl"},
+        'time_steps' : {'value' : 36}
         }
 
     sweep_config['parameters'] = parameters_dict

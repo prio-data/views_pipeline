@@ -1,10 +1,46 @@
 # views_pipeline
-The Violence & Impacts Early Warning System (VIEWS) produces monthly predictions of future violent conflict. This repository contains code, configuration files, and documentation that encapsulates the entire process of developing, training, evaluating, and deploying the VIEWS machine learning model pipeline.
-
-This pipeline is made up of a series of machine learning models, structured in their own sub-folders. 
+The Violence & Impacts Early Warning System (VIEWS) produces monthly predictions of future violent conflict at both a country and sub-country level of analysis. This repository contains code, configuration files, and documentation that encapsulates the entire process of developing, experimenting, training, evaluating, and deploying the VIEWS machine learning model pipeline.
 
 > [!CAUTION]
 > Please note that this pipeline is **actively under construction**. We're in the **early stages of development**, meaning it's **not yet ready for operational use**. We're working hard to bring you a robust and fully-functional tool, so stay tuned for updates!
+
+## About the VIEWS Project
+
+The VIEWS project is a collaborative effort supported by leading research institutions focused on peace and conflict studies. For more information about the project, visit the [VIEWS Forecasting webpage](https://viewsforecasting.org/).
+
+### Main Institutions
+
+- **Peace Research Institute Oslo (PRIO):**
+  The [Peace Research Institute Oslo (PRIO)](https://www.prio.org/) conducts research on the conditions for peaceful relations between states, groups, and people. PRIO is dedicated to understanding the processes that lead to violence and those that create sustainable peace. About half of the VIEWS core team is currently located at PRIO.
+
+- **Department of Peace and Conflict Research at the University of Uppsala:**
+  The [Department of Peace and Conflict Research at the University of Uppsala](https://www.uu.se/en/department/peace-and-conflict-research) is a leading academic institution in the study of conflict resolution, peacebuilding, and security. The department is renowned for its research and education programs aimed at fostering a deeper understanding of conflict dynamics and peace processes. This department also hosts the [Uppsala Conflict Data Program (UCDP)](https://ucdp.uu.se/), a central data source for the VIEWS project. About half of the VIEWS core team is currently located at the University of Uppsala.
+
+## Repository Contents
+
+This repository includes:
+
+- **Code:** Source code for the VIEWS project's machine learning models and the full pipeline.
+- **Configuration Files:** Settings and configurations for running the models, ensembles, and orchestration scripts.
+- **Documentation:** Detailed instructions and information about the project and how to interact with the pipeline and the individual components.
+
+## Pipeline Overview
+
+The VIEWS machine learning pipeline involves several key processes:
+
+- **Developing:** Creating and refining machine learning models.
+- **Experimentation:** Testing and validating various model configurations and approaches.
+- **Training:** Training models with relevant data.
+- **Evaluating:** Assessing model performance and accuracy.
+- **Deploying:** Implementing models in a production environment to generate monthly true-future forecasts 
+
+(to access the generated forecasts, please start here: https://viewsforecasting.org/early-warning-system/user-guide/#data-access).
+
+Each model is contained within its own sub-folder, providing a modular structure for development and deployment.
+
+For further details on how to navigate and utilize this repository, please refer to the documentation (READMEs) provided within each sub-folder.
+
+## Pipeline diagram
 
 ![VIEWS pipeline diagram](documentation/pipeline_diagram001.png)
 
