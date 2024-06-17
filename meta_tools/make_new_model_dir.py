@@ -37,19 +37,14 @@ def make_new_model_dir(model_name):
         "data/generated",
         "artifacts",
         "notebooks",
-        "reports/plots",
-        "reports/figures",
-        "reports/timelapse",
-        "reports/papers",
-        "reports/slides",
         "src/dataloaders",
         "src/architectures",
         "src/utils",
         "src/visualization",
         "src/training",
         "src/offline_evaluation",
-        "src/online_evaluation",
-        "src/forecasting"
+        "src/forecasting",
+        "src/management"
     ]
     
     for subdir in subdirs:
