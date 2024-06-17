@@ -34,19 +34,14 @@ def make_new_ensemble_dir(ensemble_name):
         "configs",
         "artifacts",
         "notebooks",
-        "reports/plots",
-        "reports/figures",
-        "reports/timelapse",
-        "reports/papers",
-        "reports/slides",
+        "reports",
         "src/dataloaders",
         "src/architecture",
         "src/utils",
-        "src/visualization",
         "src/training",
         "src/offline_evaluation",
-        "src/online_evaluation",
-        "src/forecasting"
+        "src/forecasting",
+        "src/management"
     ]
     
     for subdir in subdirs:
