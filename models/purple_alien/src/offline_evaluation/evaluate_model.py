@@ -29,7 +29,7 @@ setup_project_paths(PATH)
 from utils import choose_model, choose_loss, choose_sheduler, get_train_tensors, get_full_tensor, apply_dropout, execute_freeze_h_option, train_log, init_weights, get_data
 from utils_prediction import predict, sample_posterior
 from utils_artifacts import get_latest_model_artifact
-from utils_wandb import generate_wandb_log_dict
+from utils_wandb import generate_wandb_log_dict, generate_wandb_mean_metrics_log_dict
 from config_sweep import get_swep_config
 from config_hyperparameters import get_hp_config
 from utils_hydranet_outputs import output_to_df, evaluation_to_df
@@ -118,11 +118,16 @@ def evaluate_posterior(model, views_vol, config, device): # is eval in config?
             dict_of_eval_dicts[j][step].AUC = roc_auc_score(y_true_binary, y_score_prob)
             dict_of_eval_dicts[j][step].Brier = brier_score_loss(y_true_binary, y_score_prob)
 
+            # note that this actually upates the dict of eval dicts with new stepwise metric values
             log_dict = generate_wandb_log_dict(log_dict, dict_of_eval_dicts, j, step)
 
         # if eval:
         #log_dict_list.append(log_dict)
         wandb.log(log_dict)
+
+        mean_metric_log_dict = generate_wandb_mean_metrics_log_dict(dict_of_eval_dicts)
+        wandb.log(mean_metric_log_dict)
+
 
     if not config.sweep:
 
