@@ -1,6 +1,18 @@
 import numpy as np
+import pandas as pd
 from sklearn.metrics import mean_squared_error, average_precision_score, roc_auc_score, brier_score_loss
+
 import wandb
+
+import sys
+from pathlib import Path
+
+PATH = Path(__file__)
+sys.path.insert(0, str(Path(*[i for i in PATH.parts[:PATH.parts.index("views_pipeline")+1]]) / "common_utils")) # PATH_COMMON_UTILS  
+from set_path import setup_project_paths, setup_data_paths
+setup_project_paths(PATH)
+
+from utils_evaluation_metrics import evaluation_to_df
 
 # there are things in other utils that should be here...
 
@@ -86,6 +98,34 @@ def generate_wandb_log_dict(log_dict, dict_of_eval_dicts, feature, step):
 
     return log_dict 
 
+
+def generate_wandb_mean_metric_log_dict(dict_of_eval_dicts):
+    """
+    Calculates the mean of each evaluation metric from a dictionary of evaluation results and 
+    returns a dictionary formatted for WandB logging.
+
+    Args:
+        dict_of_eval_dicts (Dict[str, Any]): Dictionary containing evaluation metrics for each step 
+                                             and feature.
+
+    Returns:
+        Dict[str, float]: Dictionary with the mean value of each metric, formatted for WandB logging.
+    """
+
+    # Convert the dictionary of evaluation metrics to a DataFrame
+    df_eval = evaluation_to_df(dict_of_eval_dicts)
+
+    # Initialize a dictionary to store mean values of each metric
+    mean_metric_log_dict = {}
+
+    # Iterate through the columns (metrics) of the DataFrame
+    for metric_name in df_eval.columns:
+        mean_value = df_eval[metric_name].mean()
+        # Check if the mean is a valid number (not NaN)
+        if not pd.isna(mean_value):
+            mean_metric_log_dict[metric_name] = mean_value
+
+    return mean_metric_log_dict
 
 
 
