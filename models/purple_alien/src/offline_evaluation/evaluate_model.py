@@ -183,7 +183,7 @@ def evaluate_posterior(model, views_vol, config, device): # is eval in config?
 
         # prolly just use Xialong's new function in eval for this. 
         #log_wandb_mean_metrics(config, mse_list, ap_list, auc_list, brier_list) # correct and reimplment this
-        log_wandb_mean_metrics(config, df_sb_os_ns_evaluation) # correct and reimplment this
+    log_wandb_mean_metrics(config, df_sb_os_ns_evaluation) # correct and reimplment this
 
 def evaluate_model_artifact(config, device, views_vol, PATH_ARTIFACTS, artifact_name=None):
 #def handle_evaluation(config, device, views_vol, PATH_ARTIFACTS, artifact_name=None):
