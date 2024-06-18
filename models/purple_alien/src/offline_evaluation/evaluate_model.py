@@ -175,6 +175,7 @@ def evaluate_posterior(model, views_vol, config, device): # is eval in config?
     else:
         print('Running sweep. NO posterior dict, metric dict, or test vol pickled+dumped')
 
+        # prolly just use Xialong's new function in eval for this. 
         #log_wandb_mean_metrics(config, mse_list, ap_list, auc_list, brier_list) # correct and reimplment this
 
 
