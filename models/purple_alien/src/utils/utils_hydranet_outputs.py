@@ -11,6 +11,7 @@ from set_path import setup_project_paths, setup_data_paths
 setup_project_paths(PATH)
 
 from utils_model_outputs import ModelOutputs
+from utils_evaluation_metrics import EvaluationMetrics
 
 def output_to_df(dict_of_outputs_dicts):
     
@@ -74,10 +75,29 @@ def output_to_df(dict_of_outputs_dicts):
     df_all = df_all.astype({"y_true_binary_sb": int, "y_true_binary_ns": int, "y_true_binary_os": int, "month_id" : int, "step" : int})
 
     # print the df
-    df_all
+    #df_all
 
     return df_all
 
+
+def evaluation_to_df(dict_of_eval_dicts):
+
+    """
+    ...
+    """
+
+    df_sb_eval = EvaluationMetrics.evaluation_dict_to_dataframe(dict_of_eval_dicts['sb'])
+    df_ns_eval = EvaluationMetrics.evaluation_dict_to_dataframe(dict_of_eval_dicts['sb'])
+    df_os_eval = EvaluationMetrics.evaluation_dict_to_dataframe(dict_of_eval_dicts['sb'])
+
+    df_sb_eval.columns = [f"{i}_sb" for i in df_os_eval.columns]
+    df_ns_eval.columns = [f"{i}_ns" for i in df_os_eval.columns]
+    df_os_eval.columns = [f"{i}_os" for i in df_os_eval.columns]
+
+    # merge the dataframes
+    df_all_eval = pd.concat([df_sb_eval, df_ns_eval, df_os_eval], axis=1)
+
+    return df_all_eval
 
 
 def plot_metrics(df_all, feature = 0):

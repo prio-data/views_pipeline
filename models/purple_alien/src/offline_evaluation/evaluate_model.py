@@ -32,7 +32,7 @@ from utils_artifacts import get_latest_model_artifact
 from utils_wandb import log_wandb_mean_metrics, generate_wandb_log_dict
 from config_sweep import get_swep_config
 from config_hyperparameters import get_hp_config
-from utils_hydranet_outputs import output_to_df
+from utils_hydranet_outputs import output_to_df, evaluation_to_df
 
 
 from utils_model_outputs import ModelOutputs
@@ -149,6 +149,7 @@ def evaluate_posterior(model, views_vol, config, device): # is eval in config?
 
         # BUG FIX THIS
         df_sb_os_ns_output = output_to_df(dict_of_outputs_dicts)
+        df_sb_os_ns_evaluation = evaluation_to_df(dict_of_eval_dicts)
         #df_sb_os_ns_eval = evaluation_to_df(dict_of_eval_dicts)
 
         # Note: we are using the model_time_stamp from the model artifact to denote the time stamp for the pkl files
@@ -165,6 +166,9 @@ def evaluate_posterior(model, views_vol, config, device): # is eval in config?
 
         with open(f'{PATH_GENERATED}/df_sb_os_ns_output_{config.time_steps}_{config.run_type}_{config.model_time_stamp}.pkl', 'wb') as file: # make it numpy
             pickle.dump(df_sb_os_ns_output, file)
+
+        with open(f'{PATH_GENERATED}/df_sb_os_ns_evaluation_{config.time_steps}_{config.run_type}_{config.model_time_stamp}.pkl', 'wb') as file:
+            pickle.dump(df_sb_os_ns_evaluation, file)
 
         with open(f'{PATH_GENERATED}/test_vol_{config.time_steps}_{config.run_type}_{config.model_time_stamp}.pkl', 'wb') as file: # make it numpy
             pickle.dump(full_tensor.cpu().numpy(), file)
