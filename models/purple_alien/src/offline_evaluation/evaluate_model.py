@@ -123,7 +123,7 @@ def evaluate_posterior(model, views_vol, config, device): # is eval in config?
 
         # if eval:
         log_dict_list.append(log_dict)
-            #wandb.log(log_dict)
+        wandb.log(log_dict)
 
     if not config.sweep:
 
