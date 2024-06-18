@@ -59,8 +59,6 @@ def evaluate_posterior(model, views_vol, config, device): # is eval in config?
     mean_class_array = np.array(posterior_list_class).mean(axis = 0) # get mean for each month!
     std_class_array = np.array(posterior_list_class).std(axis = 0)
 
-    #NEW
-    #log_dict_list = []
 
     for t in range(mean_array.shape[0]): #  0 of mean array is the temporal dim    
 
@@ -122,11 +120,10 @@ def evaluate_posterior(model, views_vol, config, device): # is eval in config?
             log_dict = generate_wandb_log_dict(log_dict, dict_of_eval_dicts, j, step)
 
         # if eval:
-        #log_dict_list.append(log_dict)
         wandb.log(log_dict)
 
-        mean_metric_log_dict = generate_wandb_mean_metrics_log_dict(dict_of_eval_dicts)
-        wandb.log(mean_metric_log_dict)
+    mean_metric_log_dict = generate_wandb_mean_metrics_log_dict(dict_of_eval_dicts)
+    wandb.log(mean_metric_log_dict)
 
 
     if not config.sweep:
