@@ -83,7 +83,33 @@ def output_to_df(dict_of_outputs_dicts):
 def evaluation_to_df(dict_of_eval_dicts):
 
     """
-    ...
+    Converts a dictionary of evaluation metric dictionaries into a consolidated DataFrame.
+
+    This function takes a dictionary containing evaluation metric dictionaries for different features
+    ('sb', 'ns', 'os'), converts each evaluation dictionary to a DataFrame, renames the columns to 
+    reflect their respective feature, and merges them into a single DataFrame.
+
+    Args:
+        dict_of_eval_dicts (Dict[str, Dict[str, EvaluationMetrics]]): A dictionary where keys are feature 
+            identifiers ('sb', 'ns', 'os') and values are dictionaries of evaluation metrics per time step 
+            for each feature. Each evaluation metric dictionary is expected to contain instances of `EvaluationMetrics`.
+
+    Returns:
+        pd.DataFrame: A consolidated DataFrame containing evaluation metrics for all features. The DataFrame 
+        includes columns for each metric with suffixes '_sb', '_ns', and '_os' to denote the feature they belong to.
+        Each row corresponds to a specific time step across the different features.
+
+    Example:
+        >>> dict_of_eval_dicts = {
+        ...     'sb': {'step01': EvaluationMetrics(MSE=0.1, AP=0.2, AUC=0.3, Brier=0.4), ...},
+        ...     'ns': {'step01': EvaluationMetrics(MSE=0.5, AP=0.6, AUC=0.7, Brier=0.8), ...},
+        ...     'os': {'step01': EvaluationMetrics(MSE=0.9, AP=1.0, AUC=1.1, Brier=1.2), ...}
+        ... }
+        >>> df_all_eval = evaluation_to_df(dict_of_eval_dicts)
+        >>> print(df_all_eval.head())
+           MSE_sb  AP_sb  AUC_sb  Brier_sb  ...  MSE_os  AP_os  AUC_os  Brier_os
+        0     0.1    0.2     0.3       0.4  ...     0.9    1.0     1.1       1.2
+        ...
     """
 
     df_sb_eval = EvaluationMetrics.evaluation_dict_to_dataframe(dict_of_eval_dicts['sb'])
