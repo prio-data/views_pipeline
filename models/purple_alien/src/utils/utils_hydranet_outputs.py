@@ -113,8 +113,8 @@ def evaluation_to_df(dict_of_eval_dicts):
     """
 
     df_sb_eval = EvaluationMetrics.evaluation_dict_to_dataframe(dict_of_eval_dicts['sb'])
-    df_ns_eval = EvaluationMetrics.evaluation_dict_to_dataframe(dict_of_eval_dicts['sb'])
-    df_os_eval = EvaluationMetrics.evaluation_dict_to_dataframe(dict_of_eval_dicts['sb'])
+    df_ns_eval = EvaluationMetrics.evaluation_dict_to_dataframe(dict_of_eval_dicts['ns'])
+    df_os_eval = EvaluationMetrics.evaluation_dict_to_dataframe(dict_of_eval_dicts['os'])
 
     df_sb_eval.columns = [f"{i}_sb" for i in df_os_eval.columns]
     df_ns_eval.columns = [f"{i}_ns" for i in df_os_eval.columns]
