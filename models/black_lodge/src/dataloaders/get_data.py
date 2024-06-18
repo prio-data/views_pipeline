@@ -24,7 +24,7 @@ def get_data():
     print("Getting data...")
     PATH_RAW, _, _ = setup_data_paths(PATH)
     parquet_path = PATH_RAW / 'raw.parquet'
-    # print('PARQUET PATH', parquet_path)
+    # print('PARQUET PATH', parquet_path) # use this to debug if the parquet path is correct
     if not parquet_path.exists():        
         qs = get_input_data()
         data = qs.publish().fetch() 
@@ -70,6 +70,8 @@ def get_partition_data(df, partition):
 def check_data():
     """
     Check missingness and infinity values in the input data
+
+    Taken from viewsforecasting repo, to be further developed.
     """
     data = get_data()
     print("Checking missingness and infinity values in the input data...")

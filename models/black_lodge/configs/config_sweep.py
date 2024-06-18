@@ -1,4 +1,4 @@
-def get_swep_config():
+def get_sweep_config():
 
     """
     Contains the configuration for hyperparameter sweeps using WandB.
@@ -9,7 +9,7 @@ def get_swep_config():
     """
  
     sweep_config = {
-    'name': 'black_lodge',
+    'name': 'black_lodge_sweep',
     'method': 'country' #or grid 
     }
 
