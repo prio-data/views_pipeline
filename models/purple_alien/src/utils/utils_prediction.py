@@ -123,8 +123,10 @@ def sample_posterior(model, views_vol, config, device):
 
     # REALLY BAD NAME!!!!
     # Why do you put this test tensor on device here??!? 
-    full_tensor = get_full_tensor(views_vol, config, device) # better cal this evel tensor
+    full_tensor, metadata_tensor = get_full_tensor(views_vol, config, device) # better cal this evel tensor
     out_of_sample_vol = full_tensor[:,-config.time_steps:,:,:,:].cpu().numpy() # From the test tensor get the out-of-sample time_steps. 
+    out_of_sample_meta_vol = metadata_tensor[:,-config.time_steps:,:,:,:]
+
 
     posterior_list = []
     posterior_list_class = []
@@ -139,5 +141,5 @@ def sample_posterior(model, views_vol, config, device):
         #if i % 10 == 0: # print steps 10
         #print(f'Posterior sample: {sample}/{config.test_samples}', end = '\r') # could and should put this in the predict function above.
 
-    return posterior_list, posterior_list_class, out_of_sample_vol, full_tensor
+    return posterior_list, posterior_list_class, out_of_sample_vol, out_of_sample_meta_vol, full_tensor, metadata_tensor
 

@@ -11,7 +11,8 @@ def add_wandb_monthly_metrics():
     wandb.define_metric("monthly/*", step_metric="monthly/out_sample_month")
 
 
-def log_wandb_monthly_metrics(config, mse_list, ap_list, auc_list, brier_list):
+# not the monthly but the mean (and they are wrong... )
+def log_wandb_mean_metrics(config, mse_list, ap_list, auc_list, brier_list):
     
     """
     Logs evaluation metrics to WandB.
@@ -41,3 +42,39 @@ def generate_wandb_log_dict(log_dict, dict_of_eval_dicts, feature, step):
             log_dict[f"monthly/{key}_{feature}"] = value
 
     return log_dict 
+
+
+# old and I think deprecated... 
+def get_log_dict(i, mean_array, mean_class_array, std_array, std_class_array, out_of_sample_vol, config):
+
+    """Return a dictionary of metrics for the monthly out-of-sample predictions for W&B."""
+
+    log_dict = {}
+    log_dict["monthly/out_sample_month"] = i
+
+
+    #Fix in a sec when you see if it runs at all.... 
+    for j in range(3): #(config.targets): # TARGETS IS & BUT THIS SHOULD BE 3!!!!!
+
+        y_score = mean_array[i,j,:,:].reshape(-1) # make it 1d  # nu 180x180 
+        y_score_prob = mean_class_array[i,j,:,:].reshape(-1) # nu 180x180 
+        
+        # do not really know what to do with these yet.
+        y_var = std_array[i,j,:,:].reshape(-1)  # nu 180x180  
+        y_var_prob = std_class_array[i,j,:,:].reshape(-1)  # nu 180x180 
+
+        y_true = out_of_sample_vol[:,i,j,:,:].reshape(-1)  # nu 180x180 . dim 0 is time
+        y_true_binary = (y_true > 0) * 1
+
+
+        mse = mean_squared_error(y_true, y_score)
+        ap = average_precision_score(y_true_binary, y_score_prob)
+        auc = roc_auc_score(y_true_binary, y_score_prob)
+        brier = brier_score_loss(y_true_binary, y_score_prob)
+
+        log_dict[f"monthly/mean_squared_error{j}"] = mse
+        log_dict[f"monthly/average_precision_score{j}"] = ap
+        log_dict[f"monthly/roc_auc_score{j}"] = auc
+        log_dict[f"monthly/brier_score_loss{j}"] = brier
+
+    return log_dict
