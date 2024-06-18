@@ -16,7 +16,7 @@ from views_stepshift.run import ViewsRun
 from hurdle_model import HurdleRegression
 from get_data import get_partition_data
 
-from config_model import get_model_config
+from config_meta import get_meta_config
 from config_hyperparameters import get_hp_config
 
 
