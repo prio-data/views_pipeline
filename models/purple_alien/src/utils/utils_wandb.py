@@ -110,6 +110,10 @@ def generate_wandb_mean_metrics_log_dict(dict_of_eval_dicts):
 
     Returns:
         Dict[str, float]: Dictionary with the mean value of each metric, formatted for WandB logging.
+
+     Notes:
+        Calculating the mean metrics across the month-specific metric values does not give the 
+        same result as calculating the metrics on the full array of predictions at once.        
     """
 
     # Convert the dictionary of evaluation metrics to a DataFrame
