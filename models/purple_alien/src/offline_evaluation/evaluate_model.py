@@ -147,7 +147,7 @@ def evaluate_posterior(model, views_vol, config, device): # is eval in config?
         #                'ap_list' : ap_list, 'auc_list': auc_list, 'brier_list' : brier_list}
 
         # BUG FIX THIS
-        #df_full = output_to_df(dict_of_outputs_dicts)
+        df_full = output_to_df(dict_of_outputs_dicts)
 
 
         # Note: we are using the model_time_stamp from the model artifact to denote the time stamp for the pkl files
@@ -161,8 +161,8 @@ def evaluate_posterior(model, views_vol, config, device): # is eval in config?
         #with open(f'{PATH_GENERATED}/metric_dict_{config.time_steps}_{config.run_type}_{config.model_time_stamp}.pkl', 'wb') as file:
         #    pickle.dump(metric_dict, file)
 
-        #with open(f'{PATH_GENERATED}/df_full_{config.time_steps}_{config.run_type}_{config.model_time_stamp}.pkl', 'wb') as file: # make it numpy
-        #    pickle.dump(df_full, file)
+        with open(f'{PATH_GENERATED}/df_full_{config.time_steps}_{config.run_type}_{config.model_time_stamp}.pkl', 'wb') as file: # make it numpy
+            pickle.dump(df_full, file)
 
         with open(f'{PATH_GENERATED}/test_vol_{config.time_steps}_{config.run_type}_{config.model_time_stamp}.pkl', 'wb') as file: # make it numpy
             pickle.dump(full_tensor.cpu().numpy(), file)
