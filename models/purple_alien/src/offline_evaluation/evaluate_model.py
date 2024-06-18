@@ -29,7 +29,7 @@ setup_project_paths(PATH)
 from utils import choose_model, choose_loss, choose_sheduler, get_train_tensors, get_full_tensor, apply_dropout, execute_freeze_h_option, train_log, init_weights, get_data
 from utils_prediction import predict, sample_posterior
 from utils_artifacts import get_latest_model_artifact
-from utils_wandb import log_wandb_mean_metrics, generate_wandb_log_dict
+from utils_wandb import generate_wandb_log_dict
 from config_sweep import get_swep_config
 from config_hyperparameters import get_hp_config
 from utils_hydranet_outputs import output_to_df, evaluation_to_df
@@ -183,7 +183,8 @@ def evaluate_posterior(model, views_vol, config, device): # is eval in config?
 
         # prolly just use Xialong's new function in eval for this. 
         #log_wandb_mean_metrics(config, mse_list, ap_list, auc_list, brier_list) # correct and reimplment this
-    log_wandb_mean_metrics(config, df_sb_os_ns_evaluation) # correct and reimplment this
+    #log_wandb_mean_metrics(config, df_sb_os_ns_evaluation) # correct and reimplment this
+
 
 def evaluate_model_artifact(config, device, views_vol, PATH_ARTIFACTS, artifact_name=None):
 #def handle_evaluation(config, device, views_vol, PATH_ARTIFACTS, artifact_name=None):
