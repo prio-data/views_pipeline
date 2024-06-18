@@ -46,8 +46,8 @@ def evaluate_posterior(model, views_vol, config, device): # is eval in config?
     posterior_list, posterior_list_class, out_of_sample_vol, out_of_sample_meta_vol, full_tensor, metadata_tensor = sample_posterior(model, views_vol, config, device)
 
     #if eval:
-    dict_of_evel_dicts = {}
-    dict_of_evel_dicts = {k: EvaluationMetrics.make_evaluation_dict(steps=config.time_steps) for k in ["sb", "ns", "os"]}
+    dict_of_eval_dicts = {}
+    dict_of_eval_dicts = {k: EvaluationMetrics.make_evaluation_dict(steps=config.time_steps) for k in ["sb", "ns", "os"]}
 
     dict_of_outputs_dicts = {}
     dict_of_outputs_dicts = {k: ModelOutputs.make_output_dict(steps=config.time_steps) for k in ["sb", "ns", "os"]}
@@ -67,7 +67,7 @@ def evaluate_posterior(model, views_vol, config, device): # is eval in config?
         log_dict = {}
         log_dict["monthly/out_sample_month"] = t +1 # 1 indexed, bc the first step is 1 month ahead
 
-        for i, j in enumerate(dict_of_evel_dicts.keys()): # this is the same as the above but with the dict keys
+        for i, j in enumerate(dict_of_eval_dicts.keys()): # this is the same as the above but with the dict keys
 
             step = f"step{str(t+1).zfill(2)}"
 
@@ -113,12 +113,12 @@ def evaluate_posterior(model, views_vol, config, device): # is eval in config?
 
             #if eval:   
 
-            dict_of_evel_dicts[j][step].MSE = mean_squared_error(y_true, y_score)
-            dict_of_evel_dicts[j][step].AP = average_precision_score(y_true_binary, y_score_prob)
-            dict_of_evel_dicts[j][step].AUC = roc_auc_score(y_true_binary, y_score_prob)
-            dict_of_evel_dicts[j][step].Brier = brier_score_loss(y_true_binary, y_score_prob)
+            dict_of_eval_dicts[j][step].MSE = mean_squared_error(y_true, y_score)
+            dict_of_eval_dicts[j][step].AP = average_precision_score(y_true_binary, y_score_prob)
+            dict_of_eval_dicts[j][step].AUC = roc_auc_score(y_true_binary, y_score_prob)
+            dict_of_eval_dicts[j][step].Brier = brier_score_loss(y_true_binary, y_score_prob)
 
-            log_dict = generate_wandb_log_dict(log_dict, dict_of_evel_dicts, j, step)
+            log_dict = generate_wandb_log_dict(log_dict, dict_of_eval_dicts, j, step)
 
         # if eval:
         log_dict_list.append(log_dict)
@@ -143,12 +143,13 @@ def evaluate_posterior(model, views_vol, config, device): # is eval in config?
 
         posterior_dict = {'posterior_list' : posterior_list, 'posterior_list_class': posterior_list_class, 'out_of_sample_vol' : out_of_sample_vol}
 
-        #metric_dict = {'out_sample_month_list' : out_sample_month_list, 'mse_list': mse_list,
+        # You don't use this anymore.
+        # metric_dict = {'out_sample_month_list' : out_sample_month_list, 'mse_list': mse_list,
         #                'ap_list' : ap_list, 'auc_list': auc_list, 'brier_list' : brier_list}
 
         # BUG FIX THIS
-        df_full = output_to_df(dict_of_outputs_dicts)
-
+        df_sb_os_ns_output = output_to_df(dict_of_outputs_dicts)
+        #df_sb_os_ns_eval = evaluation_to_df(dict_of_eval_dicts)
 
         # Note: we are using the model_time_stamp from the model artifact to denote the time stamp for the pkl files
         # This is to ensure that the pkl files are easily identifiable and associated with the correct model artifact
@@ -158,11 +159,12 @@ def evaluate_posterior(model, views_vol, config, device): # is eval in config?
         with open(f'{PATH_GENERATED}/posterior_dict_{config.time_steps}_{config.run_type}_{config.model_time_stamp}.pkl', 'wb') as file:
             pickle.dump(posterior_dict, file)       
 
+        # used to be made out of lists above. You don't do that now... 
         #with open(f'{PATH_GENERATED}/metric_dict_{config.time_steps}_{config.run_type}_{config.model_time_stamp}.pkl', 'wb') as file:
         #    pickle.dump(metric_dict, file)
 
-        with open(f'{PATH_GENERATED}/df_full_{config.time_steps}_{config.run_type}_{config.model_time_stamp}.pkl', 'wb') as file: # make it numpy
-            pickle.dump(df_full, file)
+        with open(f'{PATH_GENERATED}/df_sb_os_ns_output_{config.time_steps}_{config.run_type}_{config.model_time_stamp}.pkl', 'wb') as file: # make it numpy
+            pickle.dump(df_sb_os_ns_output, file)
 
         with open(f'{PATH_GENERATED}/test_vol_{config.time_steps}_{config.run_type}_{config.model_time_stamp}.pkl', 'wb') as file: # make it numpy
             pickle.dump(full_tensor.cpu().numpy(), file)
