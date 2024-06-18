@@ -84,7 +84,7 @@ def evaluate_posterior(model, views_vol, config, device): # is eval in config?
             # but also the place where you get the pgm.. 
 
             #if eval:
-            y_true = out_of_sample_vol[:,t,i,:,:].numpy().reshape(-1)  # nu 180x180 . dim 0 is time     THE TRICK IS NOW TO USE A df -> vol and not out_of_sample_vol...
+            y_true = out_of_sample_vol[:,t,i,:,:].reshape(-1)  # nu 180x180 . dim 0 is time     THE TRICK IS NOW TO USE A df -> vol and not out_of_sample_vol...
             y_true_binary = (y_true > 0) * 1
 
             # in theorty you could just use the metadata tensor to get pg and c id here
