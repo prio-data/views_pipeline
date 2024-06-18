@@ -87,19 +87,19 @@ def evaluate_posterior(model, views_vol, config, device): # is eval in config?
             y_true = out_of_sample_vol[:,t,i,:,:].numpy().reshape(-1)  # nu 180x180 . dim 0 is time     THE TRICK IS NOW TO USE A df -> vol and not out_of_sample_vol...
             y_true_binary = (y_true > 0) * 1
 
-                # in theorty you could just use the metadata tensor to get pg and c id here
-            pg_id = out_of_sample_meta_vol[:,t,0,:,:].numpy().reshape(-1)  # nu 180x180, dim 1 is time . dim 2 is feature. feature 0 is pg_id
-            c_id = out_of_sample_meta_vol[:,t,4,:,:].numpy().reshape(-1)  # nu 180x180, dim 1 is time . dim 2 is feature. feature 4 is c_id
-            month_id = out_of_sample_meta_vol[:,t,3,:,:].numpy().reshape(-1)  # nu 180x180, dim 1 is time . dim 2 is feature. feature 3 is month_id
+            # in theorty you could just use the metadata tensor to get pg and c id here
+            pg_id = out_of_sample_meta_vol[:,t,0,:,:].reshape(-1)  # nu 180x180, dim 1 is time . dim 2 is feature. feature 0 is pg_id
+            c_id = out_of_sample_meta_vol[:,t,4,:,:].reshape(-1)  # nu 180x180, dim 1 is time . dim 2 is feature. feature 4 is c_id
+            month_id = out_of_sample_meta_vol[:,t,3,:,:].reshape(-1)  # nu 180x180, dim 1 is time . dim 2 is feature. feature 3 is month_id
 
             dict_of_outputs_dicts[j][step].y_true = y_true
             dict_of_outputs_dicts[j][step].y_true_binary = y_true_binary
 
             #else: # you need to make sure this works for forecasting
                 # in theorty you could just use the metadata tensor to get pg and c id here
-            pg_id = out_of_sample_meta_vol[:,t,0,:,:].numpy().reshape(-1)  # nu 180x180, dim 1 is time . dim 2 is feature. feature 0 is pg_id
-            c_id = out_of_sample_meta_vol[:,t,4,:,:].numpy().reshape(-1)  # nu 180x180, dim 1 is time . dim 2 is feature. feature 4 is c_id
-            month_id = out_of_sample_meta_vol[:,t,3,:,:].numpy().reshape(-1)  # nu 180x180, dim 1 is time . dim 2 is feature. feature 3 is month_id
+            pg_id = out_of_sample_meta_vol[:,t,0,:,:].reshape(-1)  # nu 180x180, dim 1 is time . dim 2 is feature. feature 0 is pg_id
+            c_id = out_of_sample_meta_vol[:,t,4,:,:].reshape(-1)  # nu 180x180, dim 1 is time . dim 2 is feature. feature 4 is c_id
+            month_id = out_of_sample_meta_vol[:,t,3,:,:].reshape(-1)  # nu 180x180, dim 1 is time . dim 2 is feature. feature 3 is month_id
 
 
             dict_of_outputs_dicts[j][step].y_score = y_score
