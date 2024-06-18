@@ -32,3 +32,12 @@ def log_wandb_monthly_metrics(config, mse_list, ap_list, auc_list, brier_list):
     wandb.log({f"{config.time_steps}month_average_precision_score": np.mean(ap_list)})
     wandb.log({f"{config.time_steps}month_roc_auc_score": np.mean(auc_list)})
     wandb.log({f"{config.time_steps}month_brier_score_loss": np.mean(brier_list)})
+
+
+def generate_wandb_log_dict(log_dict, dict_of_eval_dicts, feature, step):
+    
+    for key, value in dict_of_eval_dicts[feature][step].__dict__.items():
+        if value is not None:
+            log_dict[f"monthly/{key}_{feature}"] = value
+
+    return log_dict 
