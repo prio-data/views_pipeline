@@ -40,7 +40,7 @@ from utils_evaluation_metrics import EvaluationMetrics
 
 
 # so if this is mand more general and the if evals in activated then it should be in the utils_prediction.py file.
-
+# also it could 100% be multiple functions...
 def evaluate_posterior(model, views_vol, config, device): # is eval in config?
 
     posterior_list, posterior_list_class, out_of_sample_vol, out_of_sample_meta_vol, full_tensor, metadata_tensor = sample_posterior(model, views_vol, config, device)
@@ -183,121 +183,6 @@ def evaluate_posterior(model, views_vol, config, device): # is eval in config?
 
         # prolly just use Xialong's new function in eval for this. 
         #log_wandb_mean_metrics(config, mse_list, ap_list, auc_list, brier_list) # correct and reimplment this
-
-
-# --------------------------------------------------
-
-
-# Why is this not in the utils_prediction.py file? 
-#def evaluate_posterior(model, views_vol, config, device):
-#
-#    """
-#    Samples from and evaluates the posterior distribution of the model.
-#
-#    This function evaluates the posterior distribution of the model, computes metrics
-#    such as mean squared error, average precision, AUC, and Brier score, and logs the results.
-#    If not running a sweep, it also pickles and saves the posterior, metrics, and test volumes.
-#
-#    Args:
-#        model: The trained model to evaluate.
-#        views_vol: The input data volume.
-#        config: Configuration object containing parameters and settings.
-#        device: The device (CPU or GPU) on which to run the evaluation.    
-#    """
-#
-#    posterior_list, posterior_list_class, out_of_sample_vol, full_tensor, metadat_tensor = sample_posterior(model, views_vol, config, device)
-#
-#    # YOU ARE MISSING SOMETHING ABOUT FEATURES HERE WHICH IS WHY YOU REPORTED AP ON WandB IS BIASED DOWNWARDS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!RYRYRYRYERYERYR
-#    # need to check you "offline" evaluation script which is correctlly implemented before you use this function for forecasting.
-#    
-#    # Get mean and std
-#    mean_array = np.array(posterior_list).mean(axis = 0) # get mean for each month!
-#    std_array = np.array(posterior_list).std(axis = 0)
-#
-#    mean_class_array = np.array(posterior_list_class).mean(axis = 0) # get mean for each month!
-#    std_class_array = np.array(posterior_list_class).std(axis = 0)
-#
-#    out_sample_month_list = [] # only used for pickle...
-#    ap_list = []
-#    mse_list = []
-#    auc_list = []
-#    brier_list = []
-#
-#    for i in range(mean_array.shape[0]): #  0 of mean array is the temporal dim
-#
-#        y_score = mean_array[i].reshape(-1) # make it 1d  # nu 180x180
-#        y_score_prob = mean_class_array[i].reshape(-1) # nu 180x180
-#
-#        # do not really know what to do with these yet.
-#        y_var = std_array[i].reshape(-1)  # nu 180x180
-#        y_var_prob = std_class_array[i].reshape(-1)  # nu 180x180
-#
-#        y_true = out_of_sample_vol[:,i].reshape(-1)  # nu 180x180 . dim 0 is time
-#        y_true_binary = (y_true > 0) * 1
-#
-#        # log the metrics to WandB - but why here? 
-#        log_dict = get_log_dict(i, mean_array, mean_class_array, std_array, std_class_array, out_of_sample_vol, config)# so at least it gets reported sep.
-#
-#        wandb.log(log_dict)
-#
-#        # this could be a function in utils_wandb or in common_utils... 
-#        mse = mean_squared_error(y_true, y_score)  
-#        ap = average_precision_score(y_true_binary, y_score_prob)
-#        auc = roc_auc_score(y_true_binary, y_score_prob)
-#        brier = brier_score_loss(y_true_binary, y_score_prob)
-#
-#        out_sample_month_list.append(i) # only used for pickle...
-#        mse_list.append(mse)
-#        ap_list.append(ap) # add to list.
-#        auc_list.append(auc)
-#        brier_list.append(brier)
-#
-#
-#    if not config.sweep:
-#            
-#        _ , _, PATH_GENERATED = setup_data_paths(PATH)
-#
-#        # if the path does not exist, create it - maybe doable with Pathlib, but this is a well recognized way of doing it.
-#        #if not os.path.exists(PATH_GENERATED):
-#        #    os.makedirs(PATH_GENERATED)
-#
-#        # Pathlib alternative 
-#        Path(PATH_GENERATED).mkdir(parents=True, exist_ok=True)
-#
-#        # print for debugging
-#        print(f'PATH to generated data: {PATH_GENERATED}')
-#
-#        # pickle the posterior dict, metric dict, and test vol
-#        # Should be time_steps and run_type in the name....
-#
-#        posterior_dict = {'posterior_list' : posterior_list, 'posterior_list_class': posterior_list_class, 'out_of_sample_vol' : out_of_sample_vol}
-#
-#        metric_dict = {'out_sample_month_list' : out_sample_month_list, 'mse_list': mse_list,
-#                        'ap_list' : ap_list, 'auc_list': auc_list, 'brier_list' : brier_list}
-#
-#
-#        # Note: we are using the model_time_stamp from the model artifact to denote the time stamp for the pkl files
-#        # This is to ensure that the pkl files are easily identifiable and associated with the correct model artifact
-#        # But it also means that running evaluation on the same model artifact multiple times will overwrite the pkl files
-#        # I think this is fine, but we should think about cases where we might want to evaluate the same model artifact multiple times - maybe for robustiness checks or something for publication. 
-#
-#        with open(f'{PATH_GENERATED}/posterior_dict_{config.time_steps}_{config.run_type}_{config.model_time_stamp}.pkl', 'wb') as file:
-#            pickle.dump(posterior_dict, file)       
-#
-#        with open(f'{PATH_GENERATED}/metric_dict_{config.time_steps}_{config.run_type}_{config.model_time_stamp}.pkl', 'wb') as file:
-#            pickle.dump(metric_dict, file)
-#
-#        with open(f'{PATH_GENERATED}/test_vol_{config.time_steps}_{config.run_type}_{config.model_time_stamp}.pkl', 'wb') as file: # make it numpy
-#            pickle.dump(full_tensor.cpu().numpy(), file)
-#
-#        print('Posterior dict, metric dict and test vol pickled and dumped!')
-#
-#
-#    else:
-#        print('Running sweep. NO posterior dict, metric dict, or test vol pickled+dumped')
-#
-#    log_wandb_mean_metrics(config, mse_list, ap_list, auc_list, brier_list)
-#
 
 
 def evaluate_model_artifact(config, device, views_vol, PATH_ARTIFACTS, artifact_name=None):
