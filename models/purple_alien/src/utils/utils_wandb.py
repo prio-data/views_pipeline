@@ -99,7 +99,7 @@ def generate_wandb_log_dict(log_dict, dict_of_eval_dicts, feature, step):
     return log_dict 
 
 
-def generate_wandb_mean_metric_log_dict(dict_of_eval_dicts):
+def generate_wandb_mean_metrics_log_dict(dict_of_eval_dicts):
     """
     Calculates the mean of each evaluation metric from a dictionary of evaluation results and 
     returns a dictionary formatted for WandB logging.
