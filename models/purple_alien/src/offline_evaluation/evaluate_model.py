@@ -121,7 +121,7 @@ def evaluate_posterior(model, views_vol, config, device): # is eval in config?
 
             log_dict = generate_wandb_log_dict(log_dict, dict_of_evel_dicts, j, step)
 
-        3 if eval:
+        # if eval:
         log_dict_list.append(log_dict)
             #wandb.log(log_dict)
 
