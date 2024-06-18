@@ -44,9 +44,18 @@ from utils_evaluation_metrics import EvaluationMetrics
 def evaluate_posterior(model, views_vol, config, device): # is eval in config?
 
     """
-    
-    
-    """
+    Evaluates the posterior predictions from a given model on the provided views_vol, calculates evaluation metrics,
+    and logs the results using WandB. Optionally saves the results and generated tensors if not running a sweep.
+
+    Args:
+        model (torch.nn.Module): The model used for generating predictions.
+        views_vol (np.ndarray): The input volume data used by the model for predictions.
+        config (object): Configuration object containing attributes like `time_steps`, `run_type`, and `model_time_stamp`.
+        device (torch.device): The device to run the model on (e.g., 'cuda' or 'cpu').
+
+    Returns:
+        None
+    """ 
 
     posterior_list, posterior_list_class, out_of_sample_vol, out_of_sample_meta_vol, full_tensor, metadata_tensor = sample_posterior(model, views_vol, config, device)
 
@@ -136,64 +145,8 @@ def evaluate_posterior(model, views_vol, config, device): # is eval in config?
         posterior_dict = {'posterior_list' : posterior_list, 'posterior_list_class': posterior_list_class, 'out_of_sample_vol' : out_of_sample_vol}
         save_model_outputs(PATH, config, posterior_dict, dict_of_outputs_dicts, dict_of_eval_dicts, full_tensor, metadata_tensor)
 
-#        _ , _, PATH_GENERATED = setup_data_paths(PATH)
-#
-#        # if the path does not exist, create it - maybe doable with Pathlib, but this is a well recognized way of doing it.
-#        #if not os.path.exists(PATH_GENERATED):
-#        #    os.makedirs(PATH_GENERATED)
-#
-#        # Pathlib alternative 
-#        Path(PATH_GENERATED).mkdir(parents=True, exist_ok=True)
-#
-#        # print for debugging
-#        print(f'PATH to generated data: {PATH_GENERATED}')
-#
-#        # pickle the posterior dict, metric dict, and test vol
-#        # Should be time_steps and run_type in the name....
-#
-#        posterior_dict = {'posterior_list' : posterior_list, 'posterior_list_class': posterior_list_class, 'out_of_sample_vol' : out_of_sample_vol}
-#
-#        # You don't use this anymore.
-#        # metric_dict = {'out_sample_month_list' : out_sample_month_list, 'mse_list': mse_list,
-#        #                'ap_list' : ap_list, 'auc_list': auc_list, 'brier_list' : brier_list}
-#
-#        # BUG FIX THIS
-#        df_sb_os_ns_output = output_to_df(dict_of_outputs_dicts)
-#        df_sb_os_ns_evaluation = evaluation_to_df(dict_of_eval_dicts)
-#        #df_sb_os_ns_eval = evaluation_to_df(dict_of_eval_dicts)
-#
-#        # Note: we are using the model_time_stamp from the model artifact to denote the time stamp for the pkl files
-#        # This is to ensure that the pkl files are easily identifiable and associated with the correct model artifact
-#        # But it also means that running evaluation on the same model artifact multiple times will overwrite the pkl files
-#        # I think this is fine, but we should think about cases where we might want to evaluate the same model artifact multiple times - maybe for robustiness checks or something for publication. 
-#
-#        with open(f'{PATH_GENERATED}/posterior_dict_{config.time_steps}_{config.run_type}_{config.model_time_stamp}.pkl', 'wb') as file:
-#            pickle.dump(posterior_dict, file)       
-#
-#        # used to be made out of lists above. You don't do that now... 
-#        #with open(f'{PATH_GENERATED}/metric_dict_{config.time_steps}_{config.run_type}_{config.model_time_stamp}.pkl', 'wb') as file:
-#        #    pickle.dump(metric_dict, file)
-#
-#        with open(f'{PATH_GENERATED}/df_sb_os_ns_output_{config.time_steps}_{config.run_type}_{config.model_time_stamp}.pkl', 'wb') as file: # make it numpy
-#            pickle.dump(df_sb_os_ns_output, file)
-#
-#        with open(f'{PATH_GENERATED}/df_sb_os_ns_evaluation_{config.time_steps}_{config.run_type}_{config.model_time_stamp}.pkl', 'wb') as file:
-#            pickle.dump(df_sb_os_ns_evaluation, file)
-#
-#        with open(f'{PATH_GENERATED}/test_vol_{config.time_steps}_{config.run_type}_{config.model_time_stamp}.pkl', 'wb') as file: # make it numpy
-#            pickle.dump(full_tensor.cpu().numpy(), file)
-#
-#        with open(f'{PATH_GENERATED}/metadata_vol_{config.time_steps}_{config.run_type}_{config.model_time_stamp}.pkl', 'wb') as file:
-#            pickle.dump(metadata_tensor.cpu().numpy(), file)
-#
-#        print('Posterior dict, (no metric dict?) but df and test vol pickled and dumped!')
-#
     else:
         print('Running sweep. NO posterior dict, metric dict, or test vol pickled+dumped')
-#
-#        # prolly just use Xialong's new function in eval for this. 
-#        #log_wandb_mean_metrics(config, mse_list, ap_list, auc_list, brier_list) # correct and reimplment this
-#    #log_wandb_mean_metrics(config, df_sb_os_ns_evaluation) # correct and reimplment this
 
 
 def evaluate_model_artifact(config, device, views_vol, PATH_ARTIFACTS, artifact_name=None):
