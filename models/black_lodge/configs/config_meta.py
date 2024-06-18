@@ -1,4 +1,4 @@
-def get_model_config():
+def get_meta_config():
     """
     Contains the common configuration settings for the model (model architecture, name, target variable, level of analysis and deployment status).
 
@@ -19,4 +19,4 @@ def get_model_config():
         "preprocessing": "float_it", #new
         "data_train": "baseline002", #new    
         }
-    return model_config 
+    return meta_config #formely model_config
