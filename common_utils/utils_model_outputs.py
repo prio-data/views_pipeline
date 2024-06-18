@@ -21,6 +21,8 @@ class ModelOutputs:
         y_true_binary (Optional[List[int]]): True binary values (0 or 1).
         pg_id (Optional[List[int]]): The priogrid id.
         c_id (Optional[List[int]]): The country id.
+        month_id (Optional[List[int]]): The month id.
+        step (Optional[List[int]]): The step ahead forecast.
     """
 
     y_score: Optional[List[float]] = field(default_factory=list)
@@ -31,6 +33,8 @@ class ModelOutputs:
     y_true_binary: Optional[List[int]] = field(default_factory=list)
     pg_id: Optional[List[int]] = field(default_factory=list)
     c_id: Optional[List[int]] = field(default_factory=list)
+    month_id: Optional[List[int]] = field(default_factory=list)
+    step: Optional[List[int]] = field(default_factory=list)
 
     @classmethod
     def make_output_dict(cls, steps=36) -> dict:
