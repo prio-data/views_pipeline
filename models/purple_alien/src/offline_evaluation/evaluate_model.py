@@ -170,7 +170,7 @@ def evaluate_posterior(model, views_vol, config, device): # is eval in config?
         with open(f'{PATH_GENERATED}/metadata_vol_{config.time_steps}_{config.run_type}_{config.model_time_stamp}.pkl', 'wb') as file:
             pickle.dump(metadata_tensor.cpu().numpy(), file)
 
-        print('Posterior dict, metric dict and test vol pickled and dumped!')
+        print('Posterior dict, (no metric dict?) but df and test vol pickled and dumped!')
 
     else:
         print('Running sweep. NO posterior dict, metric dict, or test vol pickled+dumped')
