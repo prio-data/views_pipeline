@@ -12,7 +12,7 @@ sys.path.insert(0, str(Path(*[i for i in PATH.parts[:PATH.parts.index("views_pip
 from set_path import setup_project_paths, setup_data_paths
 setup_project_paths(PATH)
 
-from utils_evaluation_metrics import evaluation_to_df
+from utils_hydranet_outputs import evaluation_to_df
 
 # there are things in other utils that should be here...
 
