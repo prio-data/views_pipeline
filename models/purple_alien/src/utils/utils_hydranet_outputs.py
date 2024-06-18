@@ -1,3 +1,5 @@
+import pickle
+
 from sklearn.metrics import mean_squared_error, average_precision_score, roc_auc_score, brier_score_loss
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -124,6 +126,78 @@ def evaluation_to_df(dict_of_eval_dicts):
     df_all_eval = pd.concat([df_sb_eval, df_ns_eval, df_os_eval], axis=1)
 
     return df_all_eval
+
+
+def save_model_outputs(PATH, config, posterior_dict, dict_of_outputs_dicts, dict_of_eval_dicts, full_tensor, metadata_tensor):
+    """
+    Sets up data paths, creates necessary directories, and saves model outputs including posterior dictionary, 
+    evaluation metrics, and tensors to pickle files.
+
+    Args:
+        PATH (str): The base path for saving data.
+        config (object): Configuration object containing attributes such as time_steps, run_type, and model_time_stamp.
+        posterior_dict (dict): Dictionary containing posterior list, posterior list class, and out-of-sample volume.
+        dict_of_outputs_dicts (dict): Dictionary containing model outputs.
+        dict_of_eval_dicts (dict): Dictionary containing evaluation metrics.
+        full_tensor (torch.Tensor): Tensor containing full dataset for predictions.
+        metadata_tensor (torch.Tensor): Tensor containing metadata for the dataset.
+    """
+    _, _, PATH_GENERATED = setup_data_paths(PATH)
+
+    # Create the directory if it does not exist
+    Path(PATH_GENERATED).mkdir(parents=True, exist_ok=True)
+    print(f'PATH to generated data: {PATH_GENERATED}')
+
+    # Convert dicts of outputs and evaluation metrics to DataFrames
+    df_sb_os_ns_output = output_to_df(dict_of_outputs_dicts)
+    df_sb_os_ns_evaluation = evaluation_to_df(dict_of_eval_dicts)
+
+    # Save the posterior dictionary
+    posterior_path = f'{PATH_GENERATED}/posterior_dict_{config.time_steps}_{config.run_type}_{config.model_time_stamp}.pkl'
+    with open(posterior_path, 'wb') as file:
+        pickle.dump(posterior_dict, file)
+
+    # Save the DataFrame of model outputs
+    outputs_path = f'{PATH_GENERATED}/df_sb_os_ns_output_{config.time_steps}_{config.run_type}_{config.model_time_stamp}.pkl'
+    with open(outputs_path, 'wb') as file:
+        pickle.dump(df_sb_os_ns_output, file)
+
+    # Save the DataFrame of evaluation metrics
+    evaluation_path = f'{PATH_GENERATED}/df_sb_os_ns_evaluation_{config.time_steps}_{config.run_type}_{config.model_time_stamp}.pkl'
+    with open(evaluation_path, 'wb') as file:
+        pickle.dump(df_sb_os_ns_evaluation, file)
+
+    # Save the tensors
+    test_vol_path = f'{PATH_GENERATED}/test_vol_{config.time_steps}_{config.run_type}_{config.model_time_stamp}.pkl'
+    with open(test_vol_path, 'wb') as file:
+        pickle.dump(full_tensor.cpu().numpy(), file)
+
+    metadata_vol_path = f'{PATH_GENERATED}/metadata_vol_{config.time_steps}_{config.run_type}_{config.model_time_stamp}.pkl'
+    with open(metadata_vol_path, 'wb') as file:
+        pickle.dump(metadata_tensor.cpu().numpy(), file)
+
+    print('Posterior dict, outputs, evaluation metrics, and tensors pickled and saved!')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 def plot_metrics(df_all, feature = 0):
