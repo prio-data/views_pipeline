@@ -393,59 +393,121 @@ def get_train_tensors(views_vol, sample, config, device):
     return train_tensor
 
 
-def get_full_tensor(views_vol, config, device):
+#def get_full_tensor(views_vol, config, device):
+#
+#    """
+#    Uses to get the features for the full tensor
+#    Used for out-of-sample predictions for both evaluation and forecasting, depending on the run_type (partition). 
+#    The test tensor is of size 1 x config.time_steps x config.input_channels x 180 x 180.
+#    """
+#
+#    ln_best_sb_idx = config.first_feature_idx # 5 = ln_best_sb
+#    last_feature_idx = ln_best_sb_idx + config.input_channels
+#
+#    print(f'views_vol shape {views_vol.shape}')  # (months, 180, 180, 8)
+#
+#    full_tensor = torch.tensor(views_vol).float().unsqueeze(dim=0).permute(0,1,4,2,3)[:, :, ln_best_sb_idx:last_feature_idx, :, :] 
+#
+#    print(f'full_tensor shape {full_tensor.shape}') # (1, months, 3, 180, 180) 
+#
+#    return full_tensor 
 
-    """Uses to get the features for the full tensor
-    Used for out-of-sample predictions for both evaluation and forecasting, depending on the run_type (partition). 
-    The test tensor is of size 1 x config.time_steps x config.input_channels x 180 x 180."""
 
-    ln_best_sb_idx = config.first_feature_idx # 5 = ln_best_sb
-    last_feature_idx = ln_best_sb_idx + config.input_channels
+def get_full_tensor(views_vol, config = None):
+
+    """
+    Converts the input 4D volume array into PyTorch tensors for model input, separating feature and metadata tensors.
+
+    This function transforms the input `views_vol`, which is a 4D numpy array, into two PyTorch tensors: 
+    `full_tensor` and `metadata_tensor`. The `full_tensor` is used for model input and contains the features 
+    specified for out-of-sample predictions. The `metadata_tensor` retains other columns not used as features 
+    and is kept for metadata purposes.
+
+    Args:
+        views_vol (np.ndarray): A 4D numpy array with shape [n_months, height, width, n_features]. This volume 
+                                contains spatial-temporal data with both features and metadata.
+
+    Returns:
+        Tuple[torch.Tensor, torch.Tensor]: 
+            - `full_tensor` (torch.Tensor): A tensor with the selected features, of shape 
+              [1, n_months, selected_features, height, width]. This tensor is used for out-of-sample 
+              predictions for both evaluation and forecasting.
+
+            - `metadata_tensor` (torch.Tensor): A tensor with the metadata, of shape 
+              [1, n_months, metadata_features, height, width]. This tensor contains the remaining columns 
+              of the original volume not used in `full_tensor`.
+
+        Example:
+        >>> views_vol = np.random.rand(36, 180, 180, 8)  # Example input volume
+        >>> full_tensor, metadata_tensor = get_full_tensor(views_vol)
+        >>> print(full_tensor.shape)
+        torch.Size([1, 36, 3, 180, 180]) 
+        >>> print(metadata_tensor.shape)
+        torch.Size([1, 36, 5, 180, 180])
+    
+    Notes:
+        - The function assumes that the feature index for the main feature starts at position 5 (`ln_best_sb_idx`) 
+          and the number of features to be used is defined by `month_range`.
+        - Ensure that the input `views_vol` is structured correctly to match the expected dimensions and content.
+
+    """
+
+    ln_best_sb_idx = 5#config.first_feature_idx # 5 = ln_best_sb
+
+    if config is not None:
+        last_feature_idx = ln_best_sb_idx + config.input_channels
+
+    else:
+        last_feature_idx = ln_best_sb_idx + 3 # hard coded, but just for testing when no config is passed
 
     print(f'views_vol shape {views_vol.shape}')
 
+    # THIS IS WHERE YOU LOOSE THE OTHE FEATURES!!!!
     full_tensor = torch.tensor(views_vol).float().unsqueeze(dim=0).permute(0,1,4,2,3)[:, :, ln_best_sb_idx:last_feature_idx, :, :] 
+
+    # Make a metadata tensor with evrything else
+    metadata_tensor = torch.tensor(views_vol).float().unsqueeze(dim=0).permute(0,1,4,2,3)[:, :, :ln_best_sb_idx, :, :]
 
     print(f'full_tensor shape {full_tensor.shape}')
 
-    return full_tensor 
+    return full_tensor, metadata_tensor 
 
 
 
-def get_log_dict(i, mean_array, mean_class_array, std_array, std_class_array, out_of_sample_vol, config):
-
-    """Return a dictionary of metrics for the monthly out-of-sample predictions for W&B."""
-
-    log_dict = {}
-    log_dict["monthly/out_sample_month"] = i
-
-
-    #Fix in a sec when you see if it runs at all.... 
-    for j in range(3): #(config.targets): # TARGETS IS & BUT THIS SHOULD BE 3!!!!!
-
-        y_score = mean_array[i,j,:,:].reshape(-1) # make it 1d  # nu 180x180 
-        y_score_prob = mean_class_array[i,j,:,:].reshape(-1) # nu 180x180 
-        
-        # do not really know what to do with these yet.
-        y_var = std_array[i,j,:,:].reshape(-1)  # nu 180x180  
-        y_var_prob = std_class_array[i,j,:,:].reshape(-1)  # nu 180x180 
-
-        y_true = out_of_sample_vol[:,i,j,:,:].reshape(-1)  # nu 180x180 . dim 0 is time
-        y_true_binary = (y_true > 0) * 1
-
-
-        mse = mean_squared_error(y_true, y_score)
-        ap = average_precision_score(y_true_binary, y_score_prob)
-        auc = roc_auc_score(y_true_binary, y_score_prob)
-        brier = brier_score_loss(y_true_binary, y_score_prob)
-
-        log_dict[f"monthly/mean_squared_error{j}"] = mse
-        log_dict[f"monthly/average_precision_score{j}"] = ap
-        log_dict[f"monthly/roc_auc_score{j}"] = auc
-        log_dict[f"monthly/brier_score_loss{j}"] = brier
-
-    return log_dict
-
+# def get_log_dict(i, mean_array, mean_class_array, std_array, std_class_array, out_of_sample_vol, config):
+# 
+#     """Return a dictionary of metrics for the monthly out-of-sample predictions for W&B."""
+# 
+#     log_dict = {}
+#     log_dict["monthly/out_sample_month"] = i
+# 
+# 
+#     #Fix in a sec when you see if it runs at all.... 
+#     for j in range(3): #(config.targets): # TARGETS IS & BUT THIS SHOULD BE 3!!!!!
+# 
+#         y_score = mean_array[i,j,:,:].reshape(-1) # make it 1d  # nu 180x180 
+#         y_score_prob = mean_class_array[i,j,:,:].reshape(-1) # nu 180x180 
+#         
+#         # do not really know what to do with these yet.
+#         y_var = std_array[i,j,:,:].reshape(-1)  # nu 180x180  
+#         y_var_prob = std_class_array[i,j,:,:].reshape(-1)  # nu 180x180 
+# 
+#         y_true = out_of_sample_vol[:,i,j,:,:].reshape(-1)  # nu 180x180 . dim 0 is time
+#         y_true_binary = (y_true > 0) * 1
+# 
+# 
+#         mse = mean_squared_error(y_true, y_score)
+#         ap = average_precision_score(y_true_binary, y_score_prob)
+#         auc = roc_auc_score(y_true_binary, y_score_prob)
+#         brier = brier_score_loss(y_true_binary, y_score_prob)
+# 
+#         log_dict[f"monthly/mean_squared_error{j}"] = mse
+#         log_dict[f"monthly/average_precision_score{j}"] = ap
+#         log_dict[f"monthly/roc_auc_score{j}"] = auc
+#         log_dict[f"monthly/brier_score_loss{j}"] = brier
+# 
+#     return log_dict
+# 
 
 def execute_freeze_h_option(config, model, t0, h_tt):
 

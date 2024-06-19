@@ -178,6 +178,14 @@ cython_debug/
 *.mp4
 *.png
 *.svg
+*.jpeg
+*.gif
+
+# presentation files
+*.pptx
+*.ppt
+*.pdf
+*.html
 
 # data files
 *.csv
@@ -195,3 +203,6 @@ cython_debug/
 # vscode
 .idea/
 .vscode
+
+# backup files
+*.bak
