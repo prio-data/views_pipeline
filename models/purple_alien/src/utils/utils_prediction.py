@@ -27,8 +27,8 @@ from set_path import setup_project_paths, setup_data_paths
 setup_project_paths(PATH)
 
 
-from utils import choose_model, choose_loss, choose_sheduler, get_train_tensors, get_full_tensor, apply_dropout, execute_freeze_h_option, get_log_dict, train_log, init_weights, get_data
-from config_sweep import get_swep_config
+from utils import choose_model, choose_loss, choose_sheduler, get_train_tensors, get_full_tensor, apply_dropout, execute_freeze_h_option, train_log, init_weights, get_data
+from config_sweep import get_sweep_config
 from config_hyperparameters import get_hp_config
 
 
@@ -123,8 +123,10 @@ def sample_posterior(model, views_vol, config, device):
 
     # REALLY BAD NAME!!!!
     # Why do you put this test tensor on device here??!? 
-    full_tensor = get_full_tensor(views_vol, config, device) # better cal this evel tensor
+    full_tensor, metadata_tensor = get_full_tensor(views_vol, config) # better cal this evel tensor
     out_of_sample_vol = full_tensor[:,-config.time_steps:,:,:,:].cpu().numpy() # From the test tensor get the out-of-sample time_steps. 
+    out_of_sample_meta_vol = metadata_tensor[:,-config.time_steps:,:,:,:]
+
 
     posterior_list = []
     posterior_list_class = []
@@ -139,5 +141,5 @@ def sample_posterior(model, views_vol, config, device):
         #if i % 10 == 0: # print steps 10
         #print(f'Posterior sample: {sample}/{config.test_samples}', end = '\r') # could and should put this in the predict function above.
 
-    return posterior_list, posterior_list_class, out_of_sample_vol, full_tensor
+    return posterior_list, posterior_list_class, out_of_sample_vol, out_of_sample_meta_vol, full_tensor, metadata_tensor
 

@@ -20,7 +20,7 @@ from set_path import setup_project_paths, setup_data_paths
 setup_project_paths(PATH)
 
 
-from utils import choose_model, choose_loss, choose_sheduler, get_train_tensors, get_full_tensor, apply_dropout, execute_freeze_h_option, get_log_dict, train_log, init_weights, get_data
+from utils import choose_model, choose_loss, choose_sheduler, get_train_tensors, get_full_tensor, apply_dropout, execute_freeze_h_option, train_log, init_weights, get_data
 from utils_prediction import predict, sample_posterior
 from config_hyperparameters import get_hp_config
 

@@ -9,7 +9,6 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-
 #from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import average_precision_score
 from sklearn.metrics import roc_auc_score
@@ -27,37 +26,46 @@ from set_path import setup_project_paths, setup_data_paths
 setup_project_paths(PATH)
 
 
-from utils import choose_model, choose_loss, choose_sheduler, get_train_tensors, get_full_tensor, apply_dropout, execute_freeze_h_option, get_log_dict, train_log, init_weights, get_data
+from utils import choose_model, choose_loss, choose_sheduler, get_train_tensors, get_full_tensor, apply_dropout, execute_freeze_h_option, train_log, init_weights, get_data
 from utils_prediction import predict, sample_posterior
-from artifacts_utils import get_latest_model_artifact
-from utils_wandb import log_wandb_monthly_metrics
-from config_sweep import get_swep_config
+from utils_artifacts import get_latest_model_artifact
+from utils_wandb import generate_wandb_log_dict, generate_wandb_mean_metrics_log_dict
+from config_sweep import get_sweep_config
 from config_hyperparameters import get_hp_config
+from utils_hydranet_outputs import output_to_df, evaluation_to_df, save_model_outputs
 
 
+from utils_model_outputs import ModelOutputs
+from utils_evaluation_metrics import EvaluationMetrics
 
-# should be called evaluate_posterior.... 
-def evaluate_posterior(model, views_vol, config, device):
+
+# so if this is mand more general and the if evals in activated then it should be in the utils_prediction.py file.
+# also it could 100% be multiple functions...
+def evaluate_posterior(model, views_vol, config, device): # is eval in config?
 
     """
-    Samples from and evaluates the posterior distribution of the model.
-
-    This function evaluates the posterior distribution of the model, computes metrics
-    such as mean squared error, average precision, AUC, and Brier score, and logs the results.
-    If not running a sweep, it also pickles and saves the posterior, metrics, and test volumes.
+    Evaluates the posterior predictions from a given model on the provided views_vol, calculates evaluation metrics,
+    and logs the results using WandB. Optionally saves the results and generated tensors if not running a sweep.
 
     Args:
-        model: The trained model to evaluate.
-        views_vol: The input data volume.
-        config: Configuration object containing parameters and settings.
-        device: The device (CPU or GPU) on which to run the evaluation.    
-    """
+        model (torch.nn.Module): The model used for generating predictions.
+        views_vol (np.ndarray): The input volume data used by the model for predictions.
+        config (object): Configuration object containing attributes like `time_steps`, `run_type`, and `model_time_stamp`.
+        device (torch.device): The device to run the model on (e.g., 'cuda' or 'cpu').
 
-    posterior_list, posterior_list_class, out_of_sample_vol, full_tensor = sample_posterior(model, views_vol, config, device)
+    Returns:
+        None
+    """ 
 
-    # YOU ARE MISSING SOMETHING ABOUT FEATURES HERE WHICH IS WHY YOU REPORTED AP ON WandB IS BIASED DOWNWARDS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!RYRYRYRYERYERYR
-    # need to check you "offline" evaluation script which is correctlly implemented before you use this function for forecasting.
-    
+    posterior_list, posterior_list_class, out_of_sample_vol, out_of_sample_meta_vol, full_tensor, metadata_tensor = sample_posterior(model, views_vol, config, device)
+
+    #if eval:
+    dict_of_eval_dicts = {}
+    dict_of_eval_dicts = {k: EvaluationMetrics.make_evaluation_dict(steps=config.time_steps) for k in ["sb", "ns", "os"]}
+
+    dict_of_outputs_dicts = {}
+    dict_of_outputs_dicts = {k: ModelOutputs.make_output_dict(steps=config.time_steps) for k in ["sb", "ns", "os"]}
+
     # Get mean and std
     mean_array = np.array(posterior_list).mean(axis = 0) # get mean for each month!
     std_array = np.array(posterior_list).std(axis = 0)
@@ -65,93 +73,80 @@ def evaluate_posterior(model, views_vol, config, device):
     mean_class_array = np.array(posterior_list_class).mean(axis = 0) # get mean for each month!
     std_class_array = np.array(posterior_list_class).std(axis = 0)
 
-    out_sample_month_list = [] # only used for pickle...
-    ap_list = []
-    mse_list = []
-    auc_list = []
-    brier_list = []
 
-    for i in range(mean_array.shape[0]): #  0 of mean array is the temporal dim
+    for t in range(mean_array.shape[0]): #  0 of mean array is the temporal dim    
 
-        y_score = mean_array[i].reshape(-1) # make it 1d  # nu 180x180
-        y_score_prob = mean_class_array[i].reshape(-1) # nu 180x180
+        log_dict = {}
+        log_dict["monthly/out_sample_month"] = t +1 # 1 indexed, bc the first step is 1 month ahead
 
-        # do not really know what to do with these yet.
-        y_var = std_array[i].reshape(-1)  # nu 180x180
-        y_var_prob = std_class_array[i].reshape(-1)  # nu 180x180
+        for i, j in enumerate(dict_of_eval_dicts.keys()): # this is the same as the above but with the dict keys
 
-        y_true = out_of_sample_vol[:,i].reshape(-1)  # nu 180x180 . dim 0 is time
-        y_true_binary = (y_true > 0) * 1
+            step = f"step{str(t+1).zfill(2)}"
 
-        # log the metrics to WandB - but why here? 
-        log_dict = get_log_dict(i, mean_array, mean_class_array, std_array, std_class_array, out_of_sample_vol, config)# so at least it gets reported sep.
+            # get the scores
+            y_score = mean_array[t,i,:,:].reshape(-1) # make it 1d  # nu 180x180 
+            y_score_prob = mean_class_array[t,i,:,:].reshape(-1) # nu 180x180 
 
+            # do not really know what to do with these yet.
+            y_var = std_array[t,i,:,:].reshape(-1)  # nu 180x180  
+            y_var_prob = std_class_array[t,i,:,:].reshape(-1)  # nu 180x180 
+
+            # see this is the out of sample vol - fine for evaluation but not for forecasting
+            # but also the place where you get the pgm.. 
+
+            #if eval:
+            y_true = out_of_sample_vol[:,t,i,:,:].reshape(-1)  # nu 180x180 . dim 0 is time     THE TRICK IS NOW TO USE A df -> vol and not out_of_sample_vol...
+            y_true_binary = (y_true > 0) * 1
+
+            # in theorty you could just use the metadata tensor to get pg and c id here
+            pg_id = out_of_sample_meta_vol[:,t,0,:,:].reshape(-1)  # nu 180x180, dim 1 is time . dim 2 is feature. feature 0 is pg_id
+            c_id = out_of_sample_meta_vol[:,t,4,:,:].reshape(-1)  # nu 180x180, dim 1 is time . dim 2 is feature. feature 4 is c_id
+            month_id = out_of_sample_meta_vol[:,t,3,:,:].reshape(-1)  # nu 180x180, dim 1 is time . dim 2 is feature. feature 3 is month_id
+
+            dict_of_outputs_dicts[j][step].y_true = y_true
+            dict_of_outputs_dicts[j][step].y_true_binary = y_true_binary
+
+            #else: # you need to make sure this works for forecasting
+                # in theorty you could just use the metadata tensor to get pg and c id here
+            pg_id = out_of_sample_meta_vol[:,t,0,:,:].reshape(-1)  # nu 180x180, dim 1 is time . dim 2 is feature. feature 0 is pg_id
+            c_id = out_of_sample_meta_vol[:,t,4,:,:].reshape(-1)  # nu 180x180, dim 1 is time . dim 2 is feature. feature 4 is c_id
+            month_id = out_of_sample_meta_vol[:,t,3,:,:].reshape(-1)  # nu 180x180, dim 1 is time . dim 2 is feature. feature 3 is month_id
+
+
+            dict_of_outputs_dicts[j][step].y_score = y_score
+            dict_of_outputs_dicts[j][step].y_score_prob = y_score_prob
+            dict_of_outputs_dicts[j][step].y_var = y_var
+            dict_of_outputs_dicts[j][step].y_var_prob = y_var_prob
+
+            dict_of_outputs_dicts[j][step].pg_id = pg_id # in theory this should be in the right order
+            dict_of_outputs_dicts[j][step].c_id = c_id # in theory this should be in the right order
+            dict_of_outputs_dicts[j][step].step = t +1 # 1 indexed, bc the first step is 1 month ahead
+            dict_of_outputs_dicts[j][step].month_id = month_id
+
+            #if eval:   
+
+            dict_of_eval_dicts[j][step].MSE = mean_squared_error(y_true, y_score)
+            dict_of_eval_dicts[j][step].AP = average_precision_score(y_true_binary, y_score_prob)
+            dict_of_eval_dicts[j][step].AUC = roc_auc_score(y_true_binary, y_score_prob)
+            dict_of_eval_dicts[j][step].Brier = brier_score_loss(y_true_binary, y_score_prob)
+
+            # note that this actually upates the dict of eval dicts with new stepwise metric values
+            log_dict = generate_wandb_log_dict(log_dict, dict_of_eval_dicts, j, step)
+
+        # if eval:
         wandb.log(log_dict)
 
-        # this could be a function in utils_wandb or in common_utils... 
-        mse = mean_squared_error(y_true, y_score)  
-        ap = average_precision_score(y_true_binary, y_score_prob)
-        auc = roc_auc_score(y_true_binary, y_score_prob)
-        brier = brier_score_loss(y_true_binary, y_score_prob)
-
-        out_sample_month_list.append(i) # only used for pickle...
-        mse_list.append(mse)
-        ap_list.append(ap) # add to list.
-        auc_list.append(auc)
-        brier_list.append(brier)
+    mean_metric_log_dict = generate_wandb_mean_metrics_log_dict(dict_of_eval_dicts)
+    wandb.log(mean_metric_log_dict)
 
 
     if not config.sweep:
-            
-        _ , _, PATH_GENERATED = setup_data_paths(PATH)
-
-        # if the path does not exist, create it - maybe doable with Pathlib, but this is a well recognized way of doing it.
-        #if not os.path.exists(PATH_GENERATED):
-        #    os.makedirs(PATH_GENERATED)
-
-        # Pathlib alternative 
-        Path(PATH_GENERATED).mkdir(parents=True, exist_ok=True)
-
-        # print for debugging
-        print(f'PATH to generated data: {PATH_GENERATED}')
-
-        # pickle the posterior dict, metric dict, and test vol
-        # Should be time_steps and run_type in the name....
 
         posterior_dict = {'posterior_list' : posterior_list, 'posterior_list_class': posterior_list_class, 'out_of_sample_vol' : out_of_sample_vol}
-
-        metric_dict = {'out_sample_month_list' : out_sample_month_list, 'mse_list': mse_list,
-                        'ap_list' : ap_list, 'auc_list': auc_list, 'brier_list' : brier_list}
-
-
-        # Note: we are using the model_time_stamp from the model artifact to denote the time stamp for the pkl files
-        # This is to ensure that the pkl files are easily identifiable and associated with the correct model artifact
-        # But it also means that running evaluation on the same model artifact multiple times will overwrite the pkl files
-        # I think this is fine, but we should think about cases where we might want to evaluate the same model artifact multiple times - maybe for robustiness checks or something for publication. 
-
-        with open(f'{PATH_GENERATED}/posterior_dict_{config.time_steps}_{config.run_type}_{config.model_time_stamp}.pkl', 'wb') as file:
-            pickle.dump(posterior_dict, file)       
-
-        with open(f'{PATH_GENERATED}/metric_dict_{config.time_steps}_{config.run_type}_{config.model_time_stamp}.pkl', 'wb') as file:
-            pickle.dump(metric_dict, file)
-
-        with open(f'{PATH_GENERATED}/test_vol_{config.time_steps}_{config.run_type}_{config.model_time_stamp}.pkl', 'wb') as file: # make it numpy
-            pickle.dump(full_tensor.cpu().numpy(), file)
-
-        print('Posterior dict, metric dict and test vol pickled and dumped!')
-
+        save_model_outputs(PATH, config, posterior_dict, dict_of_outputs_dicts, dict_of_eval_dicts, full_tensor, metadata_tensor)
 
     else:
         print('Running sweep. NO posterior dict, metric dict, or test vol pickled+dumped')
-
-    # could be a function in utils_wandb....
-    #wandb.log({f"{config.time_steps}month_mean_squared_error": np.mean(mse_list)})
-    #wandb.log({f"{config.time_steps}month_average_precision_score": np.mean(ap_list)})
-    #wandb.log({f"{config.time_steps}month_roc_auc_score": np.mean(auc_list)})
-    #wandb.log({f"{config.time_steps}month_brier_score_loss":np.mean(brier_list)})
-
-    log_wandb_monthly_metrics(config, mse_list, ap_list, auc_list, brier_list)
-
 
 
 def evaluate_model_artifact(config, device, views_vol, PATH_ARTIFACTS, artifact_name=None):

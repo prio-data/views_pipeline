@@ -2,6 +2,9 @@ from dataclasses import dataclass
 from typing import Optional
 import pandas as pd
 
+
+# MUST BE ALIGNED WITH THE METRICS WE DECIDE TO USE IN THE WORKSHOP!!!!
+
 @dataclass
 class EvaluationMetrics:
     """

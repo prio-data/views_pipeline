@@ -9,7 +9,7 @@ sys.path.insert(0, str(Path(*[i for i in PATH.parts[:PATH.parts.index("views_pip
 from set_path import setup_project_paths, setup_artifacts_paths
 setup_project_paths(PATH)
 
-from utils import choose_model, choose_loss, choose_sheduler, get_train_tensors, get_full_tensor, apply_dropout, execute_freeze_h_option, get_log_dict, train_log, init_weights, get_data
+from utils import choose_model, choose_loss, choose_sheduler, get_train_tensors, get_full_tensor, apply_dropout, execute_freeze_h_option, train_log, init_weights, get_data
 from utils_wandb import add_wandb_monthly_metrics
 from utils_device import setup_device
 from train_model import make, training_loop, train_model_artifact #handle_training
