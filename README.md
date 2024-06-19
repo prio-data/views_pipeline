@@ -1,8 +1,6 @@
 # views_pipeline
 
-<div style="width: auto; height: 100px; overflow: hidden;">
-  <img src="https://pbs.twimg.com/profile_banners/1237000633896652800/1717069203/1500x500" alt="VIEWS Banner" style="margin-top: -100px; margin-bottom: -100px;">
-</div>
+<div style="width: 100%; height: 400px; background: url('https://pbs.twimg.com/profile_banners/1237000633896652800/1717069203/1500x500') no-repeat; background-position: center -50px; background-size: cover;"></div>
 
 The Violence & Impacts Early Warning System (VIEWS) produces monthly predictions of future violent conflict at both a country and sub-country level of analysis. This repository contains code, configuration files, and documentation that encapsulates the entire process of developing, experimenting, training, evaluating, and deploying the VIEWS machine learning model pipeline.
 
