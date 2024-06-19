@@ -1,4 +1,4 @@
-def get_swep_config():
+def get_sweep_config():
 
     """
     Contains the configuration for hyperparameter sweeps using WandB.

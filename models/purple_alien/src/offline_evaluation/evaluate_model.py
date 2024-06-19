@@ -30,7 +30,7 @@ from utils import choose_model, choose_loss, choose_sheduler, get_train_tensors,
 from utils_prediction import predict, sample_posterior
 from utils_artifacts import get_latest_model_artifact
 from utils_wandb import generate_wandb_log_dict, generate_wandb_mean_metrics_log_dict
-from config_sweep import get_swep_config
+from config_sweep import get_sweep_config
 from config_hyperparameters import get_hp_config
 from utils_hydranet_outputs import output_to_df, evaluation_to_df, save_model_outputs
 

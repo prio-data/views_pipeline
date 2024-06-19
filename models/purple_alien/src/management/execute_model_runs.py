@@ -8,7 +8,7 @@ sys.path.insert(0, str(Path(*[i for i in PATH.parts[:PATH.parts.index("views_pip
 from set_path import setup_project_paths, setup_artifacts_paths
 setup_project_paths(PATH)
 
-from config_sweep import get_swep_config
+from config_sweep import get_sweep_config
 from config_hyperparameters import get_hp_config
 #from model_run_manager import model_run_manager
 from execute_model_tasks import execute_model_tasks
@@ -18,7 +18,7 @@ def execute_sweep_run(args):
     print('Running sweep...')
 
     project = f"purple_alien_sweep" # check naming convention
-    sweep_config = get_swep_config()
+    sweep_config = get_sweep_config()
     sweep_config['parameters']['run_type'] = {'value' : "calibration"} # I see no reason to run the other types in the sweep
     sweep_config['parameters']['sweep'] = {'value' : True}
 
