@@ -1,5 +1,6 @@
 import wandb
 import numpy as np
+import torch
 import matplotlib.pyplot as plt
 
 import sys
@@ -32,7 +33,7 @@ def generate_fake_vol(vol, month_range=36):
     return fake_vol
 
 
-def make_forecast_storage_vol(df, heigth = 180, width = 180, month_range = 36):
+def make_forecast_storage_vol(df, heigth = 180, width = 180, month_range = 36, to_tensor = True):
     """
     Creates a forecast storage volume based on the last month of data in the DataFrame.
     The volume is repeated for the specified `month_range` with incrementally adjusted month IDs.
@@ -89,6 +90,10 @@ def make_forecast_storage_vol(df, heigth = 180, width = 180, month_range = 36):
 
     print(f'Volume of shape {vol.shape} created. Should be ({month_range}, 180, 180, {features_num})')
 
+    #  Convert to tensor and permute the dimensions. This make the vol similar to the out_of_sample_meta_vol and thus aligns the forcasting rutine with the eval rutine-
+    if to_tensor:
+        vol = torch.tensor(vol.copy()).float().unsqueeze(dim=0).permute(0,1,4,2,3) # the copy thing is weird but it works
+
     return vol
 
 
@@ -144,6 +149,45 @@ def check_vol_equal(vol, full_vol):
 
     for i in range(vol_trimmed.shape[-1]):
         print(f"Feature {i}, {list_features[i]} equal:", np.array_equal(vol_trimmed[:, :, :, i], full_vol[:, :, :, i]))
+
+
+def check_month_id_consistency(forecast_storage_vol, df, month_range = 36):
+    """
+    Checks the consistency of month_id values between the forecast storage volume and the DataFrame.
+
+    Args:
+        forecast_storage_vol (np.ndarray): The forecast storage volume with shape [batch, time, feature, height, width].
+        df (pd.DataFrame): The DataFrame containing month_id values.
+        month_range (int): The expected range of months in the forecast storage volume.
+
+    Raises:
+        ValueError: If there is a mismatch in month_id values between the forecast storage volume and the DataFrame.
+    """
+    # print shapes for debugging
+    print(forecast_storage_vol.shape)
+
+    # Retrieve month_id values
+    min_month_id_df = df["month_id"].min()
+    max_month_id_df = df["month_id"].max()
+    min_month_id_vol = forecast_storage_vol[:, :, 3, :, :].min()
+    max_month_id_vol = forecast_storage_vol[:, :, 3, :, :].max()
+
+    # Print month_id values for debugging
+    print(f'Min month_id in df: {min_month_id_df}')
+    print(f'Max month_id in df: {max_month_id_df}')
+    print(f'Min month_id in forecast storage: {min_month_id_vol}')
+    print(f'Max month_id in forecast storage: {max_month_id_vol}')
+
+    # so we are forecasting 36 months ahead
+    print(f'month forecasted ahead: {int(max_month_id_vol - min_month_id_vol + 1)}') 
+
+    # Check if min month_id in the forecast storage volume is 1 above the max month_id in the df
+    if min_month_id_vol != max_month_id_df + 1:
+        raise ValueError(f"Mismatch in month_id: Expected minimum month_id in storage volume to be {max_month_id_df + 1}, but got {min_month_id_vol}.")
+
+    # Check if max month_id in the forecast storage volume is month_range above the max month_id in the df
+    if max_month_id_vol != max_month_id_df + month_range:
+        raise ValueError(f"Mismatch in month_id: Expected maximum month_id in storage volume to be {max_month_id_df + month_range}, but got {max_month_id_vol}.")
 
 
 def plot_vol_comparison(vol, new_vol, month_range=36):
