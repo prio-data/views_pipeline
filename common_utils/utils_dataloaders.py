@@ -24,9 +24,8 @@ def fetch_data_from_viewser(month_first,month_last,drift_config_dict):
     df.reset_index(inplace=True)
     df.rename(columns={'priogrid_gid': 'pg_id'}, inplace=True) # arguably HydraNet or at lest vol specific
     df['in_viewser'] = True  # arguably HydraNet or at lest vol specific
-    for alert in alerts:
-        print(alert)
-    return df
+
+    return df, alerts
 
 
 def get_month_range(partition):
@@ -158,9 +157,9 @@ def get_views_df(partition,override_month=None):
         print(f'\n ***Warning: overriding end month in forecasting partition to {month_last} ***\n')
 
 
-    df = fetch_data_from_viewser(month_first, month_last, drift_config_dict)
+    df, alerts = fetch_data_from_viewser(month_first, month_last, drift_config_dict)
 
-    return df
+    return df, alerts
 
 
 def fetch_or_load_views_df(partition, PATH_RAW, use_saved=False, override_month=None):
@@ -187,6 +186,8 @@ def fetch_or_load_views_df(partition, PATH_RAW, use_saved=False, override_month=
     os.makedirs(str(PATH_RAW), exist_ok=True)
     #os.makedirs(str(PATH_PROCESSED), exist_ok=True)
 
+    alerts=None
+
     if use_saved:
         # Check if the VIEWSER data file exists
         try:
@@ -198,13 +199,13 @@ def fetch_or_load_views_df(partition, PATH_RAW, use_saved=False, override_month=
 
     else:
         print(f'Fetching file...')
-        df = get_views_df(partition, override_month) # which is then used here
+        df, alerts = get_views_df(partition, override_month) # which is then used here
         print(f'Saving file to {path_viewser_df}')
         df.to_pickle(path_viewser_df)
 
     if validate_df_partition(df, partition, override_month):
 
-        return df
+        return df, alerts
 
     else:
         raise RuntimeError(f'file at {path_viewser_df} incompatible with partition {partition}')
@@ -251,6 +252,23 @@ def create_or_load_views_vol(partition, PATH_PROCESSED, PATH_RAW):
 
     return vol
 
+def get_alert_help_string():
+
+    help_string=(f"""
+                 # Data fetching and drift detection run
+                 Issues alerts if drift detection algorithms selected in config\_drift\_detection
+                 are triggered\n
+                 ## Guide to interpreting alerts
+                 **alarm**: which detection algorithm issued the warning, e.g. feature zeros
+                 delta completeness - names should be self.explanatory\n
+                 **offender**: what entity triggered the alert - which features, space units,
+                 or time units (a dummy value is returned if the alert refers to the 
+                 whole dataset\n
+                 **threshold**: what threshold was set in config dict\n
+                 **severity**: indication of how far over the threshold the trigger is
+                 """)
+
+    return help_string
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Fetch data for different partitions')
