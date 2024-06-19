@@ -72,7 +72,7 @@ def get_drift_config_dict(partition):
 
     return drift_config_dict
 
-def validate_df_partition(df,partition,override_month):
+def validate_df_partition(df,partition,override_month=None):
 
     """
     Checks to see if the min and max months in the input dataframe are the same as the min
@@ -122,7 +122,7 @@ def filter_dataframe_by_month_range(df, month_first, month_last):
     return df[df['month_id'].isin(month_range)].copy()
 
 
-def get_views_df(partition,override_month):
+def get_views_df(partition,override_month=None):
     """
     Fetches and processes a DataFrame containing spatial-temporal data for the specified partition type.
     
