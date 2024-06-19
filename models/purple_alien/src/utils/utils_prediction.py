@@ -124,9 +124,10 @@ def sample_posterior(model, views_vol, config, device):
     # REALLY BAD NAME!!!!
     # Why do you put this test tensor on device here??!? 
     full_tensor, metadata_tensor = get_full_tensor(views_vol, config) # better cal this evel tensor
+    
+    # these two are only used for calibration and testing - not for forecasting
     out_of_sample_vol = full_tensor[:,-config.time_steps:,:,:,:].cpu().numpy() # From the test tensor get the out-of-sample time_steps. 
     out_of_sample_meta_vol = metadata_tensor[:,-config.time_steps:,:,:,:]
-
 
     posterior_list = []
     posterior_list_class = []
@@ -134,6 +135,7 @@ def sample_posterior(model, views_vol, config, device):
     for sample_i in range(config.test_samples): # number of posterior samples to draw - just set config.test_samples, no? 
 
         # full_tensor is need on device here, but maybe just do it inside the test function? 
+        # This part is agnositc regarding wheter we are doing evaluation on calibration/testing or true forecasting with no eval set.
         pred_np_list, pred_class_np_list = predict(model, full_tensor, config, device, sample_i) # Returns two lists of numpy arrays (shape 3/180/180). One list of the predicted magnitudes and one list of the predicted probabilities.
         posterior_list.append(pred_np_list)
         posterior_list_class.append(pred_class_np_list)
