@@ -7,8 +7,7 @@ The Violence & Impacts Early Warning System (VIEWS) produces monthly predictions
 ## Table of contents
 
 <!-- toc -->
-- 
-- [Repository Contents, Structur, and Explanations](#repository-contents-structure-and-explanations)
+- [Repository Contents, Structure, and Explanations](#repository-contents-structure-and-explanations)
 - [Pipeline Execution](#pipeline-execution)
 - [Pipeline Documentation](#pipeline-documentation)
 - [Other Documentation](#other-documentation)
@@ -18,12 +17,8 @@ The Violence & Impacts Early Warning System (VIEWS) produces monthly predictions
 <!-- tocstop -->
 
 
-## Pipeline diagram
-
-![VIEWS pipeline diagram](documentation/pipeline_diagram001.png)
-
-
 ## Repository Contents, Structure and Explanations
+![VIEWS pipeline diagram](documentation/pipeline_diagram001.png)
 
 ### Repository Contents
 
