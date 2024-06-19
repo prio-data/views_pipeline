@@ -30,7 +30,7 @@ from utils import choose_model, choose_loss, choose_sheduler, get_train_tensors,
 from utils_prediction import predict, sample_posterior
 from utils_artifacts import get_latest_model_artifact
 from utils_wandb import generate_wandb_log_dict, generate_wandb_mean_metrics_log_dict
-from config_sweep import get_sweep_config
+from config_sweep import get_swep_config
 from config_hyperparameters import get_hp_config
 from utils_hydranet_outputs import output_to_df, evaluation_to_df, save_model_outputs
 
@@ -59,7 +59,7 @@ def evaluate_posterior(model, views_vol, config, device): # is eval in config?
 
     posterior_list, posterior_list_class, out_of_sample_vol, out_of_sample_meta_vol, full_tensor, metadata_tensor = sample_posterior(model, views_vol, config, device)
 
-    #if eval:
+    # if eval:
     dict_of_eval_dicts = {}
     dict_of_eval_dicts = {k: EvaluationMetrics.make_evaluation_dict(steps=config.time_steps) for k in ["sb", "ns", "os"]}
 
@@ -99,10 +99,16 @@ def evaluate_posterior(model, views_vol, config, device): # is eval in config?
             y_true_binary = (y_true > 0) * 1
 
             # in theorty you could just use the metadata tensor to get pg and c id here
-            pg_id = out_of_sample_meta_vol[:,t,0,:,:].reshape(-1)  # nu 180x180, dim 1 is time . dim 2 is feature. feature 0 is pg_id
-            c_id = out_of_sample_meta_vol[:,t,4,:,:].reshape(-1)  # nu 180x180, dim 1 is time . dim 2 is feature. feature 4 is c_id
-            month_id = out_of_sample_meta_vol[:,t,3,:,:].reshape(-1)  # nu 180x180, dim 1 is time . dim 2 is feature. feature 3 is month_id
+            # pg_id = out_of_sample_meta_vol[:,t,0,:,:].reshape(-1)  # nu 180x180, dim 1 is time . dim 2 is feature. feature 0 is pg_id
+            # c_id = out_of_sample_meta_vol[:,t,4,:,:].reshape(-1)  # nu 180x180, dim 1 is time . dim 2 is feature. feature 4 is c_id
+            # month_id = out_of_sample_meta_vol[:,t,3,:,:].reshape(-1)  # nu 180x180, dim 1 is time . dim 2 is feature. feature 3 is month_id
 
+            # So, using the metadata tensor, you can get the pg_id, c_id, and month_id for each prediction.
+            # It is similar to the out_of_sample_meta_vol, but not the specific subset of months
+            # What you of course need is the extent the metadata tensor 36 months ahead in time on the right dimensions
+            # But then you good, right?
+
+            # if eval
             dict_of_outputs_dicts[j][step].y_true = y_true
             dict_of_outputs_dicts[j][step].y_true_binary = y_true_binary
 
@@ -111,7 +117,6 @@ def evaluate_posterior(model, views_vol, config, device): # is eval in config?
             pg_id = out_of_sample_meta_vol[:,t,0,:,:].reshape(-1)  # nu 180x180, dim 1 is time . dim 2 is feature. feature 0 is pg_id
             c_id = out_of_sample_meta_vol[:,t,4,:,:].reshape(-1)  # nu 180x180, dim 1 is time . dim 2 is feature. feature 4 is c_id
             month_id = out_of_sample_meta_vol[:,t,3,:,:].reshape(-1)  # nu 180x180, dim 1 is time . dim 2 is feature. feature 3 is month_id
-
 
             dict_of_outputs_dicts[j][step].y_score = y_score
             dict_of_outputs_dicts[j][step].y_score_prob = y_score_prob
@@ -124,7 +129,6 @@ def evaluate_posterior(model, views_vol, config, device): # is eval in config?
             dict_of_outputs_dicts[j][step].month_id = month_id
 
             #if eval:   
-
             dict_of_eval_dicts[j][step].MSE = mean_squared_error(y_true, y_score)
             dict_of_eval_dicts[j][step].AP = average_precision_score(y_true_binary, y_score_prob)
             dict_of_eval_dicts[j][step].AUC = roc_auc_score(y_true_binary, y_score_prob)
@@ -138,7 +142,6 @@ def evaluate_posterior(model, views_vol, config, device): # is eval in config?
 
     mean_metric_log_dict = generate_wandb_mean_metrics_log_dict(dict_of_eval_dicts)
     wandb.log(mean_metric_log_dict)
-
 
     if not config.sweep:
 
