@@ -45,15 +45,10 @@ The VIEWS machine learning pipeline involves several key processes:
 - **Evaluating:** Assessing model performance and accuracy.
 - **Deploying:** Implementing models in a production environment to generate monthly true-future forecasts 
 
-(to access the generated forecasts, please start here: https://viewsforecasting.org/early-warning-system/user-guide/#data-access).
-
 Each model is contained within its own sub-folder, providing a modular structure for development and deployment.
 
-For further details on how to navigate and utilize this repository, please refer to the documentation (READMEs) provided within each sub-folder.
-
-
 <details>
-  <summary> Toggle to see the model repository structure and explanations below.</summary>
+  <summary> <b>Toggle to see the model repository structure and explanations below. </b></summary>
 
 ```
 pipeline_root/
