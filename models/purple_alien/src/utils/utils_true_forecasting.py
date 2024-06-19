@@ -13,6 +13,23 @@ setup_project_paths(PATH)
 from utils_df_to_vol_conversion import get_requried_columns_for_vol
 
 
+def generate_fake_vol(vol, month_range=36):
+    """
+    Generates a fake prediction volume for testing purposes by extracting the last three features from the input volume.
+    Assumes the last three features represent `sb`, `ns`, and `os`.
+
+    Args:
+        vol (np.ndarray): The input 4D volume array with shape [n_months, height, width, n_features].
+        n_months (int): The number of months to include in the fake volume. Default is 36.
+
+    Returns:
+        np.ndarray: A volume array with the last three features, shape [32, height, width, 3].
+                    Represents a subset of the original volume for testing.
+    """
+    # Extract the last three features from the volume
+    fake_vol = vol[-month_range:, :, :, 5:]  
+
+    return fake_vol
 
 
 def make_forecast_storage_vol(df, heigth = 180, width = 180, month_range = 36):
