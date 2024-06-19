@@ -6,7 +6,7 @@ import pandas as pd
 
 #from config_partitioner import get_partitioner_dict
 from set_partition import get_partitioner_dict
-from config_input_data import get_input_data_config # this is model specific... this is thi issue.. .
+from config_input_data import get_input_data_config # this is model specific
 from common_configs import config_drift_detection
 from utils_df_to_vol_conversion import df_to_vol
 
@@ -14,6 +14,8 @@ from utils_df_to_vol_conversion import df_to_vol
 def fetch_data_from_viewser(month_first,month_last,drift_config_dict):
     """
     Fetches and prepares the initial DataFrame from viewser.
+
+    For more documentation, refer to the viewser repository: https://github.com/prio-data/viewser
 
     Returns:
         pd.DataFrame: The prepared DataFrame with initial processing done.
