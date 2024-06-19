@@ -179,27 +179,6 @@ def save_model_outputs(PATH, config, posterior_dict, dict_of_outputs_dicts, dict
     print('Posterior dict, outputs, evaluation metrics, and tensors pickled and saved!')
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 def plot_metrics(df_all, feature = 0):
 
     """
