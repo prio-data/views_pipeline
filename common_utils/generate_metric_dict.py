@@ -18,5 +18,5 @@ def generate_metric_dict(df, steps, depvar):
         # evaluation_dict[f"step{str(step).zfill(2)}"].AUC = roc_auc_score(df[depvar], df[f"step_pred_{step}"])
         # evaluation_dict[f"step{str(step).zfill(2)}"].AP = average_precision_score(df[depvar], df[f"step_pred_{step}"])
     evaluation_dict = EvaluationMetrics.output_metrics(evaluation_dict)
-    df_evaluation_dict = EvaluationMetrics.evaluation_dict_to_dataframe(evaluation_dict)  
+    df_evaluation_dict = EvaluationMetrics.evaluation_dict_to_dataframe(evaluation_dict)
     return evaluation_dict, df_evaluation_dict

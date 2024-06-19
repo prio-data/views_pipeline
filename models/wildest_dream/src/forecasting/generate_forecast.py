@@ -17,7 +17,7 @@ def forecast_model(model_config):
 
     PATH_RAW, _, PATH_GENERATED = setup_data_paths(PATH)
     PATH_ARTIFACTS = setup_artifacts_paths(PATH)
-    dataset = pd.read_parquet(PATH_RAW / 'raw.parquet')
+    dataset = pd.read_parquet(PATH_RAW / 'raw_calibration.parquet')
     try:
         stepshift_model = pd.read_pickle(PATH_ARTIFACTS / "model_forecasting_partition.pkl")
     except:

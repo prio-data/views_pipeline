@@ -14,7 +14,7 @@ def get_artifacts_path(partition_name):
 
 def get_data_path(data_name):
     '''
-    E.g., The data is saved in data/raw/raw.parquet
+    E.g., The data is saved in data/raw/raw_calibration.parquet
     '''
 
     return Path(__file__).parent.parent.parent / "data" / f"{data_name}" / f"{data_name}.parquet"

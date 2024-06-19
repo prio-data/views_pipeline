@@ -1,6 +1,7 @@
 import sys
 from pathlib import Path
 import pandas as pd
+from datetime import datetime
 
 PATH = Path(__file__) 
 from set_path import setup_project_paths, setup_data_paths, setup_artifacts_paths
@@ -14,38 +15,39 @@ from stepshift.views import StepshiftedModels
 from views_stepshift.run import ViewsRun
 from hurdle_model import HurdleRegression
 from get_data import get_partition_data
+from set_partition import get_partitioner_dict
+from utils import get_parameters
 
-
-def get_model(model_config, para_config):
-    if model_config["algorithm"] == "HurdleRegression":
-        model = HurdleRegression(clf_name=model_config["clf_name"], reg_name=model_config["reg_name"],
-                                 clf_params=para_config["clf"], reg_params=para_config["reg"])
+def get_model(config):
+    if config["algorithm"] == "HurdleRegression":
+        model = HurdleRegression(clf_name=config["model_clf"], reg_name=config["model_reg"],
+                                 clf_params=config["clf"], reg_params=config["reg"])
     else:
-        model = globals()[model_config["algorithm"]](**para_config)
-    # print(model)
+        parameters = get_parameters(config)
+        model = globals()[config["algorithm"]](**parameters)
     return model
 
-def train_model(model, model_config):
+def train_model_artifact(config, model):
+    # print(config)
     PATH_RAW, _, _ = setup_data_paths(PATH)
     PATH_ARTIFACTS = setup_artifacts_paths(PATH)
-    dataset = pd.read_parquet(PATH_RAW / 'raw.parquet')
-    run_type = model_config['run_type']
 
-    if model_config["sweep"]:
-        stepshift_model = stepshift_training(model_config, run_type, model, get_partition_data(dataset, run_type))
-    else:
-        try:
-            stepshift_model = pd.read_pickle(PATH_ARTIFACTS / f"model_{run_type}_partition.pkl")
-        except:
-            stepshift_model = stepshift_training(model_config, run_type, model, get_partition_data(dataset, run_type))
-            stepshift_model.save(PATH_ARTIFACTS / f"model_{run_type}_partition.pkl")
+    run_type = config['run_type']
+    dataset = pd.read_parquet(PATH_RAW / f'raw_{run_type}.parquet')
+
+    stepshift_model = stepshift_training(config, run_type, model, get_partition_data(dataset, run_type))
+    if not config["sweep"]:
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        model_filename = f"{config.run_type}_model_{timestamp}.pkl"
+        stepshift_model.save(PATH_ARTIFACTS / model_filename)
     return stepshift_model
 
 
-def stepshift_training(model_config, partition_name, model, dataset):
-    steps = model_config["steps"]
-    target = model_config["depvar"]
-    partition = DataPartitioner({partition_name: model_config[f"{partition_name}_partitioner_dict"]})
+def stepshift_training(config, partition_name, model, dataset):
+    steps = config["steps"]
+    target = config["depvar"]
+    partitioner_dict = get_partitioner_dict(partition_name)
+    partition = DataPartitioner({partition_name: partitioner_dict})
     stepshift_def = StepshiftedModels(model, steps, target)
     stepshift_model = ViewsRun(partition, stepshift_def)
     stepshift_model.fit(partition_name, "train", dataset)

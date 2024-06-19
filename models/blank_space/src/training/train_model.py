@@ -28,7 +28,7 @@ def get_model(model_config, para_config):
 def train_model(model, model_config):
     PATH_RAW, _, _ = setup_data_paths(PATH)
     PATH_ARTIFACTS = setup_artifacts_paths(PATH)
-    dataset = pd.read_parquet(PATH_RAW / 'raw.parquet')
+    dataset = pd.read_parquet(PATH_RAW / 'raw_calibration.parquet')
     run_type = model_config['run_type']
 
     if model_config["sweep"]:

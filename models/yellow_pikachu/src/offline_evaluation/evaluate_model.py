@@ -30,7 +30,7 @@ def evaluate_model(model_config):
     for step in steps:
         stepcols.append("step_pred_" + str(step))
 
-    dataset = pd.read_parquet(PATH_RAW / 'raw.parquet')
+    dataset = pd.read_parquet(PATH_RAW / 'raw_calibration.parquet')
     try:
         stepshift_model = pd.read_pickle(PATH_ARTIFACTS / f'model_{run_type}_partition.pkl')
     except:

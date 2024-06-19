@@ -15,7 +15,7 @@ from utils import ensure_float64
 def get_data():
     print("Getting data...")
     PATH_RAW, _, _ = setup_data_paths(PATH)
-    parquet_path = PATH_RAW / 'raw.parquet'
+    parquet_path = PATH_RAW / 'raw_calibration.parquet'
     # print('PARQUET PATH', parquet_path)
     if not parquet_path.exists():
         qs = get_input_data()

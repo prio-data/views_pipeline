@@ -64,6 +64,11 @@ def validate_arguments(args):
         print("To fix: Add --train and/or --evaluate flag. Or use --sweep to run both training and evaluation in a WadnB sweep loop.")
         sys.exit(1)
 
+    if args.train and args.artifact_name:
+        print("Error: Both --train and --artifact_name flags are set. Exiting.")
+        print("To fix: Remove --artifact_name if --train is set, or vice versa.")
+        sys.exit(1)
+
 
     # notes on stepshifted models:
     # There will be some thinking here in regards to how we store, denote (naming convention), and retrieve the model artifacts from stepshifted models.

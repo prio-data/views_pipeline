@@ -31,7 +31,7 @@ def evaluate_sweep(stepshift_model, model_config):
     for step in steps:
         stepcols.append("step_pred_" + str(step))
 
-    dataset = pd.read_parquet(PATH_RAW / 'raw.parquet')
+    dataset = pd.read_parquet(PATH_RAW / 'raw_calibration.parquet')
 
     df = stepshift_model.predict(run_type, "predict", get_partition_data(dataset, run_type))
     df = df.replace([np.inf, -np.inf], 0)[stepcols]

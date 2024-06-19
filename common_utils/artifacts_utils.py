@@ -53,7 +53,7 @@ def get_latest_model_artifact(PATH, run_type):
     model_files.sort(reverse=True)
 
     #print statements for debugging
-    print(f"artifacts availible: {model_files}")
+    # print(f"artifacts availible: {model_files}")
     print(f"artifact used: {model_files[0]}")
     
     # Return the latest model file
