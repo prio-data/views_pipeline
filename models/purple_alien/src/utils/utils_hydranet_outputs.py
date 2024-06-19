@@ -15,7 +15,7 @@ setup_project_paths(PATH)
 from utils_model_outputs import ModelOutputs
 from utils_evaluation_metrics import EvaluationMetrics
 
-def output_to_df(dict_of_outputs_dicts):
+def output_to_df(dict_of_outputs_dicts, forecast = False):
     
     """
     Converts the dictionary of model outputs into a consolidated pandas DataFrame, formatted for HydraNet.
@@ -74,7 +74,10 @@ def output_to_df(dict_of_outputs_dicts):
     df_all = df_all.astype(float)
 
     # make the binary columns integers
-    df_all = df_all.astype({"y_true_binary_sb": int, "y_true_binary_ns": int, "y_true_binary_os": int, "month_id" : int, "step" : int})
+    df_all = df_all.astype({"month_id" : int, "step" : int})
+
+    if forecast == False:
+        df_all = df_all.astype({"y_true_binary_sb": int, "y_true_binary_ns": int, "y_true_binary_os": int, "month_id" : int, "step" : int})
 
     # print the df
     #df_all
