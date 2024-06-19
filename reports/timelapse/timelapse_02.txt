@@ -1,0 +1,18 @@
+Creating a time-lapse on Linux without using FFmpeg can be done through various methods, including using command-line tools, graphical applications, or scripts. Here are a few alternatives:
+
+ImageMagick: A powerful image manipulation tool that can be used to create time-lapses from a series of images. You can use the convert command to merge your images into a single time-lapse video. Here is a basic example:
+
+>> convert -delay 100 -loop 0 input_images*.jpg timelapse.gif
+
+or for mp4:
+>> convert -delay 100 -loop 0 input_images*.jpg timelapse.mp4
+
+This command will take all images matching the pattern input_images*.jpg, display each image for 100/100ths of a second, loop the animation indefinitely, and save it as timelapse.gif.
+
+Resize:
+>> mogrify -resize 1920x1080\> *.tiff
+
+change format:
+>> mogrify -format jpg *.tiff
+
+Idk is there is a diff between resizing before or after converting... 

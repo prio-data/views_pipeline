@@ -4,6 +4,9 @@ import pandas as pd
 from statistics import mean, stdev, median
 
 
+
+# MUST BE ALIGNED WITH THE METRICS WE DECIDE TO USE IN THE WORKSHOP!!!!
+
 @dataclass
 class EvaluationMetrics:
     """
