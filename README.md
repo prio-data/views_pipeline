@@ -4,7 +4,9 @@
   <img src="https://pbs.twimg.com/profile_banners/1237000633896652800/1717069203/1500x500" alt="VIEWS Twitter Header" style="position: absolute; top: -50px; width: 100%; height: auto;">
 </div>
 
-The Violence & Impacts Early Warning System (VIEWS) produces monthly predictions of future violent conflict at both a country and sub-country level of analysis. This repository contains code, configuration files, and documentation that encapsulates the entire process of developing, experimenting, training, evaluating, and deploying the VIEWS machine learning model pipeline.
+The [**Violence & Impacts Early Warning System (VIEWS)**](https://viewsforecasting.org/) produces monthly predictions of future violent conflict at both a country and sub-country level of analysis. This repository contains code, configuration files, and documentation that encapsulates the entire process of developing, experimenting, training, evaluating, and deploying the VIEWS machine learning model pipeline.
+
+Use our [interactive data dashboard](https://data.viewsforecasting.org/) to explore our latest predictions of future armed conflict.
 
 > [!CAUTION]
 > Please note that this pipeline is **actively under construction**. We're in the **early stages of development**, meaning it's **not yet ready for operational use**. We're working hard to bring you a robust and fully-functional tool, so stay tuned for updates!
@@ -51,7 +53,7 @@ For further details on how to navigate and utilize this repository, please refer
 
 
 <details>
-  <summary>Toggle below to see the model repository structure and explanations below.</summary>
+  <summary> Toggle to see the model repository structure and explanations below.</summary>
 
 ```
 pipeline_root/
@@ -204,15 +206,9 @@ pipeline_root/
 
 
 ## Pipeline Documentation
-More detailed documentation on the pipeline and its components can be found in the folder [`documentation`](https://github.com/prio-data/views_pipeline/tree/main/documentation). There are currently entries covering:
-- Beginner Guide on Terminology
-- Model Documentation
-- Pipeline Documentation
+High-level documentation on the pipeline and its components can be found in the folder [`documentation`](https://github.com/prio-data/views_pipeline/tree/main/documentation). Additionally, refer to READMEs and docstrings of various functions and classes in the source code.
 
-## Other Documentation
-This pipeline repository relies on a lot of previous work documented in other papers and repositories.
-
-The fatalities model generates forecasts for state-based armed conflict during each month in a rolling 3-year window. 
+The operational fatalities model generates forecasts for state-based armed conflict during each month in a rolling 3-year window. 
 The latest iteration, currently in production, is called [Fatalities002](https://viewsforecasting.org/early-warning-system/models/fatalities002/).
 
 The following links cover **modelling documentation** for Fatalities002:
@@ -225,7 +221,6 @@ For VIEWS-specific **infrastructure documentation**, please refer to following G
 - [`ingester3`: Loading input data into the views database](https://github.com/UppsalaConflictDataProgram/ingester3)
 - [`viewser`: Accessing input data from views database](https://github.com/prio-data/viewser)
 - [`views_api`: Our API for accessing predictions](https://github.com/prio-data/views_api)
-- [`ForecastDrift`: New forecasting data drift detection system created for this pipeline](https://github.com/prio-data/ForecastDrift)
 
 ## About the VIEWS Project
 
