@@ -34,7 +34,7 @@ from utils_evaluation_metrics import EvaluationMetrics
 
 # SO VERY IMPORTANT THE THE VIEWS_VOL HERE DOES NOT NEED TO BE THE ONE FORCASTING PARTITION WE TRAINED ON
 # We'll only retrain once a year after all
-def forecast_posterior(model, views_vol, df, config, device):
+def forecast_posterior(model, views_vol, config, device):
 #def forecast_posterior(df, config):
 
     """
