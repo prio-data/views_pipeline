@@ -3,15 +3,17 @@ import numpy as np
 import torch
 import matplotlib.pyplot as plt
 
+import pandas as pd
+
 import sys
 from pathlib import Path
 
 PATH = Path(__file__)
 sys.path.insert(0, str(Path(*[i for i in PATH.parts[:PATH.parts.index("views_pipeline")+1]]) / "common_utils")) # PATH_COMMON_UTILS  
-from set_path import setup_project_paths, setup_artifacts_paths
+from set_path import setup_project_paths, setup_data_paths, setup_artifacts_paths
 setup_project_paths(PATH)
 
-from utils_df_to_vol_conversion import get_requried_columns_for_vol
+from utils_df_to_vol_conversion import get_requried_columns_for_vol, calculate_absolute_indices
 
 
 def generate_fake_vol(vol, month_range=36):
@@ -33,7 +35,7 @@ def generate_fake_vol(vol, month_range=36):
     return fake_vol
 
 
-def make_forecast_storage_vol(df, heigth = 180, width = 180, month_range = 36, to_tensor = True):
+def make_forecast_storage_vol(heigth = 180, width = 180, month_range = 36, to_tensor = True):
     """
     Creates a forecast storage volume based on the last month of data in the DataFrame.
     The volume is repeated for the specified `month_range` with incrementally adjusted month IDs.
@@ -49,6 +51,9 @@ def make_forecast_storage_vol(df, heigth = 180, width = 180, month_range = 36, t
         np.ndarray: The forecast storage volume with shape [month_range, 180, 180, 5].
                     Each time slice in the volume represents a future month based on the last month of data.
     """
+
+    df = get_raw_df()
+    df = calculate_absolute_indices(df) # abs_row, abs_col, abs_month needed for the volume
 
     # Infer the last month_id from the DataFrame
     last_month_id = df['month_id'].max()
@@ -239,3 +244,38 @@ def plot_vol_comparison(vol, new_vol, month_range=36):
         plt.tight_layout(pad=2.0, rect=[0, 0, 1, 0.95])  # `rect` adjusts the position of subplots
         
         plt.show()
+
+
+def get_raw_df():
+
+    """
+    Loads the raw DataFrame for forecasting purposes - really just to get the month_id, pg_id, col, row, and c_id.
+
+    This function attempts to load a DataFrame for the desired run type (forecasting by default).
+    It checks for the existence of the corresponding data file in the raw data path and loads it.
+    The DataFrame is expected to contain spatial-temporal data with features like 'ln_best_sb', 'ln_best_ns', and 'ln_best_os'.
+    The shape of the views_vol is (N, C, H, W, D), where D represents the number of features.
+
+    Raises:
+        FileNotFoundError: If the file is not found, the function prints an error message and exits,
+                           advising the user to run the appropriate data loader script 
+                           (`get_calibration_data.py`, `get_test_data.py`, or `get_forecasting_data.py`).
+
+    Returns:
+        pd.DataFrame: The loaded DataFrame containing the raw data.
+    """
+
+    PATH_RAW, _, _ = setup_data_paths(PATH)
+
+    try:
+        file_name = PATH_RAW / 'forecasting_viewser_df.pkl'
+
+        # debug print
+        print(f'Loading forecasting data from {file_name}...')
+        df = pd.read_pickle(file_name)
+    
+    except FileNotFoundError as e:
+        print(f'File not found: {e}. Run correct dataloader get_calibration_data.py, get_test_data.py or get_forecasting_data.py. Now exiting...')
+        sys.exit()
+
+    return df
