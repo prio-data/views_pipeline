@@ -100,6 +100,9 @@ def df_to_vol(df, height = 180, width = 180, forecast_features = ['ln_sb_best', 
     month_last = df['month_id'].max()
     month_range = month_last - month_first + 1
 
+    # DANGER! Right now this changes (adds columns) to the input DataFrame. Bad practice change later... 
+    # You could just do df_abs = calculate_absolute_indices(df) and then use df_abs in the rest of the function.
+    # But I dont want to break anything now...
     df = calculate_absolute_indices(df) # abs_row, abs_col, abs_month needed for the volume
 
     vol = np.zeros([height, width, month_range, n_features]) # Create the volume array.
