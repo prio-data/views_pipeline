@@ -110,6 +110,22 @@ class ModelOutputs:
 
 
 def generate_output_dict(df, config):
+    """
+    Generate a dictionary of ModelOutputs instances and a DataFrame from a DataFrame of model predictions.
+
+    This function takes a DataFrame of model predictions and a configuration object, and generates a dictionary of ModelOutputs instances
+
+    Args:
+        df (pd.DataFrame): A DataFrame containing model predictions.
+        config (dict): A configuration object containing model settings.
+
+    Returns:
+        output_dict (dict): A dictionary where each key is a step label and each value is an instance of ModelOutputs.
+        df_output_dict (pd.DataFrame): A DataFrame of model outputs.
+
+    Note:
+        ! This is temporary for stepshifter model
+    """
     output_dict = ModelOutputs.make_output_dict(steps=config.steps[-1])
     for step in config.steps:
         df_step = df[[config.depvar, f"step_pred_{step}"]]

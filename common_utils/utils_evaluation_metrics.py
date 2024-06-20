@@ -116,10 +116,26 @@ class EvaluationMetrics:
 
 
 def generate_metric_dict(df, config):
-    # KLD and Jeffreys divergence are measures used to quantify the difference between two probability distributions. Why do we calculate these metrics in the context of forecasting?
-    # There are negative values, so errors occur when calculating MSLE
-    # Brier score is used for binary and categorical outcomes that can be structured as true or false
-    # There are no classes in data, so we cannot calculate roc_auc_score, ap_score
+    """
+    Generates a dictionary of evaluation metrics for a given forecasting configuration and dataset.
+
+    Args:
+        df (pd.DataFrame): A pandas DataFrame containing the forecasted values and ground truth.
+        config (dict): A dictionary containing the forecasting configuration parameters.
+
+    Returns:
+        evaluation_dict (dict): A dictionary of EvaluationMetrics instances for each forecasting step.
+        df_evaluation_dict (pd.DataFrame): A pandas DataFrame containing the evaluation metrics for each forecasting step.
+
+    Note:
+        ! This function is temporary for the stepshifter model.
+        ! Change the metrics to those discussed previously.
+        For logged targets, calculating MSE is actually MSLE.
+        KLD and Jeffreys divergence are measures used to quantify the difference between two probability distributions. Why do we calculate these metrics in the context of forecasting?
+        Brier score is used for binary and categorical outcomes that can be structured as true or false
+        There are no classes in data, so we cannot calculate roc_auc_score, ap_score
+    """
+
     evaluation_dict = EvaluationMetrics.make_evaluation_dict(steps=config.steps[-1])
     for step in config.steps:
         evaluation_dict[f"step{str(step).zfill(2)}"].MSE = mean_squared_error(df[config.depvar], df[f"step_pred_{step}"])
