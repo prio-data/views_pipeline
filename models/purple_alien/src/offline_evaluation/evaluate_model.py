@@ -120,7 +120,7 @@ def evaluate_posterior(model, views_vol, config, device): # is eval in config?
             #c_id = out_of_sample_meta_vol[:,t,4,:,:].reshape(-1)  # nu 180x180, dim 1 is time . dim 2 is feature. feature 4 is c_id
             #month_id = out_of_sample_meta_vol[:,t,3,:,:].reshape(-1)  # nu 180x180, dim 1 is time . dim 2 is feature. feature 3 is month_id
 
-            pg_id, c_id, month_id =  retrieve_metadata(t, out_of_sample_meta_vol, forecast = False)
+            pg_id, c_id, month_id =  retrieve_metadata(t, out_of_sample_meta_vol = out_of_sample_meta_vol, forecast = False)
 
             # dict_of_outputs_dicts[j][step].y_score = y_score
             # dict_of_outputs_dicts[j][step].y_score_prob = y_score_prob
