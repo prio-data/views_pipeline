@@ -2,9 +2,6 @@ from dataclasses import dataclass
 from typing import Optional
 import pandas as pd
 
-
-# MUST BE ALIGNED WITH THE METRICS WE DECIDE TO USE IN THE WORKSHOP!!!!
-
 @dataclass
 class EvaluationMetrics:
     """
@@ -77,3 +74,5 @@ class EvaluationMetrics:
 
         """
         return pd.DataFrame.from_dict(evaluation_dict, orient='index')
+
+# TBD: Align with metrics discussed in workshop
