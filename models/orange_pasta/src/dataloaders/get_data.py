@@ -15,7 +15,7 @@ from utils import ensure_float64
 def get_data():
     print("Getting data...")
     PATH_RAW, _, _ = setup_data_paths(PATH)
-    parquet_path = PATH_RAW / 'raw.parquet'
+    parquet_path = PATH_RAW / 'raw_calibration.parquet'
     # print('PARQUET PATH', parquet_path)
     if not parquet_path.exists():
         qs = get_input_data()
@@ -28,17 +28,13 @@ def get_data():
     return data
 
 
-def get_partition_data(df, partition):
-    partitioner_dict = get_partitioner_dict(partition)
+def get_partition_data(df, run_type):
+    partitioner_dict = get_partitioner_dict(run_type)
 
     month_first = partitioner_dict['train'][0]
 
-    if partition == 'forecasting':
-        month_last = partitioner_dict['train'][1] + 1 # no need to get the predict months as these are empty
-
-    elif partition == 'calibration' or partition == 'testing':
-        month_last = partitioner_dict['predict'][1] + 1 # predict[1] is the last month to predict, so we need to add 1 to include it.
-    
+    if run_type in ['calibration', 'testing', 'forecasting']:
+        month_last = partitioner_dict['predict'][1] + 1 # forecasting also needs to get predict months even if they are empty
     else:
         raise ValueError('partition should be either "calibration", "testing" or "forecasting"')
     

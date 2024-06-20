@@ -10,7 +10,7 @@ from set_path import setup_project_paths, setup_artifacts_paths
 
 setup_project_paths(PATH)
 
-from cli_parser_utils import parse_args, validate_arguments
+from utils_cli_parser import parse_args, validate_arguments
 from execute_model_runs import execute_sweep_run, execute_single_run
 
 

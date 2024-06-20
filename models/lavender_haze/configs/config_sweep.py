@@ -13,7 +13,7 @@ def get_sweep_config():
 
     parameters_dict = {
         "algorithm": {"values": ["HurdleRegression"]},
-        "model_cls": {"values": ["LGBMClassifier"]},
+        "model_clf": {"values": ["LGBMClassifier"]},
         "model_reg": {"values": ["LGBMRegressor"]},
         "depvar": {"values": ["ln_ged_sb_dep"]},
         "steps": {"values": [[*range(1, 36 + 1, 1)]]},

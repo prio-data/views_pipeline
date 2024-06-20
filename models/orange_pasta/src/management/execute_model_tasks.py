@@ -11,6 +11,7 @@ from set_path import setup_project_paths, setup_artifacts_paths
 setup_project_paths(PATH)
 
 from utils import split_hurdle_parameters
+from utils_wandb import add_wandb_monthly_metrics
 from train_model import get_model, train_model_artifact
 from evaluate_model import evaluate_model_artifact
 from evaluate_sweep import evaluate_sweep
@@ -39,14 +40,16 @@ def execute_model_tasks(config=None, project=None, train=None, eval=None, foreca
                     config=config):  # project and config ignored when running a sweep
 
         # add the monthly metrics to WandB
-        # add_wandb_monthly_metrics()
+        add_wandb_monthly_metrics()
 
         # Update config from WandB initialization above
         config = wandb.config
 
         # W&B does not directly support nested dictionaries for hyperparameters
+        # This will make the sweep config super ugly, but we don't have to distinguish between sweep and single runs
         if config['sweep'] and config['algorithm'] == "HurdleRegression":
-            config['clf'], config['reg'] = split_hurdle_parameters(config)
+            config['parameters'] = {}
+            config['parameters']['clf'], config['parameters']['reg'] = split_hurdle_parameters(config)
 
         model = get_model(config)
         print(model)

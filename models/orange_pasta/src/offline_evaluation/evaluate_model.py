@@ -12,12 +12,15 @@ setup_project_paths(PATH)
 
 from views_forecasts.extensions import *
 from get_data import get_partition_data
-from generate_metric_dict import generate_metric_dict
-from artifacts_utils import get_latest_model_artifact
+from utils import save_model_outputs
+from utils_evaluation_metrics import generate_metric_dict
+from utils_model_outputs import generate_output_dict
+from utils_artifacts import get_latest_model_artifact
+from utils_wandb import generate_wandb_log_dict
 
 def evaluate_model_artifact(config, artifact_name):
-    PATH_MODEL = setup_model_paths(PATH)
-    PATH_RAW, _, _ = setup_data_paths(PATH)
+    run_type = config['run_type']
+    PATH_RAW, _, PATH_GENERATED = setup_data_paths(PATH)
     PATH_ARTIFACTS = setup_artifacts_paths(PATH)
 
     # if an artifact name is provided through the CLI, use it.
@@ -30,8 +33,14 @@ def evaluate_model_artifact(config, artifact_name):
         PATH_ARTIFACT = PATH_ARTIFACTS / artifact_name
     else:
         # use the latest model artifact based on the run type
-        print(f"Using latest (default) run type ({config.run_type}) specific artifact")
-        PATH_ARTIFACT = get_latest_model_artifact(PATH_ARTIFACTS, config.run_type)
+        print(f"Using latest (default) run type ({run_type}) specific artifact")
+        PATH_ARTIFACT = get_latest_model_artifact(PATH_ARTIFACTS, run_type)
+
+    timestamp = PATH_ARTIFACT.stem[-15:]
+
+    # print(f"model_time_stamp: {timestamp}")
+
+    config["timestamp"] = timestamp
 
     run_type = config["run_type"]
     steps = config["steps"]
@@ -49,8 +58,18 @@ def evaluate_model_artifact(config, artifact_name):
     df = df.replace([np.inf, -np.inf], 0)[stepcols]
     df = df.mask(df < 0, 0)
 
-    evaluation, df_evaluation = generate_metric_dict(df, steps, config["depvar"])
-    print(f"MSE_{run_type}:", df_evaluation.loc["mean"]["MSE"])
+    evaluation, df_evaluation = generate_metric_dict(df, config)
+    output, df_output = generate_output_dict(df, config)
+    for t in steps:
+        log_dict = {}
+        log_dict["monthly/out_sample_month"] = t
+        step = f"step{str(t).zfill(2)}"
+        log_dict = generate_wandb_log_dict(log_dict, evaluation, step)
+        wandb.log(log_dict)
+
+    save_model_outputs(df_evaluation, df_output, PATH_GENERATED, config)
+
+
 
 
 

@@ -22,7 +22,7 @@ class ModelOutputs:
         pg_id (Optional[List[int]]): The priogrid id.
         c_id (Optional[List[int]]): The country id.
         month_id (Optional[List[int]]): The month id.
-        out_sample_month (Optional[List[int]]): The step ahead forecast.
+        step (Optional[List[int]]): The step ahead forecast.
     """
 
     y_score: Optional[List[float]] = field(default_factory=list)
@@ -107,21 +107,3 @@ class ModelOutputs:
         df = pd.DataFrame([{attr: getattr(instance, attr) for attr in instance.__dataclass_fields__.keys()} for instance in dict_of_outputs.values()]).apply(pd.Series.explode)
 
         return df
-
-
-def generate_output_dict(df, config):
-    output_dict = ModelOutputs.make_output_dict(steps=config.steps[-1])
-    for step in config.steps:
-        df_step = df[[config.depvar, f"step_pred_{step}"]]
-        output_dict[f"step{str(step).zfill(2)}"].y_true = df_step[config.depvar].to_list()
-        output_dict[f"step{str(step).zfill(2)}"].y_score = df_step[f"step_pred_{step}"].to_list()
-        output_dict[f"step{str(step).zfill(2)}"].month_id = df_step.index.get_level_values("month_id").to_list()
-        if df.index.names[1] == "priogrid_gid":
-            output_dict[f"step{str(step).zfill(2)}"].pg_id = df_step.index.get_level_values("priogrid_gid").to_list()
-        elif df.index.names[1] == "country_id":
-            output_dict[f"step{str(step).zfill(2)}"].c_id = df_step.index.get_level_values("country_id").to_list()
-        output_dict[f"step{str(step).zfill(2)}"].out_sample_month = step
-    df_output_dict = ModelOutputs.output_dict_to_dataframe(output_dict)
-    df_output_dict = df_output_dict.reset_index()
-    df_output_dict = df_output_dict.drop(columns=df_output_dict.columns[0])
-    return output_dict, df_output_dict

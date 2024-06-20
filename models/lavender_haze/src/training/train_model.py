@@ -3,7 +3,7 @@ from pathlib import Path
 import pandas as pd
 from datetime import datetime
 
-PATH = Path(__file__)
+PATH = Path(__file__) 
 from set_path import setup_project_paths, setup_data_paths, setup_artifacts_paths
 setup_project_paths(PATH)
 
@@ -21,7 +21,7 @@ from utils import get_parameters
 def get_model(config):
     if config["algorithm"] == "HurdleRegression":
         model = HurdleRegression(clf_name=config["model_clf"], reg_name=config["model_reg"],
-                                 clf_params=config["clf"], reg_params=config["reg"])
+                                 clf_params=config["parameters"]["clf"], reg_params=config["parameters"]["reg"])
     else:
         parameters = get_parameters(config)
         model = globals()[config["algorithm"]](**parameters)

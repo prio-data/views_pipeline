@@ -9,7 +9,7 @@ from set_path import setup_project_paths, setup_data_paths, setup_artifacts_path
 setup_project_paths(PATH)
 
 from get_data import get_partition_data
-from artifacts_utils import get_latest_model_artifact
+from utils_artifacts import get_latest_model_artifact
 
 def forecast_model_artifact(config, artifact_name):
     run_type = config['run_type']
