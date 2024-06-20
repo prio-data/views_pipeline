@@ -81,59 +81,27 @@ def evaluate_posterior(model, views_vol, config, device): # is eval in config?
 
         for i, j in enumerate(dict_of_eval_dicts.keys()): # this is the same as the above but with the dict keys
 
+            # get the step name - be coinsident, step is a bad name... 
             step = f"step{str(t+1).zfill(2)}"
 
-            # get the scores
-            # y_score = mean_array[t,i,:,:].reshape(-1) # make it 1d  # nu 180x180 
-            # y_score_prob = mean_class_array[t,i,:,:].reshape(-1) # nu 180x180 
-
-            # do not really know what to do with these yet.
-            # y_var = std_array[t,i,:,:].reshape(-1)  # nu 180x180  
-            # y_var_prob = std_class_array[t,i,:,:].reshape(-1)  # nu 180x180 
-
+            # reshape the arrays to 1d to create the dict of outputs  and the dict of eval dicts
             y_score, y_score_prob, y_var, y_var_prob = reshape_vols_to_arrays(t, i, mean_array, mean_class_array, std_array, std_class_array)
 
-            # see this is the out of sample vol - fine for evaluation but not for forecasting
-            # but also the place where you get the pgm.. 
-
-            #if eval:
+            # Get the true values for evaluation
             y_true = out_of_sample_vol[:,t,i,:,:].reshape(-1)  # nu 180x180 . dim 0 is time     THE TRICK IS NOW TO USE A df -> vol and not out_of_sample_vol...
             y_true_binary = (y_true > 0) * 1
 
-            # in theorty you could just use the metadata tensor to get pg and c id here
-            # pg_id = out_of_sample_meta_vol[:,t,0,:,:].reshape(-1)  # nu 180x180, dim 1 is time . dim 2 is feature. feature 0 is pg_id
-            # c_id = out_of_sample_meta_vol[:,t,4,:,:].reshape(-1)  # nu 180x180, dim 1 is time . dim 2 is feature. feature 4 is c_id
-            # month_id = out_of_sample_meta_vol[:,t,3,:,:].reshape(-1)  # nu 180x180, dim 1 is time . dim 2 is feature. feature 3 is month_id
-
-            # So, using the metadata tensor, you can get the pg_id, c_id, and month_id for each prediction.
-            # It is similar to the out_of_sample_meta_vol, but not the specific subset of months
-            # What you of course need is the extent the metadata tensor 36 months ahead in time on the right dimensions
-            # But then you good, right?
-
-            # if eval
+            # update the dict of outputs dicts with the new month specifc true values
             dict_of_outputs_dicts[j][step].y_true = y_true
             dict_of_outputs_dicts[j][step].y_true_binary = y_true_binary
 
-            #else: # you need to make sure this works for forecasting
-                # in theorty you could just use the metadata tensor to get pg and c id here
-            #pg_id = out_of_sample_meta_vol[:,t,0,:,:].reshape(-1)  # nu 180x180, dim 1 is time . dim 2 is feature. feature 0 is pg_id
-            #c_id = out_of_sample_meta_vol[:,t,4,:,:].reshape(-1)  # nu 180x180, dim 1 is time . dim 2 is feature. feature 4 is c_id
-            #month_id = out_of_sample_meta_vol[:,t,3,:,:].reshape(-1)  # nu 180x180, dim 1 is time . dim 2 is feature. feature 3 is month_id
-
+            # get the metadata for the dict of outputs dicts
             pg_id, c_id, month_id =  retrieve_metadata(t, out_of_sample_meta_vol = out_of_sample_meta_vol, forecast = False)
 
-            # dict_of_outputs_dicts[j][step].y_score = y_score
-            # dict_of_outputs_dicts[j][step].y_score_prob = y_score_prob
-            # dict_of_outputs_dicts[j][step].y_var = y_var
-            # dict_of_outputs_dicts[j][step].y_var_prob = y_var_prob
-            # dict_of_outputs_dicts[j][step].pg_id = pg_id # in theory this should be in the right order
-            # dict_of_outputs_dicts[j][step].c_id = c_id # in theory this should be in the right order
-            # dict_of_outputs_dicts[j][step].step = t +1 # 1 indexed, bc the first step is 1 month ahead
-            # dict_of_outputs_dicts[j][step].month_id = month_id
-
+            # update the dict of outputs dicts with the new month specifc metadata
             dict_of_outputs_dicts = update_output_dict(dict_of_outputs_dicts, t, j, step, y_score, y_score_prob, y_var, y_var_prob, pg_id, c_id, month_id)
 
-            #if eval:   
+            # update the dict of eval dicts with the new month specifc metric values
             dict_of_eval_dicts[j][step].MSE = mean_squared_error(y_true, y_score)
             dict_of_eval_dicts[j][step].AP = average_precision_score(y_true_binary, y_score_prob)
             dict_of_eval_dicts[j][step].AUC = roc_auc_score(y_true_binary, y_score_prob)
