@@ -132,6 +132,7 @@ def evaluation_to_df(dict_of_eval_dicts):
 
 
 def save_model_outputs(PATH, config, posterior_dict, dict_of_outputs_dicts, dict_of_eval_dicts = None, forecast_vol = None, full_tensor = None, metadata_tensor = None):
+
     """
     Sets up data paths, creates necessary directories, and saves model outputs including posterior dictionary, 
     evaluation metrics, and tensors to pickle files.
@@ -195,7 +196,8 @@ def save_model_outputs(PATH, config, posterior_dict, dict_of_outputs_dicts, dict
     print('Outputs pickled and saved!')
 
 
-def update_output_dict(dict_of_outputs_dicts, feature_key, out_of_sample_month, y_score, y_score_prob, y_var, y_var_prob, pg_id, c_id, month_id):
+def update_output_dict(dict_of_outputs_dicts, t, feature_key, out_of_sample_month, y_score, y_score_prob, y_var, y_var_prob, pg_id, c_id, month_id): # you could argue that having both t and osm is redundant.
+
     """
     Updates and returns the ModelOutputs instance for a specific feature and step in the output dictionary with provided metrics and metadata.
 
@@ -214,22 +216,96 @@ def update_output_dict(dict_of_outputs_dicts, feature_key, out_of_sample_month, 
     Returns:
         dict: Updated dictionary containing ModelOutputs instances for each feature.
     """
-    out_of_sample_month_key = f"step{str(out_of_sample_month).zfill(2)}"
-    output_dict = dict_of_outputs_dicts[feature_key][out_of_sample_month_key]
-    
-    output_dict.y_score = y_score
-    output_dict.y_score_prob = y_score_prob
-    output_dict.y_var = y_var
-    output_dict.y_var_prob = y_var_prob
-    output_dict.pg_id = pg_id
-    output_dict.c_id = c_id
-    output_dict.step = out_of_sample_month # step is bad name here! 
-    output_dict.month_id = month_id
-    
-    dict_of_outputs_dicts[feature_key][out_of_sample_month] = output_dict
+            
+    dict_of_outputs_dicts[feature_key][out_of_sample_month].y_score = y_score
+    dict_of_outputs_dicts[feature_key][out_of_sample_month].y_score_prob = y_score_prob
+    dict_of_outputs_dicts[feature_key][out_of_sample_month].y_var = y_var
+    dict_of_outputs_dicts[feature_key][out_of_sample_month].y_var_prob = y_var_prob
+    dict_of_outputs_dicts[feature_key][out_of_sample_month].pg_id = pg_id # in theory this should be in the right order
+    dict_of_outputs_dicts[feature_key][out_of_sample_month].c_id = c_id # in theory this should be in the right order
+    dict_of_outputs_dicts[feature_key][out_of_sample_month].step = t +1 # 1 indexed, bc the first step is 1 month ahead
+    dict_of_outputs_dicts[feature_key][out_of_sample_month].month_id = month_id
 
     return dict_of_outputs_dicts
 
+
+def reshape_vols_to_arrays(t, i, mean_array, mean_class_array, std_array, std_class_array):
+    """
+    Reshapes the arrays of scores and variances for a given time step and feature.
+
+    This function extracts and reshapes the predicted scores and variances for a specified 
+    time step and feature index from the given arrays of mean and standard deviation values.
+
+    Args:
+        t (int): Current time step index.
+        i (int): Current feature index.
+        mean_array (np.ndarray): Array of mean predictions with shape [time_steps, features, height, width].
+        mean_class_array (np.ndarray): Array of mean class probabilities with shape [time_steps, features, height, width].
+        std_array (np.ndarray): Array of standard deviations of predictions with shape [time_steps, features, height, width].
+        std_class_array (np.ndarray): Array of standard deviations of class probabilities with shape [time_steps, features, height, width].
+
+    Returns:
+        Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]: 
+        A tuple containing the following reshaped arrays:
+            - y_score (np.ndarray): Predicted scores reshaped to 1D.
+            - y_score_prob (np.ndarray): Predicted class probabilities reshaped to 1D.
+            - y_var (np.ndarray): Variance of predicted scores reshaped to 1D.
+            - y_var_prob (np.ndarray): Variance of predicted class probabilities reshaped to 1D.
+    """
+
+    # Extract scores and variances for each feature
+    y_score = mean_array[t, i, :, :].reshape(-1)
+    y_score_prob = mean_class_array[t, i, :, :].reshape(-1)
+    y_var = std_array[t, i, :, :].reshape(-1)
+    y_var_prob = std_class_array[t, i, :, :].reshape(-1)
+
+    return y_score, y_score_prob, y_var, y_var_prob
+
+
+def retrieve_metadata(t, forecast_storage_vol = None, out_of_sample_meta_vol = None, forecast = False):
+
+    """
+    Retrieves metadata for a given time step from forecast storage or out-of-sample volume.
+
+    This function extracts metadata such as `pg_id`, `c_id`, and `month_id` for a specified time step,
+    using either the forecast storage volume or the out-of-sample metadata volume depending on the `forecast` flag.
+
+    Args:
+        t (int): Current time step index.
+        forecast_storage_vol (np.ndarray): 5D array (batch, time, feature, height, width) containing metadata for forecasts.
+        out_of_sample_meta_vol (np.ndarray): 5D array (batch, time, feature, height, width) containing metadata for out-of-sample data.
+        forecast (bool): Flag indicating whether to retrieve metadata from forecast storage (True) or out-of-sample volume (False).
+
+    Returns:
+        Tuple[np.ndarray, np.ndarray, np.ndarray]: 
+        A tuple containing the following metadata arrays:
+            - pg_id (np.ndarray): PRIO grid IDs reshaped to 1D.
+            - c_id (np.ndarray): Country IDs reshaped to 1D.
+            - month_id (np.ndarray): Month IDs reshaped to 1D.
+    """
+
+    if forecast == True:
+
+        # check that a forecast storage volume is provided
+        if forecast_storage_vol is None:
+            raise ValueError("Forecast storage volume is required for extracting metadata.")
+
+        # Extract metadata: pg_id, c_id, month_id from the forecast storage volume
+        pg_id = forecast_storage_vol[:, t, 0, :, :].reshape(-1)
+        c_id = forecast_storage_vol[:, t, 4, :, :].reshape(-1)
+        month_id = forecast_storage_vol[:, t, 3, :, :].reshape(-1)
+
+    else:
+
+        # check that an out-of-sample metadata volume is provided
+        if out_of_sample_meta_vol is None:
+            raise ValueError("Out-of-sample metadata volume is required for extracting metadata.")
+
+        pg_id = out_of_sample_meta_vol[:,t,0,:,:].reshape(-1)  # nu 180x180, dim 1 is time . dim 2 is feature. feature 0 is pg_id
+        c_id = out_of_sample_meta_vol[:,t,4,:,:].reshape(-1)  # nu 180x180, dim 1 is time . dim 2 is feature. feature 4 is c_id
+        month_id = out_of_sample_meta_vol[:,t,3,:,:].reshape(-1)  # nu 180x180, dim 1 is time . dim 2 is feature. feature 3 is month_id
+
+    return pg_id, c_id, month_id
 
 
 

@@ -32,7 +32,7 @@ from utils_artifacts import get_latest_model_artifact
 from utils_wandb import generate_wandb_log_dict, generate_wandb_mean_metrics_log_dict
 from config_sweep import get_swep_config
 from config_hyperparameters import get_hp_config
-from utils_hydranet_outputs import output_to_df, evaluation_to_df, save_model_outputs, update_output_dict
+from utils_hydranet_outputs import output_to_df, evaluation_to_df, save_model_outputs, update_output_dict, retrieve_metadata, reshape_vols_to_arrays
 
 
 from utils_model_outputs import ModelOutputs
@@ -84,12 +84,14 @@ def evaluate_posterior(model, views_vol, config, device): # is eval in config?
             step = f"step{str(t+1).zfill(2)}"
 
             # get the scores
-            y_score = mean_array[t,i,:,:].reshape(-1) # make it 1d  # nu 180x180 
-            y_score_prob = mean_class_array[t,i,:,:].reshape(-1) # nu 180x180 
+            # y_score = mean_array[t,i,:,:].reshape(-1) # make it 1d  # nu 180x180 
+            # y_score_prob = mean_class_array[t,i,:,:].reshape(-1) # nu 180x180 
 
             # do not really know what to do with these yet.
-            y_var = std_array[t,i,:,:].reshape(-1)  # nu 180x180  
-            y_var_prob = std_class_array[t,i,:,:].reshape(-1)  # nu 180x180 
+            # y_var = std_array[t,i,:,:].reshape(-1)  # nu 180x180  
+            # y_var_prob = std_class_array[t,i,:,:].reshape(-1)  # nu 180x180 
+
+            y_score, y_score_prob, y_var, y_var_prob = reshape_vols_to_arrays(t, i, mean_array, mean_class_array, std_array, std_class_array)
 
             # see this is the out of sample vol - fine for evaluation but not for forecasting
             # but also the place where you get the pgm.. 
@@ -114,9 +116,11 @@ def evaluate_posterior(model, views_vol, config, device): # is eval in config?
 
             #else: # you need to make sure this works for forecasting
                 # in theorty you could just use the metadata tensor to get pg and c id here
-            pg_id = out_of_sample_meta_vol[:,t,0,:,:].reshape(-1)  # nu 180x180, dim 1 is time . dim 2 is feature. feature 0 is pg_id
-            c_id = out_of_sample_meta_vol[:,t,4,:,:].reshape(-1)  # nu 180x180, dim 1 is time . dim 2 is feature. feature 4 is c_id
-            month_id = out_of_sample_meta_vol[:,t,3,:,:].reshape(-1)  # nu 180x180, dim 1 is time . dim 2 is feature. feature 3 is month_id
+            #pg_id = out_of_sample_meta_vol[:,t,0,:,:].reshape(-1)  # nu 180x180, dim 1 is time . dim 2 is feature. feature 0 is pg_id
+            #c_id = out_of_sample_meta_vol[:,t,4,:,:].reshape(-1)  # nu 180x180, dim 1 is time . dim 2 is feature. feature 4 is c_id
+            #month_id = out_of_sample_meta_vol[:,t,3,:,:].reshape(-1)  # nu 180x180, dim 1 is time . dim 2 is feature. feature 3 is month_id
+
+            pg_id, c_id, month_id =  retrieve_metadata(t, out_of_sample_meta_vol, forecast = False)
 
             # dict_of_outputs_dicts[j][step].y_score = y_score
             # dict_of_outputs_dicts[j][step].y_score_prob = y_score_prob
@@ -127,7 +131,7 @@ def evaluate_posterior(model, views_vol, config, device): # is eval in config?
             # dict_of_outputs_dicts[j][step].step = t +1 # 1 indexed, bc the first step is 1 month ahead
             # dict_of_outputs_dicts[j][step].month_id = month_id
 
-            dict_of_outputs_dicts = update_output_dict(dict_of_outputs_dicts, j, step, y_score, y_score_prob, y_var, y_var_prob, pg_id, c_id, month_id)
+            dict_of_outputs_dicts = update_output_dict(dict_of_outputs_dicts, t, j, step, y_score, y_score_prob, y_var, y_var_prob, pg_id, c_id, month_id)
 
             #if eval:   
             dict_of_eval_dicts[j][step].MSE = mean_squared_error(y_true, y_score)

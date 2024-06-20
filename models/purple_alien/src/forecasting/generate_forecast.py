@@ -22,11 +22,10 @@ setup_project_paths(PATH)
 
 from utils import choose_model, choose_loss, choose_sheduler, get_train_tensors, get_full_tensor, apply_dropout, execute_freeze_h_option, train_log, init_weights, get_data
 from utils_prediction import predict, sample_posterior
-from utils_forecasting import make_forecast_storage_vol
+from utils_true_forecasting import make_forecast_storage_vol
 from utils_artifacts import get_latest_model_artifact
-from hydra_net_outputs import output_to_df, save_model_outputs 
 from config_hyperparameters import get_hp_config
-from utils_hydranet_outputs import output_to_df, evaluation_to_df, save_model_outputs, update_output_dict
+from utils_hydranet_outputs import output_to_df, evaluation_to_df, save_model_outputs, update_output_dict, retrieve_metadata, reshape_vols_to_arrays
 
 
 from utils_model_outputs import ModelOutputs
@@ -56,7 +55,22 @@ def forecast_posterior(model, views_vol, df, config, device):
             - 4D volume array suitable for testing and plotting.
     """
 
-    posterior_list, posterior_list_class, _, _, _, _ = sample_posterior(model, views_vol, config, device)
+    #posterior_list, posterior_list_class, _, _, _, _ = sample_posterior(model, views_vol, config, device)
+
+
+    # --------------------
+    # for testing - you havn't trained a real forecast partition model yet.... There is prolly some code below you can use for that.
+    PATH_posterior_dict = "/home/simon/Documents/scripts/views_pipeline/models/purple_alien/data/generated/posterior_dict_36_calibration_20240613_165106.pkl"
+
+    # get the posterior_dict from the pickle file in generated
+    with open(PATH_posterior_dict, 'rb') as f:
+        posterior_dict = pickle.load(f)
+
+    month_range = 36 # MAGIC NUMBER ALERT - this is the number of months in the future we are forecasting
+    posterior_list, posterior_list_class, _ = posterior_dict['posterior_list'], posterior_dict['posterior_list_class'], posterior_dict['out_of_sample_vol'] 
+    #----------------------
+
+
 
     month_range = config['time_steps']
 
@@ -73,30 +87,38 @@ def forecast_posterior(model, views_vol, df, config, device):
     std_class_array = np.array(posterior_list_class).std(axis=0)
 
     for t in range(mean_array.shape[0]):  # Iterate over time steps
-        for i, feature_key in enumerate(dict_of_outputs_dicts.keys()):  # Iterate over feature keys ('sb', 'ns', 'os')
+        for i, j in enumerate(dict_of_outputs_dicts.keys()):  # Iterate over feature keys ('sb', 'ns', 'os')
             step = f"step{str(t + 1).zfill(2)}"
 
             # Extract scores and variances for each feature
-            y_score = mean_array[t, i, :, :].reshape(-1)
-            y_score_prob = mean_class_array[t, i, :, :].reshape(-1)
-            y_var = std_array[t, i, :, :].reshape(-1)
-            y_var_prob = std_class_array[t, i, :, :].reshape(-1)
+            # y_score = mean_array[t, i, :, :].reshape(-1)
+            # y_score_prob = mean_class_array[t, i, :, :].reshape(-1)
+            # y_var = std_array[t, i, :, :].reshape(-1)
+            # y_var_prob = std_class_array[t, i, :, :].reshape(-1)
+
+            y_score, y_score_prob, y_var, y_var_prob = reshape_vols_to_arrays(t, i, mean_array, mean_class_array, std_array, std_class_array)
 
             # Extract metadata: pg_id, c_id, month_id from the forecast storage volume
-            pg_id = forecast_storage_vol[:, t, 0, :, :].reshape(-1)
-            c_id = forecast_storage_vol[:, t, 4, :, :].reshape(-1)
-            month_id = forecast_storage_vol[:, t, 3, :, :].reshape(-1)
+            # pg_id = forecast_storage_vol[:, t, 0, :, :].reshape(-1)
+            # c_id = forecast_storage_vol[:, t, 4, :, :].reshape(-1)
+            # month_id = forecast_storage_vol[:, t, 3, :, :].reshape(-1)
+
+            pg_id, c_id, month_id = retrieve_metadata(t, forecast_storage_vol, forecast = True)
 
             # Store extracted values in the output dictionary
-            output_dict = dict_of_outputs_dicts[feature_key][step]
-            output_dict.y_score = y_score
-            output_dict.y_score_prob = y_score_prob
-            output_dict.y_var = y_var
-            output_dict.y_var_prob = y_var_prob
-            output_dict.pg_id = pg_id
-            output_dict.c_id = c_id
-            output_dict.step = t + 1
-            output_dict.month_id = month_id
+           # output_dict = dict_of_outputs_dicts[j][step]
+           # output_dict.y_score = y_score
+           # output_dict.y_score_prob = y_score_prob
+           # output_dict.y_var = y_var
+           # output_dict.y_var_prob = y_var_prob
+           # output_dict.pg_id = pg_id
+           # output_dict.c_id = c_id
+           # output_dict.step = t + 1
+           # output_dict.month_id = month_id
+
+            dict_of_outputs_dicts = update_output_dict(dict_of_outputs_dicts, t, j, step, y_score, y_score_prob, y_var, y_var_prob, pg_id, c_id, month_id)
+
+    #print(dict_of_outputs_dicts)
 
     # Convert the output dictionaries to a DataFrame
     df_full = output_to_df(dict_of_outputs_dicts, forecast=True)
@@ -112,7 +134,7 @@ def forecast_posterior(model, views_vol, df, config, device):
     posterior_dict = {'posterior_list' : posterior_list, 'posterior_list_class': posterior_list_class, 'out_of_sample_vol' : None}
     #save_model_outputs(PATH, config, posterior_dict, dict_of_outputs_dicts)
 
-    return df_full, vol_full, output_dict, posterior_dict
+    return df_full, vol_full, dict_of_outputs_dicts, posterior_dict
 
 
 
@@ -184,9 +206,9 @@ def forecast_with_model_artifact(config, device, views_vol, PATH_ARTIFACTS, arti
     config.model_time_stamp = model_time_stamp
 
     # evaluate the model posterior distribution
-    df_full, vol_full, posterior_dict = forecast_posterior(model, views_vol, config, device)
+    df_full, vol_full, dict_of_outputs_dicts, posterior_dict = forecast_posterior(model, views_vol, config, device)
     
-    save_model_outputs(PATH, config, posterior_dict, dict_of_outputs_dicts, forecast_vol = None):
+    save_model_outputs(PATH, config, posterior_dict, dict_of_outputs_dicts, forecast_vol = None)
 
 
     # done. 
