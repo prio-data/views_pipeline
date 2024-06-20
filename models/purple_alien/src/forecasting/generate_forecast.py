@@ -58,20 +58,20 @@ def forecast_posterior(model, views_vol, config, device):
 
     # AS SOON AS YOU HAVE TRAINED A ARTIFACT YOU SHOULD USE THE FUNCTION BELOW TO GET THE POSTERIOR PREDICTIONS
     # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    #posterior_list, posterior_list_class, _, _, _, _ = sample_posterior(model, views_vol, config, device)
+    posterior_list, posterior_list_class, _, _, _, _ = sample_posterior(model, views_vol, config, device)
     # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 
     # --------------------
     # for testing - you havn't trained a real forecast partition model yet.... There is prolly some code below you can use for that.
-    PATH_posterior_dict = "/home/simon/Documents/scripts/views_pipeline/models/purple_alien/data/generated/posterior_dict_36_calibration_20240613_165106.pkl"
+    #PATH_posterior_dict = "/home/simon/Documents/scripts/views_pipeline/models/purple_alien/data/generated/posterior_dict_36_calibration_20240613_165106.pkl"
 
     # get the posterior_dict from the pickle file in generated
-    with open(PATH_posterior_dict, 'rb') as f:
-        posterior_dict = pickle.load(f)
+    # with open(PATH_posterior_dict, 'rb') as f:
+    #     posterior_dict = pickle.load(f)
 
-    month_range = 36 # MAGIC NUMBER ALERT - this is the number of months in the future we are forecasting
-    posterior_list, posterior_list_class, _ = posterior_dict['posterior_list'], posterior_dict['posterior_list_class'], posterior_dict['out_of_sample_vol'] 
+    # month_range = 36 # MAGIC NUMBER ALERT - this is the number of months in the future we are forecasting
+    # posterior_list, posterior_list_class, _ = posterior_dict['posterior_list'], posterior_dict['posterior_list_class'], posterior_dict['out_of_sample_vol'] 
     #----------------------
 
 
