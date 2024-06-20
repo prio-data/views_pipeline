@@ -118,6 +118,10 @@ def forecast_posterior(model, views_vol, df, config, device):
 
 
 
+
+# ------------------------------------------------ ADAPT -----------------------------------------------------
+
+
 def forecast_with_model_artifact(config, device, views_vol, PATH_ARTIFACTS, artifact_name=None):
 #def handle_evaluation(config, device, views_vol, PATH_ARTIFACTS, artifact_name=None):
 

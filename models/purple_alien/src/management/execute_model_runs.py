@@ -46,7 +46,9 @@ def execute_single_run(args):
 
         #print('True forecasting ->->->->')
         #model_run_manager(config = hyperparameters, project = project, train = False, eval = False, forecast=True, artifact_name = args.artifact_name)     
-        execute_model_tasks(config = hyperparameters, project = project, train = False, eval = False, forecast=True, artifact_name = args.artifact_name)
+        execute_model_tasks(config = hyperparameters, project = project, train = False, eval = False, forecast=False, artifact_name = args.artifact_name)
+        
+        # okay, but just because it uses the forsccasting partition, does not mean it is that we are forecasting. We could just be trianing.
 
     else:
         raise ValueError(f"Invalid run type: {args.run_type}")
