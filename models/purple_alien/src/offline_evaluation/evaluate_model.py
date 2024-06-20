@@ -32,7 +32,7 @@ from utils_artifacts import get_latest_model_artifact
 from utils_wandb import generate_wandb_log_dict, generate_wandb_mean_metrics_log_dict
 from config_sweep import get_swep_config
 from config_hyperparameters import get_hp_config
-from utils_hydranet_outputs import output_to_df, evaluation_to_df, save_model_outputs
+from utils_hydranet_outputs import output_to_df, evaluation_to_df, save_model_outputs, update_output_dict
 
 
 from utils_model_outputs import ModelOutputs
@@ -118,15 +118,16 @@ def evaluate_posterior(model, views_vol, config, device): # is eval in config?
             c_id = out_of_sample_meta_vol[:,t,4,:,:].reshape(-1)  # nu 180x180, dim 1 is time . dim 2 is feature. feature 4 is c_id
             month_id = out_of_sample_meta_vol[:,t,3,:,:].reshape(-1)  # nu 180x180, dim 1 is time . dim 2 is feature. feature 3 is month_id
 
-            dict_of_outputs_dicts[j][step].y_score = y_score
-            dict_of_outputs_dicts[j][step].y_score_prob = y_score_prob
-            dict_of_outputs_dicts[j][step].y_var = y_var
-            dict_of_outputs_dicts[j][step].y_var_prob = y_var_prob
+#            dict_of_outputs_dicts[j][step].y_score = y_score
+#            dict_of_outputs_dicts[j][step].y_score_prob = y_score_prob
+#            dict_of_outputs_dicts[j][step].y_var = y_var
+#            dict_of_outputs_dicts[j][step].y_var_prob = y_var_prob
+#            dict_of_outputs_dicts[j][step].pg_id = pg_id # in theory this should be in the right order
+#            dict_of_outputs_dicts[j][step].c_id = c_id # in theory this should be in the right order
+#            dict_of_outputs_dicts[j][step].step = t +1 # 1 indexed, bc the first step is 1 month ahead
+#            dict_of_outputs_dicts[j][step].month_id = month_id
 
-            dict_of_outputs_dicts[j][step].pg_id = pg_id # in theory this should be in the right order
-            dict_of_outputs_dicts[j][step].c_id = c_id # in theory this should be in the right order
-            dict_of_outputs_dicts[j][step].step = t +1 # 1 indexed, bc the first step is 1 month ahead
-            dict_of_outputs_dicts[j][step].month_id = month_id
+            dict_of_outputs_dicts = update_output_dict(dict_of_outputs_dicts, j, step, y_score, y_score_prob, y_var, y_var_prob, pg_id, c_id, month_id):
 
             #if eval:   
             dict_of_eval_dicts[j][step].MSE = mean_squared_error(y_true, y_score)
@@ -143,6 +144,7 @@ def evaluate_posterior(model, views_vol, config, device): # is eval in config?
     mean_metric_log_dict = generate_wandb_mean_metrics_log_dict(dict_of_eval_dicts)
     wandb.log(mean_metric_log_dict)
 
+    # it should prolly return the stuff below, and then save outside the function.... 
     if not config.sweep:
 
         posterior_dict = {'posterior_list' : posterior_list, 'posterior_list_class': posterior_list_class, 'out_of_sample_vol' : out_of_sample_vol}

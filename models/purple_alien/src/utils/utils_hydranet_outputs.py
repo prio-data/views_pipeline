@@ -131,7 +131,7 @@ def evaluation_to_df(dict_of_eval_dicts):
     return df_all_eval
 
 
-def save_model_outputs(PATH, config, posterior_dict, dict_of_outputs_dicts, dict_of_eval_dicts = None, full_tensor = None, metadata_tensor = None):
+def save_model_outputs(PATH, config, posterior_dict, dict_of_outputs_dicts, dict_of_eval_dicts = None, forecast_vol = None, full_tensor = None, metadata_tensor = None):
     """
     Sets up data paths, creates necessary directories, and saves model outputs including posterior dictionary, 
     evaluation metrics, and tensors to pickle files.
@@ -172,6 +172,13 @@ def save_model_outputs(PATH, config, posterior_dict, dict_of_outputs_dicts, dict
         with open(evaluation_path, 'wb') as file:
             pickle.dump(df_sb_os_ns_evaluation, file)
 
+    if forecast_vol is not None:
+
+        # Save the volume
+        full_vol_path = f'{PATH_GENERATED}/forecast_vol_{config.time_steps}_{config.run_type}_{config.model_time_stamp}.pkl'
+        with open(full_vol_path, 'wb') as file:
+            pickle.dump(forecast_vol, file)
+
     if full_tensor is not None:
 
         # Save the tensors
@@ -186,6 +193,44 @@ def save_model_outputs(PATH, config, posterior_dict, dict_of_outputs_dicts, dict
             pickle.dump(metadata_tensor.cpu().numpy(), file)
 
     print('Outputs pickled and saved!')
+
+
+def update_output_dict(dict_of_outputs_dicts, feature_key, out_of_sample_month, y_score, y_score_prob, y_var, y_var_prob, pg_id, c_id, month_id):
+    """
+    Updates and returns the ModelOutputs instance for a specific feature and step in the output dictionary with provided metrics and metadata.
+
+    Args:
+        dict_of_outputs_dicts (dict): Dictionary containing ModelOutputs instances for each feature.
+        feature_key (str): The key corresponding to the feature in dict_of_outputs_dicts (e.g., "sb", "ns", "os").
+        step (int): The current step index (1-based).
+        y_score (np.ndarray): The predicted scores.
+        y_score_prob (np.ndarray): The predicted probabilities.
+        y_var (np.ndarray): The variance of the predicted scores.
+        y_var_prob (np.ndarray): The variance of the predicted probabilities.
+        pg_id (np.ndarray): The PRIO grid IDs.
+        c_id (np.ndarray): The country IDs.
+        month_id (np.ndarray): The month IDs.
+
+    Returns:
+        dict: Updated dictionary containing ModelOutputs instances for each feature.
+    """
+    out_of_sample_month_key = f"step{str(out_of_sample_month).zfill(2)}"
+    output_dict = dict_of_outputs_dicts[feature_key][out_of_sample_month_key]
+    
+    output_dict.y_score = y_score
+    output_dict.y_score_prob = y_score_prob
+    output_dict.y_var = y_var
+    output_dict.y_var_prob = y_var_prob
+    output_dict.pg_id = pg_id
+    output_dict.c_id = c_id
+    output_dict.step = out_of_sample_month # step is bad name here! 
+    output_dict.month_id = month_id
+    
+    dict_of_outputs_dicts[feature_key][out_of_sample_month] = output_dict
+
+    return dict_of_outputs_dicts
+
+
 
 
 def plot_metrics(df_all, feature = 0):
