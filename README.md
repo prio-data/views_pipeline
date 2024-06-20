@@ -17,7 +17,6 @@ Use our [interactive data dashboard](https://data.viewsforecasting.org/) to expl
 - [Repository Contents, Structure, and Explanations](#repository-contents-structure-and-explanations)
 - [Pipeline Execution](#pipeline-execution)
 - [Pipeline Documentation](#pipeline-documentation)
-- [Other Documentation](#other-documentation)
 - [About the VIEWS Project](#about-the-views-project)
 
 
