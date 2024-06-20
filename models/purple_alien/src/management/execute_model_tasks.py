@@ -18,7 +18,9 @@ from evaluate_model import evaluate_posterior, evaluate_model_artifact #handle_e
 from generate_forecast import forecast_with_model_artifact #handle_forecasting
 
 
-def execute_model_tasks(config = None, project = None, train = None, eval = None, forecast = None, artifact_name = None):
+# def execute_model_tasks(config = None, project = None, train = None, eval = None, forecast = None, artifact_name = None):
+def execute_model_tasks(config = None, project = None, args = None):
+
 
     """
         Executes various model-related tasks including training, evaluation, and forecasting.
@@ -63,18 +65,20 @@ def execute_model_tasks(config = None, project = None, train = None, eval = None
             evaluate_posterior(model, views_vol, config, device)
             print('Done testing')
 
+#        #model_run_manager(config = hyperparameters, project = project, train = args.train, eval = args.evaluate, forecast = False, artifact_name = args.artifact_name)        
+#        
         # Handle the single model runs: train and save the model as an artifact
-        if train:
+        if args.train:
             #handle_training(config, device, views_vol, PATH_ARTIFACTS)
             train_model_artifact(config, device, views_vol, PATH_ARTIFACTS)
 
         # Handle the single model runs: evaluate a trained model (artifact)
-        if eval:
+        if args.evaluate:
             #handle_evaluation(config, device, views_vol, PATH_ARTIFACTS, artifact_name)
-            evaluate_model_artifact(config, device, views_vol, PATH_ARTIFACTS, artifact_name)
+            evaluate_model_artifact(config, device, views_vol, PATH_ARTIFACTS, args.artifact_name)
 
-        if forecast:
+        if args.forecast:
             #handle_forecasting(config, device, views_vol, PATH_ARTIFACTS, artifact_name)
-            forecast_with_model_artifact(config, device, views_vol, PATH_ARTIFACTS, artifact_name)
+            forecast_with_model_artifact(config, device, views_vol, PATH_ARTIFACTS, args.artifact_name)
 
 
