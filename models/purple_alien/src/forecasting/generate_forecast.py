@@ -32,7 +32,8 @@ from utils_model_outputs import ModelOutputs
 from utils_evaluation_metrics import EvaluationMetrics
 
 
-
+# SO VERY IMPORTANT THE THE VIEWS_VOL HERE DOES NOT NEED TO BE THE ONE FORCASTING PARTITION WE TRAINED ON
+# We'll only retrain once a year after all
 def forecast_posterior(model, views_vol, df, config, device):
 #def forecast_posterior(df, config):
 
@@ -55,8 +56,10 @@ def forecast_posterior(model, views_vol, df, config, device):
             - 4D volume array suitable for testing and plotting.
     """
 
+    # AS SOON AS YOU HAVE TRAINED A ARTIFACT YOU SHOULD USE THE FUNCTION BELOW TO GET THE POSTERIOR PREDICTIONS
     # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     #posterior_list, posterior_list_class, _, _, _, _ = sample_posterior(model, views_vol, config, device)
+    # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 
     # --------------------
@@ -190,13 +193,18 @@ def forecast_with_model_artifact(config, device, views_vol, PATH_ARTIFACTS, arti
     config.model_time_stamp = model_time_stamp
 
     # evaluate the model posterior distribution
-    df_full, vol_full, dict_of_outputs_dicts, posterior_dict = forecast_posterior(model, views_vol, config, device)
+    df_forecast, vol_forecast, dict_of_outputs_dicts, posterior_dict = forecast_posterior(model, views_vol, config, device)
     
-    save_model_outputs(PATH, config, posterior_dict, dict_of_outputs_dicts, forecast_vol = None)
+    # So a bit wierd, but df_forecast and df_eval are both created in the save_model_outputs function.... 
+    # This is how it works in the eval fuction, but I think I like it better like here where the df is created in the forecast (/eval) function.
+    # .... align alter 
+    save_model_outputs(PATH, config, posterior_dict, dict_of_outputs_dicts, forecast_vol = vol_forecast)
 
+
+    #save_model_outputs(PATH, config, posterior_dict, dict_of_outputs_dicts, dict_of_eval_dicts = None, forecast_vol = None, full_tensor = None, metadata_tensor = None):
 
     # done. 
-    print('Done testing') 
+    print('Done forecasting') 
 
 
 
