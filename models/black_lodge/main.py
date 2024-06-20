@@ -10,11 +10,10 @@ sys.path.insert(0, str(Path(*[i for i in PATH.parts[:PATH.parts.index("views_pip
 from set_path import setup_project_paths, setup_artifacts_paths
 setup_project_paths(PATH)
 
-from cli_parser_utils import parse_args, validate_arguments #change once PR30 is merged
-
+from utils_cli_parser import parse_args, validate_arguments 
 from execute_model_runs import execute_sweep_run, execute_single_run
 
-#from mode_run_manager import model_run_manager
+print("Current working directory: ", Path.cwd())
 
 if __name__ == "__main__":
 
