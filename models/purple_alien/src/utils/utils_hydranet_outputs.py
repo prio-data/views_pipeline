@@ -131,7 +131,7 @@ def evaluation_to_df(dict_of_eval_dicts):
     return df_all_eval
 
 
-def save_model_outputs(PATH, config, posterior_dict, dict_of_outputs_dicts, dict_of_eval_dicts = None, forecast_vol = None, full_tensor = None, metadata_tensor = None):
+def save_model_outputs(PATH, config, posterior_dict, dict_of_outputs_dicts, dict_of_eval_dicts = None, forecast_vol = None, full_tensor = None, metadata_tensor = None, forecast = False):
 
     """
     Sets up data paths, creates necessary directories, and saves model outputs including posterior dictionary, 
@@ -153,7 +153,7 @@ def save_model_outputs(PATH, config, posterior_dict, dict_of_outputs_dicts, dict
     print(f'PATH to generated data: {PATH_GENERATED}')
 
     # Convert dicts of outputs and evaluation metrics to DataFrames
-    df_sb_os_ns_output = output_to_df(dict_of_outputs_dicts)
+    df_sb_os_ns_output = output_to_df(dict_of_outputs_dicts, forecast = forecast)
 
     # Save the posterior dictionary
     posterior_path = f'{PATH_GENERATED}/posterior_dict_{config.time_steps}_{config.run_type}_{config.model_time_stamp}.pkl'

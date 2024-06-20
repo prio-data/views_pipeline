@@ -198,7 +198,7 @@ def forecast_with_model_artifact(config, device, views_vol, PATH_ARTIFACTS, arti
     # So a bit wierd, but df_forecast and df_eval are both created in the save_model_outputs function.... 
     # This is how it works in the eval fuction, but I think I like it better like here where the df is created in the forecast (/eval) function.
     # .... align alter 
-    save_model_outputs(PATH, config, posterior_dict, dict_of_outputs_dicts, forecast_vol = vol_forecast)
+    save_model_outputs(PATH, config, posterior_dict, dict_of_outputs_dicts, forecast_vol = vol_forecast, forecast = True)
 
 
     #save_model_outputs(PATH, config, posterior_dict, dict_of_outputs_dicts, dict_of_eval_dicts = None, forecast_vol = None, full_tensor = None, metadata_tensor = None):
