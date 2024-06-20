@@ -74,3 +74,5 @@ class EvaluationMetrics:
 
         """
         return pd.DataFrame.from_dict(evaluation_dict, orient='index')
+
+# TBD: Align with metrics discussed in workshop
