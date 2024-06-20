@@ -37,19 +37,24 @@ def execute_single_run(args):
     # get run type and denoting project name - check convention!
     project = f"purple_alien_{args.run_type}"
 
-    if args.run_type == 'calibration' or args.run_type == 'testing':
+    # THIS SPLIT LOGIC HERE MIGHT NOT BE THE BEST IDEA. since all run_typres can be trained and forecasted. Even if onyl two can be evaluated...
 
-        #model_run_manager(config = hyperparameters, project = project, train = args.train, eval = args.evaluate, forecast = False, artifact_name = args.artifact_name)        
-        execute_model_tasks(config = hyperparameters, project = project, train = args.train, eval = args.evaluate, forecast = False, artifact_name = args.artifact_name)
+    execute_model_tasks(config = hyperparameters, project = project, args = args) # train = args.train, eval = args.evaluate, forecast = args.forecast, artifact_name = args.artifact_name
 
-    elif args.run_type == 'forecasting':
 
-        #print('True forecasting ->->->->')
-        #model_run_manager(config = hyperparameters, project = project, train = False, eval = False, forecast=True, artifact_name = args.artifact_name)     
-        execute_model_tasks(config = hyperparameters, project = project, train = False, eval = False, forecast=False, artifact_name = args.artifact_name)
-        
-        # okay, but just because it uses the forsccasting partition, does not mean it is that we are forecasting. We could just be trianing.
-
-    else:
-        raise ValueError(f"Invalid run type: {args.run_type}")
-
+#    if args.run_type == 'calibration' or args.run_type == 'testing':
+#
+#        #model_run_manager(config = hyperparameters, project = project, train = args.train, eval = args.evaluate, forecast = False, artifact_name = args.artifact_name)        
+#        execute_model_tasks(config = hyperparameters, project = project, train = args.train, eval = args.evaluate, forecast = False, artifact_name = args.artifact_name)
+#
+#    elif args.run_type == 'forecasting':
+#
+#        #print('True forecasting ->->->->')
+#        #model_run_manager(config = hyperparameters, project = project, train = False, eval = False, forecast=True, artifact_name = args.artifact_name)     
+#        execute_model_tasks(config = hyperparameters, project = project, train = False, eval = False, forecast=False, artifact_name = args.artifact_name)
+#        
+#        # okay, but just because it uses the forsccasting partition, does not mean it is that we are forecasting. We could just be trianing.
+#
+#    else:
+#        raise ValueError(f"Invalid run type: {args.run_type}")
+#
