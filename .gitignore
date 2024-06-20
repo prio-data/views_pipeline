@@ -174,7 +174,6 @@ cython_debug/
 *.zip
 *.JPG
 *.jpg
-*.pkl
 *.mp4
 *.png
 *.svg
@@ -189,7 +188,6 @@ cython_debug/
 
 # data files
 *.csv
-*.pkl
 *.npy
 *.parquet
 *.pt 
