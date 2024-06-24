@@ -118,10 +118,10 @@ def setup_data_paths(PATH) -> Path:
 
     PATH_DATA = PATH_MODEL / "data"
     PATH_RAW = PATH_DATA / "raw"
-    PATH_PROCCEDS = PATH_DATA / "processed"
+    PATH_PROCESSED = PATH_DATA / "processed"
     PATH_GENERATED = PATH_DATA / "generated"
 
-    return PATH_RAW, PATH_PROCCEDS, PATH_GENERATED # added in accordance with Sara's escwa branch
+    return PATH_RAW, PATH_PROCESSED, PATH_GENERATED # added in accordance with Sara's escwa branch
 
 
 def setup_artifacts_paths(PATH) -> Path:
