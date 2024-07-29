@@ -45,7 +45,3 @@ To add a new ADR:
 ## Feedback and Inquiries
 
 For questions or comments regarding the ADRs or the documentation process, please initiate a discussion through a repository issue or bring it up in our regular team meetings.
-
----
-
-This version focuses on precise language and clear directives to improve readability and user guidance. It also emphasizes the importance of ADRs in the ongoing management of the project's architectural integrity.
