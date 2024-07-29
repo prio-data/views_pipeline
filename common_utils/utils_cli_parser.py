@@ -17,33 +17,32 @@ def parse_args():
         -r, --run_type: Specifies the type of run. Options are 'calibration', 
                         'testing', or 'forecasting'. Default is 'calibration'.
                         This refers to wich partition of the data to used.
-                        Note: If --sweep is flagged, --run_type must be 'calibration'.\n
+                        Note: If --sweep is flagged, --run_type must be 'calibration'.
 
         -s, --sweep:     Flag to run the model pipeline as part of a sweep. If 
                         flagged, both training and evaluation are implied. 
-                        Note: --run_type must be 'calibration' if --sweep is used.\n
+                        Note: --run_type must be 'calibration' if --sweep is used.
 
         -t, --train:     Flag to indicate if a new model should be trained. 
                         If --sweep is flagged, --train is automatically set.
                         If --sweep is not flagged, --train will also produce
-                        a model artifact that can be used for evaluation/forecasting.\n
+                        a model artifact that can be used for evaluation/forecasting.
 
         -e, --evaluate:  Flag to indicate if the model should be evaluated. 
                         Cannot be used with --run_type 'forecasting'. 
                         If --sweep is specified, --evaluate is automatically set.
                         If --sweep is not specified, --evaluate will evaluate the latest model artifact.
-                        Unless --artifact_name is specified, in which case that artifact will be evaluated.\n
+                        Unless --artifact_name is specified, in which case that artifact will be evaluated.
 
         -f, --forecast:  Flag to indicate if the model should generate true forecasts.
                         Relevant for forecasting runs, where predictions are made 
                         for future time steps without holdout data evaluation.
-                        Will use the latest model artifact by default, unless --artifact_name is specified.\n
+                        Will use the latest model artifact by default, unless --artifact_name is specified.
 
         -a, --artifact_name: Specifies the name of the model artifact for evaluation.
                             The artifact name should follow the format: 
                             <run_type>_model_<timestamp>.pt. If not provided, the latest 
-                            artifact is used by default.\n
-
+                            artifact is used by default.
     Returns:
         argparse.Namespace: An object containing the parsed command-line arguments.
     """
