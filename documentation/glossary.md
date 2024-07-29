@@ -41,34 +41,33 @@
 - **Definition**: A single model trained to predict one step ahead, used iteratively to forecast multiple future steps.
 - **Example**: Predicting conflict incidents in grid cell months for the next 36 months by using each forecasted value as an input for the next prediction.
 - **Algorithms**:
-  - **Linear Models**: Linear Regression
-  - **Tree-Based Models**: Decision Trees, Random Forests
-  - **Ensemble Methods**: Gradient Boosting Machines (e.g., XGBoost, LightGBM)
-  - **Neural Networks**: Multilayer Perceptrons (MLPs)
+    - Linear Regression
+    - Random Forests
+    - Gradient Boosting Machines (e.g., XGBoost, LightGBM)
+    - Multilayer Perceptrons (MLPs)
 - **Notes**:
-  - Utilizes conventional Supervised Machine Learning models.
-  - Involves adding lagged features to input data to learn temporal dependencies.
+    - Utilizes conventional Supervised Machine Learning models.
+    - Involves adding lagged features to input data to learn temporal dependencies.
 
-### 2. Direct Multi-Step Forecasting (ALSO KNOWN AS STEPSHIFT IN VIEWS TERMS)
-- **Definition**: Separate models trained for each forecasting horizon to predict specific future time steps directly.
-- **Example**: Training distinct models to predict conflict incidents 1 month ahead, 2 months ahead, up to 36 months ahead.
+### 2. Direct Multi-Step Forecasting (STEPSHIFTER IN VIEWS TERMS)
+- **Definition**: Separate (sub) models trained for each forecasting horizon to predict specific future time steps directly.
+- **Example**: Training distinct (sub) models to predict conflict incidents 1 month ahead, 2 months ahead, up to 36 months ahead.
 - **Algorithms**:
-  - **Linear Models**: Separate Linear Regression models for each step
-  - **Tree-Based Models**: Separate Decision Trees for each step
-  - **Ensemble Methods**: Separate Gradient Boosting models for each step
-  - **Neural Networks**: Separate MLPs for each step
+    - Linear Regression
+    - Random Forests
+    - Gradient Boosting Machines (e.g., XGBoost, LightGBM)
+    - Multilayer Perceptrons (MLPs)
 - **Notes**:
-  - Avoids error accumulation seen in recursive forecasting.
-  - Requires more computational resources as multiple models are trained.
+  - Also utilizes conventional Supervised Machine Learning models but avoids error accumulation seen in recursive forecasting.
+  - Requires more computational resources then Recursice Multi-Step Forecasting as multiple (sub) models are trained.
 
 ### 3. Autoregressive Model (AR)
 - **Definition**: A linear model regressing the current value of a time series on its previous values, using a predefined number of lagged observations.
 - **Example**: Using the last five months of conflict data to predict the current month's conflict level.
 - **Algorithms**:
-  - **AR (Autoregressive)**: Uses past values to predict current values.
-  - **ARMA (Autoregressive Moving Average)**: Combines AR with a Moving Average model.
-  - **ARIMA (Autoregressive Integrated Moving Average)**: Includes differencing to make the series stationary.
-  - **SARIMA (Seasonal ARIMA)**: Adds seasonal components to ARIMA for handling seasonality.
+    - ARMA (Autoregressive Moving Average)
+    - ARIMA (Autoregressive Integrated Moving Average)
+    - SARIMA (Seasonal ARIMA)
 - **Notes**:
   - Specialized Time Series Models effective for stationary series with linear relationships.
 
@@ -76,19 +75,18 @@
 - **Definition**: Models trained to predict multiple future values at once, producing a sequence of future predictions in a single step.
 - **Example**: Using a Seq2Seq transformer or LSTM U-net to forecast conflict incidents for the next 36 months.
 - **Algorithms**:
-  - **Seq2Seq Models (Sequence-to-Sequence)**: Effective for multi-step forecasting.
-  - **Recurrent Neural Networks (RNNs)**: Includes LSTM (Long Short-Term Memory) and GRU (Gated Recurrent Units) networks.
-  - **Transformer Models**: Use self-attention mechanisms for long-range dependencies.
-  - **LSTM U-net**: Combines LSTM networks with U-net architectures for spatial-temporal data.
+    - Seq2Seq Models (Sequence-to-Sequence)
+    - Recurrent Neural Networks (RNNs) - Includes LSTM (Long Short-Term Memory) and GRU (Gated Recurrent Units) networks.
+    - Transformer Models
 - **Notes**:
-  - Suitable for complex, non-linear relationships.
-  - Can handle long sequences effectively.
+    - Suitable for complex, non-linear relationships.
+    - Can handle long sequences effectively.
 
 ### Summary Table for Model Terminology
 
-| **Method**                     | **Definition**                                                               | **Example**                                      | **Algorithms**                                                                                      | **Notes**                                                                                               |
-|--------------------------------|-------------------------------------------------------------------------------|--------------------------------------------------|------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------|
-| **Recursive Multi-Step**       | Single model predicts one step ahead, used iteratively for multiple steps     | Predicting conflict incidents for 36 months      | Linear Regression, Decision Trees, Random Forests, Gradient Boosting (XGBoost, LightGBM), MLPs      | Uses lagged features to learn temporal dependencies                                                     |
-| **Direct Multi-Step (stepshift)**          | Separate models trained for each forecasting horizon                          | Training models for 1 to 36 months ahead         | Separate Linear Regression, Decision Trees, Gradient Boosting, MLPs                                   | Avoids error accumulation; requires more computational resources                                        |
-| **Autoregressive (AR)**        | Linear model regressing current value on previous values                      | Predicting current month's conflict level        | AR, ARMA, ARIMA, SARIMA                                                                               | Effective for stationary series with linear relationships                                               |
-| **Multi-Output Models**        | Models trained to predict multiple future values at once                      | Seq2Seq transformer or LSTM U-net for 36 months  | Seq2Seq, RNNs (LSTM, GRU), Transformer, LSTM U-net                                                   | Suitable for complex, non-linear relationships; handles long sequences effectively                       |
+| **Method**              | **Definition**      | **Algorithms** |**Notes**  |
+|-------------------------|---------------------|----------------|-----------|
+| **Recursive Multi-Step**       | Single model predicts one step ahead, used iteratively for multiple steps    | Linear Regression, Random Forests, Gradient Boosting (XGBoost, LightGBM), MLPs      | Uses lagged features to learn temporal dependencies  |
+| **Direct Multi-Step (stepshift)**          | Separate models trained for each forecasting horizon  | Separate Linear Regression, Gradient Boosting, MLPs                                   | Avoids error accumulation; requires more computational resources   |
+| **Autoregressive (AR)**        | Linear model regressing current value on previous values  | ARMA, ARIMA, SARIMA  | Effective for stationary series with linear relationships                                               |
+| **Multi-Output Models**        | Models trained to predict multiple future values at once | Seq2Seq, RNNs (LSTM, GRU), Transformers| Suitable for complex, non-linear relationships; handles long sequences effectively                       |
