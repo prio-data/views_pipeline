@@ -1,3 +1,6 @@
+# DEPRECATED
+As of the time of writing, everything below is still true, but the information has been migrated to the ADR documentation/ADRs/005_model_definition_and_structure.md as it is an architectural design decision and belongs there. Future updates pertaining to this subject should also be formulated as an ADR.
+
 # Documentation of Models in VIEWS Pipeline
 
 ## Definition
