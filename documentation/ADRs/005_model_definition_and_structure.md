@@ -5,7 +5,7 @@
 |---------------------|----------------------------------------------|
 | Subject             | Documentation of Models in VIEWS Pipeline    |
 | ADR Number          | 002                                          |
-| Status              | Proposed                                     |
+| Status              | Accepted                                     |
 | Author              | Sara and Simon                               |
 | Date                | 29.07.2024                                   |
 
