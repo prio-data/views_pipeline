@@ -1,4 +1,3 @@
-```markdown
 # Glossary
 
 | Info         | Details  |
@@ -50,7 +49,7 @@
   - Utilizes conventional Supervised Machine Learning models.
   - Involves adding lagged features to input data to learn temporal dependencies.
 
-### 2. Direct Multi-Step Forecasting
+### 2. Direct Multi-Step Forecasting (ALSO KNOWN AS STEPSHIFT IN VIEWS TERMS)
 - **Definition**: Separate models trained for each forecasting horizon to predict specific future time steps directly.
 - **Example**: Training distinct models to predict conflict incidents 1 month ahead, 2 months ahead, up to 36 months ahead.
 - **Algorithms**:
@@ -90,7 +89,6 @@
 | **Method**                     | **Definition**                                                               | **Example**                                      | **Algorithms**                                                                                      | **Notes**                                                                                               |
 |--------------------------------|-------------------------------------------------------------------------------|--------------------------------------------------|------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------|
 | **Recursive Multi-Step**       | Single model predicts one step ahead, used iteratively for multiple steps     | Predicting conflict incidents for 36 months      | Linear Regression, Decision Trees, Random Forests, Gradient Boosting (XGBoost, LightGBM), MLPs      | Uses lagged features to learn temporal dependencies                                                     |
-| **Direct Multi-Step**          | Separate models trained for each forecasting horizon                          | Training models for 1 to 36 months ahead         | Separate Linear Regression, Decision Trees, Gradient Boosting, MLPs                                   | Avoids error accumulation; requires more computational resources                                        |
+| **Direct Multi-Step (stepshift)**          | Separate models trained for each forecasting horizon                          | Training models for 1 to 36 months ahead         | Separate Linear Regression, Decision Trees, Gradient Boosting, MLPs                                   | Avoids error accumulation; requires more computational resources                                        |
 | **Autoregressive (AR)**        | Linear model regressing current value on previous values                      | Predicting current month's conflict level        | AR, ARMA, ARIMA, SARIMA                                                                               | Effective for stationary series with linear relationships                                               |
 | **Multi-Output Models**        | Models trained to predict multiple future values at once                      | Seq2Seq transformer or LSTM U-net for 36 months  | Seq2Seq, RNNs (LSTM, GRU), Transformer, LSTM U-net                                                   | Suitable for complex, non-linear relationships; handles long sequences effectively                       |
-```
