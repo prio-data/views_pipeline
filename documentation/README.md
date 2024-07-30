@@ -1,3 +1,7 @@
+# THIS README SHOULD BE MINIMAL AND MOST OF THE STUFF BELOW BE MIGRATED TO ARDs, THE GLOSSARY, OR SIMILAR.
+
+
+
 # Documentation of VIEWS Pipeline
 
 This is a collection of high-level documentation for the entire repository/pipeline. We aim to also offer in-depth documentation in folder READMEs and docstrings of functions and classes within the code.
