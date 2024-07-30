@@ -1,5 +1,3 @@
-Certainly! Here is a standard code of conduct for a project. This can be tailored to fit the specific needs and culture of your project or organization.
-
 ## Code of Conduct
 
 ### Introduction
