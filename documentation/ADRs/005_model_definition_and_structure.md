@@ -13,7 +13,9 @@
 In the context of the VIEWS pipeline, there is a need to standardize the definition and structure of models to ensure consistency and clarity. This involves defining what constitutes a model and outlining the specific obligations for model directories, including the required scripts and artifacts for both forecasting and experimentation.
 
 ## Decision
-The decision is to define a model in the VIEWS pipeline as follows:
+This decision establishes a standardized definition and structure for models in the VIEWS pipeline, including the necessary scripts and artifacts for forecasting and experimentation.
+
+### Overview
 1. A specific instantiation of a machine learning algorithm.
 2. Trained using a predetermined and unique set of hyperparameters.
 3. On a well-defined set of input features.
@@ -35,9 +37,6 @@ Additionally, model directories must adhere to a specific structure and contain 
 
 ## Rationale
 The rationale behind this decision is to maintain architectural integrity and promote consistency across the VIEWS pipeline. By clearly defining what constitutes a model and standardizing the structure and required scripts, the project can ensure that all models are comprehensible, reproducible, and maintainable.
-
-### Overview
-This decision establishes a standardized definition and structure for models in the VIEWS pipeline, including the necessary scripts and artifacts for forecasting and experimentation.
 
 ### Considerations
 - Potential risks include the initial effort required to restructure existing models.
