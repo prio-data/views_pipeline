@@ -7,7 +7,7 @@ As of the time of writing, everything below is still true, but the information h
 In the context of the VIEWS pipeline, a model should be understood as:
 
 1) A specific instantiation of a machine learning algorithm, 
-2) Trained using a predetermined and unique set of hyperpara.meters,
+2) Trained using a predetermined and unique set of hyperparameters,
 3) On a well-defined set of input features,
 4) And targeting a specific outcome target.
 5) In the case of stepshift models, a model is understood as **all** code and **all** artifacts necessary to generate a comprehensive 36 month forecast for the specified target.
