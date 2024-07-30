@@ -32,6 +32,13 @@ def parse_args():
                              'Note: If --sweep is specified, --evaluate will also automatically be flagged. '
                              'Cannot be used with --run_type forecasting.')
 
+    parser.add_argument('-f', '--forecast',
+                        action='store_true',
+                        help='Flag to indicate if the model should produce predictions. '
+                             'Note: If --sweep is specified, --forecast will also automatically be flagged. '
+                             'Can only be used with --run_type forecasting.')
+
+
     parser.add_argument('-a', '--artifact_name',
                         type=str,
                         help='Specify the name of the model artifact to be used for evaluation. '
@@ -43,23 +50,18 @@ def parse_args():
     return parser.parse_args()
 
 def validate_arguments(args):
-    if args.sweep:
-        if args.run_type != 'calibration':
-            print("Error: Sweep runs must have --run_type set to 'calibration'. Exiting.")
-            print("To fix: Use --run_type calibration when --sweep is flagged.")
-            sys.exit(1)
-
-    if args.run_type in ['testing', 'forecasting'] and args.sweep:
-        print("Error: Sweep cannot be performed with testing or forecasting run types. Exiting.")
-        print("To fix: Remove --sweep flag or set --run_type to 'calibration'.")
+    if args.sweep and args.run_type != 'calibration':
+        print("Error: Sweep runs must have --run_type set to 'calibration'. Exiting.")
+        print("To fix: Use --run_type calibration when --sweep is flagged.")
         sys.exit(1)
 
-    if args.run_type == 'forecasting' and args.evaluate:
+    if args.evaluate and args.run_type == 'forecasting':
         print("Error: Forecasting runs cannot evaluate. Exiting.")
         print("To fix: Remove --evaluate flag when --run_type is 'forecasting'.")
         sys.exit(1)
 
-    if args.run_type in ['calibration', 'testing'] and not args.train and not args.evaluate and not args.sweep:
+    if (args.run_type in ['calibration', 'testing', 'forecasting']
+            and not args.train and not args.evaluate and not args.forecast and not args.sweep):
         print(f"Error: Run type is {args.run_type} but neither --train, --evaluate, nor --sweep flag is set. Nothing to do... Exiting.")
         print("To fix: Add --train and/or --evaluate flag. Or use --sweep to run both training and evaluation in a WadnB sweep loop.")
         sys.exit(1)
@@ -67,6 +69,11 @@ def validate_arguments(args):
     if args.train and args.artifact_name:
         print("Error: Both --train and --artifact_name flags are set. Exiting.")
         print("To fix: Remove --artifact_name if --train is set, or vice versa.")
+        sys.exit(1)
+
+    if args.forecast and args.run_type != 'forecasting':
+        print("Error: --forecast flag can only be used with --run_type forecasting. Exiting.")
+        print("To fix: Set --run_type to forecasting if --forecast is flagged.")
         sys.exit(1)
 
 

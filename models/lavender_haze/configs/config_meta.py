@@ -9,8 +9,8 @@ def get_meta_config():
     meta_config = {
         "name": "lavender_haze",
         "algorithm": "HurdleRegression",
-        "clf": "LGBMClassifier",
-        "reg": "LGBMRegressor",
+        "model_clf": "LGBMClassifier",
+        "model_reg": "LGBMRegressor",
         "depvar": "ln_ged_sb_dep",  # IMPORTANT! The current stepshift only takes one target variable! Not compatiable with Simon's code!
         "queryset": "fatalities003_pgm_broad",
         "level": "pgm",
