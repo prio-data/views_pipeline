@@ -14,6 +14,9 @@ In the context of the VIEWS pipeline, there is a need to standardize the naming 
 ## Decision
 The decision is to adopt a naming convention for models that follows the format `[adjective_noun]`. Examples include `orange_pasta` and `purple_alien`. This convention provides a unique and memorable identifier for each model while maintaining simplicity.
 
+### Overview
+This decision establishes a standardized naming convention for models in the VIEWS pipeline, using the format `[adjective_noun]`.
+
 ## Consequences
 **Positive Effects:**
 - Ensures a clear and consistent naming convention for models.
@@ -27,9 +30,6 @@ The decision is to adopt a naming convention for models that follows the format 
 The rationale behind this decision is to promote consistency and ease of identification across the VIEWS pipeline. A standardized naming convention ensures models can be managed and referenced efficiently, especially as their number increases.
 
 Using highly descriptive names like algorithm_queryset_target_date would become cumbersome and unwieldy, particularly since some models are only distinguished by their hyperparameters. Therefore, detailed information about each model should be documented in the model's README and the appropriate configuration files (see documentation/ADRs/002_separation_of_configs.md for more info).
-
-### Overview
-This decision establishes a standardized naming convention for models in the VIEWS pipeline, using the format `[adjective_noun]`.
 
 ### Considerations
 - Potential challenges include ensuring that all team members adhere to the new naming convention.

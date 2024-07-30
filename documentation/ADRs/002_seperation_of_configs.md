@@ -16,6 +16,19 @@ The project's previous configuration management approach, utilizing a single con
 
 The decision was made to restructure the model configuration into distinct files, each tailored to specific functionalities aligned with the model's lifecycle stages—training, deployment, and documentation. This involves splitting the previous config_model into several targeted configuration files (see below).
 
+### Configuration Files Overview
+
+Here is a detailed table describing the new configuration files and their respective purposes:
+
+| Configuration File                        | Type            | Description                                                                                             |
+|-------------------------------------------|-----------------|---------------------------------------------------------------------------------------------------------|
+| **config_hyperparameters.py**           | Operational     | Defines hyperparameters that influence the training process of the model.                              |
+| **config_sweep.py**                     | Operational     | Specifies methods for conducting hyperparameter sweeps to optimize model performance.                   |
+| **config_deployment.py**                | Behavioral      | Manages settings for model deployment across various environments, affecting runtime behavior.          |
+| **config_inputdata.py**                 | Behavioral      | Configures the input data specifications using a viewer queryset format.                               |
+| **config_meta.py**                      | Documentation   | Contains metadata about the model, such as the algorithm used and the identity of the creator.          |
+
+
 ## Consequences
 **Positive Effects:**
 - Improved clarity and maintainability of the configuration files.
@@ -36,17 +49,6 @@ The division of the configuration into specific files is designed to:
 
 - **Documentation Configurations:** Documentation configurations contain purely informational metadata about the model. Modifying these parameters does not impact the model’s training, behavior, or deployment. They are crucial for documentation purposes, aiding in compliance and maintenance, and include details such as the model’s architecture, purpose, and version.
 
-### Configuration Files Overview
-
-Here is a detailed table describing the new configuration files and their respective purposes:
-
-| Configuration File                        | Type            | Description                                                                                             |
-|-------------------------------------------|-----------------|---------------------------------------------------------------------------------------------------------|
-| **config_hyperparameters.py**           | Operational     | Defines hyperparameters that influence the training process of the model.                              |
-| **config_sweep.py**                     | Operational     | Specifies methods for conducting hyperparameter sweeps to optimize model performance.                   |
-| **config_deployment.py**                | Behavioral      | Manages settings for model deployment across various environments, affecting runtime behavior.          |
-| **config_inputdata.py**                 | Behavioral      | Configures the input data specifications using a viewer queryset format.                               |
-| **config_meta.py**                      | Documentation   | Contains metadata about the model, such as the algorithm used and the identity of the creator.          |
 
 
 ### Considerations
