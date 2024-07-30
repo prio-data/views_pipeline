@@ -18,6 +18,9 @@
 ## Decision
 *Detail the decision that was made, including any alternatives that were considered and the reasons for choosing the implemented solution. Provide enough technical specifics to justify the approach.*
 
+### Overview
+*Overview of the decision in a clear and concise manner.*
+
 ## Consequences
 *Discuss the positive and negative effects of the decision. Include both immediate outcomes and long-term implications for the project's architecture. Highlight how the decision aligns with the challenges outlined in the context.*
 
@@ -29,9 +32,6 @@
 
 ## Rationale
 *Explain the reasoning behind the decision, including any specific advantages that influenced the choice. This section should reflect the factors mentioned in the context.*
-
-### Overview
-*Overview of the decision in a clear and concise manner.*
 
 ### Considerations
 *List any considerations that were part of the decision-making process, such as potential risks, dependency issues, or impacts on existing systems.*
