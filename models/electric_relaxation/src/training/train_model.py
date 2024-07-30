@@ -3,20 +3,20 @@ from pathlib import Path
 import pandas as pd
 import pickle
 
-from sklearn.ensemble import RandomForestClassifier
+#from sklearn.ensemble import RandomForestClassifier
 
 from stepshift.views import StepshiftedModels
 from views_runs import DataPartitioner, ViewsRun
 
-model_path = Path(__file__).resolve().parents[2] 
-sys.path.append(str(model_path))
-print(sys.path)
+PATH = Path(__file__)
+sys.path.insert(0, str(Path(*[i for i in PATH.parts[:PATH.parts.index("views_pipeline")+1]]) / "common_utils")) # PATH_COMMON_UTILS
+from set_path import setup_project_paths, setup_artifacts_paths, setup_data_paths
+setup_project_paths(PATH) #adds all necessary paths to sys.path
 
-from configs.config_data_partitions import get_data_partitions 
-from configs.config_hyperparameters import get_hp_config
-from configs.config_model import get_model_config
-#from configs.config_sweep import get_sweep_config
-from src.utils.set_paths import get_data_path, get_artifacts_path
+from config_data_partitions import get_data_partitions #change to common_utils/set_partition.py
+from config_hyperparameters import get_hp_config
+from config_model import get_model_config
+#from config_sweep import get_sweep_config
 
 def train(model_config, hp_config, data_partitions): 
     """
@@ -33,16 +33,17 @@ def train(model_config, hp_config, data_partitions):
 
     Returns:
     - tuple: Trained models for calibration and future partitions.
+
+    Note:
+    - The 'artifacts' directory must exist in the system path for saving and loading pickle files.
+    - Ensure that the raw dataset is successfully loaded before proceeding with model training.
     """
 
     print("Training...")
 
-    #calib_pickle_path = get_artifacts_path("calibration") #not sure why code doesn't run well with these
-    #future_pickle_path = get_artifacts_path("forecast")
-    calib_pickle_path = model_path / "artifacts" / "model_calibration_partition.pkl"
-    future_pickle_path = model_path / "artifacts" / "model_future_partition.pkl"
-    print(calib_pickle_path)
-    print(future_pickle_path)
+    artifacts_path = setup_artifacts_paths(PATH)
+    calib_pickle_path = artifacts_path / "model_calibration_partition.pkl"
+    future_pickle_path = artifacts_path / "model_future_partition.pkl"
     
     if calib_pickle_path.exists() and future_pickle_path.exists():
         print("Pickle files already exist. Loading models from pickle files...")
@@ -52,12 +53,14 @@ def train(model_config, hp_config, data_partitions):
             model_future_partition = pickle.load(file)
     
     else:
-        dataset = pd.read_parquet(get_data_path("raw"))
+        PATH_RAW, _, _ = setup_data_paths(PATH)
+        dataset = pd.read_parquet(PATH_RAW / 'raw.parquet')
         assert not dataset.empty, "Data loading failed."
 
         calib_partition = DataPartitioner({'calib': data_partitions["calib_partitioner_dict"]})
         future_partition = DataPartitioner({'future': data_partitions["future_partitioner_dict"]})
-        base_model = [model_config["algorithm"]](n_estimators=hp_config["n_estimators"], n_jobs=hp_config["n_jobs"])
+        #base_model = [model_config["algorithm"]](n_estimators=hp_config["n_estimators"], n_jobs=hp_config["n_jobs"])
+        base_model = model_config["algorithm"](n_estimators=hp_config["n_estimators"], n_jobs=hp_config["n_jobs"])
         stepshifter_def = StepshiftedModels(base_model, model_config["steps"], model_config["depvar"])
 
         model_calibration_partition = ViewsRun(calib_partition, stepshifter_def)
