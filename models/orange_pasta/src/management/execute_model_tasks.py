@@ -12,7 +12,7 @@ from evaluate_model import evaluate_model_artifact
 from evaluate_sweep import evaluate_sweep
 from generate_forecast import forecast_model_artifact
 from train_model import train_model_artifact
-from utils import get_model, split_hurdle_parameters
+from utils import split_hurdle_parameters
 from utils_wandb import add_wandb_monthly_metrics
 
 
@@ -49,20 +49,16 @@ def execute_model_tasks(config=None, project=None, train=None, eval=None, foreca
             config['parameters'] = {}
             config['parameters']['clf'], config['parameters']['reg'] = split_hurdle_parameters(config)
 
-        model = get_model(config)
-        print(model)
-
         if config['sweep']:
             print("Sweeping...")
-            stepshift_model = train_model_artifact(config, model)
+            stepshift_model = train_model_artifact(config)
             print("Evaluating...")
             evaluate_sweep(config, stepshift_model)
-
 
         # Handle the single model runs: train and save the model as an artifact
         if train:
             print("Training...")
-            train_model_artifact(config, model)
+            train_model_artifact(config)
 
         # Handle the single model runs: evaluate a trained model (artifact)
         if eval:

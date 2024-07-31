@@ -6,6 +6,8 @@ The model utilizes LightGBM for its predictions and is on pgm level of analysis.
 
 The model uses non-log fatalities.
 
+The model uses a new stepshifter structure which is based on Darts. 
+
 ## Repository Structure
 ```
 

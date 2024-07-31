@@ -7,14 +7,11 @@ from set_path import setup_project_paths, setup_data_paths, setup_artifacts_path
 setup_project_paths(PATH)
 
 from set_partition import get_partitioner_dict
-from stepshift.views import StepshiftedModels
-from utils import get_partition_data
 from views_forecasts.extensions import *
-from views_partitioning.data_partitioner import DataPartitioner
-from views_stepshift.run import ViewsRun
+from views_stepshifter_darts.stepshifter_darts import StepshifterModel
 
 
-def train_model_artifact(config, model):
+def train_model_artifact(config):
     # print(config)
     PATH_RAW, _, _ = setup_data_paths(PATH)
     PATH_ARTIFACTS = setup_artifacts_paths(PATH)
@@ -22,7 +19,7 @@ def train_model_artifact(config, model):
     run_type = config['run_type']
     dataset = pd.read_parquet(PATH_RAW / f'raw_{run_type}.parquet')
 
-    stepshift_model = stepshift_training(config, run_type, model, get_partition_data(dataset, run_type))
+    stepshift_model = stepshift_training(config, run_type, dataset)
     if not config["sweep"]:
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         model_filename = f"{config.run_type}_model_{timestamp}.pkl"
@@ -30,12 +27,8 @@ def train_model_artifact(config, model):
     return stepshift_model
 
 
-def stepshift_training(config, partition_name, model, dataset):
-    steps = config["steps"]
-    target = config["depvar"]
+def stepshift_training(config, partition_name, dataset):
     partitioner_dict = get_partitioner_dict(partition_name)
-    partition = DataPartitioner({partition_name: partitioner_dict})
-    stepshift_def = StepshiftedModels(model, steps, target)
-    stepshift_model = ViewsRun(partition, stepshift_def)
-    stepshift_model.fit(partition_name, "train", dataset)
+    stepshift_model = StepshifterModel(config, partitioner_dict)
+    stepshift_model.fit(dataset)
     return stepshift_model

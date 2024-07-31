@@ -1,4 +1,3 @@
-import sys
 from pathlib import Path
 import pandas as pd
 import wandb
@@ -8,7 +7,7 @@ PATH = Path(__file__)
 from set_path import setup_project_paths, setup_data_paths
 setup_project_paths(PATH)
 
-from utils import get_partition_data, get_standardized_df
+from utils import get_standardized_df
 from utils_wandb import generate_wandb_log_dict
 from utils_evaluation_metrics import generate_metric_dict
 
@@ -18,7 +17,7 @@ def evaluate_sweep(config, stepshift_model):
 
     dataset = pd.read_parquet(PATH_RAW / f'raw_{config.run_type}.parquet')
 
-    df = stepshift_model.predict(config.run_type, "predict", get_partition_data(dataset, config.run_type))
+    df = stepshift_model.predict(dataset)
     df = get_standardized_df(df, config.run_type)
 
     # Temporarily keep this because the metric to minimize is MSE
