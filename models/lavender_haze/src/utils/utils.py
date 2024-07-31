@@ -120,4 +120,22 @@ def split_hurdle_parameters(parameters_dict):
     return cls_dict, reg_dict
 
 
+def update_hp_config(hp_config, args, meta_config):
+    hp_config['run_type'] = args.run_type
+    hp_config['sweep'] = False
+    hp_config['name'] = meta_config['name']
+    hp_config['depvar'] = meta_config['depvar']
+    hp_config['algorithm'] = meta_config['algorithm']
+    if meta_config['algorithm'] == 'HurdleRegression':
+        hp_config['model_clf'] = meta_config['model_clf']
+        hp_config['model_reg'] = meta_config['model_reg']
 
+        
+def update_sweep_config(sweep_config, args, meta_config):
+    sweep_config['parameters']['run_type'] = {'value': args.run_type}
+    sweep_config['parameters']['sweep'] = {'value': True}
+    sweep_config['parameters']['depvar'] = {'value': meta_config['depvar']}
+    sweep_config['parameters']['algorithm'] = {'value': meta_config['algorithm']}
+    if meta_config['algorithm'] == 'HurdleRegression':
+        sweep_config['parameters']['model_clf'] = {'value': meta_config['model_clf']}
+        sweep_config['parameters']['model_reg'] = {'value': meta_config['model_reg']}

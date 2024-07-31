@@ -12,10 +12,10 @@ from config_input_data import get_input_data
 from utils import ensure_float64
 
 
-def get_data():
+def get_data(args):
     print("Getting data...")
     PATH_RAW, _, _ = setup_data_paths(PATH)
-    parquet_path = PATH_RAW / 'raw_calibration.parquet'
+    parquet_path = PATH_RAW / f'raw_{args.run_type}.parquet'
     # print('PARQUET PATH', parquet_path)
     if not parquet_path.exists():
         qs = get_input_data()
@@ -25,13 +25,4 @@ def get_data():
     else:
         data = pd.read_parquet(parquet_path)
 
-    return data
-
-
-
-
-
-
-
-
-        
+    return data     

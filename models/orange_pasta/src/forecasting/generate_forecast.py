@@ -1,22 +1,21 @@
+import sys
 import pandas as pd
-import numpy as np
 from pathlib import Path
 import pickle
 
-import sys
 PATH = Path(__file__)
-sys.path.insert(0, str(Path(*[i for i in PATH.parts[:PATH.parts.index("views_pipeline")+1]]) / "common_utils"))
+sys.path.insert(0, str(Path(
+    *[i for i in PATH.parts[:PATH.parts.index("views_pipeline") + 1]]) / "common_utils"))  # PATH_COMMON_UTILS
 from set_path import setup_project_paths, setup_data_paths, setup_artifacts_paths
 setup_project_paths(PATH)
 
-from get_data import get_partition_data
+from utils import get_partition_data, get_standardized_df
 from utils_artifacts import get_latest_model_artifact
 
-def forecast_model_artifact(config, artifact_name=None):
-    run_type = config['run_type']
+
+def forecast_model_artifact(config, artifact_name):
     PATH_RAW, _, PATH_GENERATED = setup_data_paths(PATH)
     PATH_ARTIFACTS = setup_artifacts_paths(PATH)
-    dataset = pd.read_parquet(PATH_RAW / f'raw_{run_type}.parquet')
 
     # if an artifact name is provided through the CLI, use it.
     # Otherwise, get the latest model artifact based on the run type
@@ -28,39 +27,20 @@ def forecast_model_artifact(config, artifact_name=None):
         PATH_ARTIFACT = PATH_ARTIFACTS / artifact_name
     else:
         # use the latest model artifact based on the run type
-        print(f"Using latest (default) run type ({run_type}) specific artifact")
-        PATH_ARTIFACT = get_latest_model_artifact(PATH_ARTIFACTS, run_type)
+        print(f"Using latest (default) run type ({config.run_type}) specific artifact")
+        PATH_ARTIFACT = get_latest_model_artifact(PATH_ARTIFACTS, config.run_type)
 
     config["timestamp"] = PATH_ARTIFACT.stem[-15:]
+    dataset = pd.read_parquet(PATH_RAW / f'raw_{config.run_type}.parquet')
 
     try:
         stepshift_model = pd.read_pickle(PATH_ARTIFACT)
     except:
         raise FileNotFoundError(f"Model artifact not found at {PATH_ARTIFACT}")
 
-    pred_cols = [f"step_pred_{str(i)}" for i in config["steps"]]
-    predictions = stepshift_model.predict(run_type, "predict", get_partition_data(dataset, run_type))
-    predictions = predictions[pred_cols]
-    predictions = predictions.replace([np.inf, -np.inf], 0)
-    predictions = predictions.mask(predictions < 0, 0)
-
+    df_predictions = stepshift_model.predict("forecasting", "predict", get_partition_data(dataset, config.run_type))
+    df_predictions = get_standardized_df(df_predictions, config.run_type)
+    
     predictions_path = f'{PATH_GENERATED}/predictions_{config.steps[-1]}_{config.run_type}_{config.timestamp}.pkl'
     with open(predictions_path, 'wb') as file:
-        pickle.dump(predictions, file)
-
-    return predictions
-
-if __name__ == "__main__":
-    config = {
-        "name": "orange_pasta",
-        "algorithm": "LGBMRegressor",
-        "depvar": "ged_sb_dep",
-        "steps": [*range(1, 36 + 1, 1)],
-        "parameters": {
-            "learning_rate": 0.01,
-            "n_estimators": 100,
-            "num_leaves": 31,
-        },
-        'run_type': 'forecasting'
-    }
-    forecast_model_artifact(config)
+        pickle.dump(df_predictions, file)

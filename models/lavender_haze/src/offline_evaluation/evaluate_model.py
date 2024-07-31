@@ -57,8 +57,3 @@ def evaluate_model_artifact(config, artifact_name):
         wandb.log(log_dict)
 
     save_model_outputs(df_evaluation, df_output, PATH_GENERATED, config)
-
-
-
-
-

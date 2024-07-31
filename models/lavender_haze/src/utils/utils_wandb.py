@@ -1,13 +1,11 @@
-import wandb
-
-import sys
 from pathlib import Path
+import sys
+import wandb
 
 PATH = Path(__file__)
 sys.path.insert(0, str(Path(
     *[i for i in PATH.parts[:PATH.parts.index("views_pipeline") + 1]]) / "common_utils"))  # PATH_COMMON_UTILS
-from set_path import setup_project_paths, setup_data_paths
-
+from set_path import setup_project_paths
 setup_project_paths(PATH)
 
 

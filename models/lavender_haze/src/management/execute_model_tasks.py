@@ -72,4 +72,3 @@ def execute_model_tasks(config=None, project=None, train=None, eval=None, foreca
         if forecast:
             print("Forecasting...")
             forecast_model_artifact(config, artifact_name)
-

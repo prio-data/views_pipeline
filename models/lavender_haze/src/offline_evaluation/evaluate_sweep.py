@@ -35,4 +35,3 @@ def evaluate_sweep(config, stepshift_model):
         step = f"step{str(t).zfill(2)}"
         log_dict = generate_wandb_log_dict(log_dict, evaluation, step)
         wandb.log(log_dict)
-
