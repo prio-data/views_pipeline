@@ -1,60 +1,46 @@
 import sys
-from pathlib import Path
 import pandas as pd
+from pathlib import Path
+import pickle
 
-from views_runs import DataPartitioner
+PATH = Path(__file__)
+sys.path.insert(0, str(Path(
+    *[i for i in PATH.parts[:PATH.parts.index("views_pipeline") + 1]]) / "common_utils"))  # PATH_COMMON_UTILS
+from set_path import setup_project_paths, setup_data_paths, setup_artifacts_paths
+setup_project_paths(PATH)
 
-model_path = Path(__file__).resolve().parents[2] 
-sys.path.append(str(model_path))
-print(sys.path)
+from utils import get_partition_data, get_standardized_df
+from utils_artifacts import get_latest_model_artifact
 
-from configs.config_data_partitions import get_data_partitions 
-from configs.config_hyperparameters import get_hp_config
-from configs.config_model import get_model_config
-from src.training.train_model import train 
-from src.utils.set_paths import get_data_path, get_generated_data_path
 
-def forecast(data_partitions, model_calibration_partition, model_future_partition):
-    """
-    Generates forecasts for the future using trained models.
+def forecast_model_artifact(config, artifact_name):
+    PATH_RAW, _, PATH_GENERATED = setup_data_paths(PATH)
+    PATH_ARTIFACTS = setup_artifacts_paths(PATH)
 
-    Args:
-    - model_calibration_partition (ViewsRun): Trained model for the calibration partition.
-    - model_future_partition (ViewsRun): Trained model for the future partition.
-    - data_partitions (dict): Data partitions for calibration, testing, forecasting.
+    # if an artifact name is provided through the CLI, use it.
+    # Otherwise, get the latest model artifact based on the run type
+    if artifact_name:
+        print(f"Using (non-default) artifact: {artifact_name}")
 
-    Returns:
-    - calibration_predictions (DataFrame): Predictions for the calibration partition.
-    - future_predictions (DataFrame): Predictions for the future partition.
-    - future_point_predictions (DataFrame): Point predictions for the future partition.
-    """
+        if not artifact_name.endswith('.pkl'):
+            artifact_name += '.pkl'
+        PATH_ARTIFACT = PATH_ARTIFACTS / artifact_name
+    else:
+        # use the latest model artifact based on the run type
+        print(f"Using latest (default) run type ({config.run_type}) specific artifact")
+        PATH_ARTIFACT = get_latest_model_artifact(PATH_ARTIFACTS, config.run_type)
 
-    print("Generating forecasts...")
+    config["timestamp"] = PATH_ARTIFACT.stem[-15:]
+    dataset = pd.read_parquet(PATH_RAW / f'raw_{config.run_type}.parquet')
 
-    data = pd.read_parquet(get_data_path("raw"))
-    future_partitioner_dict = data_partitions["future_partitioner_dict"]
+    try:
+        stepshift_model = pd.read_pickle(PATH_ARTIFACT)
+    except:
+        raise FileNotFoundError(f"Model artifact not found at {PATH_ARTIFACT}")
 
-    calib_predictions = model_calibration_partition.predict('calib','predict',data, proba=True)
-
-    future_partition = DataPartitioner({'future':future_partitioner_dict}) #is this being used? we don't define an equivalent for calib_predictions
-    future_predictions = model_future_partition.future_predict('future','predict',data)
-    future_point_predictions = model_future_partition.future_point_predict(time=529, data=data, proba=True)
-
-    calib_predictions.to_parquet(get_generated_data_path("calibration"))
-    future_predictions.to_parquet(get_generated_data_path("future"))
-    future_point_predictions.to_parquet(get_generated_data_path("future_point"))
-
-    print("Forecasts generated and saved in data/generated!")
-
-    return calib_predictions, future_predictions, future_point_predictions
-
-if __name__ == "__main__":
-
-    data_partitions = get_data_partitions()
-    hyperparameters = get_hp_config()
-    model_config = get_model_config()
-
-    model_calibration_partition, model_future_partition = train(model_config, hyperparameters, data_partitions)
-
-    forecast(data_partitions, model_calibration_partition, model_future_partition)
-
+    df_predictions = stepshift_model.predict("forecasting", "predict", get_partition_data(dataset, config.run_type))
+    df_predictions = get_standardized_df(df_predictions, config.run_type)
+    
+    predictions_path = f'{PATH_GENERATED}/predictions_{config.steps[-1]}_{config.run_type}_{config.timestamp}.pkl'
+    with open(predictions_path, 'wb') as file:
+        pickle.dump(df_predictions, file)

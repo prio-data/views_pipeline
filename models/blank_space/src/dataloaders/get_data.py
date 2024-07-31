@@ -26,12 +26,3 @@ def get_data(args):
         data = pd.read_parquet(parquet_path)
 
     return data
-
-
-
-
-
-
-
-
-        
