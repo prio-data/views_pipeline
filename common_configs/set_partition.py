@@ -12,7 +12,7 @@ def get_partitioner_dict(partion, step=36):
     if partion == 'testing':
 
         # test_partitioner according to Hegre et al  2021: train 121-432 = 01/01/1990-12/31/2015. val: 433-468 = 01/01/2017-31/12/2018
-        partitioner_dict = {"train":(121,444),"predict":(445,492)} #!!! 444 = 2016-12-31 and not 2015-12-31 and 492 = 2020-12-31 and not 2018-12-31
+        partitioner_dict = {"train":(121,444),"predict":(445,492)} #!!! 444 = 2016-12-31 and not 2015-12-31 and 492 = 2020-12-31 and not 2018-12-31 (468)
 
     if partion == 'forecasting':
 
