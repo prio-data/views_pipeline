@@ -1,28 +1,28 @@
-import wandb
-
 import sys
 from pathlib import Path
+import wandb
 
 PATH = Path(__file__)
-sys.path.insert(0, str(Path(*[i for i in PATH.parts[:PATH.parts.index("views_pipeline")+1]]) / "common_utils")) # PATH_COMMON_UTILS  
-from set_path import setup_project_paths, setup_artifacts_paths
+sys.path.insert(0, str(Path(
+    *[i for i in PATH.parts[:PATH.parts.index("views_pipeline") + 1]]) / "common_utils"))  # PATH_COMMON_UTILS
+from set_path import setup_project_paths
 setup_project_paths(PATH)
 
-from utils import get_data
+from evaluate_model import evaluate_model_artifact
+from evaluate_sweep import evaluate_sweep
+from generate_forecast import forecast_model_artifact
+from train_model import train_model_artifact
+from utils import get_model, split_hurdle_parameters
 from utils_wandb import add_wandb_monthly_metrics
-from train_model import make, training_loop, train_model_artifact #handle_training
-from evaluate_model import evaluate_posterior, evaluate_model_artifact #handle_evaluation
-from generate_forecast import forecast_with_model_artifact #handle_forecasting
 
 
-def execute_model_tasks(config = None, project = None, train = None, eval = None, forecast = None, artifact_name = None):
-
+def execute_model_tasks(config=None, project=None, train=None, eval=None, forecast=None, artifact_name=None):
     """
         Executes various model-related tasks including training, evaluation, and forecasting.
 
     This function manages the execution of different tasks such as training the model,
     evaluating an existing model, or performing forecasting.
-    It also initializes the WandB project. 
+    It also initializes the WandB project.
 
     Args:
         config: Configuration object containing parameters and settings.
@@ -33,43 +33,42 @@ def execute_model_tasks(config = None, project = None, train = None, eval = None
         artifact_name (optional): Specific name of the model artifact to load for evaluation or forecasting.
     """
 
-    # Define the path for the artifacts
-    PATH_ARTIFACTS = setup_artifacts_paths(PATH)
-
-    #device = setup_device()
-
     # Initialize WandB
-    with wandb.init(project=project, entity="views_pipeline", config=config): # project and config ignored when running a sweep
-        
+    with wandb.init(project=project, entity="views_pipeline",
+                    config=config):  # project and config ignored when running a sweep
+
         # add the monthly metrics to WandB
-        add_wandb_monthly_metrics() 
+        add_wandb_monthly_metrics()
 
         # Update config from WandB initialization above
         config = wandb.config
 
-        # Retrieve data (partition) based on the configuration
-        views_vol = get_data(config) # a bit HydraNet specific, but it is fine for now. If statment or move to handle_training, handle_evaluation, and handle_forecasting?
+        # W&B does not directly support nested dictionaries for hyperparameters
+        # This will make the sweep config super ugly, but we don't have to distinguish between sweep and single runs
+        if config['sweep'] and config['algorithm'] == "HurdleRegression":
+            config['parameters'] = {}
+            config['parameters']['clf'], config['parameters']['reg'] = split_hurdle_parameters(config)
 
-        # Handle the sweep runs
-        if config.sweep:  # If we are running a sweep, always train and evaluate
+        model = get_model(config)
+        print(model)
 
-            model, criterion, optimizer, scheduler = make(config, device)
-            training_loop(config, model, criterion, optimizer, scheduler, views_vol, device)
-            print('Done training')
+        if config['sweep']:
+            print("Sweeping...")
+            stepshift_model = train_model_artifact(config, model)
+            print("Evaluating...")
+            evaluate_sweep(config, stepshift_model)
 
-            evaluate_posterior(model, views_vol, config, device)
-            print('Done testing')
 
         # Handle the single model runs: train and save the model as an artifact
         if train:
-            #handle_training(config, device, views_vol, PATH_ARTIFACTS)
-            train_model_artifact(config, device, views_vol, PATH_ARTIFACTS)
+            print("Training...")
+            train_model_artifact(config, model)
 
         # Handle the single model runs: evaluate a trained model (artifact)
         if eval:
-            #handle_evaluation(config, device, views_vol, PATH_ARTIFACTS, artifact_name)
-            evaluate_model_artifact(config, device, views_vol, PATH_ARTIFACTS, artifact_name)
+            print("Evaluating...")
+            evaluate_model_artifact(config, artifact_name)
 
         if forecast:
-            #handle_forecasting(config, device, views_vol, PATH_ARTIFACTS, artifact_name)
-            forecast_with_model_artifact(config, device, views_vol, PATH_ARTIFACTS, artifact_name)
+            print("Forecasting...")
+            forecast_model_artifact(config, artifact_name)
