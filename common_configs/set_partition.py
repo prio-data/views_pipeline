@@ -36,7 +36,7 @@ def get_partitioner_dict(partion, step=36):
 
 
 
-# Suggested Rolling forecasting origin eval scheme:
+# Suggested Rolling forecasting origin eval scheme: But what about the gap? Should we have a one month gap betwee train and validation? 
 #| Evaluation | Calibration validation start | Calibration validation end | Test validation start | Test validation end |
 #|------------|------------------------------|----------------------------|-----------------------|---------------------|
 #| 0          | 432                          | 467                        | 433                   | 468                 |
@@ -75,3 +75,28 @@ def get_partitioner_dict(partion, step=36):
 #| 33         | 465                          | 500                        | 466                   | 501                 |
 #| 34         | 466                          | 501                        | 467                   | 502                 |
 #| 35         | 467                          | 502                        | 468                   | 503                 |
+
+# UNTESTED CODE BELOW TO GENERATE THE ABOVE TABLE AS A PADAS DATAFRAME
+# import pandas as pd
+# 
+# def generate_rolling_forecast_df(initial_start_index, num_evaluations=36, step=1):
+#     # Calculate the start and end indices for each evaluation
+#     start_indices = [initial_start_index + i for i in range(num_evaluations)]
+#     end_indices = [start + 35 for start in start_indices]
+#     test_start_indices = [start + 1 for start in start_indices]
+#     test_end_indices = [end + 1 for end in end_indices]
+# 
+#     # Create the DataFrame
+#     df = pd.DataFrame({
+#         "Evaluation": range(num_evaluations),
+#         "Calibration validation start": start_indices,
+#         "Calibration validation end": end_indices,
+#         "Test validation start": test_start_indices,
+#         "Test validation end": test_end_indices
+#     })
+# 
+#     return df
+# 
+# # Example usage
+# example_df = generate_rolling_forecast_df(432)
+# print(example_df)
