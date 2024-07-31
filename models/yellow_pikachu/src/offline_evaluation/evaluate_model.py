@@ -1,6 +1,5 @@
 import sys
 from pathlib import Path
-import numpy as np
 import warnings
 warnings.filterwarnings("ignore")
 import wandb
