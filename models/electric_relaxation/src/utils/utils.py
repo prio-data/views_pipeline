@@ -2,6 +2,7 @@ import sys
 import numpy as np
 from lightgbm import LGBMRegressor
 from xgboost import XGBRegressor
+from sklearn.ensemble import RandomForestClassifier
 from pathlib import Path
 import pickle
 
