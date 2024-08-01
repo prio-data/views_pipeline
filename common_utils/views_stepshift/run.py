@@ -100,11 +100,11 @@ class ViewsRun():
         if proba:
             predictions = self._models.predict_proba(
                 self._shifted_partitioner(partition_name, timespan_name, data),
-                combine=True)
+                combine=False)
         else:
             predictions = self._models.predict(
                 self._shifted_partitioner(partition_name, timespan_name, data),
-                combine=True)
+                combine=False)
 
         end = self._shifted_partitioner.partitions.partitions[partition_name].timespans[timespan_name].end + 1
         future_preds = predictions.loc[end:]

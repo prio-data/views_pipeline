@@ -64,8 +64,10 @@ def get_partition_data(df, run_type):
 
     month_first = partitioner_dict['train'][0]
 
-    if run_type in ['calibration', 'testing', 'forecasting']:
-        month_last = partitioner_dict['predict'][1] + 1  # forecasting also needs to get predict months even if they are empty
+    if run_type in ['calibration', 'testing']:
+        month_last = partitioner_dict['predict'][1] + 1
+    elif run_type == 'forecasting':
+        month_last = partitioner_dict['predict'][0]
     else:
         raise ValueError('partition should be either "calibration", "testing" or "forecasting"')
 

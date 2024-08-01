@@ -20,6 +20,7 @@ class StepshifterModel:
 
         self.steps = config['steps']
         self.target = config['depvar']
+        self.if_forecast = True if config['run_type'] == 'forecasting' else False
 
         self._params = get_parameters(config)
         self._steps_extent = max(self.steps)

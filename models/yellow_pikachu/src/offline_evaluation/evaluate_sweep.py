@@ -22,7 +22,7 @@ def evaluate_sweep(config, stepshift_model):
 
     # Temporarily keep this because the metric to minimize is MSE
     pred_cols = [f"step_pred_{str(i)}" for i in config.steps]
-    df["mse"] = df.apply(lambda row: mean_squared_error([row[config["depvar"]]] * 36,
+    df["mse"] = df.apply(lambda row: mean_squared_error([row[config.depvar]] * 36,
                                                         [row[col] for col in pred_cols]), axis=1)
 
     wandb.log({'MSE': df['mse'].mean()})
