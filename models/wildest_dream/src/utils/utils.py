@@ -84,7 +84,7 @@ def get_standardized_df(df, config):
     if run_type in ['calibration', 'testing']:
         cols = [df.forecasts.target] + df.forecasts.prediction_columns
     elif run_type == "forecasting":
-        cols = [f'step_pred_{i}' for i in range(steps)]
+        cols = [f'step_pred_{i}' for i in steps]
     df = df.replace([np.inf, -np.inf], 0)[cols]
     df = df.mask(df < 0, 0)
     return df
