@@ -7,12 +7,12 @@ def get_partitioner_dict(partion, step=36):
     if partion == 'calibration':
 
         # calib_partitioner according to Hegre et al  2021: train 121-396 = 01/01/1990-12/31/2012. val: 397- 432 = 01/01/2013-31/12/2015
-        partitioner_dict = {"train":(121,396),"predict":(397,444)} #!!! 444 = 2016-12-31 and not 2015-12-31....
+        partitioner_dict = {"train":(121,396),"predict":(397,432)} #!!! 444 was specified by HH, but 444 = 2016-12-31 and not 2015-12-31....
 
     if partion == 'testing':
 
         # test_partitioner according to Hegre et al  2021: train 121-432 = 01/01/1990-12/31/2015. val: 433-468 = 01/01/2017-31/12/2018
-        partitioner_dict = {"train":(121,444),"predict":(445,492)} #!!! 444 = 2016-12-31 and not 2015-12-31 and 492 = 2020-12-31 and not 2018-12-31 (468)
+        partitioner_dict = {"train":(121,432),"predict":(433,468)} #!!! 444 was specified by HH, but 444 = 2016-12-31 and not 2015-12-31 and 492 = 2020-12-31 and not 2018-12-31 (468)
         # note that since hydranet was set to only do 36 months, the end month of the test set was not important as long as it is beyond 36 ahead. 
 
     if partion == 'forecasting':
@@ -36,7 +36,7 @@ def get_partitioner_dict(partion, step=36):
 
 
 
-# Suggested Rolling forecasting origin eval scheme: But what about the gap? Should we have a one month gap betwee train and validation? 
+# Suggested Rolling forecasting origin eval scheme: But what about the gap?(!!!) Should we have a one month gap betwee train and validation? 
 #| Evaluation | Calibration validation start | Calibration validation end | Test validation start | Test validation end |
 #|------------|------------------------------|----------------------------|-----------------------|---------------------|
 #| 0          | 432                          | 467                        | 433                   | 468                 |
