@@ -21,6 +21,7 @@ from views_forecasts.extensions import *
 def evaluate_model_artifact(config, artifact_name):
     PATH_RAW, _, PATH_GENERATED = setup_data_paths(PATH)
     PATH_ARTIFACTS = setup_artifacts_paths(PATH)
+    run_type = config['run_type']
 
     # if an artifact name is provided through the CLI, use it.
     # Otherwise, get the latest model artifact based on the run type
@@ -32,23 +33,23 @@ def evaluate_model_artifact(config, artifact_name):
         PATH_ARTIFACT = PATH_ARTIFACTS / artifact_name
     else:
         # use the latest model artifact based on the run type
-        print(f"Using latest (default) run type ({config.run_type}) specific artifact")
-        PATH_ARTIFACT = get_latest_model_artifact(PATH_ARTIFACTS, config.run_type)
+        print(f"Using latest (default) run type ({run_type}) specific artifact")
+        PATH_ARTIFACT = get_latest_model_artifact(PATH_ARTIFACTS, run_type)
 
     config["timestamp"] = PATH_ARTIFACT.stem[-15:]
-    dataset = pd.read_parquet(PATH_RAW / f'raw_{config.run_type}.parquet')
+    dataset = pd.read_parquet(PATH_RAW / f"raw_{run_type}.parquet")
     
     try:
         stepshift_model = pd.read_pickle(PATH_ARTIFACT)
     except:
         raise FileNotFoundError(f"Model artifact not found at {PATH_ARTIFACT}")
 
-    df = stepshift_model.predict(config.run_type, "predict", get_partition_data(dataset, config.run_type))
-    df = get_standardized_df(df, config.run_type)
+    df = stepshift_model.predict(run_type, "predict", get_partition_data(dataset, run_type))
+    df = get_standardized_df(df, config)
 
     evaluation, df_evaluation = generate_metric_dict(df, config)
     output, df_output = generate_output_dict(df, config)
-    for t in config.steps:
+    for t in config['steps']:
         log_dict = {}
         log_dict["monthly/out_sample_month"] = t
         step = f"step{str(t).zfill(2)}"
@@ -56,3 +57,8 @@ def evaluate_model_artifact(config, artifact_name):
         wandb.log(log_dict)
 
     save_model_outputs(df_evaluation, df_output, PATH_GENERATED, config)
+
+
+
+
+

@@ -14,21 +14,23 @@ from utils_evaluation_metrics import generate_metric_dict
 
 def evaluate_sweep(config, stepshift_model):
     PATH_RAW, _, _ = setup_data_paths(PATH)
+    run_type = config['run_type']
+    steps = config['steps']
 
-    dataset = pd.read_parquet(PATH_RAW / f'raw_{config.run_type}.parquet')
+    dataset = pd.read_parquet(PATH_RAW / f"raw_{run_type}.parquet")
 
-    df = stepshift_model.predict(config.run_type, "predict", get_partition_data(dataset, config.run_type))
-    df = get_standardized_df(df, config.run_type)
+    df = stepshift_model.predict(run_type, "predict", get_partition_data(dataset, run_type))
+    df = get_standardized_df(df, config)
 
     # Temporarily keep this because the metric to minimize is MSE
-    pred_cols = [f"step_pred_{str(i)}" for i in config.steps]
-    df["mse"] = df.apply(lambda row: mean_squared_error([row[config.depvar]] * 36,
+    pred_cols = [f"step_pred_{str(i)}" for i in steps]
+    df["mse"] = df.apply(lambda row: mean_squared_error([row[config['depvar']]] * 36,
                                                         [row[col] for col in pred_cols]), axis=1)
 
     wandb.log({'MSE': df['mse'].mean()})
 
     evaluation, df_evaluation = generate_metric_dict(df, config)
-    for t in config.steps:
+    for t in steps:
         log_dict = {}
         log_dict["monthly/out_sample_month"] = t
         step = f"step{str(t).zfill(2)}"

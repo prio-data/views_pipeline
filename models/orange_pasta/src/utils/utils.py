@@ -78,11 +78,13 @@ def get_partition_data(df, run_type):
     return df
 
 
-def get_standardized_df(df, run_type):
+def get_standardized_df(df, config):
+    run_type = config['run_type']
+    steps = config['steps']
     if run_type in ['calibration', 'testing']:
         cols = [df.forecasts.target] + df.forecasts.prediction_columns
     elif run_type == "forecasting":
-        cols = df.forecasts.prediction_columns
+        cols = [f'step_pred_{i}' for i in range(steps)]
     df = df.replace([np.inf, -np.inf], 0)[cols]
     df = df.mask(df < 0, 0)
     return df
@@ -93,12 +95,12 @@ def save_model_outputs(df_evaluation, df_output, PATH_GENERATED, config):
     print(f'PATH to generated data: {PATH_GENERATED}')
 
     # Save the DataFrame of model outputs
-    outputs_path = f'{PATH_GENERATED}/df_output_{config.steps[-1]}_{config.run_type}_{config.timestamp}.pkl'
+    outputs_path = f"{PATH_GENERATED}/df_output_{config['steps'][-1]}_{config['run_type']}_{config['timestamp']}.pkl"
     with open(outputs_path, 'wb') as file:
         pickle.dump(df_output, file)
 
     # Save the DataFrame of evaluation metrics
-    evaluation_path = f'{PATH_GENERATED}/df_evaluation_{config.steps[-1]}_{config.run_type}_{config.timestamp}.pkl'
+    evaluation_path = f"{PATH_GENERATED}/df_evaluation_{config['steps'][-1]}_{config['run_type']}_{config['timestamp']}.pkl"
     with open(evaluation_path, 'wb') as file:
         pickle.dump(df_evaluation, file)
 
