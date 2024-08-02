@@ -20,7 +20,6 @@ class StepshifterModel:
 
         self.steps = config['steps']
         self.target = config['depvar']
-        self.if_forecast = True if config['run_type'] == 'forecasting' else False
 
         self._params = get_parameters(config)
         self._steps_extent = max(self.steps)
@@ -34,17 +33,29 @@ class StepshifterModel:
         self._series = None
 
 
-    @views_validate
+    # @views_validate
     def fit(self, df: pd.DataFrame):
         self._setup(df)
         self._prepare_time_series(df)
-        self._fit_models()
+        
+        target = [series.slice(self._train_start, self._train_end + 1)[self.target]
+                  for series in self._series]  # ts.slice is different from df.slice
+        past_cov = [series.slice(self._train_start, self._train_end + 1)[self._independent_variables]
+                    for series in self._series]
+        for step in self.steps:
+            model = self.clf(lags_past_covariates=[-step], **self._params)
+            model.fit(target, past_covariates=past_cov)
+            self._models[step] = model
 
 
-    @views_validate
-    def predict(self, df: pd.DataFrame) -> pd.DataFrame:
-        pred = self._predict_models()
-        pred[self.target] = df.loc[(slice(self._test_start, self._test_end),),:][self.target]
+    # @views_validate
+    def predict(self, run_type) -> pd.DataFrame:
+        target = [series.slice(self._train_start, self._train_end + 1)[self.target]
+                  for series in self._series]
+        
+        preds_by_step = [self._predict_for_step(step, target, run_type) for step in self.steps]
+        pred = pd.concat(preds_by_step, axis=1)
+
         return pred
 
 
@@ -66,28 +77,13 @@ class StepshifterModel:
                                                        value_cols=self._independent_variables + [self.target])
 
 
-    def _fit_models(self):
-        target = [series.slice(self._train_start, self._train_end + 1)[self.target]
-                  for series in self._series]  # ts.slice is different from df.slice
-        past_cov = [series.slice(self._train_start, self._train_end + 1)[self._independent_variables]
-                    for series in self._series]
-        for step in self.steps:
-            model = self.clf(lags_past_covariates=[-step], **self._params)
-            model.fit(target, past_covariates=past_cov)
-            self._models[step] = model
-
-
-    def _predict_models(self):
-        target = [series.slice(self._train_start, self._train_end + 1)[self.target]
-                  for series in self._series]
-
-        preds_by_step = [self._predict_for_step(step, target) for step in self.steps]
-        return pd.concat(preds_by_step, axis=1)
-
-
-    def _predict_for_step(self, step, target):
+    def _predict_for_step(self, step, target, run_type):
         model = self._models[step]
-        horizon = self._test_end - self._test_start + 1
+        if run_type == 'forecasting':
+            horizon = step
+        else:
+            horizon = self._test_end - self._test_start + 1
+
         ts_pred = model.predict(n=horizon,
                                 series=target,
                                 # darts automatically locates the time period of past_covariates
@@ -121,8 +117,19 @@ class StepshifterModel:
     def models(self):
         return self._models.values()
 
+
 '''
 if __name__ == "__main__":
+    def get_parameters(config):
+
+        if config["sweep"]:
+            keys_to_remove = ["algorithm", "depvar", "steps", "sweep", "run_type", "model_cls", "model_reg"]
+            parameters = {k: v for k, v in config.items() if k not in keys_to_remove}
+        else:
+            parameters = config["parameters"]
+
+        return parameters
+    
     month = [*range(1, 600)]
     pg = [123, 456]
     idx = pd.MultiIndex.from_product([month, pg], names=['month_id', 'priogrid_gid'])
@@ -145,7 +152,9 @@ if __name__ == "__main__":
         "name": "orange_pasta",
         "algorithm": "LightGBMModel",
         "depvar": "ged_sb_dep",
-        "steps": [*range(1, 36 + 1, 1)],
+        "run_type": "forecasting",
+        "sweep": False,
+        "steps": [*range(1, 3 + 1, 1)],
         "parameters": {
             "learning_rate": 0.01,
             "n_estimators": 100,
@@ -155,20 +164,19 @@ if __name__ == "__main__":
 
     stepshifter = StepshifterModel(hp_config, partitioner_dict)
     stepshifter.fit(df)
-    stepshifter.save('./model.pkl')
+    # stepshifter.save('./model.pkl')
 
-    train_t = time.time()
-    minutes = (train_t - start_t) / 60
-    print(f'Done training. Runtime: {minutes:.3f} minutes')
+    # train_t = time.time()
+    # minutes = (train_t - start_t) / 60
+    # print(f'Done training. Runtime: {minutes:.3f} minutes')
 
     # stepshift = pd.read_pickle('./model.pkl')
-    pred = stepshifter.predict()
-    pred.to_parquet('pred.parquet')
+    pred = stepshifter.predict(df)
+    # pred.to_parquet('pred.parquet')
 
-    end_t = time.time()
-    minutes = (end_t - train_t) / 60
-    print(f'Done predicting. Runtime: {minutes:.3f} minutes')
+    # end_t = time.time()
+    # minutes = (end_t - train_t) / 60
+    # print(f'Done predicting. Runtime: {minutes:.3f} minutes')
+
 '''
-
-
 
