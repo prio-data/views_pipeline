@@ -132,12 +132,12 @@ class ViewsRun():
         if proba:
             predictions = self._models.predict_proba(
                 data.loc[time - self._models._steps_extent: time],
-                combine=True
+                combine=False
             )
         else:
             predictions = self._models.predict(
                 data.loc[time - self._models._steps_extent: time],
-                combine = True
+                combine =False
                 )
 
         if not keep_specific:
