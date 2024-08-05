@@ -26,7 +26,7 @@ def get_sweep_config():
         'scheduler' : {'value': 'WarmupDecay'}, #CosineAnnealingLR004  'CosineAnnealingLR' 'OneCycleLR'
         'total_hidden_channels': {'value': 32}, # you like need 32, it seems from qualitative results
         'min_events': {'value': 5},
-        'samples': {'value': 600}, # 600 for run 10 for debug. should be a function of batches becaus batch 3 and sample 1000 = 3000....
+        'samples': {'values': [300, 600]}, # 600 for run 10 for debug. should be a function of batches becaus batch 3 and sample 1000 = 3000....
         'batch_size': {'value':  3}, # just speed running here..
         "dropout_rate" : {'value' : 0.125},
         'learning_rate': {'value' :  0.001}, #0.001 default, but 0.005 might be better
