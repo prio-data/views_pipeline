@@ -32,9 +32,9 @@ def get_hp_config():
     'loss_reg': 'b',
     'loss_reg_a' : 258, 
     'loss_reg_c' :  0.001, # 0.05 works...
-    'test_samples': 10, # 128 for actual testing, 10 for debug
-    'np_seed' : 4,
-    'torch_seed' : 4,
+    'test_samples': 128, # 128 for actual testing, 10 for debug
+    'np_seed' : 8,
+    'torch_seed' : 8,
     'window_dim' : 32,
     'h_init' : 'abs_rand_exp-100',
     'un_log' : False, # right now this is just as a note to self. Can't change it here} and it is not true..
