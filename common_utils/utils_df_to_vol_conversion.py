@@ -275,7 +275,15 @@ def plot_vol(vol, month_range, forecast_features = ['ln_sb_best', 'ln_ns_best', 
         
         for j in range(min(n_features, vol.shape[-1])):  # Handle cases where there are fewer than 7 features
             im = ax[j].imshow(vol[i, :, :, j], cmap='rainbow', vmin= vol[:, :, :, j].min(), vmax= vol[:, :, :, j].max())
-            ax[j].set_title(features_titles[j] if j < len(features_titles) else f'Feature {j}')
+
+            # if the feature does not have a name, use a generic numbered title
+            features_title = features_titles[j] if j < len(features_titles) else f'Feature {j}'
+
+            # Change in this feature is hard to see and uniform across each month, so we add the month id to the title
+            if features_title == 'month_id':
+                features_title = 'month_id' + f' ({np.unique(vol[i, :, :, j])})'
+
+            ax[j].set_title(features_title)
 
         # Adding title with specific adjustment
         fig.suptitle(f'Time Step {i + 1}', fontsize=16, y=0.75)  # Adjust `y` for title position
