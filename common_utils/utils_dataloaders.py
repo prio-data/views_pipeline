@@ -35,8 +35,8 @@ def fetch_data_from_viewser(month_first,month_last, drift_config_dict):
     df = filter_dataframe_by_month_range(df, month_first, month_last)
 
 # Input drift detection    
-#    for alert in alerts:
-#        print(alert)
+#    for alert in alerts: ####
+#        print(alert)     #####
 
     return df
 
