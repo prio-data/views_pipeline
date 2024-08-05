@@ -1,10 +1,7 @@
 def get_hp_config(): 
     hp_config = {
-        "clf":{
-            "n_estimators": 300,
-            "n_jobs": 12
-        },
-        "reg":{
+        "steps": [*range(1, 36 + 1, 1)],
+        "parameters": {
             "n_estimators": 300,
             "n_jobs": 12
         }
