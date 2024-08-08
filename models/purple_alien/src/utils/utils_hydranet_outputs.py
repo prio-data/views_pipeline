@@ -1,6 +1,7 @@
 import pickle
 
 from sklearn.metrics import mean_squared_error, average_precision_score, roc_auc_score, brier_score_loss
+import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
@@ -325,7 +326,7 @@ def plot_metrics(df_all, feature = 0):
     auc_list = []
     brier_list = []
 
-    df_all["month"] = df_all["step"] #super quick fix, super lazy
+    df_all["month"] = df_all["step"] #super quick fix, super lazy <------- what is this? 
 
 
     # Iterate over the log_dict_list and extract the metrics
@@ -341,7 +342,6 @@ def plot_metrics(df_all, feature = 0):
         auc = roc_auc_score(y_true_binary, y_score_prob)
         brier = brier_score_loss(y_true_binary, y_score_prob)
 
-
         mse_list.append(mse)
         ap_list.append(ap)
         auc_list.append(auc)
@@ -352,7 +352,7 @@ def plot_metrics(df_all, feature = 0):
 
     # Plot MSE
     axs[0, 0].plot(range(1, len(mse_list) + 1), mse_list, marker='o', color='b', label='MSE')
-    axs[0, 0].set_title('Mean Squared Error')
+    axs[0, 0].set_title(f'Mean Squared Error (Mean {np.array(mse_list).mean():.3f})')
     axs[0, 0].set_xlabel('Month')
     axs[0, 0].set_ylabel('MSE')
     axs[0, 0].legend()
@@ -360,7 +360,7 @@ def plot_metrics(df_all, feature = 0):
 
     # Plot Average Precision
     axs[0, 1].plot(range(1, len(ap_list) + 1), ap_list, marker='o', color='g', label='Average Precision')
-    axs[0, 1].set_title('Average Precision Score')
+    axs[0, 1].set_title(f'Average Precision Score (Mean {np.array(ap_list).mean():.3f})')
     axs[0, 1].set_xlabel('Month')
     axs[0, 1].set_ylabel('AP Score')
     axs[0, 1].legend()
@@ -368,7 +368,7 @@ def plot_metrics(df_all, feature = 0):
 
     # Plot ROC AUC
     axs[1, 0].plot(range(1, len(auc_list) + 1), auc_list, marker='o', color='r', label='ROC AUC')
-    axs[1, 0].set_title('ROC AUC Score')
+    axs[1, 0].set_title(f'ROC AUC Score (Mean {np.array(auc_list).mean():.3f})')
     axs[1, 0].set_xlabel('Month')
     axs[1, 0].set_ylabel('AUC Score')
     axs[1, 0].legend()
@@ -376,7 +376,7 @@ def plot_metrics(df_all, feature = 0):
 
     # Plot Brier Score
     axs[1, 1].plot(range(1, len(brier_list) + 1), brier_list, marker='o', color='m', label='Brier Score')
-    axs[1, 1].set_title('Brier Score Loss')
+    axs[1, 1].set_title(f'Brier Score Loss (Mean {np.array(brier_list).mean():.3f})')
     axs[1, 1].set_xlabel('Month')
     axs[1, 1].set_ylabel('Brier Score')
     axs[1, 1].legend()
