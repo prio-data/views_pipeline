@@ -61,3 +61,5 @@ If new features or functionalities are added to `main` and you need them in your
    - Most repositories will warn you if you attempt to merge locally, but it’s essential to avoid this practice.
 
 Following this guide will help ensure a smooth workflow and reduce the chances of conflicts or issues during the development process.
+
+Thanks for reading this and taking care of out pipeline!
