@@ -1,1 +1,1 @@
-evaluation_metrics = {'Mean Mean Squared Error': 0.002929262727152805, 'Mean Average Precision': 0.07515270506108203, 'Mean Brier Score': 0.002929262727152805}
+evaluation_metrics = {'Mean Mean Squared Error': 0.0029154554168954083, 'Mean Average Precision': 0.07515270506108203, 'Mean Brier Score': 0.0029154554168954083}

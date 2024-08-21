@@ -6,9 +6,12 @@ import sys
 
 from sklearn.metrics import mean_squared_error, average_precision_score, roc_auc_score, brier_score_loss
 
-model_path = Path(__file__).resolve().parents[2] 
-sys.path.append(str(model_path))
-from configs.config_model import get_model_config
+PATH = Path(__file__)
+sys.path.insert(0, str(Path(*[i for i in PATH.parts[:PATH.parts.index("views_pipeline")+1]]) / "common_utils")) # PATH_COMMON_UTILS
+from set_path import setup_project_paths, setup_artifacts_paths, setup_data_paths
+setup_project_paths(PATH) #adds all necessary paths to sys.path
+
+from config_model import get_model_config
 
 
 def evaluate_model(model_config):
@@ -34,7 +37,10 @@ def evaluate_model(model_config):
     """
     print("Evaluating...")
 
-    df_calib = pd.read_parquet(model_path/"data"/"generated"/"calibration_predictions.parquet") 
+    PATH_MODEL, PATH_RAW, PATH_PROCESSED, PATH_GENERATED = setup_data_paths(PATH)
+
+    #df_calib = pd.read_parquet(model_path/"data"/"generated"/"calibration_predictions.parquet") 
+    df_calib = pd.read_parquet(PATH_GENERATED / "calibration_predictions.parquet") 
 
     steps = model_config["steps"]
     depvar = [model_config["depvar"]] #formerly stepcols, changed to depvar to also use in true_values
@@ -61,7 +67,7 @@ def evaluate_model(model_config):
                                                                       [row[col] for col in pred_cols]), axis=1)
     mean_brier_score = df_calib["brier_score"].mean()
 
-    metrics_dict_path = model_path / "artifacts" / "evaluation_metrics.py"
+    metrics_dict_path = PATH_MODEL / "artifacts" / "evaluation_metrics.py"
 
     evaluation_metrics_calib = {
         "Mean Mean Squared Error": mean_mse,
