@@ -13,3 +13,5 @@ Overview of utils package scripts:
 - `utils_evaluation_metrics.py`: Class defining evaluation metrics
 - `utils_model_outputs.py`: Class for storing and managing model outputs for evaluation and true forcasting
 
+To do list:
+- Align the function generate_metric_dict in utils_evaluation_metrics.py with Simon's eval function

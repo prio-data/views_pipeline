@@ -17,7 +17,7 @@ class ModelOutputs:
         pg_id (Optional[List[int]]): The priogrid id.
         c_id (Optional[List[int]]): The country id.
         month_id (Optional[List[int]]): The month id.
-        step (Optional[List[int]]): The step ahead forecast.
+        out_sample_month (Optional[List[int]]): The step ahead forecast.
     """
 
     y_score: Optional[List[float]] = field(default_factory=list)
@@ -29,7 +29,7 @@ class ModelOutputs:
     pg_id: Optional[List[int]] = field(default_factory=list)
     c_id: Optional[List[int]] = field(default_factory=list)
     month_id: Optional[List[int]] = field(default_factory=list)
-    step: Optional[List[int]] = field(default_factory=list)
+    out_sample_month: Optional[List[int]] = field(default_factory=list)
 
     @classmethod
     def make_output_dict(cls, steps=36) -> dict:
@@ -106,3 +106,37 @@ class ModelOutputs:
 # we need to figure out if we are storing logged fatalities or not
 # And this is also a good place to decide on the uncertainty quantification. Right now var, but maybe HDI or something else.
 # you might also want the a non-step specific list of pgm? So you can recreate the full df from here? Otherwise this could turn into a mess
+
+
+def generate_output_dict(df, config):
+    """
+    Generate a dictionary of ModelOutputs instances and a DataFrame from a DataFrame of model predictions.
+
+    This function takes a DataFrame of model predictions and a configuration object, and generates a dictionary of ModelOutputs instances
+
+    Args:
+        df (pd.DataFrame): A DataFrame containing model predictions.
+        config (dict): A configuration object containing model settings.
+
+    Returns:
+        output_dict (dict): A dictionary where each key is a step label and each value is an instance of ModelOutputs.
+        df_output_dict (pd.DataFrame): A DataFrame of model outputs.
+
+    Note:
+        ! This is temporary for stepshifter model
+    """
+    output_dict = ModelOutputs.make_output_dict(steps=config.steps[-1])
+    for step in config.steps:
+        df_step = df[[config.depvar, f"step_pred_{step}"]]
+        output_dict[f"step{str(step).zfill(2)}"].y_true = df_step[config.depvar].to_list()
+        output_dict[f"step{str(step).zfill(2)}"].y_score = df_step[f"step_pred_{step}"].to_list()
+        output_dict[f"step{str(step).zfill(2)}"].month_id = df_step.index.get_level_values("month_id").to_list()
+        if df.index.names[1] == "priogrid_gid":
+            output_dict[f"step{str(step).zfill(2)}"].pg_id = df_step.index.get_level_values("priogrid_gid").to_list()
+        elif df.index.names[1] == "country_id":
+            output_dict[f"step{str(step).zfill(2)}"].c_id = df_step.index.get_level_values("country_id").to_list()
+        output_dict[f"step{str(step).zfill(2)}"].out_sample_month = step
+    df_output_dict = ModelOutputs.output_dict_to_dataframe(output_dict)
+    df_output_dict = df_output_dict.reset_index()
+    df_output_dict = df_output_dict.drop(columns=df_output_dict.columns[0])
+    return output_dict, df_output_dict

@@ -1,23 +1,24 @@
-def get_swep_config():
+def get_sweep_config():
     sweep_config = {
         "name": "orange_pasta",
-        'method': 'grid'
+        "method": "bayes"
     }
 
     metric = {
-        'name': 'MSE_test',
-        'goal': 'minimize'   
+        "name": "MSE",
+        "goal": "minimize"   
     }
 
-    sweep_config['metric'] = metric
+    sweep_config["metric"] = metric
 
     parameters_dict = {
+        "steps": {"values": [[*range(1, 36 + 1, 1)]]},
         "n_estimators": {"values": [100, 150, 200]},
-        "learning_rate": {"values": [0.05, 0.1]},
-        "max_depth": {"values": [3, 6, 9, 12]},
+        "learning_rate": {"min": 0.01, "max": 0.1},
+        "num_leaves": {"values": [31, 63, 127, 255]},
         "n_jobs": {"values": [12]}
     }
 
-    sweep_config['parameters'] = parameters_dict
+    sweep_config["parameters"] = parameters_dict
 
     return sweep_config
