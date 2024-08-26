@@ -12,15 +12,12 @@ def get_artifact_files(PATH, run_type):
     Returns:
         list: List of matching model file paths.
     """
-    # Define the common model file extensions - more can be added as needed
     common_extensions = ['.pt', '.pth', '.h5', '.hdf5', '.pkl', '.json', '.bst', '.txt', '.bin', '.cbm', '.onnx']
 
     # Retrieve files that start with run_type and end with any of the common extensions
     # artifact_files = [f for f in os.listdir(PATH) if f.startswith(f"{run_type}_model_") and any(f.endswith(ext) for ext in common_extensions)]
     
-    # pathlib alternative
     artifact_files = [f for f in PATH.iterdir() if f.is_file() and f.stem.startswith(f"{run_type}_model_") and f.suffix in common_extensions]
-
 
     return artifact_files
 
