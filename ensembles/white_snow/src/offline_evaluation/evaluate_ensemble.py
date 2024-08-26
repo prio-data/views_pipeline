@@ -42,7 +42,7 @@ def evaluate_ensemble(config):
             raise FileNotFoundError(f"Model artifact not found at {PATH_ARTIFACT}")
 
         df = stepshift_model.predict(run_type, "predict", get_partition_data(dataset, run_type))
-        df = get_standardized_df(df, run_type)
+        df = get_standardized_df(df, config)
         dfs.append(df)
 
     df = get_aggregated_df(dfs, config["aggregation"])

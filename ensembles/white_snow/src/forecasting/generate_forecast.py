@@ -10,6 +10,7 @@ sys.path.insert(0, str(Path(
 from set_path import setup_project_paths, setup_data_paths, setup_artifacts_paths, setup_root_paths
 setup_project_paths(PATH)
 
+from set_partition import get_partitioner_dict
 from utils import get_partition_data, get_standardized_df, get_aggregated_df
 from utils_artifacts import get_latest_model_artifact
 
@@ -43,8 +44,12 @@ def forecast_ensemble(config):
             except:
                 raise FileNotFoundError(f"Model artifact not found at {PATH_ARTIFACT}")
 
-            df = stepshift_model.predict("forecasting", "predict", get_partition_data(dataset, run_type))
-            df = get_standardized_df(df, run_type)
+            partition = get_partitioner_dict(run_type)['predict']
+            df = stepshift_model.future_point_predict(partition[0]-1,
+                                                          get_partition_data(dataset, run_type),
+                                                          keep_specific=True)
+
+            df = get_standardized_df(df, config)
         dfs.append(df)
     df_prediction = get_aggregated_df(dfs, config["aggregation"])
 
