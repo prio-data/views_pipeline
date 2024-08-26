@@ -1,22 +1,32 @@
 # views_pipeline
-The Violence & Impacts Early Warning System (VIEWS) produces monthly predictions of future violent conflict at both a country and sub-country level of analysis. This repository contains code, configuration files, and documentation that encapsulates the entire process of developing, experimenting, training, evaluating, and deploying the VIEWS machine learning model pipeline.
+
+<div style="width: 100%; max-width: 1500px; height: 400px; overflow: hidden; position: relative;">
+  <img src="https://pbs.twimg.com/profile_banners/1237000633896652800/1717069203/1500x500" alt="VIEWS Twitter Header" style="position: absolute; top: -50px; width: 100%; height: auto;">
+</div>
+
+The [**Violence & Impacts Early Warning System (VIEWS)**](https://viewsforecasting.org/) produces monthly predictions of future violent conflict at both a country and sub-country level of analysis. This repository contains code, configuration files, and documentation that encapsulates the entire process of developing, experimenting, training, evaluating, and deploying the VIEWS machine learning model pipeline.
+
+Use our [interactive data dashboard](https://data.viewsforecasting.org/) to explore our latest predictions of future armed conflict.
 
 > [!CAUTION]
 > Please note that this pipeline is **actively under construction**. We're in the **early stages of development**, meaning it's **not yet ready for operational use**. We're working hard to bring you a robust and fully-functional tool, so stay tuned for updates!
 
-## About the VIEWS Project
+## Table of contents
 
-The VIEWS project is a collaborative effort supported by leading research institutions focused on peace and conflict studies. For more information about the project, visit the [VIEWS Forecasting webpage](https://viewsforecasting.org/).
+<!-- toc -->
+- [Repository Contents, Structure, and Explanations](#repository-contents-structure-and-explanations)
+- [Pipeline Execution](#pipeline-execution)
+- [Pipeline Documentation](#pipeline-documentation)
+- [About the VIEWS Project](#about-the-views-project)
 
-### Main Institutions
 
-- **Peace Research Institute Oslo (PRIO):**
-  The [Peace Research Institute Oslo (PRIO)](https://www.prio.org/) conducts research on the conditions for peaceful relations between states, groups, and people. PRIO is dedicated to understanding the processes that lead to violence and those that create sustainable peace. About half of the VIEWS core team is currently located at PRIO.
+<!-- tocstop -->
 
-- **Department of Peace and Conflict Research at the University of Uppsala:**
-  The [Department of Peace and Conflict Research at the University of Uppsala](https://www.uu.se/en/department/peace-and-conflict-research) is a leading academic institution in the study of conflict resolution, peacebuilding, and security. The department is renowned for its research and education programs aimed at fostering a deeper understanding of conflict dynamics and peace processes. This department also hosts the [Uppsala Conflict Data Program (UCDP)](https://ucdp.uu.se/), a central data source for the VIEWS project. About half of the VIEWS core team is currently located at the University of Uppsala.
 
-## Repository Contents
+## Repository Contents, Structure, and Explanations
+![VIEWS pipeline diagram](documentation/pipeline_diagram001.png)
+
+### Repository Contents
 
 This repository includes:
 
@@ -24,7 +34,7 @@ This repository includes:
 - **Configuration Files:** Settings and configurations for running the models, ensembles, and orchestration scripts.
 - **Documentation:** Detailed instructions and information about the project and how to interact with the pipeline and the individual components.
 
-## Pipeline Overview
+### Pipeline Overview
 
 The VIEWS machine learning pipeline involves several key processes:
 
@@ -34,31 +44,10 @@ The VIEWS machine learning pipeline involves several key processes:
 - **Evaluating:** Assessing model performance and accuracy.
 - **Deploying:** Implementing models in a production environment to generate monthly true-future forecasts 
 
-(to access the generated forecasts, please start here: https://viewsforecasting.org/early-warning-system/user-guide/#data-access).
-
 Each model is contained within its own sub-folder, providing a modular structure for development and deployment.
 
-For further details on how to navigate and utilize this repository, please refer to the documentation (READMEs) provided within each sub-folder.
-
-## Pipeline diagram
-
-![VIEWS pipeline diagram](documentation/pipeline_diagram001.png)
-
-## Table of contents
-
-<!-- toc -->
-- [Repository Structure and Explanations](#repository-structure-and-explanations)
-- [Pipeline Execution](#pipeline-execution)
-- [Pipeline Documentation](#pipeline-documentation)
-- [Other Documentation](#other-documentation)
-
-
-<!-- tocstop -->
-
-## Repository Structure and Explanations
-
 <details>
-  <summary>See the model repository structure and explanations below.</summary>
+  <summary> <b>Toggle to see the model repository structure and explanations below. </b></summary>
 
 ```
 pipeline_root/
@@ -67,25 +56,42 @@ pipeline_root/
 |-- LICENSE.md                                      # Creative commons (CC BY-NC-SA 4.0)
 |-- .gitignore                                      # In place to ensure no unwanted file types get pushed to GitHub
 |
+|-- orchestration/                                  # Orchestration for the entire pipeline (runs all deployed models and ensembles via Prefect)
+|   |-- orchestration.py                            # Source code for orchestration
+|   |-- README.md                                   # Instructions for orchestration
+|
+|-- common_configs/                                 # Configurations files common to all (or multiple) models or the larger pipeline
+|   |   ...
+|
+|-- common_utils/                                   # Functions and classes used across multiple (but not necessarily all) models/ensembles  
+|   |   ...
+|
+|-- documentation/                                  # High-level documentation of pipeline
+|   |   ...
+|
+|-- meta_tools/                                     # Scripts to add new models and check structure and presence of obligatory scripts
+|
 |-- models/                                         # Parent directory for all individual models (see documentation for definition of "model")
 |   |-- exemplifying_model/                         # Each individual model subdirectory should follow the naming convention adjective_noun
 |   |   |
 |   |   |-- README.md                               # Concise description of the model and relevant details written in "plain language"
-|   |   |-- requirements.txt                        # Python version and libraries - should rarely deviate from a standard well-maintained VIEWS_env.
-|   |   |-- main.py                                 # Orchestration script to run a deployed model via Prefect as part of a full monthly basis
+|   |   |-- requirements.txt                        # Python version and libraries - should rarely deviate from a standard well-maintained VIEWS_env
+|   |   |-- main.py                                 # Orchestration script to run the model
 |   |   |
 |   |   |-- configs/                                # All model specific config files
-|   |   |   |-- config_model.py                     # Contains model architecture, name, target variable, level of analysis and deployment status
-|   |   |   |-- config_hyperparameters.py           # Specifies the finalized hyperparameters used for training the deployed model (W&B specific)
-|   |   |   |-- config_sweep.py                     # Configurations for hyperparameter sweeps during experimentation phases (W&B specific)
+|   |   |   |-- config_deployment.py                # Controls deployment settings and model behavior in different environments
+|   |   |   |-- config_hyperparameters.py           # Specifies the finalized hyperparameters used for training the model
 |   |   |   |-- config_input_data.py                # Defines the features to be pulled from the views and used - basically the queryset
+|   |   |   |-- config_meta.py                      # Provides metadata about the model, such as algorithm and creator for documentation purposes
+|   |   |   |-- config_sweep.py                     # Defines how to perform hyperparameter sweeps for optimization during experimentation phase
+
 |   |   |
-|   |   |-- data/                                   # All input, processed, output data -> might be out phased later to go directly from/to server
+|   |   |-- data/                                   # All input, processed, output data (only saved locally, not pushed to git)
 |   |   |    |-- raw/                               # Data directly from VIEWSER
 |   |   |    |-- processed/                         # Data processed
 |   |   |    |-- generated/                         # Data generated - i.e., predictions/forecast
 |   |   |
-|   |   |-- artifacts/                              # Model artifacts. Step-shift models will have 36 of each. pth or pkl.
+|   |   |-- artifacts/                              # Model artifacts (only saved locally). Step-shift models will have 36 of each. pth or pkl.
 |   |   |   |-- evaluation_metrics.py               # A dictionary containing the evaluation metrics for all 36 steps found in the test partition
 |   |   |   |-- model_calibration_partition.pth     # Model object for offline evaluation, trained on train set of calibration partition
 |   |   |   |-- model_test_partition.pth            # Model object for offline evaluation, trained on train set of the test partition
@@ -149,24 +155,16 @@ pipeline_root/
 |   |   |   |-- config_sweep.py                     # If applicable, specifies the hyperparameter sweeps during experimentation phases (W&B specific)
 |   |   |
 |   |   |-- artifacts/                              # Ensemble's artifacts. Not applicable to all ensembles
-|   |   |   |-- evaluation_metrics.py               # A dictionary containing the evaluation metrics for all 36 steps found in the test partition
-|   |   |   |-- ensemble_calibration_partition.pth  # If applicable, ensemble object for offline evaluation, calibration partition
-|   |   |   |-- ensemble_test_partition.pth         # If applicable, ensemble object for offline evaluation, test partition
-|   |   |   |-- ensemble_forecasting.pth            # If applicable, ensemble object for online forecasting, forecasting partition
 |   |   |
 |   |   |-- notebooks/                              # Only for development experimentation, and trouble-shooting.
 |   |   |
 |   |   |-- reports/                                # Dissemination material - internal and external
-|   |   |   |-- plots/                              # Plots for papers, reports, newsletters, and slides
-|   |   |   |-- figures/                            # Figures for papers, reports, newsletters, and slides
-|   |   |   |-- timelapse/                          # Plots to create timelapse and the timelapse
-|   |   |   |-- papers/                             # Working papers, white papers, articles etc.
-|   |   |   |-- slides/                             # Slides, presentation, and similar
+|   |   |   |-- ...                              
 |   |   |
 |   |   |-- src/                                    # All source code needed to train, test, and forecast
 |   |       |
 |   |       |-- dataloaders/                        # In most cases, ensembles will only take outputs from other models as input
-|   |       |   |-- get_model_outputs.py            # Get outputs from individual models instead of VIEWSER data
+|   |       |   |-- get_data.py                     # Get outputs from individual models instead of VIEWSER data
 |   |       |
 |   |       |-- architecture/                       # Some ensembles might have an architecture
 |   |       |   |-- ensemble.py                     # Script for said architecture
@@ -195,87 +193,16 @@ pipeline_root/
 |   |   ...
 |   ...
 |
-|-- orchestration.py                                # Orchestration for the entire pipeline (runs all deployed models and ensembles via Prefect)
-|
-|-- documentation/                                  # All relevant documentation (wiki to come)
-|
-|-- common_utils/                                   # Functions and classes used across multiple (but not necessarily all) models/ensembles  
-|       |-- stepshifter.py                          # Updated stepshifter function
-|       |-- set_paths.py                            # Sets all paths for imports, data, utils etc. Machine invariant.
-|       |-- get_data.py                             # General function that takes the general get_partition and a model specific config_feature_set.py to fetch model specific data
-|
-|-- common_configs/                                 # Config files common to all (or multiple) models or the larger pipeline
-|       |-- set_partition.py                        # Set data partitions for splits pertaining to validation, testing, and forecasting
-|
-|-- templates/                                      # For code templates. In the long run, most can be turned into common_utils/meta_tools (as functions or classes)
-|
-|-- meta_tools/                                     # Some of these should be added to GitHub action for good CI/CD
-        |-- make_new_model_dir.py                   # Script to create a standard model directory
-        |-- make_new_ensemble_dir.py                # Script to create a standard ensemble directory
-        |-- assess_model_dir.py                     # Check structure and presence of obligatory scripts
-        |-- assess_ensemble_dir.py                  # Check structure and presence of obligatory scripts  
+
 ```
 </details>
 
-## Pipeline Execution
-> [!CAUTION]
-> We are still in the process of migrating our models to this repository. Until then, the monthly VIEWS run is conducted with the [viewsforecasting repository](https://github.com/prio-data/viewsforecasting).
 
-For the monthly run, ensure that the latest input data has been ingested into the VIEWS database prior.
-
-This pipeline uses two tools for logging relevant information, in order to enhance transparency and collaboration. For the individual models, we use Weights & Biases (W&B / wandb) as a centralized platform for logging and monitoring model outputs, system metrics, and experiment metadata. This is especially relevant when tuning hyperparameters, for which we conduct so-called sweeps. For the entire pipeline, we use Prefect to log as a "flow run". 
-
-Follow the steps below to execute / orchestrate an entire run of the VIEWS pipeline.
-
-1. **Clone the Repository:**
-
-   ```bash
-   git clone <https://github.com/prio-data/views_pipeline>
-
-2. **Make sure Prefect is set up**
-
-In your viewser environment, make sure prefect is pip installed.
-You can check with ```pip show prefect```
-
-To login to your account write:
-```bash
-prefect cloud login
-```
-and subsequently login online.
-
-3. **Make desired changes to common configs and utils**
-For changing the months in data partitions, go to [common_utils/set_partition.py](https://github.com/prio-data/views_pipeline/blob/main/common_utils/set_partition.py).
-
-4. **Run the Orchestration Script:**
-Execute the Prefect flow script to run all models in this repository.
-```bash
-python orchestration.py
-```
-The script executes every main.py file in every model and ensemble folder. For every model, you will be prompted in the terminal to:
-    a) Do sweep 
-    b) Do one run and pickle results
-To conduct the monthly run, type `b` and enter.
-
-The progress of the pipeline execution will be logged online on Prefect.
-
-5. **Monitor Pipeline Execution:**
-Once the pipeline is initiated, you can monitor its execution using the Prefect UI dashboard or CLI. You can copy the link given in the terminal, go to the website, or use the following command to launch the Prefect UI:
-```bash
-prefect server start
-```
-
-Once models are run, you can also check their logs and visualizations in [Weights & Biases](https://wandb.ai/views_pipeline).
 
 ## Pipeline Documentation
-More detailed documentation on the pipeline and its components can be found in the folder [`documentation`](https://github.com/prio-data/views_pipeline/tree/main/documentation). There are currently entries covering:
-- Beginner Guide on Terminology
-- Model Documentation
-- Pipeline Documentation
+High-level documentation on the pipeline and its components can be found in the folder [`documentation`](https://github.com/prio-data/views_pipeline/tree/main/documentation). Additionally, refer to READMEs and docstrings of various functions and classes in the source code.
 
-## Other Documentation
-This pipeline repository relies on a lot of previous work documented in other papers and repositories.
-
-The fatalities model generates forecasts for state-based armed conflict during each month in a rolling 3-year window. 
+The operational fatalities model generates forecasts for state-based armed conflict during each month in a rolling 3-year window. 
 The latest iteration, currently in production, is called [Fatalities002](https://viewsforecasting.org/early-warning-system/models/fatalities002/).
 
 The following links cover **modelling documentation** for Fatalities002:
@@ -288,5 +215,15 @@ For VIEWS-specific **infrastructure documentation**, please refer to following G
 - [`ingester3`: Loading input data into the views database](https://github.com/UppsalaConflictDataProgram/ingester3)
 - [`viewser`: Accessing input data from views database](https://github.com/prio-data/viewser)
 - [`views_api`: Our API for accessing predictions](https://github.com/prio-data/views_api)
-- [`ForecastDrift`: New forecasting data drift detection system created for this pipeline](https://github.com/prio-data/ForecastDrift)
 
+## About the VIEWS Project
+
+The VIEWS project is a collaborative effort supported by leading research institutions focused on peace and conflict studies. For more information about the project, visit the [VIEWS Forecasting webpage](https://viewsforecasting.org/).
+
+### Affiliations
+
+- **Peace Research Institute Oslo (PRIO):**
+  The [Peace Research Institute Oslo (PRIO)](https://www.prio.org/) conducts research on the conditions for peaceful relations between states, groups, and people. PRIO is dedicated to understanding the processes that lead to violence and those that create sustainable peace. About half of the VIEWS core team is currently located at PRIO.
+
+- **Department of Peace and Conflict Research at the University of Uppsala:**
+  The [Department of Peace and Conflict Research at the University of Uppsala](https://www.uu.se/en/department/peace-and-conflict-research) is a leading academic institution in the study of conflict resolution, peacebuilding, and security. The department is renowned for its research and education programs aimed at fostering a deeper understanding of conflict dynamics and peace processes. This department also hosts the [Uppsala Conflict Data Program (UCDP)](https://ucdp.uu.se/), a central data source for the VIEWS project. About half of the VIEWS core team is currently located at the University of Uppsala.

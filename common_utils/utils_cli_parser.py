@@ -55,7 +55,7 @@ def validate_arguments(args):
         print("To fix: Use --run_type calibration when --sweep is flagged.")
         sys.exit(1)
 
-    if args.run_type == 'forecasting' and args.evaluate:
+    if args.evaluate and args.run_type == 'forecasting':
         print("Error: Forecasting runs cannot evaluate. Exiting.")
         print("To fix: Remove --evaluate flag when --run_type is 'forecasting'.")
         sys.exit(1)

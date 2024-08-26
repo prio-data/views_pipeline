@@ -1,21 +1,19 @@
-import wandb
-
 import sys
 from pathlib import Path
+import wandb
 
 PATH = Path(__file__)
 sys.path.insert(0, str(Path(
     *[i for i in PATH.parts[:PATH.parts.index("views_pipeline") + 1]]) / "common_utils"))  # PATH_COMMON_UTILS
-from set_path import setup_project_paths, setup_artifacts_paths
-
+from set_path import setup_project_paths
 setup_project_paths(PATH)
 
-from utils import split_hurdle_parameters
-from utils_wandb import add_wandb_monthly_metrics
-from train_model import get_model, train_model_artifact
 from evaluate_model import evaluate_model_artifact
 from evaluate_sweep import evaluate_sweep
 from generate_forecast import forecast_model_artifact
+from train_model import train_model_artifact
+from utils import get_model, split_hurdle_parameters
+from utils_wandb import add_wandb_monthly_metrics
 
 
 def execute_model_tasks(config=None, project=None, train=None, eval=None, forecast=None, artifact_name=None):
@@ -74,4 +72,3 @@ def execute_model_tasks(config=None, project=None, train=None, eval=None, foreca
         if forecast:
             print("Forecasting...")
             forecast_model_artifact(config, artifact_name)
-

@@ -28,7 +28,7 @@ setup_project_paths(PATH)
 
 
 from utils import choose_model, choose_loss, choose_sheduler, get_train_tensors, get_full_tensor, apply_dropout, execute_freeze_h_option, train_log, init_weights, get_data
-from config_sweep import get_swep_config
+from config_sweep import get_sweep_config
 from config_hyperparameters import get_hp_config
 
 

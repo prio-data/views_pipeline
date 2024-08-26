@@ -12,10 +12,6 @@ def get_sweep_config():
     sweep_config["metric"] = metric
 
     parameters_dict = {
-        "algorithm": {"values": ["HurdleRegression"]},
-        "model_clf": {"values": ["LGBMClassifier"]},
-        "model_reg": {"values": ["LGBMRegressor"]},
-        "depvar": {"values": ["ln_ged_sb_dep"]},
         "steps": {"values": [[*range(1, 36 + 1, 1)]]},
         "cls_n_estimators": {"values": [100, 200]},
         "cls_learning_rate": {"values": [0.05]},

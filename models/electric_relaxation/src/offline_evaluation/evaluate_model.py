@@ -1,88 +1,64 @@
-import numpy as np
-import pandas as pd
-from pathlib import Path
-import pickle
 import sys
+from pathlib import Path
+import warnings
+warnings.filterwarnings("ignore")
+import wandb
 
-from sklearn.metrics import mean_squared_error, average_precision_score, roc_auc_score, brier_score_loss
+PATH = Path(__file__)
+sys.path.insert(0, str(Path(
+    *[i for i in PATH.parts[:PATH.parts.index("views_pipeline") + 1]]) / "common_utils"))  # PATH_COMMON_UTILS
+from set_path import setup_project_paths, setup_data_paths, setup_artifacts_paths
+setup_project_paths(PATH)
 
-model_path = Path(__file__).resolve().parents[2] 
-sys.path.append(str(model_path))
-from configs.config_model import get_model_config
+from utils import save_model_outputs, get_partition_data, get_standardized_df
+from utils_artifacts import get_latest_model_artifact
+from utils_evaluation_metrics import generate_metric_dict
+from utils_model_outputs import generate_output_dict
+from utils_wandb import generate_wandb_log_dict
+from views_forecasts.extensions import *
 
 
-def evaluate_model(model_config):
-    """
-    Evaluate a model's performance from the calibration partition.
+def evaluate_model_artifact(config, artifact_name):
+    PATH_RAW, _, PATH_GENERATED = setup_data_paths(PATH)
+    PATH_ARTIFACTS = setup_artifacts_paths(PATH)
+    run_type = config['run_type']
 
-    This function loads a trained model from a pickle file, predicts outcomes for the calibration dataset,
-    calculates mean squared error (MSE), average precision, and Brier score for the predictions,
-    and saves the results as a dictionary in the artifacts folder.
+    # if an artifact name is provided through the CLI, use it.
+    # Otherwise, get the latest model artifact based on the run type
+    if artifact_name:
+        print(f"Using (non-default) artifact: {artifact_name}")
 
-    Args:
-        model_config (dict): Configuration parameters for the model.
+        if not artifact_name.endswith('.pkl'):
+            artifact_name += '.pkl'
+        PATH_ARTIFACT = PATH_ARTIFACTS / artifact_name
+    else:
+        # use the latest model artifact based on the run type
+        print(f"Using latest (default) run type ({run_type}) specific artifact")
+        PATH_ARTIFACT = get_latest_model_artifact(PATH_ARTIFACTS, run_type)
 
-    Returns:
-        None
-
-    Notes:
-    - There are 36 predictions for every true value (given 36 steps), so I am taking the mean value of them. Open to discuss this further
-    - Code for area under ROC curve didn't work, but leaving in for future development
-    - Should this also include test partition?
-    - When running the script, I get the following error from sklearn.metrics: No positive class found in y_true, recall is set to one for all thresholds.
-    - Instead of rewriting the code for metrics, it can be written as a loop or function in utils
-    """
-    print("Evaluating...")
-
-    df_calib = pd.read_parquet(model_path/"data"/"generated"/"calibration_predictions.parquet") 
-
-    steps = model_config["steps"]
-    depvar = [model_config["depvar"]] #formerly stepcols, changed to depvar to also use in true_values
-
-    for step in steps: 
-        depvar.append("step_pred_" + str(step))
-
-    df_calib = df_calib.replace([np.inf, -np.inf], 0)[depvar] 
-
-    pred_cols = [f"step_pred_{str(i)}" for i in steps] 
+    config["timestamp"] = PATH_ARTIFACT.stem[-15:]
+    dataset = pd.read_parquet(PATH_RAW / f"raw_{run_type}.parquet")
     
-    df_calib["mse"] = df_calib.apply(lambda row: mean_squared_error([row[[model_config["depvar"]]]] * len(steps), #not sure why [model_config["depvar"]] works but depvar doesn't (I previously defined it)
-                                                        [row[col] for col in pred_cols]), axis=1)
-    
-    mean_mse = df_calib["mse"].mean()
+    try:
+        stepshift_model = pd.read_pickle(PATH_ARTIFACT)
+    except:
+        raise FileNotFoundError(f"Model artifact not found at {PATH_ARTIFACT}")
 
-    df_calib["avg_precision"] = df_calib.apply(lambda row: average_precision_score([row[[model_config["depvar"]]]] * len(steps),
-                                                                              [row[col] for col in pred_cols]), axis=1)
-    
-    mean_avg_precision = df_calib["avg_precision"].mean()
+    df = stepshift_model.predict(run_type, "predict", get_partition_data(dataset, run_type))
+    df = get_standardized_df(df, config)
+
+    evaluation, df_evaluation = generate_metric_dict(df, config)
+    output, df_output = generate_output_dict(df, config)
+    for t in config['steps']:
+        log_dict = {}
+        log_dict["monthly/out_sample_month"] = t
+        step = f"step{str(t).zfill(2)}"
+        log_dict = generate_wandb_log_dict(log_dict, evaluation, step)
+        wandb.log(log_dict)
+
+    save_model_outputs(df_evaluation, df_output, PATH_GENERATED, config)
 
 
-    df_calib["brier_score"] = df_calib.apply(lambda row: brier_score_loss([row[[model_config["depvar"]]]] * len(steps),
-                                                                      [row[col] for col in pred_cols]), axis=1)
-    mean_brier_score = df_calib["brier_score"].mean()
 
-    metrics_dict_path = model_path / "artifacts" / "evaluation_metrics.py"
 
-    evaluation_metrics_calib = {
-        "Mean Mean Squared Error": mean_mse,
-        "Mean Average Precision": mean_avg_precision,
-        "Mean Brier Score": mean_brier_score
-    }
 
-    with open(metrics_dict_path, 'w') as file:
-        file.write("evaluation_metrics = ")
-        file.write(repr(evaluation_metrics_calib))
-    
-    print("Evaluation metrics stored in artifacts folder!")
-
-    #Doesn't work:
-    #df_calib["roc_auc"] = df_calib.apply(lambda row: roc_auc_score([row["ged_sb_dep"]] * 36,
-                                                               #[row[col] for col in pred_cols]), axis=1)
-    #mean_roc_auc = df_calib["roc_auc"].mean()
-    #print("Mean Area under ROC curve:", mean_roc_auc)
-
-    
-if __name__ == "__main__":
-    model_config = get_model_config()
-
-    evaluate_model(model_config)

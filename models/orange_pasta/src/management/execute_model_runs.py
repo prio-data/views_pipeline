@@ -1,49 +1,49 @@
-import wandb
-
 import sys
 from pathlib import Path
+import wandb
 
 PATH = Path(__file__)
 sys.path.insert(0, str(Path(
     *[i for i in PATH.parts[:PATH.parts.index("views_pipeline") + 1]]) / "common_utils"))  # PATH_COMMON_UTILS
-from set_path import setup_project_paths, setup_artifacts_paths
-
+from set_path import setup_project_paths
 setup_project_paths(PATH)
 
-from config_sweep import get_sweep_config
 from config_hyperparameters import get_hp_config
+from config_meta import get_meta_config
+from config_sweep import get_sweep_config
 from execute_model_tasks import execute_model_tasks
+from get_data import get_data
+from utils import update_hp_config, update_sweep_config
 
 
 def execute_sweep_run(args):
-    print('Running sweep...')
+    get_data(args)
 
     sweep_config = get_sweep_config()
+    meta_config = get_meta_config()
+    update_sweep_config(sweep_config, args, meta_config)
+
     project = f"{sweep_config['name']}_sweep" # we can name the sweep in the config file
-
-    sweep_config['parameters']['run_type'] = {'value': "calibration"}
-    sweep_config['parameters']['sweep'] = {'value': True}
-
     sweep_id = wandb.sweep(sweep_config, project=project, entity='views_pipeline')
-
     wandb.agent(sweep_id, execute_model_tasks, entity='views_pipeline')
 
 
 def execute_single_run(args):
-    hyperparameters = get_hp_config()
-    hyperparameters['run_type'] = args.run_type
-    hyperparameters['sweep'] = False
+    get_data(args)
 
-    project = f"{hyperparameters['name']}_{args.run_type}"
+    hp_config = get_hp_config()
+    meta_config = get_meta_config()
+    update_hp_config(hp_config, args, meta_config)
+    
+    project = f"{hp_config['name']}_{args.run_type}"
 
     if args.run_type == 'calibration' or args.run_type == 'testing':
-        execute_model_tasks(config=hyperparameters, project=project, train=args.train, eval=args.evaluate,
+        execute_model_tasks(config=hp_config, project=project, train=args.train, eval=args.evaluate,
                             forecast=False, artifact_name=args.artifact_name)
 
     elif args.run_type == 'forecasting':
-        execute_model_tasks(config=hyperparameters, project=project, train=args.train, eval=False, forecast=True,
+        execute_model_tasks(config=hp_config, project=project, train=args.train, eval=False, forecast=args.forecast,
                             artifact_name=args.artifact_name)
 
     else:
         raise ValueError(f"Invalid run type: {args.run_type}")
-

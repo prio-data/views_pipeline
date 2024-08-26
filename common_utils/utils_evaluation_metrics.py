@@ -8,9 +8,6 @@ from sklearn.metrics import mean_squared_error, mean_absolute_error, mean_square
 from views_forecasts.extensions import *
 
 
-
-# MUST BE ALIGNED WITH THE METRICS WE DECIDE TO USE IN THE WORKSHOP!!!!
-
 @dataclass
 class EvaluationMetrics:
     """
@@ -83,6 +80,8 @@ class EvaluationMetrics:
 
         """
         return pd.DataFrame.from_dict(evaluation_dict, orient='index')
+
+# TBD: Align with metrics discussed in workshop
 
     @staticmethod
     def calculate_aggregate_metrics(evaluation_dict: dict) -> dict:

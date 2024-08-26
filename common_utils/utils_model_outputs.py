@@ -2,11 +2,6 @@ from dataclasses import dataclass, field
 from typing import List, Optional
 import pandas as pd
 
-
-# we need to figure out if we are storing logged fatalities or not
-# And this is also a good place to decide on the uncertainty quantification. Right now var, but maybe HDI or something else.
-# you migth also waht the a non-step specifci list of pgm? So you can rectrate the full df from here? Otherwsie this could turn into a mess
-
 @dataclass
 class ModelOutputs:
     """
@@ -107,6 +102,10 @@ class ModelOutputs:
         df = pd.DataFrame([{attr: getattr(instance, attr) for attr in instance.__dataclass_fields__.keys()} for instance in dict_of_outputs.values()]).apply(pd.Series.explode)
 
         return df
+
+# we need to figure out if we are storing logged fatalities or not
+# And this is also a good place to decide on the uncertainty quantification. Right now var, but maybe HDI or something else.
+# you might also want the a non-step specific list of pgm? So you can recreate the full df from here? Otherwise this could turn into a mess
 
 
 def generate_output_dict(df, config):

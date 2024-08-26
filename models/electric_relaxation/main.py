@@ -1,65 +1,33 @@
-from pathlib import Path
-import pandas as pd
+import time
 import wandb
+import sys
+from pathlib import Path
 
-from configs.config_data_partitions import get_data_partitions #currently model own, not common_configs
-from configs.config_hyperparameters import get_hp_config
-from configs.config_model import get_model_config
-from configs.config_sweep import get_sweep_config
-from src.utils.set_paths import get_data_path #currently model own, not common_utils
+PATH = Path(__file__)
+sys.path.insert(0, str(Path(
+    *[i for i in PATH.parts[:PATH.parts.index("views_pipeline") + 1]]) / "common_utils"))  # PATH_COMMON_UTILS
+from set_path import setup_project_paths
+setup_project_paths(PATH)
 
-from src.dataloaders.get_data import get_data #alternatively, import from data/raw
-from src.training.train_model import train #alternatively, import from artifacts
-from src.forecasting.generate_forecast import forecast #alternatively, import from data/generated
-from src.offline_evaluation.evaluate_model import evaluate_model
-#from src.offline_evaluation.evaluate_sweep import evaluate_sweep #not written yet
-
-
-def run_model(config=None, project=None):
-    """
-    Runs the model training, forecasting, and evaluation scripts using the provided configuration and project name. Initializes and log on Weights & Biases.
-
-    Args:
-        config (dict, optional): A dictionary containing configuration parameters for the model.
-                                 Default is None.
-        project (str, optional): The name of the project to log results to in Weights & Biases (WandB).
-                                 Default is None.
-
-    Returns:
-        None
-
-    """
-    
-    with wandb.init(project=project, entity="views_pipeline", config=config): 
-
-        config = wandb.config 
-
-        data = get_data()
-
-        model_calibration_partition, model_future_partition = train(model_config, hp_config, data_partitions)
-
-        if model_config['sweep']:
-            evaluate_sweep(model_config, config)
-        else:
-            forecast(data_partitions, model_calibration_partition, model_future_partition)
-            evaluate_model(model_config)
+from utils_cli_parser import parse_args, validate_arguments
+from execute_model_runs import execute_sweep_run, execute_single_run
 
 
 if __name__ == "__main__":
+    args = parse_args()
+    validate_arguments(args)
+
+    # wandb login
     wandb.login()
 
-    data_partitions = get_data_partitions()
-    model_config = get_model_config()
-    sweep_config = get_sweep_config()
-    hp_config = get_hp_config()
+    start_t = time.time()
 
-    do_sweep = input(f'a) Do sweep \nb) Do one run \n')
+    if args.sweep == True:
+        execute_sweep_run(args)
+    elif args.sweep == False:
+        execute_single_run(args)
 
-    if do_sweep == 'a':
-        model_config['sweep'] = True
-        sweep_id = wandb.sweep(sweep_config, project=model_config["name"]+"_sweep")
-        wandb.agent(sweep_id, function=run_model)
-    
-    elif do_sweep == 'b':
-        model_config['sweep'] = False
-        run_model(hp_config, project=model_config["name"])
+    end_t = time.time()
+    minutes = (end_t - start_t) / 60
+    print(f'Done. Runtime: {minutes:.3f} minutes')
+

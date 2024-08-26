@@ -6,9 +6,9 @@ def get_input_data():
     qs_natsoc = (Queryset("fatalities003_pgm_natsoc", "priogrid_month")
 
                  # target variable
-                 .with_column(Column("ged_sb_dep", from_loa="priogrid_month", from_column="ged_sb_best_sum_nokgi")
+                 .with_column(Column("ln_ged_sb_dep", from_loa="priogrid_month", from_column="ged_sb_best_sum_nokgi")
                               .transform.missing.replace_na()
-                              # .transform.ops.ln()
+                              .transform.ops.ln()
                               )
 
                  # timelag 0 of target variable
