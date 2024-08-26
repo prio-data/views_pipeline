@@ -37,13 +37,14 @@ def evaluate_model_artifact(config, artifact_name):
         PATH_ARTIFACT = get_latest_model_artifact(PATH_ARTIFACTS, run_type)
 
     config["timestamp"] = PATH_ARTIFACT.stem[-15:]
+    dataset = pd.read_parquet(PATH_RAW / f"raw_{run_type}.parquet")
     
     try:
         stepshift_model = pd.read_pickle(PATH_ARTIFACT)
     except:
         raise FileNotFoundError(f"Model artifact not found at {PATH_ARTIFACT}")
 
-    df = stepshift_model.predict(run_type)
+    df = stepshift_model.predict(run_type, dataset)
     df = get_standardized_df(df, config)
 
     evaluation, df_evaluation = generate_metric_dict(df, config)

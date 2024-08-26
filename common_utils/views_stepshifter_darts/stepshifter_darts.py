@@ -33,7 +33,7 @@ class StepshifterModel:
         self._series = None
 
 
-    # @views_validate
+    @views_validate
     def fit(self, df: pd.DataFrame):
         self._setup(df)
         self._prepare_time_series(df)
@@ -47,14 +47,18 @@ class StepshifterModel:
             model.fit(target, past_covariates=past_cov)
             self._models[step] = model
 
-
-    # @views_validate
-    def predict(self, run_type) -> pd.DataFrame:
+    @views_validate
+    def predict(self, run_type, df: pd.DataFrame) -> pd.DataFrame:
         target = [series.slice(self._train_start, self._train_end + 1)[self.target]
                   for series in self._series]
         
         preds_by_step = [self._predict_for_step(step, target, run_type) for step in self.steps]
         pred = pd.concat(preds_by_step, axis=1)
+
+        # add the target variable to the predictions to make sure it is a VIEWS prediction
+        # but if it is forecasting, we don't need to add the target variable
+        if run_type != 'forecasting':
+            pred = pd.merge(pred, df[self.target], left_index=True, right_index=True)
 
         return pred
 
@@ -130,23 +134,22 @@ if __name__ == "__main__":
 
         return parameters
     
-    month = [*range(1, 600)]
-    pg = [123, 456]
-    idx = pd.MultiIndex.from_product([month, pg], names=['month_id', 'priogrid_gid'])
-    df = pd.DataFrame(index=idx)
-    df['ged_sb_dep'] = df.index.get_level_values(0).astype(float)
-    df['ln_ged_sb'] = df.index.get_level_values(0) + df.index.get_level_values(1) / 1000
-    df['ln_pop_gpw_sum'] = df.index.get_level_values(0) * 10 + df.index.get_level_values(1) / 1000
-    steps = [*range(1, 3 + 1, 1)]
-    partitioner_dict = {"train": (121, 131), "predict": (132, 135)}
-    target = 'ged_sb_dep'
+    # month = [*range(1, 600)]
+    # pg = [123, 456]
+    # idx = pd.MultiIndex.from_product([month, pg], names=['month_id', 'priogrid_gid'])
+    # df = pd.DataFrame(index=idx)
+    # df['ged_sb_dep'] = df.index.get_level_values(0).astype(float)
+    # df['ln_ged_sb'] = df.index.get_level_values(0) + df.index.get_level_values(1) / 1000
+    # df['ln_pop_gpw_sum'] = df.index.get_level_values(0) * 10 + df.index.get_level_values(1) / 1000
+    # steps = [*range(1, 3 + 1, 1)]
+    # partitioner_dict = {"train": (121, 131), "predict": (132, 135)}
+    # target = 'ged_sb_dep'
 
-    # df = pd.read_parquet('raw.parquet')
-    # steps = [*range(1, 36 + 1, 1)]
-    # partitioner_dict = {"train": (121, 444), "predict": (445, 492)}
-    # target = df.forecasts.target
-    #
-    start_t = time.time()
+    df = pd.read_parquet('raw_forecasting.parquet')
+    steps = [*range(1, 36 + 1, 1)]
+    partitioner_dict = {"train": (121, 444), "predict": (445, 492)}
+    target = df.forecasts.target
+    # start_t = time.time()
     
     hp_config = {
         "name": "orange_pasta",
@@ -170,13 +173,12 @@ if __name__ == "__main__":
     # minutes = (train_t - start_t) / 60
     # print(f'Done training. Runtime: {minutes:.3f} minutes')
 
-    # stepshift = pd.read_pickle('./model.pkl')
+    # stepshifter = pd.read_pickle('./model.pkl')
     pred = stepshifter.predict(df)
     # pred.to_parquet('pred.parquet')
 
     # end_t = time.time()
     # minutes = (end_t - train_t) / 60
     # print(f'Done predicting. Runtime: {minutes:.3f} minutes')
-
 '''
 

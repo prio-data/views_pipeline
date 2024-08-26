@@ -17,7 +17,8 @@ def evaluate_sweep(config, stepshift_model):
     run_type = config['run_type']
     steps = config['steps']
 
-    df = stepshift_model.predict(run_type)
+    dataset = pd.read_parquet(PATH_RAW / f"raw_{run_type}.parquet")
+    df = stepshift_model.predict(run_type, dataset)
     df = get_standardized_df(df, config)
 
     # Temporarily keep this because the metric to minimize is MSE
