@@ -1,6 +1,12 @@
 from dataclasses import dataclass
 from typing import Optional
 import pandas as pd
+from statistics import mean, stdev, median
+
+import properscoring as ps
+from sklearn.metrics import mean_squared_error, mean_absolute_error, mean_squared_log_error, brier_score_loss, average_precision_score, roc_auc_score
+from views_forecasts.extensions import *
+
 
 @dataclass
 class EvaluationMetrics:
@@ -74,3 +80,70 @@ class EvaluationMetrics:
 
         """
         return pd.DataFrame.from_dict(evaluation_dict, orient='index')
+
+# TBD: Align with metrics discussed in workshop
+
+    @staticmethod
+    def calculate_aggregate_metrics(evaluation_dict: dict) -> dict:
+        metrics_aggregate = {
+            'mean': {},
+            'std': {},
+            'median': {}
+        }
+
+        for metric in EvaluationMetrics.__annotations__.keys():
+            metric_values = [getattr(evaluation, metric) for evaluation in evaluation_dict.values() if getattr(evaluation, metric) is not None]
+            if metric_values: 
+                metrics_aggregate['mean'][metric] = mean(metric_values)
+                metrics_aggregate['std'][metric] = stdev(metric_values)
+                metrics_aggregate['median'][metric] = median(metric_values)
+            else:
+                metrics_aggregate['mean'][metric] = None
+                metrics_aggregate['std'][metric] = None
+                metrics_aggregate['median'][metric] = None
+
+        return metrics_aggregate
+
+    @staticmethod
+    def output_metrics(evaluation_dict):
+        aggregate = EvaluationMetrics.calculate_aggregate_metrics(evaluation_dict)
+        step_metrics_dict = {step: vars(metrics) for step, metrics in evaluation_dict.items()}
+        step_metrics_dict['mean'] = aggregate['mean']
+        step_metrics_dict['std'] = aggregate['std']
+        step_metrics_dict['median'] = aggregate['median']
+        return step_metrics_dict
+
+
+def generate_metric_dict(df, config):
+    """
+    Generates a dictionary of evaluation metrics for a given forecasting configuration and dataset.
+
+    Args:
+        df (pd.DataFrame): A pandas DataFrame containing the forecasted values and ground truth.
+        config (dict): A dictionary containing the forecasting configuration parameters.
+
+    Returns:
+        evaluation_dict (dict): A dictionary of EvaluationMetrics instances for each forecasting step.
+        df_evaluation_dict (pd.DataFrame): A pandas DataFrame containing the evaluation metrics for each forecasting step.
+
+    Note:
+        ! This function is temporary for the stepshifter model.
+        ! Change the metrics to those discussed previously.
+        For logged targets, calculating MSE is actually MSLE.
+        KLD and Jeffreys divergence are measures used to quantify the difference between two probability distributions. Why do we calculate these metrics in the context of forecasting?
+        Brier score is used for binary and categorical outcomes that can be structured as true or false
+        There are no classes in data, so we cannot calculate roc_auc_score, ap_score
+    """
+
+    evaluation_dict = EvaluationMetrics.make_evaluation_dict(steps=config.steps[-1])
+    for step in config.steps:
+        evaluation_dict[f"step{str(step).zfill(2)}"].MSE = mean_squared_error(df[config.depvar], df[f"step_pred_{step}"])
+        evaluation_dict[f"step{str(step).zfill(2)}"].MAE = mean_absolute_error(df[config.depvar], df[f"step_pred_{step}"])
+        # evaluation_dict[f"step{str(step).zfill(2)}"].MSLE = mean_squared_log_error(df[config.depvar], df[f"step_pred_{step}"])
+        evaluation_dict[f"step{str(step).zfill(2)}"].CRPS = ps.crps_ensemble(df[config.depvar], df[f"step_pred_{step}"]).mean()
+        # evaluation_dict[f"step{str(step).zfill(2)}"].Brier = brier_score_loss(df[config.depvar], df[f"step_pred_{step}"])
+        # evaluation_dict[f"step{str(step).zfill(2)}"].AUC = roc_auc_score(df[config.depvar], df[f"step_pred_{step}"])
+        # evaluation_dict[f"step{str(step).zfill(2)}"].AP = average_precision_score(df[config.depvar], df[f"step_pred_{step}"])
+    evaluation_dict = EvaluationMetrics.output_metrics(evaluation_dict)
+    df_evaluation_dict = EvaluationMetrics.evaluation_dict_to_dataframe(evaluation_dict)
+    return evaluation_dict, df_evaluation_dict

@@ -11,7 +11,7 @@ def get_meta_config():
         "algorithm": "HydraNet", 
         "target(S)": ["ln_sb_best", "ln_ns_best", "ln_os_best", "ln_sb_best_binarized", "ln_ns_best_binarized", "ln_os_best_binarized"], 
         "queryset": "escwa001_cflong",
-        "level": "cm",
+        "level": "pgm",
         "creator": "Simon" 
     }
     return meta_config 

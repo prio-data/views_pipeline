@@ -6,15 +6,15 @@ def get_sweep_config():
     """
     sweep_config = {
         "name": "electric_relaxation",
-        'method': 'cm' 
+        "method": "grid" 
     }
 
     metric = {
-        'name': 'mse',
-        'goal': 'minimize'   
+        "name": "MSE",
+        "goal": "minimize"   
     }
 
-    sweep_config['metric'] = metric
+    sweep_config["metric"] = metric
 
     parameters_dict = {
         "n_estimators": {"values": [100, 200]},
@@ -22,6 +22,6 @@ def get_sweep_config():
         "n_jobs": {"values": [12]}
     }
 
-    sweep_config['parameters'] = parameters_dict
+    sweep_config["parameters"] = parameters_dict
 
     return sweep_config
