@@ -35,8 +35,15 @@ class StepshifterModel:
 
     @views_validate
     def fit(self, df: pd.DataFrame):
-        self._setup(df)
-        self._prepare_time_series(df)
+        # set up
+        self._time = df.index.names[0]
+        self._level = df.index.names[1]
+        self._independent_variables = [c for c in df.columns if c != self.target]
+        
+        # prepare time series
+        df_reset = df.reset_index(level=[1])
+        self._series = TimeSeries.from_group_dataframe(df_reset, group_cols=self._level,
+                                                       value_cols=self._independent_variables + [self.target])
         
         target = [series.slice(self._train_start, self._train_end + 1)[self.target]
                   for series in self._series]  # ts.slice is different from df.slice
@@ -47,12 +54,13 @@ class StepshifterModel:
             model.fit(target, past_covariates=past_cov)
             self._models[step] = model
 
+
     @views_validate
     def predict(self, run_type, df: pd.DataFrame) -> pd.DataFrame:
         target = [series.slice(self._train_start, self._train_end + 1)[self.target]
                   for series in self._series]
         
-        preds_by_step = [self._predict_for_step(step, target, run_type) for step in self.steps]
+        preds_by_step = [self._predict_by_step(step, target, run_type) for step in self.steps]
         pred = pd.concat(preds_by_step, axis=1)
 
         # add the target variable to the predictions to make sure it is a VIEWS prediction
@@ -69,19 +77,7 @@ class StepshifterModel:
             raise ValueError(f"Model {config['algorithm']} is not a valid Darts forecasting model. Change the model in the config file.")
 
 
-    def _setup(self, df: pd.DataFrame):
-        self._time = df.index.names[0]
-        self._level = df.index.names[1]
-        self._independent_variables = [c for c in df.columns if c != self.target]
-
-
-    def _prepare_time_series(self, df: pd.DataFrame):
-        df_reset = df.reset_index(level=[1])
-        self._series = TimeSeries.from_group_dataframe(df_reset, group_cols=self._level,
-                                                       value_cols=self._independent_variables + [self.target])
-
-
-    def _predict_for_step(self, step, target, run_type):
+    def _predict_by_step(self, step, target, run_type):
         model = self._models[step]
         if run_type == 'forecasting':
             horizon = step
@@ -93,10 +89,8 @@ class StepshifterModel:
                                 # darts automatically locates the time period of past_covariates
                                 past_covariates=[series[self._independent_variables] for series in self._series],
                                 show_warnings=False)
-        return self._process_predictions(ts_pred, step)
-
-
-    def _process_predictions(self, ts_pred, step):
+        
+        # process the predictions
         preds = []
         for pred in ts_pred:
             df_pred = pred.pd_dataframe()
@@ -105,6 +99,7 @@ class StepshifterModel:
             df_pred.columns = [f"step_pred_{step}"]
             df_pred = df_pred.loc[slice(self._test_start, self._test_end, ), :]
             preds.append(df_pred)
+
         return pd.concat(preds).sort_index()
 
 
