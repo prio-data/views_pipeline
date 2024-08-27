@@ -47,7 +47,15 @@ def parse_args():
                              'where <run_type> is calibration, testing, or forecasting, and <timestamp> is in the format YMD_HMS.'
                              'If not provided, the latest artifact will be used by default.')
 
+    parser.add_argument('-ag', '--aggregation',
+                        # To do: considering weighted average
+                        choices=['mean', 'median'],
+                        default=None,
+                        help='Method to aggregate the model outputs to produce an ensemble. '
+                             'Options are: mean or median. No default aggregation method is set; the user must specify one.')
+    
     return parser.parse_args()
+
 
 def validate_arguments(args):
     if args.sweep and args.run_type != 'calibration':
@@ -76,13 +84,12 @@ def validate_arguments(args):
         print("To fix: Set --run_type to forecasting if --forecast is flagged.")
         sys.exit(1)
 
-
-    # notes on stepshifted models:
-    # There will be some thinking here in regards to how we store, denote (naming convention), and retrieve the model artifacts from stepshifted models.
-    # It is not a big issue, but it is something to consider os we don't do something headless. 
-    # A possible format could be: <run_type>_model_s<step>_<timestamp>.pt example: calibration_model_s00_20210831_123456.pt, calibration_model_s01_20210831_123456.pt, etc.
-    # And the rest of the code maded in a way to handle this naming convention without any issues. Could be a simple fix.
-    # Alternatively, we could store the model artifacts in a subfolder for each stepshifted model. This would make it easier to handle the artifacts, but it would also make it harder to retrieve the latest artifact for a given run type.
-    # Lastly, the solution Xiaolong is working on might allow us the store multiple models (steps) in one artifact, which would make this whole discussion obsolete and be the best solution.
-
-
+    if args.aggregation:
+        if args.sweep or args.train:
+            print("Error: --aggregation flag cannot be used with --sweep or --train. Exiting.")
+            sys.exit(1)
+        
+        if args.run_type in ['calibration', 'testing'] and args.forecast:
+            print(f"Error: Forecasting cannot be done when run type is {args.run_type} and --aggregation is set. Exiting.")
+            sys.exit(1)
+        
