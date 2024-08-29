@@ -2,7 +2,7 @@
 
 from viewser import Queryset, Column
 
-def get_input_data():
+def get_input_data_config():
     '''
     - The function queries the 'escwa001_cflong' table from the Views-escwa database at the country_month level.
     - It includes various transformations and calculations for target variables, temporal lags, decay functions,

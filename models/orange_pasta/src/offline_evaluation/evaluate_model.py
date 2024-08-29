@@ -10,7 +10,7 @@ sys.path.insert(0, str(Path(
 from set_path import setup_project_paths, setup_data_paths, setup_artifacts_paths
 setup_project_paths(PATH)
 
-from utils import save_model_outputs, get_partition_data, get_standardized_df
+from utils import save_model_outputs, get_standardized_df
 from utils_artifacts import get_latest_model_artifact
 from utils_evaluation_metrics import generate_metric_dict
 from utils_model_outputs import generate_output_dict
@@ -37,14 +37,14 @@ def evaluate_model_artifact(config, artifact_name):
         PATH_ARTIFACT = get_latest_model_artifact(PATH_ARTIFACTS, run_type)
 
     config["timestamp"] = PATH_ARTIFACT.stem[-15:]
-    dataset = pd.read_parquet(PATH_RAW / f"raw_{run_type}.parquet")
+    df_viewser = pd.read_pickle(PATH_RAW / f"{run_type}_viewser_df.pkl")
     
     try:
         stepshift_model = pd.read_pickle(PATH_ARTIFACT)
     except:
         raise FileNotFoundError(f"Model artifact not found at {PATH_ARTIFACT}")
 
-    df = stepshift_model.predict(run_type, dataset)
+    df = stepshift_model.predict(run_type, df_viewser)
     df = get_standardized_df(df, config)
 
     evaluation, df_evaluation = generate_metric_dict(df, config)

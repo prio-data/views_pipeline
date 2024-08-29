@@ -38,7 +38,6 @@ def parse_args():
                              'Note: If --sweep is specified, --forecast will also automatically be flagged. '
                              'Can only be used with --run_type forecasting.')
 
-
     parser.add_argument('-a', '--artifact_name',
                         type=str,
                         help='Specify the name of the model artifact to be used for evaluation. '
@@ -53,6 +52,13 @@ def parse_args():
                         default=None,
                         help='Method to aggregate the model outputs to produce an ensemble. '
                              'Options are: mean or median. No default aggregation method is set; the user must specify one.')
+
+    parser.add_argument('-u', '--update_data',
+                        action='store_true',
+                        help='Update locally stored data')
+
+    parser.add_argument('-o', '--override_month',
+                        help='Over-ride use of current month', type=int)
     
     return parser.parse_args()
 

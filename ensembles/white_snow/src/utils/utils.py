@@ -13,24 +13,6 @@ from set_partition import get_partitioner_dict
 from views_forecasts.extensions import *
 
 
-def get_partition_data(df, run_type):
-    partitioner_dict = get_partitioner_dict(run_type)
-
-    month_first = partitioner_dict['train'][0]
-
-    if run_type in ['calibration', 'testing']:
-        month_last = partitioner_dict['predict'][1] + 1
-    elif run_type == 'forecasting':
-        month_last = partitioner_dict['predict'][0]
-    else:
-        raise ValueError('partition should be either "calibration", "testing" or "forecasting"')
-
-    month_range = np.arange(month_first, month_last, 1)  # predict[1] is the last month to predict, so we need to add 1 to include it.
-
-    df = df[df.index.get_level_values("month_id").isin(month_range)].copy()  # temporal subset
-
-    return df
-
 def get_standardized_df(df, config):
     run_type = config['run_type']
     steps = config['steps']

@@ -10,7 +10,7 @@ from set_path import setup_project_paths, setup_data_paths, setup_artifacts_path
 setup_project_paths(PATH)
 
 from set_partition import get_partitioner_dict
-from utils import get_partition_data, get_standardized_df
+from utils import get_standardized_df
 from utils_artifacts import get_latest_model_artifact
 
 
@@ -33,14 +33,14 @@ def forecast_model_artifact(config, artifact_name):
         PATH_ARTIFACT = get_latest_model_artifact(PATH_ARTIFACTS, run_type)
 
     config["timestamp"] = PATH_ARTIFACT.stem[-15:]
-    dataset = pd.read_parquet(PATH_RAW / f"raw_{run_type}.parquet")
+    df_viewser = pd.read_pickle(PATH_RAW / f"{run_type}_viewser_df.pkl")
 
     try:
         stepshift_model = pd.read_pickle(PATH_ARTIFACT)
     except:
         raise FileNotFoundError(f"Model artifact not found at {PATH_ARTIFACT}")
 
-    df_predictions = stepshift_model.predict(run_type, dataset)
+    df_predictions = stepshift_model.predict(run_type, df_viewser)
     df_predictions = get_standardized_df(df_predictions, config)
     
     predictions_path = f"{PATH_GENERATED}/predictions_{config['steps'][-1]}_{run_type}_{config['timestamp']}.pkl"

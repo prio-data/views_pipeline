@@ -23,9 +23,12 @@ def fetch_data_from_viewser(month_first,month_last,drift_config_dict):
     print(f'Beginning file download through viewser with month range {month_first},{month_last}')
     queryset_base = get_input_data_config() # just used here.. 
     df, alerts = queryset_base.publish().fetch_with_drift_detection(month_first, month_last-1, drift_config_dict)
-    df.reset_index(inplace=True)
-    df.rename(columns={'priogrid_gid': 'pg_id'}, inplace=True) # arguably HydraNet or at lest vol specific
-    df['in_viewser'] = True  # arguably HydraNet or at lest vol specific
+    df = ensure_float64(df) # The dataframe must contain only np.float64 floats
+    
+    # Not required for stepshift model
+    # df.reset_index(inplace=True)
+    # df.rename(columns={'priogrid_gid': 'pg_id'}, inplace=True) # arguably HydraNet or at lest vol specific
+    # df['in_viewser'] = True  # arguably HydraNet or at lest vol specific
 
     return df, alerts
 
@@ -91,7 +94,10 @@ def validate_df_partition(df,partition,override_month=None):
 
     """
 
-    df_time_units = df['month_id'].values
+    if 'month_id' in df.columns:
+        df_time_units = df['month_id'].values
+    else:
+        df_time_units = df.index.get_level_values('month_id').values
     partitioner_dict = get_partitioner_dict(partition)
     if partition in ['calibration', 'testing']:
         first_month = partitioner_dict['train'][0]
@@ -271,6 +277,26 @@ def get_alert_help_string():
                  """)
 
     return help_string
+
+
+def ensure_float64(df):
+    """
+    Check if the DataFrame only contains np.float64 types. If not, raise a warning
+    and convert the DataFrame to use np.float64 for all its numeric columns.
+    """
+
+    non_float64_cols = df.select_dtypes(include=['number']).columns[
+        df.select_dtypes(include=['number']).dtypes != np.float64]
+
+    if len(non_float64_cols) > 0:
+        print(
+            f"Warning: DataFrame contains non-np.float64 numeric columns. Converting the following columns: {', '.join(non_float64_cols)}")
+
+        for col in non_float64_cols:
+            df[col] = df[col].astype(np.float64)
+
+    return df
+
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Fetch data for different partitions')

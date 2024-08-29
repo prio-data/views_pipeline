@@ -10,7 +10,7 @@ sys.path.insert(0, str(Path(
 from set_path import setup_project_paths, setup_data_paths, setup_artifacts_paths, setup_root_paths
 setup_project_paths(PATH)
 
-from utils import save_model_outputs, get_standardized_df, get_aggregated_df, get_partition_data
+from utils import save_model_outputs, get_standardized_df, get_aggregated_df
 from utils_evaluation_metrics import generate_metric_dict
 from utils_model_outputs import generate_output_dict
 from utils_artifacts import get_latest_model_artifact
@@ -35,13 +35,13 @@ def evaluate_ensemble(config):
 
         timestamp += model + PATH_ARTIFACT.stem[-15:] + '_'
 
-        dataset = pd.read_parquet(PATH_RAW / f'raw_{run_type}.parquet')
+        df_viewser = pd.read_pickle(PATH_RAW / f"{run_type}_viewser_df.pkl")
         try:
             stepshift_model = pd.read_pickle(PATH_ARTIFACT)
         except:
             raise FileNotFoundError(f"Model artifact not found at {PATH_ARTIFACT}")
 
-        df = stepshift_model.predict(run_type, "predict", get_partition_data(dataset, run_type))
+        df = stepshift_model.predict(run_type, "predict", df_viewser)
         df = get_standardized_df(df, config)
         dfs.append(df)
 

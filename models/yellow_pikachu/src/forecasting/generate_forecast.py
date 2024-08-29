@@ -7,10 +7,11 @@ PATH = Path(__file__)
 sys.path.insert(0, str(Path(
     *[i for i in PATH.parts[:PATH.parts.index("views_pipeline") + 1]]) / "common_utils"))  # PATH_COMMON_UTILS
 from set_path import setup_project_paths, setup_data_paths, setup_artifacts_paths
+
 setup_project_paths(PATH)
 
 from set_partition import get_partitioner_dict
-from utils import get_partition_data, get_standardized_df
+from utils import get_standardized_df
 from utils_artifacts import get_latest_model_artifact
 
 
@@ -33,7 +34,7 @@ def forecast_model_artifact(config, artifact_name):
         PATH_ARTIFACT = get_latest_model_artifact(PATH_ARTIFACTS, run_type)
 
     config["timestamp"] = PATH_ARTIFACT.stem[-15:]
-    dataset = pd.read_parquet(PATH_RAW / f"raw_{run_type}.parquet")
+    df_viewser = pd.read_pickle(PATH_RAW / f"{run_type}_viewser_df.pkl")
 
     try:
         stepshift_model = pd.read_pickle(PATH_ARTIFACT)
@@ -41,11 +42,9 @@ def forecast_model_artifact(config, artifact_name):
         raise FileNotFoundError(f"Model artifact not found at {PATH_ARTIFACT}")
 
     partition = get_partitioner_dict(run_type)['predict']
-    df_predictions = stepshift_model.future_point_predict(partition[0]-1,
-                                                          get_partition_data(dataset, run_type),
-                                                          keep_specific=True)
+    df_predictions = stepshift_model.future_point_predict(partition[0]-1, df_viewser, keep_specific=True)
     df_predictions = get_standardized_df(df_predictions, config)
-    
+
     predictions_path = f"{PATH_GENERATED}/predictions_{config['steps'][-1]}_{run_type}_{config['timestamp']}.pkl"
     with open(predictions_path, 'wb') as file:
         pickle.dump(df_predictions, file)

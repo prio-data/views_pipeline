@@ -16,9 +16,9 @@ def train_model_artifact(config):
     PATH_RAW, _, _ = setup_data_paths(PATH)
     PATH_ARTIFACTS = setup_artifacts_paths(PATH)
     run_type = config['run_type']
-    dataset = pd.read_parquet(PATH_RAW / f'raw_{run_type}.parquet')
+    df_viewser = pd.read_pickle(PATH_RAW / f"{run_type}_viewser_df.pkl")
 
-    stepshift_model = stepshift_training(config, run_type, dataset)
+    stepshift_model = stepshift_training(config, run_type, df_viewser)
     if not config["sweep"]:
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         model_filename = f"{run_type}_model_{timestamp}.pkl"

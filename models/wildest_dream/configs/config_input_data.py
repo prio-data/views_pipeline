@@ -1,7 +1,7 @@
 import numpy as np
 from viewser import Queryset, Column
 
-def get_input_data():
+def get_input_data_config():
     return_values = 'distances'
     n_nearest = 1
     power = 0.0

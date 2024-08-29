@@ -1,6 +1,5 @@
 import sys
 from pathlib import Path
-import pandas as pd
 
 PATH = Path(__file__)
 sys.path.insert(0, str(Path(
@@ -8,21 +7,18 @@ sys.path.insert(0, str(Path(
 from set_path import setup_project_paths, setup_data_paths
 setup_project_paths(PATH)
 
-from config_input_data import get_input_data
-from utils import ensure_float64
+from utils_dataloaders import fetch_or_load_views_df, create_or_load_views_vol, get_alert_help_string
 
 
 def get_data(args):
     print("Getting data...")
     PATH_RAW, _, _ = setup_data_paths(PATH)
-    parquet_path = PATH_RAW / f'raw_{args.run_type}.parquet'
-    # print('PARQUET PATH', parquet_path)
-    if not parquet_path.exists():
-        qs = get_input_data()
-        data = qs.publish().fetch()
-        data = ensure_float64(data)
-        data.to_parquet(parquet_path)
-    else:
-        data = pd.read_parquet(parquet_path)
 
-    return data     
+    data, alerts = fetch_or_load_views_df(args.run_type, PATH_RAW, not args.update_data)
+    print(f"DataFrame shape: {data.shape if data is not None else 'None'}")
+
+    for ialert, alert in enumerate(str(alerts).strip('[').strip(']').split('Input')):
+        if 'offender' in alert:
+            print({f"{args.run_type} data alert {ialert}": str(alert)})
+
+    return data
