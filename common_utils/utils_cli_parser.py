@@ -53,9 +53,9 @@ def parse_args():
                         help='Method to aggregate the model outputs to produce an ensemble. '
                              'Options are: mean or median. No default aggregation method is set; the user must specify one.')
 
-    parser.add_argument('-u', '--update_data',
+    parser.add_argument('-sa', '--saved',
                         action='store_true',
-                        help='Update locally stored data')
+                        help='Used locally stored data')
 
     parser.add_argument('-o', '--override_month',
                         help='Over-ride use of current month', type=int)
