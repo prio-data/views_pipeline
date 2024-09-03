@@ -18,6 +18,9 @@ from views_forecasts.extensions import *
 
 
 def get_model(config):
+    '''
+    Get the model based on the algorithm specified in the config
+    '''
     if config["algorithm"] == "HurdleRegression":
         model = HurdleRegression(clf_name=config["model_clf"], reg_name=config["model_reg"],
                                  clf_params=config["parameters"]["clf"], reg_params=config["parameters"]["reg"])
@@ -43,10 +46,16 @@ def get_parameters(config):
 
 
 def get_standardized_df(df, config):
+    '''
+    Standardize the DataFrame based on the run type
+    '''
     run_type = config['run_type']
     steps = config['steps']
+    depvar = config['depvar']
+
+    # choose the columns to keep based on the run type and replace negative values with 0
     if run_type in ['calibration', 'testing']:
-        cols = [df.forecasts.target] + df.forecasts.prediction_columns
+        cols = [depvar] + df.forecasts.prediction_columns
     elif run_type == "forecasting":
         cols = [f'step_pred_{i}' for i in steps]
     df = df.replace([np.inf, -np.inf], 0)[cols]

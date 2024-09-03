@@ -1,17 +1,13 @@
 import pickle
-import numpy as np
-import pandas as pd
 from darts import TimeSeries
 from darts.models import LightGBMModel, XGBModel
 from darts.models.forecasting.forecasting_model import ModelMeta
 import warnings
 warnings.filterwarnings("ignore")
-import time
 from typing import List, Dict
 
 from views_forecasts.extensions import *
 from .validation import views_validate
-from utils import get_parameters
 
 
 class StepshifterModel:
@@ -89,7 +85,7 @@ class StepshifterModel:
                                 # darts automatically locates the time period of past_covariates
                                 past_covariates=[series[self._independent_variables] for series in self._series],
                                 show_warnings=False)
-        
+
         # process the predictions
         preds = []
         for pred in ts_pred:
@@ -117,63 +113,18 @@ class StepshifterModel:
         return self._models.values()
 
 
-'''
-if __name__ == "__main__":
-    def get_parameters(config):
+def get_parameters(config):
+    '''
+    Get the parameters from the config file.
+    If not sweep, then get directly from the config file, otherwise have to remove some parameters.
 
-        if config["sweep"]:
-            keys_to_remove = ["algorithm", "depvar", "steps", "sweep", "run_type", "model_cls", "model_reg"]
-            parameters = {k: v for k, v in config.items() if k not in keys_to_remove}
-        else:
-            parameters = config["parameters"]
+    This function is also in utils.py, but I think model-related functions should be in the same file
+    '''
 
-        return parameters
-    
-    # month = [*range(1, 600)]
-    # pg = [123, 456]
-    # idx = pd.MultiIndex.from_product([month, pg], names=['month_id', 'priogrid_gid'])
-    # df = pd.DataFrame(index=idx)
-    # df['ged_sb_dep'] = df.index.get_level_values(0).astype(float)
-    # df['ln_ged_sb'] = df.index.get_level_values(0) + df.index.get_level_values(1) / 1000
-    # df['ln_pop_gpw_sum'] = df.index.get_level_values(0) * 10 + df.index.get_level_values(1) / 1000
-    # steps = [*range(1, 3 + 1, 1)]
-    # partitioner_dict = {"train": (121, 131), "predict": (132, 135)}
-    # target = 'ged_sb_dep'
+    if config["sweep"]:
+        keys_to_remove = ["algorithm", "depvar", "steps", "sweep", "run_type", "model_cls", "model_reg"]
+        parameters = {k: v for k, v in config.items() if k not in keys_to_remove}
+    else:
+        parameters = config["parameters"]
 
-    df = pd.read_parquet('raw_forecasting.parquet')
-    steps = [*range(1, 36 + 1, 1)]
-    partitioner_dict = {"train": (121, 444), "predict": (445, 492)}
-    target = df.forecasts.target
-    # start_t = time.time()
-    
-    hp_config = {
-        "name": "orange_pasta",
-        "algorithm": "LightGBMModel",
-        "depvar": "ged_sb_dep",
-        "run_type": "forecasting",
-        "sweep": False,
-        "steps": [*range(1, 3 + 1, 1)],
-        "parameters": {
-            "learning_rate": 0.01,
-            "n_estimators": 100,
-            "num_leaves": 31,
-        }
-    }
-
-    stepshifter = StepshifterModel(hp_config, partitioner_dict)
-    stepshifter.fit(df)
-    # stepshifter.save('./model.pkl')
-
-    # train_t = time.time()
-    # minutes = (train_t - start_t) / 60
-    # print(f'Done training. Runtime: {minutes:.3f} minutes')
-
-    # stepshifter = pd.read_pickle('./model.pkl')
-    pred = stepshifter.predict(df)
-    # pred.to_parquet('pred.parquet')
-
-    # end_t = time.time()
-    # minutes = (end_t - train_t) / 60
-    # print(f'Done predicting. Runtime: {minutes:.3f} minutes')
-'''
-
+    return parameters

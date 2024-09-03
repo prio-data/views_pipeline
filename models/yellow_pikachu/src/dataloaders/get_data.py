@@ -15,7 +15,7 @@ def get_data(args):
     print("Getting data...")
     PATH_RAW, _, _ = setup_data_paths(PATH)
 
-    data, alerts = fetch_or_load_views_df(args.run_type, PATH_RAW, not args.update_data)
+    data, alerts = fetch_or_load_views_df(args.run_type, PATH_RAW, args.saved)
     print(f"DataFrame shape: {data.shape if data is not None else 'None'}")
 
     for ialert, alert in enumerate(str(alerts).strip('[').strip(']').split('Input')):

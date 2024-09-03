@@ -18,6 +18,9 @@ from views_forecasts.extensions import *
 
 
 def get_model(config):
+    '''
+    Get the model based on the algorithm specified in the config
+    '''
     if config["algorithm"] == "HurdleRegression":
         model = HurdleRegression(clf_name=config["model_clf"], reg_name=config["model_reg"],
                                  clf_params=config["parameters"]["clf"], reg_params=config["parameters"]["reg"])
@@ -43,10 +46,16 @@ def get_parameters(config):
 
 
 def get_standardized_df(df, config):
+    '''
+    Standardize the DataFrame based on the run type
+    '''
     run_type = config['run_type']
     steps = config['steps']
+    depvar = config['depvar']
+
+    # choose the columns to keep based on the run type and replace negative values with 0
     if run_type in ['calibration', 'testing']:
-        cols = [df.forecasts.target] + df.forecasts.prediction_columns
+        cols = [depvar] + df.forecasts.prediction_columns
     elif run_type == "forecasting":
         cols = [f'step_pred_{i}' for i in steps]
     df = df.replace([np.inf, -np.inf], 0)[cols]
@@ -72,12 +81,12 @@ def save_model_outputs(df_evaluation, df_output, PATH_GENERATED, config):
 def split_hurdle_parameters(parameters_dict):
     """
     Split the parameters dictionary into two separate dictionaries, one for the
-    classification model and one for the regression model. 
+    classification model and one for the regression model.
     """
 
     cls_dict = {}
     reg_dict = {}
-    
+
     for key, value in parameters_dict.items():
         if key.startswith('cls_'):
             cls_key = key.replace('cls_', '')
@@ -85,7 +94,7 @@ def split_hurdle_parameters(parameters_dict):
         elif key.startswith('reg_'):
             reg_key = key.replace('reg_', '')
             reg_dict[reg_key] = value
-            
+
     return cls_dict, reg_dict
 
 
@@ -99,7 +108,7 @@ def update_hp_config(hp_config, args, meta_config):
         hp_config['model_clf'] = meta_config['model_clf']
         hp_config['model_reg'] = meta_config['model_reg']
 
-        
+
 def update_sweep_config(sweep_config, args, meta_config):
     sweep_config['parameters']['run_type'] = {'value': args.run_type}
     sweep_config['parameters']['sweep'] = {'value': True}
