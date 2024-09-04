@@ -8,7 +8,7 @@ from set_path import setup_project_paths, setup_data_paths
 setup_project_paths(PATH)
 
 from utils import get_standardized_df
-from utils_wandb import generate_wandb_log_dict
+from utils_wandb import log_wandb_log_dict
 from utils_evaluation_metrics import generate_metric_dict
 
 
@@ -29,9 +29,4 @@ def evaluate_sweep(config, stepshift_model):
     wandb.log({'MSE': df['mse'].mean()})
 
     evaluation, df_evaluation = generate_metric_dict(df, config)
-    for t in steps:
-        log_dict = {}
-        log_dict["monthly/out_sample_month"] = t
-        step = f"step{str(t).zfill(2)}"
-        log_dict = generate_wandb_log_dict(log_dict, evaluation, step)
-        wandb.log(log_dict)
+    log_wandb_log_dict(config, evaluation)

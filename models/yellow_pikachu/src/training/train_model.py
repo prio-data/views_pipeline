@@ -1,7 +1,12 @@
 from datetime import datetime
 import pandas as pd
-from pathlib import Path
 
+import logging
+logging.basicConfig(filename='run.log', encoding='utf-8', level=logging.INFO,
+                    format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
+from pathlib import Path
 PATH = Path(__file__) 
 from set_path import setup_project_paths, setup_data_paths, setup_artifacts_paths
 setup_project_paths(PATH)
@@ -25,6 +30,7 @@ def train_model_artifact(config, model):
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         model_filename = f"{run_type}_model_{timestamp}.pkl"
         stepshift_model.save(PATH_ARTIFACTS / model_filename)
+        logger.info(f"Model saved at {PATH_ARTIFACTS / model_filename}")
     return stepshift_model
 
 

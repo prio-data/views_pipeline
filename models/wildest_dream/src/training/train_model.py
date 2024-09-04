@@ -1,7 +1,6 @@
 from datetime import datetime
 import pandas as pd
 from pathlib import Path
-
 PATH = Path(__file__) 
 from set_path import setup_project_paths, setup_data_paths, setup_artifacts_paths
 setup_project_paths(PATH)

@@ -1,7 +1,12 @@
 import sys
 import wandb
-from pathlib import Path
 
+import logging
+logging.basicConfig(filename='../../run.log', encoding='utf-8', level=logging.INFO,
+                    format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
+from pathlib import Path
 PATH = Path(__file__)
 sys.path.insert(0, str(Path(
     *[i for i in PATH.parts[:PATH.parts.index("views_pipeline") + 1]]) / "common_utils"))  # PATH_COMMON_UTILS
@@ -41,10 +46,10 @@ def execute_model_tasks(config=None, project=None, eval=None, forecast=None):
 
         # Handle the single model runs: evaluate a trained model (artifact)
         if eval:
-            print("Evaluating...")
+            logger.info("Evaluating...")
             evaluate_ensemble(config)
 
         if forecast:
-            print("Forecasting...")
+            logger.info("Forecasting...")
             forecast_ensemble(config)
 
