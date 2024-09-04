@@ -1,14 +1,4 @@
-from pathlib import Path
-import sys
 import wandb
-
-PATH = Path(__file__)
-sys.path.insert(0, str(Path(
-    *[i for i in PATH.parts[:PATH.parts.index("views_pipeline") + 1]]) / "common_utils"))  # PATH_COMMON_UTILS
-from set_path import setup_project_paths
-setup_project_paths(PATH)
-
-
 # there are things in other utils that should be here...
 
 def add_wandb_monthly_metrics():
@@ -90,3 +80,12 @@ def generate_wandb_log_dict(log_dict, dict_of_eval_dicts, step):
             log_dict[f"monthly/{key}"] = value
 
     return log_dict
+
+
+def log_wandb_log_dict(config, evaluation):
+    for t in config['steps']:
+        log_dict = {}
+        log_dict["monthly/out_sample_month"] = t
+        step = f"step{str(t).zfill(2)}"
+        log_dict = generate_wandb_log_dict(log_dict, evaluation, step)
+        wandb.log(log_dict)
