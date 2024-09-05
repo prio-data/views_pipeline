@@ -9,7 +9,7 @@ sys.path.insert(0, str(Path(
 from utils_cli_parser import parse_args, validate_arguments
 
 MODEL_DIR = PATH.parent.parent / "models"
-ENSEMBLE_DIR = PATH .parent.parent / "ensembles"
+ENSEMBLE_DIR = PATH.parent.parent / "ensembles"
 
 
 def initialize():
@@ -71,6 +71,9 @@ def model_execution_flow(run_type, sweep, train, evaluate, forecast, aggregation
     model_main_files, ensemble_main_files = initialize()
     if not aggregation:
         for main_file in model_main_files:
+            # These two models don't fit the current orchestration
+            if main_file.parent.name in ['abundant_abyss', 'purple_alien']:
+                continue
             run_model_script(main_file, main_file.parent.name,
                              run_type, sweep, train, evaluate, forecast,
                              saved, override_month)

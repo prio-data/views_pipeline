@@ -20,13 +20,18 @@ from set_partition import get_partitioner_dict
 from views_forecasts.extensions import *
 
 
-def create_log_file(PATH_GENERATED, config, data_generation_timestamp, data_fetch_timestamp=None):
+def create_log_file(PATH_GENERATED,
+                    config,
+                    model_timestamp,
+                    data_generation_timestamp=None,
+                    data_fetch_timestamp=None):
     """
     Creates a log file in the specified model-specific folder with details about the generated data.
 
     Args:
     - PATH_GENERATED (Path): The path to the folder where the log file will be created.
     - config (dict): The configuration dictionary containing the model details.
+    - model_timestamp (str): The timestamp when the model was trained.
     - data_generation_timestamp (str): The timestamp when the data was generated.
     - data_fetch_timestamp (str, optional): The timestamp when the raw data used was fetched from VIEWS.
     """
@@ -36,13 +41,12 @@ def create_log_file(PATH_GENERATED, config, data_generation_timestamp, data_fetc
 
     with open(log_file_path, 'w') as log_file:
         log_file.write(f"Model Name: {config['name']}\n")
-        log_file.write(f"Model Timestamp: {config['timestamp']}\n")
+        log_file.write(f"Model Timestamp: {model_timestamp}\n")
         log_file.write(f"Data Generation Timestamp: {data_generation_timestamp}\n")
-        if data_fetch_timestamp:
-            log_file.write(f"Data Fetch Timestamp: {data_fetch_timestamp}\n")
+        log_file.write(f"Data Fetch Timestamp: {data_fetch_timestamp}\n")
         log_file.write(f"Deployment Status: {config['deployment_status']}\n")
 
-    logger.info(f"Data log file created at: {log_file_path}")
+    logger.info(f"Model log file created at: {log_file_path}")
 
 
 def get_model(config):

@@ -51,4 +51,4 @@ def forecast_model_artifact(config, artifact_name):
     data_generation_timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
     save_predictions(df_predictions, PATH_GENERATED, config)
-    create_log_file(PATH_GENERATED, config, data_generation_timestamp)
+    create_log_file(PATH_GENERATED, config, config["timestamp"], data_generation_timestamp)

@@ -5,6 +5,7 @@ PATH = Path(__file__)
 from set_path import setup_project_paths, setup_data_paths, setup_artifacts_paths
 setup_project_paths(PATH)
 
+from utils import create_log_file
 from set_partition import get_partitioner_dict
 from views_forecasts.extensions import *
 from views_stepshifter_darts.stepshifter_darts import StepshifterModel
@@ -22,6 +23,7 @@ def train_model_artifact(config):
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         model_filename = f"{run_type}_model_{timestamp}.pkl"
         stepshift_model.save(PATH_ARTIFACTS / model_filename)
+        create_log_file(PATH_ARTIFACTS, config, timestamp)
     return stepshift_model
 
 

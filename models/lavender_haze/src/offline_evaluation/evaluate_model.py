@@ -64,4 +64,4 @@ def evaluate_model_artifact(config, artifact_name):
     log_wandb_log_dict(config, evaluation)
 
     save_model_outputs(df_evaluation, df_output, PATH_GENERATED, config)
-    create_log_file(PATH_GENERATED, config, data_generation_timestamp)
+    create_log_file(PATH_GENERATED, config, config["timestamp"], data_generation_timestamp)

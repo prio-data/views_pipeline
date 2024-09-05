@@ -55,25 +55,24 @@ def execute_model_tasks(config=None, project=None, train=None, eval=None, foreca
             config['parameters']['clf'], config['parameters']['reg'] = split_hurdle_parameters(config)
 
         model = get_model(config)
-        logger.info(model)
+        # logger.info(model)
 
         if config['sweep']:
-            logger.info("Sweeping...")
+            logger.info(f"Sweeping model {config['name']}...")
             stepshift_model = train_model_artifact(config, model)
-            logger.info("Evaluating...")
+            logger.info(f"Evaluating model {config['name']}...")
             evaluate_sweep(config, stepshift_model)
 
         # Handle the single model runs: train and save the model as an artifact
         if train:
-            logger.info("Training...")
+            logger.info(f"Training model {config['name']}...")
             train_model_artifact(config, model)
 
         # Handle the single model runs: evaluate a trained model (artifact)
         if eval:
-            logger.info("Evaluating...")
+            logger.info(f"Evaluating model {config['name']}...")
             evaluate_model_artifact(config, artifact_name)
 
         if forecast:
-            logger.info("Forecasting...")
+            logger.info(f"Forecasting model {config['name']}...")
             forecast_model_artifact(config, artifact_name)
-

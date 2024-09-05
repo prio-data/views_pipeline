@@ -18,7 +18,6 @@ def get_sweep_config():
 
     parameters_dict = {
         "n_estimators": {"values": [100, 200]},
-        "learning_rate": {"values": [0.05]},
         "n_jobs": {"values": [12]}
     }
 
