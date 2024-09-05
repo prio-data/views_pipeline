@@ -1,6 +1,6 @@
-# White Snow Model
+# White Mustang Model
 ## Overview
-This folder contains code for White Snow model, an ensemble machine learning model designed for predicting fatalities. 
+This folder contains code for White Mustang model, an ensemble machine learning model designed for predicting fatalities. 
 
 The model utilizes **latest** Lavender Haze (Hurdle Model LGBMClassifier+LGBMRegressor) and **latest** Blank Space (Hurdle Model LGBMClassifier+LGBMRegressor) for its predictions and is on pgm level of analysis.
 
@@ -8,7 +8,7 @@ The model uses log fatalities.
 
 ## Repository Structure
 ```
-white_snow/ # should follow the naming convention adjective_noun
+white_mustang/ # should follow the naming convention adjective_noun
 |-- README.md
 |-- requirements.txt
 |

@@ -35,9 +35,11 @@ def check_model_conditions(PATH_GENERATED, config):
 
     # Extract timestamps from log data
     model_timestamp = datetime.strptime(log_data["Model Timestamp"], "%Y%m%d_%H%M%S")
-    data_generation_timestamp = datetime.strptime(log_data["Data Generation Timestamp"], "%Y%m%d_%H%M%S")
-    data_fetch_timestamp = datetime.strptime(log_data["Data Fetch Timestamp"],
-                                             "%Y%m%d_%H%M%S") if "Data Fetch Timestamp" in log_data else None
+    data_generation_timestamp = None if log_data["Data Generation Timestamp"] == 'None' else (
+        datetime.strptime(log_data["Data Generation Timestamp"], "%Y%m%d_%H%M%S"))
+
+    data_fetch_timestamp = None if log_data["Data Fetch Timestamp"] == 'None' else (
+        datetime.strptime(log_data["Data Fetch Timestamp"], "%Y%m%d_%H%M%S"))
 
     # Condition 1: Model trained in the current year after July
     if current_month >= 7:
@@ -55,7 +57,8 @@ def check_model_conditions(PATH_GENERATED, config):
             return False
 
     # Condition 2: Data generated in the current month
-    if not (data_generation_timestamp.year == current_year and data_generation_timestamp.month == current_month):
+    if data_generation_timestamp and not (
+            data_generation_timestamp.year == current_year and data_generation_timestamp.month == current_month):
         logger.error(f"Data for model '{log_data['Model Name']}' was not generated in the current month. Exiting.")
         return False
 
@@ -92,7 +95,6 @@ def check_model_deployment_status(PATH_GENERATED, config):
     return True
 
 
-
 def ensemble_model_check(config):
     """
     Performs the ensemble model check based on the log files of individual models.
@@ -113,5 +115,4 @@ def ensemble_model_check(config):
                 (not check_model_deployment_status(PATH_GENERATED, config))
         ):
             exit(1)  # Shut down if conditions are not met
-        else:
-            logger.info(f"Model '{model}' meets the required conditions.")
+    logger.info(f"Model {config['name']} meets the required conditions.")
