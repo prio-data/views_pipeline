@@ -19,7 +19,7 @@ def execute_single_run(args):
     dp_config = get_deployment_config()
     hp_config = get_hp_config()
     meta_config = get_meta_config()
-    config = update_config(hp_config, meta_config, dp_config)
+    config = update_config(hp_config, meta_config, dp_config, args)
 
     ensemble_model_check(config)
 

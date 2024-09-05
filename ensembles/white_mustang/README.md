@@ -8,7 +8,6 @@ The model uses log fatalities.
 
 ## Repository Structure
 ```
-
 white_snow/ # should follow the naming convention adjective_noun
 |-- README.md
 |-- requirements.txt
@@ -24,7 +23,6 @@ white_snow/ # should follow the naming convention adjective_noun
 |-- data/ # all input, processed, output data
 |    |-- generated/ # Data generated - i.e. forecast/ evaluation
 |    |-- processed/ # Data processed
-|    |-- raw/ # Data directly from VIEiWSER
 |
 |-- notebooks/
 |
@@ -49,14 +47,9 @@ white_snow/ # should follow the naming convention adjective_noun
     |-- offline_evaluation/ # aka offline quality assurance
     |   |-- evaluate_ensemble.py # script to evaluate an ensemble model
     |
-    |-- online_evaluation/
-    |
-    |-- training/
-    |   |-- train_model.py
-    |
     |-- utils/ # functions and classes 
-    |   |-- utils.py # a general utils function
-    |   |-- utils_wandb.py # a w&b specific utils function  
+    |   |-- utils.py # general util functions
+    |   |-- utils_check.py # util functions for check ensemble models
     | 
     |-- visualization/ # scripts to create visualizations
         |-- visual.py 

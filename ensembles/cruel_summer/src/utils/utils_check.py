@@ -34,35 +34,38 @@ def check_model_conditions(PATH_GENERATED, config):
     current_month = current_time.month
 
     # Extract timestamps from log data
-    model_timestamp = datetime.strptime(log_data["Model Timestamp"], "%Y-%m-%d_%H:%M:%S")
-    data_generation_timestamp = datetime.strptime(log_data["Data Generation Timestamp"], "%Y-%m-%d_%H:%M:%S")
-    data_fetch_timestamp = datetime.strptime(log_data["Data Fetch Timestamp"],
-                                             "%Y-%m-%d_%H:%M:%S") if "Data Fetch Timestamp" in log_data else None
+    model_timestamp = datetime.strptime(log_data["Model Timestamp"], "%Y%m%d_%H%M%S")
+    data_generation_timestamp = None if log_data["Data Generation Timestamp"] == 'None' else (
+        datetime.strptime(log_data["Data Generation Timestamp"], "%Y%m%d_%H%M%S"))
+
+    data_fetch_timestamp = None if log_data["Data Fetch Timestamp"] == 'None' else (
+        datetime.strptime(log_data["Data Fetch Timestamp"], "%Y%m%d_%H%M%S"))
 
     # Condition 1: Model trained in the current year after July
     if current_month >= 7:
         if not (model_timestamp.year == current_year and model_timestamp.month >= 7):
-            logger.warning(f"Model '{log_data['Model Name']}' was trained in {model_timestamp.year}_{model_timestamp.month}. "
-                           f"Please use the latest model that is trained after {current_year}_07. Exiting.")
+            logger.error(f"Model '{log_data['Model Name']}' was trained in {model_timestamp.year}_{model_timestamp.month}. "
+                         f"Please use the latest model that is trained after {current_year}_07. Exiting.")
             return False
     elif current_month < 7:
         if not (
                 (model_timestamp.year == current_year - 1 and model_timestamp.month >= 7) or
                 (model_timestamp.year == current_year and model_timestamp.month < 7)
         ):
-            logger.warning(f"Model '{log_data['Model Name']}' was trained in {model_timestamp.year}_{model_timestamp.month}. "
-                           f"Please use the latest model that is trained after {current_year - 1}_07. Exiting.")
+            logger.error(f"Model '{log_data['Model Name']}' was trained in {model_timestamp.year}_{model_timestamp.month}. "
+                         f"Please use the latest model that is trained after {current_year - 1}_07. Exiting.")
             return False
 
     # Condition 2: Data generated in the current month
-    if not (data_generation_timestamp.year == current_year and data_generation_timestamp.month == current_month):
-        logger.warning(f"Data for model '{log_data['Model Name']}' was not generated in the current month. Exiting.")
+    if data_generation_timestamp and not (
+            data_generation_timestamp.year == current_year and data_generation_timestamp.month == current_month):
+        logger.error(f"Data for model '{log_data['Model Name']}' was not generated in the current month. Exiting.")
         return False
 
     # Condition 3: Raw data fetched in the current month (if implemented)
     if data_fetch_timestamp and not (
             data_fetch_timestamp.year == current_year and data_fetch_timestamp.month == current_month):
-        logger.warning(f"Raw data for model '{log_data['Model Name']}' was not fetched in the current month. Exiting.")
+        logger.error(f"Raw data for model '{log_data['Model Name']}' was not fetched in the current month. Exiting.")
         return False
 
     return True
@@ -85,12 +88,11 @@ def check_model_deployment_status(PATH_GENERATED, config):
 
     ## More check conditions can be added here
     if model_dp_status == "Deployed" and config["deployment_status"] != "Deployed":
-        logger.warning(f"Model '{log_data['Model Name']}' deployment status is deployed "
-                       f"but the ensemble is not. Exiting.")
+        logger.error(f"Model '{log_data['Model Name']}' deployment status is deployed "
+                     f"but the ensemble is not. Exiting.")
         return False
 
     return True
-
 
 
 def ensemble_model_check(config):
@@ -113,5 +115,4 @@ def ensemble_model_check(config):
                 (not check_model_deployment_status(PATH_GENERATED, config))
         ):
             exit(1)  # Shut down if conditions are not met
-        else:
-            logger.info(f"Model '{config['name']}' meets the required conditions.")
+    logger.info(f"Model {config['name']} meets the required conditions.")

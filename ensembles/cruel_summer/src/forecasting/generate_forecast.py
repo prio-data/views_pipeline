@@ -16,7 +16,7 @@ from set_path import setup_project_paths, setup_data_paths, setup_artifacts_path
 setup_project_paths(PATH)
 
 from set_partition import get_partitioner_dict
-from utils import get_standardized_df, get_aggregated_df, save_predictions
+from utils import get_standardized_df, get_aggregated_df, save_predictions, create_log_file
 from utils_artifacts import get_latest_model_artifact
 
 
@@ -28,7 +28,7 @@ def forecast_ensemble(config):
     timestamp = ''
 
     for model in config["models"]:
-        logger.info(f"Single model {model}...")
+        logger.info(f"Forecasting single model {model}...")
 
         PATH_MODEL = PATH_MODELS / model
         PATH_RAW, _, PATH_GENERATED = setup_data_paths(PATH_MODEL)
@@ -54,8 +54,10 @@ def forecast_ensemble(config):
             df = get_standardized_df(df, config)
         dfs.append(df)
     df_prediction = get_aggregated_df(dfs, config["aggregation"])
+    data_generation_timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
     # I don't think current timestamp is useful here.
     # Timestamp of single models is more important but how should we register them in ensemble config?
     config["timestamp"] = timestamp[:-1]
     save_predictions(df_prediction, config, PATH_GENERATED_E)
+    create_log_file(PATH_GENERATED_E, config, data_generation_timestamp)

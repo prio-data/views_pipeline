@@ -46,10 +46,9 @@ def execute_model_tasks(config=None, project=None, eval=None, forecast=None):
 
         # Handle the single model runs: evaluate a trained model (artifact)
         if eval:
-            logger.info("Evaluating...")
+            logger.info(f"Evaluating ensemble model {config['name']}...")
             evaluate_ensemble(config)
 
         if forecast:
-            logger.info("Forecasting...")
+            logger.info(f"Forecasting ensemble model {config['name']}...")
             forecast_ensemble(config)
-

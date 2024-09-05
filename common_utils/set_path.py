@@ -43,7 +43,7 @@ def setup_model_paths(PATH):
 def setup_ensemble_paths(PATH):
     """
     Extracts and returns the model-specific path (pathlib path object) including the "ensembles" directory and its immediate subdirectory.
-    This function identifies the "ensembles" (e.g. white_snow) directory within the provided path and constructs a new path up to and including the next subdirectory after "models".
+    This function identifies the "ensembles" (e.g. white_mustang) directory within the provided path and constructs a new path up to and including the next subdirectory after "models".
     This is useful for setting up paths specific to a model within the project.
 
     Args:

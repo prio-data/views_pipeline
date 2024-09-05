@@ -7,8 +7,8 @@ def get_meta_config():
     - meta_config (dict): A dictionary containing model meta configuration.
     """
     meta_config = {
-        "name": "white_snow",
-        "models": ["lavender_haze", "blank_space"],
+        "name": "cruel_summer",
+        "models": ["lavender_haze", "blank_space", "wildest_dream"],
         "depvar": "ln_ged_sb_dep",  # Double-check the target variables of each model
         "level": "pgm",
         "creator": "Xiaolong"
