@@ -10,7 +10,7 @@ def get_deployment_config():
 
     # More deployment settings can/will be added here
     deployment_config = {
-       "deployment_status": "shadow", # shadow, deployed, baseline, or deprecated
+       "deployment_status": "deployed", # shadow, deployed, baseline, or deprecated
     }
 
     return deployment_config

@@ -62,7 +62,3 @@ def evaluate_ensemble(config):
     config["timestamp"] = timestamp[:-1]
     save_model_outputs(df_evaluation, df_output, PATH_GENERATED_E, config)
     create_log_file(PATH_GENERATED_E, config, data_generation_timestamp)
-
-
-
-

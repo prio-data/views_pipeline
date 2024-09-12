@@ -47,11 +47,8 @@ def parse_args():
                              'If not provided, the latest artifact will be used by default.')
 
     parser.add_argument('-ag', '--aggregation',
-                        # To do: considering weighted average
-                        choices=['mean', 'median'],
-                        default=None,
-                        help='Method to aggregate the model outputs to produce an ensemble. '
-                             'Options are: mean or median. No default aggregation method is set; the user must specify one.')
+                        action='store_true',
+                        help='Flag to indicate if the model outputs should be aggregated, i.e., if the model is an ensemble.' )
 
     parser.add_argument('-sa', '--saved',
                         action='store_true',

@@ -11,6 +11,7 @@ def get_meta_config():
         "models": ["lavender_haze", "blank_space", "wildest_dream"],
         "depvar": "ln_ged_sb_dep",  # Double-check the target variables of each model
         "level": "pgm",
+        "aggregation": "median",
         "creator": "Xiaolong"
     }
     return meta_config

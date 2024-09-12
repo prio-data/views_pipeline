@@ -48,10 +48,10 @@ def run_model_script(script_path, name, run_type, sweep, train, evaluate, foreca
 
 
 @task(task_run_name="{name}")
-def run_ensemble_script(script_path, name, run_type, evaluate, forecast, aggregation):
+def run_ensemble_script(script_path, name, run_type, evaluate, forecast):
     cli_args = []
     cli_args.extend(["--run_type", run_type])
-    cli_args.extend(["--aggregation", aggregation])
+    cli_args.append("--aggregation")
     
     if evaluate:
         cli_args.append("--evaluate")
@@ -79,7 +79,7 @@ def model_execution_flow(run_type, sweep, train, evaluate, forecast, aggregation
                              saved, override_month)
     else:
         for ensemble_file in ensemble_main_files:
-            run_ensemble_script(ensemble_file, ensemble_file.parent.name, run_type, evaluate, forecast, aggregation)
+            run_ensemble_script(ensemble_file, ensemble_file.parent.name, run_type, evaluate, forecast)
 
 
 if __name__ == "__main__":

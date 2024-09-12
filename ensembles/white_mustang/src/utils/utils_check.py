@@ -62,7 +62,7 @@ def check_model_conditions(PATH_GENERATED, config):
         logger.error(f"Data for model '{log_data['Model Name']}' was not generated in the current month. Exiting.")
         return False
 
-    # Condition 3: Raw data fetched in the current month (if implemented)
+    # Condition 3: Raw data fetched in the current month
     if data_fetch_timestamp and not (
             data_fetch_timestamp.year == current_year and data_fetch_timestamp.month == current_month):
         logger.error(f"Raw data for model '{log_data['Model Name']}' was not fetched in the current month. Exiting.")
