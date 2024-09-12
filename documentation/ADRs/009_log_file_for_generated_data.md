@@ -5,7 +5,7 @@
 |---------------------|-----------------------------|
 | Subject             | Log file for generated data |
 | ADR Number          | 009                         |
-| Status              | Proposed                    |
+| Status              | Accepted                    |
 | Author              | Xiaolong                    |
 | Date                | 09.09.2024                  |
 

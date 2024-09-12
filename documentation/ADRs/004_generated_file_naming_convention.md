@@ -1,13 +1,13 @@
-# Prediction File Naming Convention
+# Generated File Naming Convention
 
 
-| ADR Info            | Details                           |
-|---------------------|-----------------------------------|
-| Subject             | Prediction file naming convention |
-| ADR Number          | 010                               |
-| Status              | Accepted                          |
-| Author              | Xiaolong                          |
-| Date                | 11.09.2024                        |
+| ADR Info            | Details                          |
+|---------------------|----------------------------------|
+| Subject             | Generated file naming convention |
+| ADR Number          | 004                              |
+| Status              | Accepted                         |
+| Author              | Xiaolong                         |
+| Date                | 11.09.2024                       |
 
 ## Context
 In the context of the VIEWS pipeline, a standardized naming convention is required to ensure consistency, traceability, and clarity. 
@@ -15,15 +15,7 @@ This is particularly important for managing prediction versions, tracking when p
 
 
 ## Decision
-### 1. Artifact naming convention (not model naming convention)
-The naming convention for a **single** model artifact will follow this structure:
-```
-<run_type>_model_<timestamp>.pkl
-```
-- run_type: The type of run (e.g., calibration, testing, forecasting).
-- timestamp: The timestamp when the model was trained. The format is`YYYYMMDD_HHMMSS`.
-
-### 2. Prediction naming convention
+### 1. Prediction naming convention
 The prediction naming convention for using a single model will follow this structure:
 ```
 prediction_<max_forecast_step>_<timestamp>.pkl
@@ -40,7 +32,16 @@ prediction_<max_forecast_step>_<model_name_1><timestamp_1>_<model_name2><timesta
 - model_name: The name of the model used for the ensemble prediction.
 - timestamp: The timestamp when the model was trained. The format is`YYYYMMDD_HHMMSS`.
 
-### 3. Evaluation/ Output naming convention
+### 2. Artifact naming convention (not model naming convention)
+The naming convention for a **single** model artifact will follow this structure:
+```
+<run_type>_model_<timestamp>.pkl
+```
+- run_type: The type of run (e.g., calibration, testing, forecasting).
+- timestamp: The timestamp when the model was trained. The format is`YYYYMMDD_HHMMSS`.
+
+
+### 3. Evaluation/Output naming convention
 The evaluation/output naming convention for using a single model will follow this structure:
 ```
 <evaluation/output>_<max_forecast_step>_<run_type>_<timestamp>.pkl
