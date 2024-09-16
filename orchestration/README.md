@@ -26,11 +26,11 @@ models or ensemble models**, which is decided by whether the argument '--aggrega
 
 If you want to train and evaluate all the single models, you can run the following command:
 ```bash
-python orchestration.py --run_type <run_type> --training --evaluation  
+python orchestration.py --run_type <run_type> --train --evaluate 
 ```
 If you want to train and evaluate all the ensemble models, you can run the following command:
 ```bash
-python orchestration.py --run_type <run_type> --training --evaluation --aggregation 
+python orchestration.py --run_type <run_type> --train --evaluate --aggregation 
 ```
 
 The progress of the pipeline execution will be logged online on Prefect.
