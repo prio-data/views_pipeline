@@ -5,7 +5,7 @@ PATH = Path(__file__)
 from set_path import setup_project_paths, setup_data_paths, setup_artifacts_paths
 setup_project_paths(PATH)
 
-from utils import create_log_file
+from utils_log_files import create_log_file
 from set_partition import get_partitioner_dict
 from stepshift.views import StepshiftedModels
 from views_forecasts.extensions import *

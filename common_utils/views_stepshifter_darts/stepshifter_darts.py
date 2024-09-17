@@ -118,7 +118,7 @@ def get_parameters(config):
     Get the parameters from the config file.
     If not sweep, then get directly from the config file, otherwise have to remove some parameters.
 
-    This function is also in utils.py, but I think model-related functions should be in the same file
+    This function is also in utils_run.py, but I think model-related functions should be in the same file
     '''
 
     if config["sweep"]:

@@ -15,7 +15,9 @@ from set_path import setup_project_paths, setup_data_paths, setup_artifacts_path
 setup_project_paths(PATH)
 
 from set_partition import get_partitioner_dict
-from utils import get_standardized_df, save_predictions, create_log_file
+from utils_log_files import create_log_file
+from utils_run import get_standardized_df
+from utils_outputs import save_predictions
 from utils_artifacts import get_latest_model_artifact
 
 

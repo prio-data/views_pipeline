@@ -1,12 +1,6 @@
 import sys
 import numpy as np
 from darts.models import LightGBMModel, XGBModel
-import pickle
-
-import logging
-logging.basicConfig(filename='../../run.log', encoding='utf-8', level=logging.INFO,
-                    format='%(asctime)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
 
 from pathlib import Path
 PATH = Path(__file__)
@@ -16,37 +10,7 @@ from set_path import setup_project_paths
 setup_project_paths(PATH)
 
 from hurdle_model import HurdleRegression
-from set_partition import get_partitioner_dict
 from views_forecasts.extensions import *
-
-
-def create_log_file(PATH_GENERATED,
-                    config,
-                    model_timestamp,
-                    data_generation_timestamp=None,
-                    data_fetch_timestamp=None):
-    """
-    Creates a log file in the specified model-specific folder with details about the generated data.
-
-    Args:
-    - PATH_GENERATED (Path): The path to the folder where the log file will be created.
-    - config (dict): The configuration dictionary containing the model details.
-    - model_timestamp (str): The timestamp when the model was trained.
-    - data_generation_timestamp (str): The timestamp when the data was generated.
-    - data_fetch_timestamp (str, optional): The timestamp when the raw data used was fetched from VIEWS.
-    """
-
-    Path(PATH_GENERATED).mkdir(parents=True, exist_ok=True)
-    log_file_path = f"{PATH_GENERATED}/{config['run_type']}_log.txt"
-
-    with open(log_file_path, 'w') as log_file:
-        log_file.write(f"Model Name: {config['name']}\n")
-        log_file.write(f"Model Timestamp: {model_timestamp}\n")
-        log_file.write(f"Data Generation Timestamp: {data_generation_timestamp}\n")
-        log_file.write(f"Data Fetch Timestamp: {data_fetch_timestamp}\n")
-        log_file.write(f"Deployment Status: {config['deployment_status']}\n")
-
-    logger.info(f"Model log file created at: {log_file_path}")
 
 
 def get_model(config):
@@ -96,31 +60,6 @@ def get_standardized_df(df, config):
     df = df.replace([np.inf, -np.inf], 0)[cols]
     df = df.mask(df < 0, 0)
     return df
-
-
-def save_model_outputs(df_evaluation, df_output, PATH_GENERATED, config):
-    Path(PATH_GENERATED).mkdir(parents=True, exist_ok=True)
-
-    # Save the DataFrame of model outputs
-    outputs_path = f"{PATH_GENERATED}/output_{config['steps'][-1]}_{config['run_type']}_{config['timestamp']}.pkl"
-    with open(outputs_path, 'wb') as file:
-        pickle.dump(df_output, file)
-    logger.info(f"Model outputs saved at: {outputs_path}")
-
-    # Save the DataFrame of evaluation metrics
-    evaluation_path = f"{PATH_GENERATED}/evaluation_{config['steps'][-1]}_{config['run_type']}_{config['timestamp']}.pkl"
-    with open(evaluation_path, 'wb') as file:
-        pickle.dump(df_evaluation, file)
-    logger.info(f"Evaluation metrics saved at: {evaluation_path}")
-
-
-def save_predictions(df_predictions, PATH_GENERATED, config):
-    Path(PATH_GENERATED).mkdir(parents=True, exist_ok=True)
-
-    predictions_path = f"{PATH_GENERATED}/predictions_{config['steps'][-1]}_{config['timestamp']}.pkl"
-    with open(predictions_path, 'wb') as file:
-        pickle.dump(df_predictions, file)
-    logger.info(f"Predictions saved at: {predictions_path}")
 
 
 def split_hurdle_parameters(parameters_dict):

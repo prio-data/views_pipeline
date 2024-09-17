@@ -17,7 +17,7 @@ from evaluate_model import evaluate_model_artifact
 from evaluate_sweep import evaluate_sweep
 from generate_forecast import forecast_model_artifact
 from train_model import train_model_artifact
-from utils import get_model, split_hurdle_parameters
+from utils_run import get_model, split_hurdle_parameters
 from utils_wandb import add_wandb_monthly_metrics
 
 

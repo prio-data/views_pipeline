@@ -2,12 +2,10 @@ import sys
 import wandb
 
 from pathlib import Path
-
 PATH = Path(__file__)
 sys.path.insert(0, str(Path(
     *[i for i in PATH.parts[:PATH.parts.index("views_pipeline") + 1]]) / "common_utils"))  # PATH_COMMON_UTILS
 from set_path import setup_project_paths
-
 setup_project_paths(PATH)
 
 from config_deployment import get_deployment_config
@@ -16,7 +14,7 @@ from config_meta import get_meta_config
 from config_sweep import get_sweep_config
 from execute_model_tasks import execute_model_tasks
 from get_data import get_data
-from utils import update_config, update_sweep_config
+from utils_run import update_config, update_sweep_config
 
 
 def execute_sweep_run(args):

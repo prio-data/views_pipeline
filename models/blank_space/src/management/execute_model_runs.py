@@ -14,7 +14,7 @@ from config_meta import get_meta_config
 from config_sweep import get_sweep_config
 from execute_model_tasks import execute_model_tasks
 from get_data import get_data
-from utils import update_config, update_sweep_config
+from utils_run import update_config, update_sweep_config
 
 
 def execute_sweep_run(args):

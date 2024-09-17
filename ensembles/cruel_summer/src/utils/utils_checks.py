@@ -86,7 +86,7 @@ def check_model_deployment_status(PATH_GENERATED, config):
 
     model_dp_status = log_data["Deployment Status"]
 
-    ## More check conditions can be added here
+    # More check conditions can be added here
     if model_dp_status == "Deployed" and config["deployment_status"] != "Deployed":
         logger.error(f"Model '{log_data['Model Name']}' deployment status is deployed "
                      f"but the ensemble is not. Exiting.")
