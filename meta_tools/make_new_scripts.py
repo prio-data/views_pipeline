@@ -7,6 +7,56 @@ from utils import model_naming
 
 
 class ModelScriptBuilder:
+    """
+    A class to build and manage Python scripts for machine learning model deployment and evaluation.
+
+    Attributes:
+        model_name (str): The name of the model which determines the directory structure and script names.
+        model_dir (Path): The path to the model directory where scripts are saved.
+        architecture (str): The architecture of the model, set during script generation.
+        obligatory_scripts (list of str): List of paths to the obligatory scripts that should be present in the model directory.
+        current_dir (Path): The current working directory from which the script is run.
+        relative_path (str): The relative path to the `models` directory.
+        models_dir (Path): The path to the `models` directory where all model directories are stored.
+
+    Methods:
+        __init__(model_name: str):
+            Initializes the ModelScriptBuilder with the provided model name, setting up the paths and attributes.
+
+        _save_script(output_file: Path, code: str) -> bool:
+            Saves and compiles a Python script to the specified file location.
+
+        _gen_config_deployment(deployment_type: str = "shadow", additional_settings: dict = None) -> bool:
+            Generates a deployment configuration script based on the deployment type and additional settings.
+
+        _gen_config_hyperparameters(model_architecture: str) -> bool:
+            Generates a hyperparameters configuration script based on the model architecture.
+
+        _gen_config_input_data() -> bool:
+            Generates a configuration script for input data using the `viewser` library.
+
+        _gen_config_meta() -> bool:
+            Generates a meta configuration script containing model metadata.
+
+        _gen_config_sweep() -> bool:
+            Generates a configuration script for hyperparameter sweeps using Weights & Biases (wandb).
+
+        _gen_dataloaders_get_data() -> bool:
+            Generates a script for data loading functionality.
+
+        _gen_main() -> bool:
+            Generates the main execution script for running the model.
+
+        _check_if_model_dir_exists() -> bool:
+            Checks if the model directory exists.
+
+        build():
+            Builds all required scripts if the model directory exists, and prompts the user for model architecture.
+
+        assess() -> dict:
+            Assesses the model directory to check for the presence of all obligatory scripts and returns the results.
+    """
+
     def __init__(self, model_name: str):
         self.model_name = model_name
         self.model_dir = Path(self.model_name)
