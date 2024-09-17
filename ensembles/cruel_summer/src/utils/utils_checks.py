@@ -13,7 +13,7 @@ sys.path.insert(0, str(Path(
 from set_path import setup_project_paths, setup_data_paths, setup_root_paths
 setup_project_paths(PATH)
 
-from utils import read_log_file
+from utils_log_files import read_log_file
 
 def check_model_conditions(PATH_GENERATED, config):
     """

@@ -16,7 +16,9 @@ from set_path import setup_project_paths, setup_data_paths, setup_artifacts_path
 setup_project_paths(PATH)
 
 from set_partition import get_partitioner_dict
-from utils import get_standardized_df, get_aggregated_df, save_predictions, create_log_file
+from utils_log_files import create_log_file
+from utils_outputs import save_predictions
+from utils_run import get_standardized_df, get_aggregated_df
 from utils_artifacts import get_latest_model_artifact
 
 
@@ -28,7 +30,7 @@ def forecast_ensemble(config):
     timestamp = ''
 
     for model in config["models"]:
-        logger.info(f"Forecasting single model {model}...")
+        logger.info(f"Running single model {model}...")
 
         PATH_MODEL = PATH_MODELS / model
         PATH_RAW, _, PATH_GENERATED = setup_data_paths(PATH_MODEL)

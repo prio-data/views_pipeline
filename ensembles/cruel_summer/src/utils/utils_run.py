@@ -1,20 +1,10 @@
-import sys
 import numpy as np
-import pickle
+from views_forecasts.extensions import *
 
 import logging
 logging.basicConfig(filename='../../run.log', encoding='utf-8', level=logging.INFO,
                     format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
-
-from pathlib import Path
-PATH = Path(__file__)
-sys.path.insert(0, str(Path(
-    *[i for i in PATH.parts[:PATH.parts.index("views_pipeline") + 1]]) / "common_utils"))  # PATH_COMMON_UTILS
-from set_path import setup_project_paths
-setup_project_paths(PATH)
-
-from views_forecasts.extensions import *
 
 
 def get_standardized_df(df, config):
@@ -60,31 +50,6 @@ def get_aggregated_df(dfs, aggregation):
         return pd.concat(dfs).groupby(level=[0, 1]).median()
     else:
         logger.error(f"Invalid aggregation: {aggregation}")
-
-
-def save_model_outputs(df_evaluation, df_output, PATH_GENERATED, config):
-    Path(PATH_GENERATED).mkdir(parents=True, exist_ok=True)
-
-    # Save the DataFrame of model outputs
-    outputs_path = f'{PATH_GENERATED}/output_{config.steps[-1]}_{config.run_type}_{config.timestamp}.pkl'
-    with open(outputs_path, 'wb') as file:
-        pickle.dump(df_output, file)
-    logger.info(f"Model outputs saved at: {outputs_path}")
-
-    # Save the DataFrame of evaluation metrics
-    evaluation_path = f'{PATH_GENERATED}/evaluation_{config.steps[-1]}_{config.run_type}_{config.timestamp}.pkl'
-    with open(evaluation_path, 'wb') as file:
-        pickle.dump(df_evaluation, file)
-    logger.info(f"Evaluation metrics saved at: {evaluation_path}")
-
-
-def save_predictions(df_predictions, PATH_GENERATED, config):
-    Path(PATH_GENERATED).mkdir(parents=True, exist_ok=True)
-
-    predictions_path = f"{PATH_GENERATED}/predictions_{config['steps'][-1]}_{config['timestamp']}.pkl"
-    with open(predictions_path, 'wb') as file:
-        pickle.dump(df_predictions, file)
-    logger.info(f"Predictions saved at: {predictions_path}")
 
 
 def update_config(hp_config, meta_config, dp_config, args):
