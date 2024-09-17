@@ -7,7 +7,7 @@
    - Pull the latest changes to make sure your branch is up to date, preventing conflicts and ensuring you're working with the current version of the codebase.
 
 2. **Create a new branch for each specific task.**
-   - In the Source Control panel, create a new branch with a clear and descriptive name. 
+   - Create a new branch with a clear and descriptive name. 
    - Use a consistent naming convention such as `feature/short-description` or `bugfix/issue-number` to reflect the task you’re working on.
 
 ## Keep Branch Scope Focused
@@ -20,7 +20,7 @@
 
 4. **Commit frequently and with clear messages.**
    - Each commit should represent a logical chunk of work. Commit often, but ensure your changes are relevant and cohesive.
-   - Avoid bundling unrelated changes in a single commit. Write clear, descriptive commit messages that explain what has changed (e.g., `Add validation for user email field`).
+   - Avoid bundling unrelated changes in a single commit. Write clear, descriptive commit messages that explain what has changed.
 
 ## Keeping Your Branch Up to Date
 
@@ -57,7 +57,7 @@
     - If changes are requested, commit the updates to the same branch and resubmit for review.
 
 11. **Do not merge the PR yourself unless explicitly allowed.**
-    - PRs should be merged by a designated maintainer or team lead. 
+    - PRs should be merged by a designated reviewer or team lead. 
     - They will ensure that all checks pass, no conflicts remain, and that the PR is ready to be integrated into the codebase.
 
 ## Closing the Branch
