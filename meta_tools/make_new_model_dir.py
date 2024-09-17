@@ -43,7 +43,7 @@ class ModelDirectoryBuilder:
 
         self.current_dir = Path.cwd()
         self.relative_path = "models"
-
+        self.model_name = model_name
         # TODO: Fix this
         # If the current directory is not the root directory, go up one level and append "models"
         if self.current_dir.match('*meta_tools'):
@@ -99,7 +99,7 @@ class ModelDirectoryBuilder:
         readme_path = self.model_dir / "README.md"
         with open(readme_path, "w") as readme_file:
             readme_file.write(
-                f"# Model README\n ## Created on: {str(datetime.datetime.now())}")
+                f"# Model README\n## Model name: {self.model_name}\n## Created on: {str(datetime.datetime.now())}")
         print(f"Created README.md: {readme_path}")
 
         requirements_path = self.model_dir / "requirements.txt"
