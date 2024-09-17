@@ -403,7 +403,19 @@ if __name__ == "__main__":
         return self._save_script(
             self.model_dir / "main.py", code)
 
+    def _check_if_model_dir_exists(self):
+        """
+        Checks if the model directory already exists.
+
+        Returns:
+        bool: True if the model directory exists, False otherwise.
+        """
+        return self.model_dir.exists()
+
     def build(self):
+        if not self._check_if_model_dir_exists():
+            raise FileNotFoundError(
+                f"Model directory {self.model_dir} does not exist. Please run the `make_new_model_dir.py` script first. Aborting script generation.")
         self._gen_config_deployment()
         self.model_architecture = input(
             "Enter the architecture of the model: ")
