@@ -74,7 +74,7 @@ class ModelDirectoryBuilder:
         else:
             self.models_dir = self.current_dir / self.relative_path
 
-        self.model_dir = self.models_dir / model_name
+        self.model_dir = self.models_dir / self.model_name
 
         # self.model_path = Path(f'../models/{self.model_dir}')
 
