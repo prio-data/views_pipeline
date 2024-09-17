@@ -5,15 +5,38 @@ import datetime
 
 class ModelDirectoryBuilder:
     """
-    Class to manage the creation and assessment of model directories for organizing machine learning projects.
+    A class to create and manage the directory structure for a machine learning model.
 
     Attributes:
-        expected_structure (list of str): List of directories and files that are expected in the model directory structure.
-        current_dir (Path): The current working directory when the object is initialized.
-        relative_path (str): The relative path where the model directories will be created.
-        models_dir (Path): The path where model directories will be stored.
-        model_dir (Path): The specific path for the current model's directory.
-        subdirs (list of str): List of subdirectories to be created within the model directory.
+        expected_structure (list of str): A list of expected directories to be created within the model directory.
+        current_dir (Path): The current working directory from which the script is run.
+        relative_path (str): The relative path to the `models` directory.
+        model_name (str): The name of the model for which the directory structure is to be created.
+        models_dir (Path): The path to the `models` directory where all model directories are stored.
+        model_dir (Path): The path to the model directory where the structure and files will be created.
+        subdirs (list of str): A list of subdirectories to be created within the model directory.
+
+    Methods:
+        __init__(model_name: str) -> None:
+            Initializes the ModelDirectoryBuilder with the given model name and sets up paths.
+
+        build() -> Path:
+            Creates the model directory and its subdirectories, and initializes necessary files such as README.md 
+            and requirements.txt.
+
+            Returns:
+                Path: The path to the created model directory.
+
+            Raises:
+                FileExistsError: If the model directory already exists.
+
+        assess() -> dict:
+            Assesses the model directory by checking for the presence of expected directories.
+
+            Returns:
+                dict: A dictionary containing assessment results with two keys:
+                    - 'model_dir': The path to the model directory.
+                    - 'structure_errors': A list of errors related to missing directories.
     """
 
     def __init__(self, model_name) -> None:

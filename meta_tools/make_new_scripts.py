@@ -55,6 +55,11 @@ class ModelScriptBuilder:
 
         assess() -> dict:
             Assesses the model directory to check for the presence of all obligatory scripts and returns the results.
+
+            Returns:
+                dict: A dictionary containing assessment results with two keys:
+                    - 'model_dir': The path to the model directory.
+                    - 'missing_scripts': A list of errors related to missing scripts.
     """
 
     def __init__(self, model_name: str):
