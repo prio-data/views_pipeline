@@ -3,7 +3,7 @@ import re
 
 def validate_model_name(name: str) -> bool:
     """
-    Validates the model name to ensure it follows the lowercase "noun_adjective" format.
+    Validates the model name to ensure it follows the lowercase "adjective_noun" format.
 
     Parameters:
         name (str): The model name to validate.

@@ -1,5 +1,6 @@
 from pathlib import Path
-from utils import validate_model_name
+from utils import model_naming
+import datetime
 
 
 class ModelDirectoryBuilder:
@@ -97,7 +98,8 @@ class ModelDirectoryBuilder:
         # Create README.md and requirements.txt
         readme_path = self.model_dir / "README.md"
         with open(readme_path, "w") as readme_file:
-            readme_file.write("# Model README\n")
+            readme_file.write(
+                f"# Model README\n ## Created on: {str(datetime.datetime.now())}")
         print(f"Created README.md: {readme_path}")
 
         requirements_path = self.model_dir / "requirements.txt"
@@ -132,8 +134,8 @@ class ModelDirectoryBuilder:
 
 if __name__ == "__main__":
     model_name = input("Enter the name of the model: ")
-    while not validate_model_name(model_name):
-        print("Invalid model name. Please use the format 'noun_adjective' in lowercase.")
+    while not model_naming.validate_model_name(model_name):
+        print("Invalid model name. Please use the format 'adjective_noun' in lowercase.")
         model_name = input("Enter the name of the model: ")
     model_directory_builder = ModelDirectoryBuilder(model_name)
     model_directory_builder.build()

@@ -1,7 +1,7 @@
 from pathlib import Path
 import py_compile
 from typing import Dict
-from utils import validate_model_name
+from utils import model_naming
 
 # TOOD: Implement a mechanism to generate the scripts from template files at views_pipeline/meta_tools/templates
 
@@ -439,8 +439,8 @@ if __name__ == "__main__":
 
 if __name__ == "__main__":
     model_name = input("Enter the name of the model: ")
-    while not validate_model_name(model_name):
-        print("Invalid model name. Please use the format 'noun_adjective' in lowercase.")
+    while not model_naming.validate_model_name(model_name):
+        print("Invalid model name. Please use the format 'adjective_noun' in lowercase.")
         model_name = input("Enter the name of the model: ")
     script_builder = ModelScriptBuilder(model_name)
     script_builder.build()
