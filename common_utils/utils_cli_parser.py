@@ -46,9 +46,9 @@ def parse_args():
                              'where <run_type> is calibration, testing, or forecasting, and <timestamp> is in the format YMD_HMS.'
                              'If not provided, the latest artifact will be used by default.')
 
-    parser.add_argument('-ag', '--aggregation',
+    parser.add_argument('-en', '--ensemble',
                         action='store_true',
-                        help='Flag to indicate if the model outputs should be aggregated, i.e., if the model is an ensemble.' )
+                        help='Flag to indicate if the model is an ensemble.' )
 
     parser.add_argument('-sa', '--saved',
                         action='store_true',
@@ -87,14 +87,8 @@ def validate_arguments(args):
         print("To fix: Set --run_type to forecasting if --forecast is flagged.")
         sys.exit(1)
 
-    if args.aggregation:
+    if args.ensemble:
+        # This is a temporary solution. In the future we might need to train and sweep the ensemble models.
         if args.sweep or args.train:
             print("Error: --aggregation flag cannot be used with --sweep or --train. Exiting.")
             sys.exit(1)
-        
-        if args.run_type in ['calibration', 'testing'] and args.forecast:
-            print(f"Error: Forecasting cannot be done when run type is {args.run_type} and --aggregation is set. Exiting.")
-            sys.exit(1)
-        
-
-

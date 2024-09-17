@@ -102,6 +102,7 @@ def setup_project_paths(PATH) -> None:
     # Define common paths
     PATH_COMMON_UTILS = PATH_ROOT / "common_utils"
     PATH_COMMON_CONFIGS = PATH_ROOT / "common_configs"
+    PATH_COMMON_QUERYSETS = PATH_ROOT / "common_querysets"
 
     # print(f"Common utils path: {PATH_COMMON_UTILS}") # debug
     # print(f"Common configs path: {PATH_COMMON_CONFIGS}") # debug
@@ -117,7 +118,7 @@ def setup_project_paths(PATH) -> None:
         PATH_FORECASTING = PATH_SRC / "forecasting"
         PATH_OFFLINE_EVALUATION = PATH_SRC / "offline_evaluation"
         PATH_DATALOADERS = PATH_SRC / "dataloaders"
-        paths_to_add = [PATH_ROOT, PATH_COMMON_UTILS, PATH_COMMON_CONFIGS,
+        paths_to_add = [PATH_ROOT, PATH_COMMON_UTILS, PATH_COMMON_CONFIGS, PATH_COMMON_QUERYSETS,
                         PATH_CONFIGS, PATH_UTILS, PATH_MANAGEMENT, PATH_ARCHITECTURES, PATH_TRAINING,
                         PATH_FORECASTING, PATH_OFFLINE_EVALUATION, PATH_DATALOADERS]
 
@@ -132,7 +133,7 @@ def setup_project_paths(PATH) -> None:
         PATH_FORECASTING_E = PATH_SRC_E / "forecasting"
         PATH_OFFLINE_EVALUATION_E = PATH_SRC_E / "offline_evaluation"
         PATH_DATALOADERS_E = PATH_SRC_E / "dataloaders"
-        paths_to_add = [PATH_ROOT, PATH_COMMON_UTILS, PATH_COMMON_CONFIGS,
+        paths_to_add = [PATH_ROOT, PATH_COMMON_UTILS, PATH_COMMON_CONFIGS,PATH_COMMON_QUERYSETS,
                         PATH_CONFIGS_E, PATH_UTILS_E, PATH_MANAGEMENT_E, PATH_ARCHITECTURES_E, PATH_TRAINING_E,
                         PATH_FORECASTING_E, PATH_OFFLINE_EVALUATION_E, PATH_DATALOADERS_E]
 

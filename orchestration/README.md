@@ -30,7 +30,7 @@ python orchestration.py --run_type <run_type> --train --evaluate
 ```
 If you want to train and evaluate all the ensemble models, you can run the following command:
 ```bash
-python orchestration.py --run_type <run_type> --train --evaluate --aggregation 
+python orchestration.py --run_type <run_type> --train --evaluate --ensemble 
 ```
 
 The progress of the pipeline execution will be logged online on Prefect.

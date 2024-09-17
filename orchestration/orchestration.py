@@ -51,7 +51,7 @@ def run_model_script(script_path, name, run_type, sweep, train, evaluate, foreca
 def run_ensemble_script(script_path, name, run_type, evaluate, forecast):
     cli_args = []
     cli_args.extend(["--run_type", run_type])
-    cli_args.append("--aggregation")
+    cli_args.append("--ensemble")
     
     if evaluate:
         cli_args.append("--evaluate")
@@ -67,9 +67,9 @@ def run_ensemble_script(script_path, name, run_type, evaluate, forecast):
 
 
 @flow(log_prints=True)
-def model_execution_flow(run_type, sweep, train, evaluate, forecast, aggregation, saved, override_month):
+def model_execution_flow(run_type, sweep, train, evaluate, forecast, ensemble, saved, override_month):
     model_main_files, ensemble_main_files = initialize()
-    if not aggregation:
+    if not ensemble:
         for main_file in model_main_files:
             # These two models don't fit the current orchestration
             if main_file.parent.name in ['abundant_abyss', 'purple_alien']:
@@ -91,7 +91,7 @@ if __name__ == "__main__":
                          train=args.train,
                          evaluate=args.evaluate,
                          forecast=args.forecast,
-                         aggregation=args.aggregation,
+                         ensemble=args.ensemble,
                          saved=args.saved,
                          override_month=args.override_month)
 
