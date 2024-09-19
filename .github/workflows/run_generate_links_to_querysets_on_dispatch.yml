@@ -12,6 +12,8 @@ jobs:
     steps:
     - name: Checkout views_pipeline
       uses: actions/checkout@v3  
+      with:
+        ref: create_cm_catalog_01
 
     - name: Set up Python  
       uses: actions/setup-python@v4
