@@ -9,7 +9,7 @@ cm_querysets_path = '../../../viewsforecasting/Tools/cm_querysets.py'
 pgm_querysets_path = '../../../viewsforecasting/Tools/pgm_querysets.py'
 
 # The GitHub repo link
-GITHUB_URL = 'https://github.com/prio-data/viewsforecasting/blob/main/'
+GITHUB_URL = 'https://github.com/prio-data/viewsforecasting/blob/github_workflows/'
 
 
 
