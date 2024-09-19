@@ -27,7 +27,11 @@ def check_model_conditions(PATH_GENERATED, config):
     - bool: True if all conditions are met, False otherwise.
     """
     log_file_path = Path(PATH_GENERATED) / f"{config['run_type']}_log.txt"
-    log_data = read_log_file(log_file_path)
+    try:
+        log_data = read_log_file(log_file_path)
+    except Exception as e:
+        logger.error(f"Error reading log file: {e}")
+        return False
 
     current_time = datetime.now()
     current_year = current_time.year
