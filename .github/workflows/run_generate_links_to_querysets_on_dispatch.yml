@@ -2,6 +2,7 @@ name: run generate_links_to_querysets.py on dispatch event
 
 # Listen for the dispatch event from viewsforecasting
 on:
+  workflow_dispatch:
   repository_dispatch:
     types: [trigger-generate_links_to_querysets]
 
