@@ -1,5 +1,5 @@
 from pathlib import Path
-from utils import model_naming
+from meta_tools.utils import utils_model_naming
 import datetime
 
 
@@ -157,7 +157,7 @@ class ModelDirectoryBuilder:
 
 if __name__ == "__main__":
     model_name = input("Enter the name of the model: ")
-    while not model_naming.validate_model_name(model_name):
+    while not utils_model_naming.validate_model_name(model_name):
         print("Invalid model name. Please use the format 'adjective_noun' in lowercase.")
         model_name = input("Enter the name of the model: ")
     model_directory_builder = ModelDirectoryBuilder(model_name)
