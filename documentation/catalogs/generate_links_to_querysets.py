@@ -2,11 +2,11 @@ import re
 import ast
 
 # Define the path to the model definition file in the cloned viewsforecasting repo
-model_def_path = '../../../viewsforecasting/SystemUpdates/ModelDefinitions.py'
+model_def_path = '../viewsforecasting/SystemUpdates/ModelDefinitions.py'
 
 # Define the path to the cm and pgm querysets file in the cloned viewsforecasting repo
-cm_querysets_path = '../../../viewsforecasting/Tools/cm_querysets.py'
-pgm_querysets_path = '../../../viewsforecasting/Tools/pgm_querysets.py'
+cm_querysets_path = '../viewsforecasting/Tools/cm_querysets.py'
+pgm_querysets_path = '../viewsforecasting/Tools/pgm_querysets.py'
 
 # The GitHub repo link
 GITHUB_URL = 'https://github.com/prio-data/viewsforecasting/blob/github_workflows/'
@@ -85,7 +85,7 @@ def find_querysets(queryfilepath, model):
                 break  # Stop after finding the first match
             else:
                 new_links = model['queryset']
-                
+         
     return new_links
 
 
