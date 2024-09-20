@@ -8,8 +8,9 @@ model_def_path = '../viewsforecasting/SystemUpdates/ModelDefinitions.py'
 cm_querysets_path = '../viewsforecasting/Tools/cm_querysets.py'
 pgm_querysets_path = '../viewsforecasting/Tools/pgm_querysets.py'
 
-# The GitHub repo link
-GITHUB_URL = 'https://github.com/prio-data/viewsforecasting/blob/github_workflows/'
+# The GitHub repo link 
+# TODO: github_workflows should be changed to main when merged
+GITHUB_URL = 'https://github.com/prio-data/viewsforecasting/blob/github_workflows/' 
 
 
 
@@ -17,7 +18,7 @@ def convert_to_dict(input_str):
     """
     It converts the string of every model from ModelDefinitions.py to a dict.
     """
-    # Adjusted regex pattern to match 'algorithm' value that might contain parentheses or function calls
+    # Regex pattern to match 'algorithm' value that might contain parentheses or function calls
     input_str = input_str.replace("'", "\"")
     alg_pattern = r'"algorithm":\s*(.*?),\s*(?=\n)'
     
@@ -33,7 +34,6 @@ def convert_to_dict(input_str):
         dictionary = ast.literal_eval(dict_str)
     except Exception as e:
         print(f"Error converting string to dict: {e}")
-        print(dict_str)
         return None
     
     return dictionary
@@ -59,33 +59,44 @@ def extract_models(model_def_path):
     return models_dict
 
 
+def create_link(marker, line, queryfilepath):
+    """
+    Create a markdown link pointing to the line where the queryset starts.
+    """
+    file = queryfilepath.split('viewsforecasting/')[1]
+    link_template = '- [{marker}]({url}{file}#L{line})'
+    return link_template.format(marker=marker, url=GITHUB_URL, file=file, line=line)
+
+
+
 def find_querysets(queryfilepath, model):
     """
     Parse cm_querysets.py and find the queryset for every model and return a markdown link with the github link pointing to the right line number.
     """
     
     with open(queryfilepath, 'r') as f:
+        markers = {'file' : queryfilepath.split('viewsforecasting/')[1]}
         # Loop through each line in the file
         for i, line in enumerate(f, start=1):
-            
+        
             # Search for the pattern in the line
-            match = re.search(r'Queryset\("' + re.escape(model['queryset']) , line)
+            match = re.search(r'Queryset\("' + re.escape(model['queryset']), line)
             
             if match:
-                #print(f"Match found: {match.group(0)} on line {i}")
-                markers = {
-                'marker' : match.group(0),
-                'line' : i,
-                'file' : queryfilepath.split('viewsforecasting/')[1]}
-                link_template = '- [{marker}]({url}{file}#L{line})'
-                new_links = link_template.format(marker=markers['marker'],
-                                      url=GITHUB_URL,
-                                      file=markers['file'],
-                                      line=markers['line']) 
+                new_links = create_link(model['queryset'], i, queryfilepath)
                 break  # Stop after finding the first match
+            elif model['queryset'] == 'fatalities002_all_features' and 'qs_all_features = Queryset.from_merger' in line:
+                new_links = create_link('fatalities002_all_features', i, queryfilepath)
+                break 
+            elif model['queryset'] == 'fatalities002_conflict_history' and 'qs_conflict = Queryset.from_merger' in line:
+                new_links = create_link('fatalities002_conflict_history', i, queryfilepath)
+                break  
+            elif model['queryset'] == 'fatalities002_conflict_history_long' and 'qs_conflict_long = Queryset.from_merger' in line:
+                new_links = create_link('fatalities002_conflict_history_long', i, queryfilepath)
+                break  
             else:
                 new_links = model['queryset']
-         
+
     return new_links
 
 
@@ -115,14 +126,9 @@ def generate_markdown_table(models):
             model.get('modelname', ''),
             str(model.get('algorithm', '')).split('(')[0],
             model.get('depvar', ''),
-            #model.get('data_train', ''),
-            querysetname ,   #model.get('queryset', ''),
-            #model.get('preprocessing', ''),
+            querysetname,
             re.search(r'\((.*?)\)', model.get('algorithm','')).group(1) if re.search(r'\((.*?)\)', model.get('algorithm','')) else 'None',
             'Direct multi-step',
-            #model.get('level', ''),
-            #model.get('description', ''),
-            #model.get('long_description', '').replace('\n', ' ')[:100] + '...'
             'no',
             'NA',
             'NA'
