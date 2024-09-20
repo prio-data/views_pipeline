@@ -32,6 +32,18 @@ Example:
 >>> _save_script(output_file, code)
 True
 """
+    if output_file.exists():
+        while True:
+            overwrite = input(
+                f"The file {output_file} already exists. Do you want to overwrite it? (y/n): ").strip().lower()
+            if overwrite in {'y', 'n'}:
+                break  # Exit the loop if the input is valid
+            print("Invalid input. Please enter 'y' for yes or 'n' for no.")
+
+        if overwrite == 'n':
+            print("Script not saved.")
+            return False
+
     try:
         # Write the sample code to the Python file
         with open(output_file, "w") as file:
