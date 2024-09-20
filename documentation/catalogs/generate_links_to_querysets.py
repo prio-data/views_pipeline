@@ -134,7 +134,7 @@ def generate_markdown_table(models):
 models_dict = extract_models(model_def_path)
 markdown_table = generate_markdown_table(models_dict)
 
-with open('cm_model_catalog.md', 'w') as f:
+with open('documentation/catalogs/cm_model_catalog.md', 'w') as f:
     f.write(markdown_table)
 
 
