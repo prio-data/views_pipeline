@@ -40,9 +40,10 @@ True
         # Compile the newly created Python script
         py_compile.compile(
             output_file)  # cfile=output_file.with_suffix('.pyc')
-
+        print(f"Script saved and compiled successfully: {output_file}")
         return True
     except (IOError, py_compile.PyCompileError) as e:
         print(
             f"Failed to write or compile the deployment configuration script: {e}")
+        print(f"Script file: {output_file}")
         return False
