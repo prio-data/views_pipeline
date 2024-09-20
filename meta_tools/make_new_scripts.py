@@ -1,7 +1,7 @@
 from pathlib import Path
 import py_compile
 from typing import Dict
-from meta_tools.utils import utils_model_naming
+from utils import utils_model_naming
 
 # TOOD: Implement a mechanism to generate the scripts from template files at views_pipeline/meta_tools/templates
 from templates import template_config_deployment, template_config_hyperparameters, template_config_input_data, template_config_meta, template_config_sweep, template_main

@@ -1,5 +1,5 @@
 from pathlib import Path
-from meta_tools.utils import utils_model_naming
+from utils import utils_model_naming
 import datetime
 
 
