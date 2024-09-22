@@ -25,12 +25,6 @@ Raises:
 IOError: If there is an error writing the code to the file (e.g., permission denied, invalid path).
 
 py_compile.PyCompileError: If there is an error compiling the Python script (e.g., syntax error in the code).
-
-Example:
->>> code = "print('Hello, World!')"
->>> output_file = Path('hello_world.py')
->>> _save_script(output_file, code)
-True
 """
     if output_file.exists():
         while True:
