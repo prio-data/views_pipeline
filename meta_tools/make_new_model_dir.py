@@ -129,7 +129,6 @@ class ModelDirectoryBuilder:
         with open(requirements_path, "w") as requirements_file:
             requirements_file.write("# Requirements\n")
         print(f"Created requirements.txt: {requirements_path}")
-        print(f"<TEST> model_dir: {self.model_dir}")
         return self.model_dir
 
     def assess(self) -> dict:
