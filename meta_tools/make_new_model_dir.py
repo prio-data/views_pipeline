@@ -67,6 +67,9 @@ class ModelDirectoryBuilder:
         self.current_dir = Path.cwd()
         self.relative_path = "models"
         self.model_name = model_name
+        if not utils_model_naming.validate_model_name(self.model_name):
+            raise ValueError(
+                "Invalid model name. Please use the format 'adjective_noun' in lowercase.")
         # TODO: Fix this
         # If the current directory is not the root directory, go up one level and append "models"
         if self.current_dir.match('*meta_tools'):
