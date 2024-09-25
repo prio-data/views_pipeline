@@ -35,10 +35,12 @@ def make_new_ensemble_dir(ensemble_name):
         "artifacts",
         "notebooks",
         "reports",
+        "data/generated",
+        "data/processed",
         "src/dataloaders",
         "src/architecture",
         "src/utils",
-        "src/training",
+        "src/visualization",
         "src/offline_evaluation",
         "src/forecasting",
         "src/management"

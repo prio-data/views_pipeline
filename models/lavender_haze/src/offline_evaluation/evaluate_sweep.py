@@ -1,14 +1,17 @@
-from pathlib import Path
+import sys
 import pandas as pd
 import wandb
 from sklearn.metrics import mean_squared_error
 
-PATH = Path(__file__)  
+from pathlib import Path
+PATH = Path(__file__)
+sys.path.insert(0, str(Path(
+    *[i for i in PATH.parts[:PATH.parts.index("views_pipeline") + 1]]) / "common_utils"))  # PATH_COMMON_UTILS
 from set_path import setup_project_paths, setup_data_paths
 setup_project_paths(PATH)
 
-from utils import get_partition_data, get_standardized_df
-from utils_wandb import generate_wandb_log_dict
+from utils_run import get_standardized_df
+from utils_wandb import log_wandb_log_dict
 from utils_evaluation_metrics import generate_metric_dict
 
 
@@ -17,9 +20,9 @@ def evaluate_sweep(config, stepshift_model):
     run_type = config['run_type']
     steps = config['steps']
 
-    dataset = pd.read_parquet(PATH_RAW / f"raw_{run_type}.parquet")
+    df_viewser = pd.read_pickle(PATH_RAW / f"{run_type}_viewser_df.pkl")
 
-    df = stepshift_model.predict(run_type, "predict", get_partition_data(dataset, run_type))
+    df = stepshift_model.predict(run_type, "predict", df_viewser)
     df = get_standardized_df(df, config)
 
     # Temporarily keep this because the metric to minimize is MSE
@@ -30,9 +33,4 @@ def evaluate_sweep(config, stepshift_model):
     wandb.log({'MSE': df['mse'].mean()})
 
     evaluation, df_evaluation = generate_metric_dict(df, config)
-    for t in steps:
-        log_dict = {}
-        log_dict["monthly/out_sample_month"] = t
-        step = f"step{str(t).zfill(2)}"
-        log_dict = generate_wandb_log_dict(log_dict, evaluation, step)
-        wandb.log(log_dict)
+    log_wandb_log_dict(config, evaluation)

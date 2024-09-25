@@ -1,28 +1,29 @@
 import sys
-from pathlib import Path
-import pandas as pd
 
+import logging
+logging.basicConfig(filename='../../run.log', encoding='utf-8', level=logging.INFO,
+                    format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
+from pathlib import Path
 PATH = Path(__file__)
 sys.path.insert(0, str(Path(
     *[i for i in PATH.parts[:PATH.parts.index("views_pipeline") + 1]]) / "common_utils"))  # PATH_COMMON_UTILS
 from set_path import setup_project_paths, setup_data_paths
 setup_project_paths(PATH)
 
-from config_input_data import get_input_data
-from utils import ensure_float64
+from utils_dataloaders import fetch_or_load_views_df, create_or_load_views_vol, get_alert_help_string
 
 
 def get_data(args):
-    print("Getting data...")
+    logger.info("Getting data...")
     PATH_RAW, _, _ = setup_data_paths(PATH)
-    parquet_path = PATH_RAW / f'raw_{args.run_type}.parquet'
-    # print('PARQUET PATH', parquet_path)
-    if not parquet_path.exists():
-        qs = get_input_data()
-        data = qs.publish().fetch()
-        data = ensure_float64(data)
-        data.to_parquet(parquet_path)
-    else:
-        data = pd.read_parquet(parquet_path)
+
+    data, alerts = fetch_or_load_views_df(args.run_type, PATH_RAW, args.saved)
+    logger.info(f"DataFrame shape: {data.shape if data is not None else 'None'}")
+
+    for ialert, alert in enumerate(str(alerts).strip('[').strip(']').split('Input')):
+        if 'offender' in alert:
+            logger.warning({f"{args.run_type} data alert {ialert}": str(alert)})
 
     return data
