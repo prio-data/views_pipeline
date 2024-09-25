@@ -1,7 +1,12 @@
 import sys
-from pathlib import Path
 import wandb
 
+import logging
+logging.basicConfig(filename='../../run.log', encoding='utf-8', level=logging.INFO,
+                    format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
+from pathlib import Path
 PATH = Path(__file__)
 sys.path.insert(0, str(Path(
     *[i for i in PATH.parts[:PATH.parts.index("views_pipeline") + 1]]) / "common_utils"))  # PATH_COMMON_UTILS
@@ -12,7 +17,7 @@ from evaluate_model import evaluate_model_artifact
 from evaluate_sweep import evaluate_sweep
 from generate_forecast import forecast_model_artifact
 from train_model import train_model_artifact
-from utils import get_model, split_hurdle_parameters
+from utils_run import get_model, split_hurdle_parameters
 from utils_wandb import add_wandb_monthly_metrics
 
 
@@ -50,25 +55,24 @@ def execute_model_tasks(config=None, project=None, train=None, eval=None, foreca
             config['parameters']['clf'], config['parameters']['reg'] = split_hurdle_parameters(config)
 
         model = get_model(config)
-        print(model)
+        # logger.info(model)
 
         if config['sweep']:
-            print("Sweeping...")
+            logger.info(f"Sweeping model {config['name']}...")
             stepshift_model = train_model_artifact(config, model)
-            print("Evaluating...")
+            logger.info(f"Evaluating model {config['name']}...")
             evaluate_sweep(config, stepshift_model)
-
 
         # Handle the single model runs: train and save the model as an artifact
         if train:
-            print("Training...")
+            logger.info(f"Training model {config['name']}...")
             train_model_artifact(config, model)
 
         # Handle the single model runs: evaluate a trained model (artifact)
         if eval:
-            print("Evaluating...")
+            logger.info(f"Evaluating model {config['name']}...")
             evaluate_model_artifact(config, artifact_name)
 
         if forecast:
-            print("Forecasting...")
+            logger.info(f"Forecasting model {config['name']}...")
             forecast_model_artifact(config, artifact_name)

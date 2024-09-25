@@ -40,14 +40,10 @@ def assess_ensemble_dir(ensemble_dir):
     # Check for obligatory scripts
     obligatory_scripts = [
         "configs/config_deployment.py", 
-        "configs/config_hyperparameters.py", 
-        "configs/config_input_data.py",
+        "configs/config_hyperparameters.py",
         "configs/config_meta.py",
-        "configs/config_sweep.py",
-        "src/dataloaders/get_data.py"
-        "src/training/train_ensemble.py",
         "src/forecasting/generate_forececast.py",
-        "src/offline_evaluation/evaluate_model.py",
+        "src/offline_evaluation/evaluate_ensemble.py",
         "src/management/execute_model_runs.py",
         "src/management/execute_model_tasks.py",
         "main.py",
