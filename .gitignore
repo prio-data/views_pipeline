@@ -190,7 +190,8 @@ cython_debug/
 *.csv
 *.npy
 *.parquet
-*.pt 
+*.pt
+*.pkl 
 
 # folders
 **/wandb/
