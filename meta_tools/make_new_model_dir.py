@@ -1,6 +1,9 @@
 from pathlib import Path
 from utils import utils_model_naming
 import datetime
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class ModelDirectoryBuilder:
@@ -20,8 +23,8 @@ class ModelDirectoryBuilder:
         __init__(model_name: str) -> None:
             Initializes the ModelDirectoryBuilder with the given model name and sets up paths.
 
-        build() -> Path:
-            Creates the model directory and its subdirectories, and initializes necessary files such as README.md 
+        build_model_directory() -> Path:
+            Creates the model directory and its subdirectories, and initializes necessary files such as README.md
             and requirements.txt.
 
             Returns:
@@ -30,7 +33,7 @@ class ModelDirectoryBuilder:
             Raises:
                 FileExistsError: If the model directory already exists.
 
-        assess() -> dict:
+        assess_model_directory() -> dict:
             Assesses the model directory by checking for the presence of expected directories.
 
             Returns:
@@ -61,7 +64,7 @@ class ModelDirectoryBuilder:
             "src/training",
             "src/offline_evaluation",
             "src/online_evaluation",
-            "src/forecasting"
+            "src/forecasting",
         ]
 
         self.current_dir = Path.cwd()
@@ -69,10 +72,11 @@ class ModelDirectoryBuilder:
         self.model_name = model_name
         if not utils_model_naming.validate_model_name(self.model_name):
             raise ValueError(
-                "Invalid model name. Please use the format 'adjective_noun' in lowercase.")
+                "Invalid model name. Please use the format 'adjective_noun' in lowercase."
+            )
         # TODO: Fix this
         # If the current directory is not the root directory, go up one level and append "models"
-        if self.current_dir.match('*meta_tools'):
+        if self.current_dir.match("*meta_tools"):
             self.models_dir = self.current_dir.parent / self.relative_path
         else:
             self.models_dir = self.current_dir / self.relative_path
@@ -97,10 +101,10 @@ class ModelDirectoryBuilder:
             "src/training",
             "src/offline_evaluation",
             "src/forecasting",
-            "src/management"
+            "src/management",
         ]
 
-    def build(self) -> Path:
+    def build_model_directory(self) -> Path:
         """
         Create the model directory and its subdirectories, and initialize necessary files such as README.md and requirements.txt.
 
@@ -112,29 +116,30 @@ class ModelDirectoryBuilder:
         """
         try:
             self.model_dir.mkdir(parents=True, exist_ok=False)
-            print(f"Created new model directory: {self.model_dir}")
+            logger.info(f"Created new model directory: {self.model_dir}")
         except FileExistsError:
-            print(f"Model directory already exists: {self.model_dir}")
+            logging.exception(f"Model directory already exists: {self.model_dir}")
 
         for subdir in self.subdirs:
             subdir_path = self.model_dir / subdir
             subdir_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created subdirectory: {subdir_path}")
+            logging.info(f"Created subdirectory: {subdir_path}")
 
         # Create README.md and requirements.txt
         readme_path = self.model_dir / "README.md"
         with open(readme_path, "w") as readme_file:
             readme_file.write(
-                f"# Model README\n## Model name: {self.model_name}\n## Created on: {str(datetime.datetime.now())}")
-        print(f"Created README.md: {readme_path}")
+                f"# Model README\n## Model name: {self.model_name}\n## Created on: {str(datetime.datetime.now())}"
+            )
+        logging.info(f"Created README.md: {readme_path}")
 
         requirements_path = self.model_dir / "requirements.txt"
         with open(requirements_path, "w") as requirements_file:
             requirements_file.write("# Requirements\n")
-        print(f"Created requirements.txt: {requirements_path}")
+        logging.info(f"Created requirements.txt: {requirements_path}")
         return self.model_dir
 
-    def assess(self) -> dict:
+    def assess_model_directory(self) -> dict:
         """
         Assess the model directory by checking for the presence of expected directories.
 
@@ -143,28 +148,28 @@ class ModelDirectoryBuilder:
                 - 'model_dir': The path to the model directory.
                 - 'structure_errors': A list of errors related to missing directories or files.
         """
-        assessment = {
-            "model_dir": self.model_dir,
-            "structure_errors": []
-        }
+        assessment = {"model_dir": self.model_dir, "structure_errors": []}
 
         # Check structure
         for item in self.expected_structure:
             item_path = self.model_dir / item
             if not item_path.exists():
                 assessment["structure_errors"].append(
-                    f"Missing directory or file: {item}")
+                    f"Missing directory or file: {item}"
+                )
         return assessment
 
 
 if __name__ == "__main__":
     model_name = input("Enter the name of the model: ")
     while not utils_model_naming.validate_model_name(model_name):
-        print("Invalid model name. Please use the format 'adjective_noun' in lowercase.")
+        print(
+            "Invalid model name. Please use the format 'adjective_noun' in lowercase, e.g., 'happy_kitten'."
+        )
         model_name = input("Enter the name of the model: ")
     model_directory_builder = ModelDirectoryBuilder(model_name)
-    model_directory_builder.build()
-    assessment = model_directory_builder.assess()
-    print("\nDirectory assessment results:")
-    print(f"Model directory: {assessment['model_dir']}")
-    print(f"Structure errors: {assessment['structure_errors']}")
+    model_directory_builder.build_model_directory()
+    assessment = model_directory_builder.assess_model_directory()
+    logging.info("\nDirectory assessment results:")
+    logging.info(f"Model directory: {assessment['model_dir']}")
+    logging.info(f"Structure errors: {assessment['structure_errors']}")
