@@ -4,7 +4,7 @@ This folder contains several scripts for creating and assessing new model folder
 
 ## Building a new model
 
-1. Run `python meta_tools/make_new_model_dir.py` and follow the instructions..
+1. Run `python meta_tools/make_new_model_dir.py` and follow the instructions.
 2. After the required directores are created, run `meta_tools/make_new_scripts.py` to build the obligatory script files for your model.
 
 
