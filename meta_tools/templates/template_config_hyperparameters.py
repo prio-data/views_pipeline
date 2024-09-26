@@ -4,20 +4,20 @@ from pathlib import Path
 
 def generate(script_dir: Path, model_architecture: str) -> bool:
     """
-    Generates a script that defines a function for obtaining hyperparameter configurations 
+    Generates a script that defines a function for obtaining hyperparameter configurations
     necessary for model training.
 
     Parameters:
-        script_dir (Path): 
-            The directory where the generated deployment configuration script will be saved. 
+        script_dir (Path):
+            The directory where the generated deployment configuration script will be saved.
             This should be a valid writable path.
 
-        model_architecture (str): 
-            The architecture of the model to be used for training. This string will be included in the 
+        model_architecture (str):
+            The architecture of the model to be used for training. This string will be included in the
             hyperparameter configuration and can be modified to test different architectures.
 
     Returns:
-        bool: 
+        bool:
             True if the script was written and compiled successfully, False otherwise.
     """
     code = f"""def get_hp_config():
@@ -30,7 +30,7 @@ def generate(script_dir: Path, model_architecture: str) -> bool:
     \"""
     
     hyperparameters = {{
-        'model': '{model_architecture}',  # The model architecture used
+        'model': '{model_architecture}',  # The model architecture used. Eg. "LSTM", "CNN", "Transformer"
         # Add more hyperparameters as needed
     }}
     return hyperparameters
