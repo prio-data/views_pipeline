@@ -1,7 +1,8 @@
 from pathlib import Path
 import py_compile
 from typing import Dict
-from utils import utils_model_naming
+from utils.utils_model_naming import validate_model_name
+from utils.utils_model_paths import find_project_root
 
 # TOOD: Implement a mechanism to generate the scripts from template files at views_pipeline/meta_tools/templates
 from templates import (
@@ -66,15 +67,8 @@ class ModelScriptBuilder:
             "README.md",
         ]
 
-        self.current_dir = Path.cwd()
-        self.relative_path = "models"
-
-        # If the current directory is not the root directory, go up one level and append "models"
-        if self.current_dir.match("*meta_tools"):
-            self.models_dir = self.current_dir.parent / self.relative_path
-        else:
-            self.models_dir = self.current_dir / self.relative_path
-
+        self.root = find_project_root()
+        self.models_dir = self.root / "models"
         self.model_dir = self.models_dir / model_name
 
     def _check_if_model_dir_exists(self):
@@ -94,11 +88,9 @@ class ModelScriptBuilder:
         template_config_deployment.generate(
             script_dir=self.model_dir / "configs/config_deployment.py"
         )
-
         self.model_architecture = input(
             "Enter the architecture of the model (e.g. XGBoost, LightBGM, HydraNet): "
         )
-
         template_config_hyperparameters.generate(
             script_dir=self.model_dir / "configs/config_hyperparameters.py",
             model_architecture=self.model_architecture,
@@ -138,7 +130,7 @@ class ModelScriptBuilder:
 
 if __name__ == "__main__":
     model_name = input("Enter the name of the model: ")
-    while not utils_model_naming.validate_model_name(model_name):
+    while not validate_model_name(model_name):
         print(
             "Invalid model name. Please use the format 'adjective_noun' in lowercase."
         )

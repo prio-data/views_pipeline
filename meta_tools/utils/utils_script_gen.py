@@ -2,6 +2,7 @@ from pathlib import Path
 import py_compile
 import logging
 
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
@@ -45,6 +46,7 @@ def save_script(output_file: Path, code: str) -> bool:
         # if overwrite == "n":
         #     logger.info("Script not saved.")
         #     return False
+        logger.info(f"Script {output_file} already exists. Skipping.")
         return False
 
     try:

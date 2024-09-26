@@ -1,8 +1,10 @@
 from pathlib import Path
-from utils import utils_model_naming
+from utils.utils_model_naming import validate_model_name
+from utils.utils_model_paths import find_project_root
 import datetime
 import logging
 
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
@@ -67,21 +69,14 @@ class ModelDirectoryBuilder:
             "src/forecasting",
         ]
 
-        self.current_dir = Path.cwd()
-        self.relative_path = "models"
         self.model_name = model_name
-        if not utils_model_naming.validate_model_name(self.model_name):
+        if not validate_model_name(self.model_name):
             raise ValueError(
                 "Invalid model name. Please use the format 'adjective_noun' in lowercase."
             )
-        # TODO: Fix this
-        # If the current directory is not the root directory, go up one level and append "models"
-        if self.current_dir.match("*meta_tools"):
-            self.models_dir = self.current_dir.parent / self.relative_path
-        else:
-            self.models_dir = self.current_dir / self.relative_path
-
-        self.model_dir = self.models_dir / self.model_name
+        self.root = find_project_root()
+        self.models_dir = self.root / "models"
+        self.model_dir = self.models_dir / model_name
 
         # self.model_path = Path(f'../models/{self.model_dir}')
 
@@ -114,16 +109,21 @@ class ModelDirectoryBuilder:
         Raises:
             FileExistsError: If the model directory already exists.
         """
-        try:
+        if self.model_dir.exists():
+            logger.info(
+                f"Model directory already exists: {self.model_dir}. Proceeding with existing directory."
+            )
+        else:
             self.model_dir.mkdir(parents=True, exist_ok=False)
             logger.info(f"Created new model directory: {self.model_dir}")
-        except FileExistsError:
-            logging.exception(f"Model directory already exists: {self.model_dir}")
 
         for subdir in self.subdirs:
             subdir_path = self.model_dir / subdir
-            subdir_path.mkdir(parents=True, exist_ok=True)
-            logging.info(f"Created subdirectory: {subdir_path}")
+            if not subdir_path.exists():
+                subdir_path.mkdir(parents=True, exist_ok=True)
+                logging.info(f"Created subdirectory: {subdir_path}")
+            else:
+                logging.info(f"Subdirectory already exists: {subdir_path}. Skipping.")
 
         # Create README.md and requirements.txt
         readme_path = self.model_dir / "README.md"
@@ -162,7 +162,7 @@ class ModelDirectoryBuilder:
 
 if __name__ == "__main__":
     model_name = input("Enter the name of the model: ")
-    while not utils_model_naming.validate_model_name(model_name):
+    while not validate_model_name(model_name):
         print(
             "Invalid model name. Please use the format 'adjective_noun' in lowercase, e.g., 'happy_kitten'."
         )
