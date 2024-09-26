@@ -1,24 +1,32 @@
 from typing import Dict
 from utils import utils_script_gen
 from pathlib import Path
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
-def generate(script_dir: Path, deployment_type: str = "shadow", additional_settings: Dict[str, any] = None) -> bool:
+def generate(
+    script_dir: Path,
+    deployment_type: str = "shadow",
+    additional_settings: Dict[str, any] = None,
+) -> bool:
     """
     Generates a script that defines the `get_deployment_config` function for configuring the deployment status and settings.
 
     Parameters:
-        script_dir (Path): The directory where the generated deployment configuration script will be saved. 
+        script_dir (Path): The directory where the generated deployment configuration script will be saved.
                            This should be a valid writable path.
-        deployment_type (str, optional): 
+        deployment_type (str, optional):
             The type of deployment. Must be one of "shadow", "deployed", "baseline", or "deprecated".
-            Default is "shadow". 
+            Default is "shadow".
             - "shadow": The deployment is shadowed and not yet active.
             - "deployed": The deployment is active and in use.
             - "baseline": The deployment is in a baseline state, for reference or comparison.
             - "deprecated": The deployment is deprecated and no longer supported.
-        additional_settings (dict, optional): 
-            A dictionary of additional settings to include in the deployment configuration. 
+        additional_settings (dict, optional):
+            A dictionary of additional settings to include in the deployment configuration.
             These settings will be merged with the default configuration. Defaults to None.
 
     Raises:
@@ -29,12 +37,14 @@ def generate(script_dir: Path, deployment_type: str = "shadow", additional_setti
     """
     valid_types = {"shadow", "deployed", "baseline", "deprecated"}
     if deployment_type.lower() not in valid_types:
+        logging.error(
+            f"Invalid deployment_type: {deployment_type}. Must be one of {valid_types}."
+        )
         raise ValueError(
-            f"Invalid deployment_type: {deployment_type}. Must be one of {valid_types}.")
+            f"Invalid deployment_type: {deployment_type}. Must be one of {valid_types}."
+        )
 
-    deployment_config = {
-        "deployment_status": deployment_type.lower()
-    }
+    deployment_config = {"deployment_status": deployment_type.lower()}
 
     # Merge additional settings if provided
     if additional_settings and isinstance(additional_settings, dict):
