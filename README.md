@@ -200,7 +200,9 @@ pipeline_root/
 
 
 ## Pipeline Documentation
-High-level documentation on the pipeline and its components can be found in the folder [`documentation`](https://github.com/prio-data/views_pipeline/tree/main/documentation). Additionally, refer to READMEs and docstrings of various functions and classes in the source code.
+High-level documentation on the pipeline and its components can be found in the folder [`documentation`](https://github.com/prio-data/views_pipeline/tree/main/documentation). For a comprehensive understanding of the terms and concepts used, please consult the [`Glossary`](https://github.com/prio-data/views_pipeline/blob/main/documentation/glossary.md). To explore the rationale behind our architectural choices, visit the [`Architectural Decision Records (ADRs)`](https://github.com/prio-data/views_pipeline/blob/main/documentation/ADRs/README.md).
+
+Additionally, refer to READMEs and docstrings of various functions and classes in the source code.
 
 The operational fatalities model generates forecasts for state-based armed conflict during each month in a rolling 3-year window. 
 The latest iteration, currently in production, is called [Fatalities002](https://viewsforecasting.org/early-warning-system/models/fatalities002/).
