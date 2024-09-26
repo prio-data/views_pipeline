@@ -7,18 +7,18 @@ def generate(script_dir: Path, model_name: str, model_architecture: str) -> bool
     Generates a script that defines the `get_meta_config` function for model metadata.
 
     Parameters:
-        script_dir (Path): 
-            The directory where the generated deployment configuration script will be saved. 
+        script_dir (Path):
+            The directory where the generated deployment configuration script will be saved.
             This should be a valid writable path.
 
-        model_name (str): 
+        model_name (str):
             The name of the model. This will be included in the metadata configuration.
 
-        model_architecture (str): 
+        model_architecture (str):
             The architecture of the model. This string will also be included in the metadata configuration.
 
     Returns:
-        bool: 
+        bool:
             True if the script was written and compiled successfully, False otherwise.
     """
     code = f"""def get_meta_config():
@@ -31,8 +31,8 @@ def generate(script_dir: Path, model_name: str, model_architecture: str) -> bool
     \"""
     
     meta_config = {{
-        "name": "{model_name}",
-        "architecture": "{model_architecture}", 
+        "name": "{model_name}", # Eg. happy_kitten
+        "architecture": "{model_architecture}," # Eg. "LSTM", "CNN", "Transformer"
         # Uncomment and modify the following lines as needed for additional metadata:
         # "target(S)": ["ln_sb_best", "ln_ns_best", "ln_os_best", "ln_sb_best_binarized", "ln_ns_best_binarized", "ln_os_best_binarized"],
         # "queryset": "escwa001_cflong",
