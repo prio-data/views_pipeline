@@ -2,7 +2,7 @@ from utils import utils_script_gen
 from pathlib import Path
 
 
-def generate(script_dir: Path, model_name: str, model_architecture: str) -> bool:
+def generate(script_dir: Path, model_name: str, model_algorithm: str) -> bool:
     """
     Generates a script that defines the `get_meta_config` function for model metadata.
 
@@ -14,8 +14,8 @@ def generate(script_dir: Path, model_name: str, model_architecture: str) -> bool
         model_name (str):
             The name of the model. This will be included in the metadata configuration.
 
-        model_architecture (str):
-            The architecture of the model. This string will also be included in the metadata configuration.
+        model_algorithm (str):
+            The algorithm of the model. This string will also be included in the metadata configuration.
 
     Returns:
         bool:
@@ -23,7 +23,7 @@ def generate(script_dir: Path, model_name: str, model_architecture: str) -> bool
     """
     code = f"""def get_meta_config():
     \"""
-    Contains the meta data for the model (model architecture, name, target variable, and level of analysis).
+    Contains the meta data for the model (model algorithm, name, target variable, and level of analysis).
     This config is for documentation purposes only, and modifying it will not affect the model, the training, or the evaluation.
 
     Returns:
@@ -32,7 +32,7 @@ def generate(script_dir: Path, model_name: str, model_architecture: str) -> bool
     
     meta_config = {{
         "name": "{model_name}", # Eg. happy_kitten
-        "architecture": "{model_architecture}," # Eg. "LSTM", "CNN", "Transformer"
+        "algorithm": "{model_algorithm}," # Eg. "LSTM", "CNN", "Transformer"
         # Uncomment and modify the following lines as needed for additional metadata:
         # "target(S)": ["ln_sb_best", "ln_ns_best", "ln_os_best", "ln_sb_best_binarized", "ln_ns_best_binarized", "ln_os_best_binarized"],
         # "queryset": "escwa001_cflong",

@@ -14,6 +14,11 @@ from templates import (
     template_main,
 )
 
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 
 class ModelScriptBuilder:
     """
@@ -22,7 +27,7 @@ class ModelScriptBuilder:
     Attributes:
         model_name (str): The name of the model which determines the directory structure and script names.
         model_dir (Path): The path to the model directory where scripts are saved.
-        architecture (str): The architecture of the model, set during script generation.
+        alfgorithm (str): The algorithm of the model, set during script generation.
         obligatory_scripts (list of str): List of paths to the obligatory scripts that should be present in the model directory.
         root (Path): The path to the project root directory.
         models_dir (Path): The path to the `models` directory where all model directories are stored.
@@ -35,7 +40,7 @@ class ModelScriptBuilder:
             Checks if the model directory exists.
 
         build_model_scripts():
-            Builds all required scripts if the model directory exists, and prompts the user for model architecture.
+            Builds all required scripts if the model directory exists, and prompts the user for model algorithm.
 
         assess_model_scripts() -> dict:
             Assesses the model directory to check for the presence of all obligatory scripts and returns the results.
@@ -49,7 +54,7 @@ class ModelScriptBuilder:
     def __init__(self, model_name: str):
         self.model_name = model_name
         self.model_dir = Path(self.model_name)
-        self.model_architecture = None
+        self.model_algorithm = None
         self.obligatory_scripts = [
             "configs/config_deployment.py",
             "configs/config_hyperparameters.py",
@@ -87,12 +92,12 @@ class ModelScriptBuilder:
         template_config_deployment.generate(
             script_dir=self.model_dir / "configs/config_deployment.py"
         )
-        self.model_architecture = input(
-            "Enter the architecture of the model (e.g. XGBoost, LightBGM, HydraNet): "
+        self.model_algorithm = input(
+            "Enter the algorithm of the model (e.g. XGBoost, LightBGM, HydraNet): "
         )
         template_config_hyperparameters.generate(
             script_dir=self.model_dir / "configs/config_hyperparameters.py",
-            model_architecture=self.model_architecture,
+            model_algorithm=self.model_algorithm,
         )
         template_config_input_data.generate(
             script_dir=self.model_dir / "configs/config_input_data.py",
@@ -101,11 +106,11 @@ class ModelScriptBuilder:
         template_config_meta.generate(
             script_dir=self.model_dir / "configs/config_meta.py",
             model_name=self.model_name,
-            model_architecture=self.model_architecture,
+            model_algorithm=self.model_algorithm,
         )
         template_config_sweep.generate(
             script_dir=self.model_dir / "configs/config_sweep.py",
-            model_architecture=self.model_architecture,
+            model_algorithm=self.model_algorithm,
         )
         template_main.generate(script_dir=self.model_dir / "main.py")
 
@@ -130,13 +135,15 @@ class ModelScriptBuilder:
 if __name__ == "__main__":
     model_name = input("Enter the name of the model: ")
     while not validate_model_name(model_name):
-        print(
+        logging.error(
             "Invalid model name. Please use the format 'adjective_noun' in lowercase."
         )
         model_name = input("Enter the name of the model: ")
     script_builder = ModelScriptBuilder(model_name)
     script_builder.build_model_scripts()
     assessment = script_builder.assess_model_scripts()
-    print("\nScript assessment results:")
-    print(f"Model directory: {assessment['model_dir']}")
-    print(f"Missing scripts: {assessment['missing_scripts']}")
+    # logging.info(f"Model directory: {assessment['model_dir']}")
+    if not assessment["missing_scripts"]:
+        logging.info("All scripts have been successfully generated.")
+    else:
+        logging.warning(f"Structure errors: {assessment['missing_scripts']}")

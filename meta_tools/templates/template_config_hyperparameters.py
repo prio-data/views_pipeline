@@ -2,7 +2,7 @@ from utils import utils_script_gen
 from pathlib import Path
 
 
-def generate(script_dir: Path, model_architecture: str) -> bool:
+def generate(script_dir: Path, model_algorithm: str) -> bool:
     """
     Generates a script that defines a function for obtaining hyperparameter configurations
     necessary for model training.
@@ -12,9 +12,9 @@ def generate(script_dir: Path, model_architecture: str) -> bool:
             The directory where the generated deployment configuration script will be saved.
             This should be a valid writable path.
 
-        model_architecture (str):
+        model_algorithm (str):
             The architecture of the model to be used for training. This string will be included in the
-            hyperparameter configuration and can be modified to test different architectures.
+            hyperparameter configuration and can be modified to test different algorithms.
 
     Returns:
         bool:
@@ -30,7 +30,7 @@ def generate(script_dir: Path, model_architecture: str) -> bool:
     \"""
     
     hyperparameters = {{
-        'model': '{model_architecture}',  # The model architecture used. Eg. "LSTM", "CNN", "Transformer"
+        'model': '{model_algorithm}',  # The model algorithm used. Eg. "LSTM", "CNN", "Transformer"
         # Add more hyperparameters as needed
     }}
     return hyperparameters

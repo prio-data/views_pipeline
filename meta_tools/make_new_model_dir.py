@@ -162,13 +162,15 @@ class ModelDirectoryBuilder:
 if __name__ == "__main__":
     model_name = input("Enter the name of the model: ")
     while not validate_model_name(model_name):
-        print(
+        logging.error(
             "Invalid model name. Please use the format 'adjective_noun' in lowercase, e.g., 'happy_kitten'."
         )
         model_name = input("Enter the name of the model: ")
     model_directory_builder = ModelDirectoryBuilder(model_name)
     model_directory_builder.build_model_directory()
     assessment = model_directory_builder.assess_model_directory()
-    logging.info("\nDirectory assessment results:")
-    logging.info(f"Model directory: {assessment['model_dir']}")
-    logging.info(f"Structure errors: {assessment['structure_errors']}")
+    # logging.info(f"Model directory: {assessment['model_dir']}")
+    if not assessment["structure_errors"]:
+        logging.info("Model directory structure is complete.")
+    else:
+        logging.warning(f"Structure errors: {assessment['structure_errors']}")
