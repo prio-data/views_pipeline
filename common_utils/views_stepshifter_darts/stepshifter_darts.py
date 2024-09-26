@@ -1,17 +1,13 @@
 import pickle
-import numpy as np
-import pandas as pd
 from darts import TimeSeries
 from darts.models import LightGBMModel, XGBModel
 from darts.models.forecasting.forecasting_model import ModelMeta
 import warnings
 warnings.filterwarnings("ignore")
-import time
 from typing import List, Dict
 
 from views_forecasts.extensions import *
 from .validation import views_validate
-from utils import get_parameters
 
 
 class StepshifterModel:
@@ -35,8 +31,15 @@ class StepshifterModel:
 
     @views_validate
     def fit(self, df: pd.DataFrame):
-        self._setup(df)
-        self._prepare_time_series(df)
+        # set up
+        self._time = df.index.names[0]
+        self._level = df.index.names[1]
+        self._independent_variables = [c for c in df.columns if c != self.target]
+        
+        # prepare time series
+        df_reset = df.reset_index(level=[1])
+        self._series = TimeSeries.from_group_dataframe(df_reset, group_cols=self._level,
+                                                       value_cols=self._independent_variables + [self.target])
         
         target = [series.slice(self._train_start, self._train_end + 1)[self.target]
                   for series in self._series]  # ts.slice is different from df.slice
@@ -47,12 +50,13 @@ class StepshifterModel:
             model.fit(target, past_covariates=past_cov)
             self._models[step] = model
 
+
     @views_validate
     def predict(self, run_type, df: pd.DataFrame) -> pd.DataFrame:
         target = [series.slice(self._train_start, self._train_end + 1)[self.target]
                   for series in self._series]
         
-        preds_by_step = [self._predict_for_step(step, target, run_type) for step in self.steps]
+        preds_by_step = [self._predict_by_step(step, target, run_type) for step in self.steps]
         pred = pd.concat(preds_by_step, axis=1)
 
         # add the target variable to the predictions to make sure it is a VIEWS prediction
@@ -69,19 +73,7 @@ class StepshifterModel:
             raise ValueError(f"Model {config['algorithm']} is not a valid Darts forecasting model. Change the model in the config file.")
 
 
-    def _setup(self, df: pd.DataFrame):
-        self._time = df.index.names[0]
-        self._level = df.index.names[1]
-        self._independent_variables = [c for c in df.columns if c != self.target]
-
-
-    def _prepare_time_series(self, df: pd.DataFrame):
-        df_reset = df.reset_index(level=[1])
-        self._series = TimeSeries.from_group_dataframe(df_reset, group_cols=self._level,
-                                                       value_cols=self._independent_variables + [self.target])
-
-
-    def _predict_for_step(self, step, target, run_type):
+    def _predict_by_step(self, step, target, run_type):
         model = self._models[step]
         if run_type == 'forecasting':
             horizon = step
@@ -93,10 +85,8 @@ class StepshifterModel:
                                 # darts automatically locates the time period of past_covariates
                                 past_covariates=[series[self._independent_variables] for series in self._series],
                                 show_warnings=False)
-        return self._process_predictions(ts_pred, step)
 
-
-    def _process_predictions(self, ts_pred, step):
+        # process the predictions
         preds = []
         for pred in ts_pred:
             df_pred = pred.pd_dataframe()
@@ -105,6 +95,7 @@ class StepshifterModel:
             df_pred.columns = [f"step_pred_{step}"]
             df_pred = df_pred.loc[slice(self._test_start, self._test_end, ), :]
             preds.append(df_pred)
+
         return pd.concat(preds).sort_index()
 
 
@@ -122,63 +113,18 @@ class StepshifterModel:
         return self._models.values()
 
 
-'''
-if __name__ == "__main__":
-    def get_parameters(config):
+def get_parameters(config):
+    '''
+    Get the parameters from the config file.
+    If not sweep, then get directly from the config file, otherwise have to remove some parameters.
 
-        if config["sweep"]:
-            keys_to_remove = ["algorithm", "depvar", "steps", "sweep", "run_type", "model_cls", "model_reg"]
-            parameters = {k: v for k, v in config.items() if k not in keys_to_remove}
-        else:
-            parameters = config["parameters"]
+    This function is also in utils_run.py, but I think model-related functions should be in the same file
+    '''
 
-        return parameters
-    
-    # month = [*range(1, 600)]
-    # pg = [123, 456]
-    # idx = pd.MultiIndex.from_product([month, pg], names=['month_id', 'priogrid_gid'])
-    # df = pd.DataFrame(index=idx)
-    # df['ged_sb_dep'] = df.index.get_level_values(0).astype(float)
-    # df['ln_ged_sb'] = df.index.get_level_values(0) + df.index.get_level_values(1) / 1000
-    # df['ln_pop_gpw_sum'] = df.index.get_level_values(0) * 10 + df.index.get_level_values(1) / 1000
-    # steps = [*range(1, 3 + 1, 1)]
-    # partitioner_dict = {"train": (121, 131), "predict": (132, 135)}
-    # target = 'ged_sb_dep'
+    if config["sweep"]:
+        keys_to_remove = ["algorithm", "depvar", "steps", "sweep", "run_type", "model_cls", "model_reg"]
+        parameters = {k: v for k, v in config.items() if k not in keys_to_remove}
+    else:
+        parameters = config["parameters"]
 
-    df = pd.read_parquet('raw_forecasting.parquet')
-    steps = [*range(1, 36 + 1, 1)]
-    partitioner_dict = {"train": (121, 444), "predict": (445, 492)}
-    target = df.forecasts.target
-    # start_t = time.time()
-    
-    hp_config = {
-        "name": "orange_pasta",
-        "algorithm": "LightGBMModel",
-        "depvar": "ged_sb_dep",
-        "run_type": "forecasting",
-        "sweep": False,
-        "steps": [*range(1, 3 + 1, 1)],
-        "parameters": {
-            "learning_rate": 0.01,
-            "n_estimators": 100,
-            "num_leaves": 31,
-        }
-    }
-
-    stepshifter = StepshifterModel(hp_config, partitioner_dict)
-    stepshifter.fit(df)
-    # stepshifter.save('./model.pkl')
-
-    # train_t = time.time()
-    # minutes = (train_t - start_t) / 60
-    # print(f'Done training. Runtime: {minutes:.3f} minutes')
-
-    # stepshifter = pd.read_pickle('./model.pkl')
-    pred = stepshifter.predict(df)
-    # pred.to_parquet('pred.parquet')
-
-    # end_t = time.time()
-    # minutes = (end_t - train_t) / 60
-    # print(f'Done predicting. Runtime: {minutes:.3f} minutes')
-'''
-
+    return parameters

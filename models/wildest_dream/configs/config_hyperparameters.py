@@ -4,11 +4,13 @@ def get_hp_config():
         "parameters": {
             "clf":{
                 "learning_rate": 0.05,
-                "max_iter": 200,
+                "n_estimators": 100,
+                "n_jobs": 12
             },
             "reg":{
                 "learning_rate": 0.05,
-                "max_iter": 200,
+                "n_estimators": 100,
+                "n_jobs": 12
             }
         }
     }

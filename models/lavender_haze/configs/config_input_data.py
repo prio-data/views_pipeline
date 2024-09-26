@@ -1,7 +1,7 @@
 import numpy as np
 from viewser import Queryset, Column
 
-def get_input_data():
+def get_input_data_config():
     
     thetacrit_spatial = 0.7
     return_values = 'distances'
