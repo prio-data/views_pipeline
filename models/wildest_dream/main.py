@@ -27,9 +27,9 @@ if __name__ == "__main__":
 
     start_t = time.time()
 
-    if args.sweep == True:
+    if args.sweep:
         execute_sweep_run(args)
-    elif args.sweep == False:
+    else:
         execute_single_run(args)
 
     end_t = time.time()
