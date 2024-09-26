@@ -23,7 +23,7 @@ def save_script(output_file: Path, code: str) -> bool:
     Returns:
     bool:
         Returns `True` if the script was successfully written and compiled.
-        Returns `False` if an error occurred during the file writing or compilation.
+        Returns `False` if an error occurred during the file writing or compilation or if file already exists.
 
     Raises:
     IOError: If there is an error writing the code to the file (e.g., permission denied, invalid path).

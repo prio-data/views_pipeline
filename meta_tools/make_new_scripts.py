@@ -24,8 +24,7 @@ class ModelScriptBuilder:
         model_dir (Path): The path to the model directory where scripts are saved.
         architecture (str): The architecture of the model, set during script generation.
         obligatory_scripts (list of str): List of paths to the obligatory scripts that should be present in the model directory.
-        current_dir (Path): The current working directory from which the script is run.
-        relative_path (str): The relative path to the `models` directory.
+        root (Path): The path to the project root directory.
         models_dir (Path): The path to the `models` directory where all model directories are stored.
 
     Methods:

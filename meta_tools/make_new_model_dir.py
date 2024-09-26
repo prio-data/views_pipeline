@@ -14,12 +14,11 @@ class ModelDirectoryBuilder:
 
     Attributes:
         expected_structure (list of str): A list of expected directories to be created within the model directory.
-        current_dir (Path): The current working directory from which the script is run.
-        relative_path (str): The relative path to the `models` directory.
         model_name (str): The name of the model for which the directory structure is to be created.
-        models_dir (Path): The path to the `models` directory where all model directories are stored.
         model_dir (Path): The path to the model directory where the structure and files will be created.
         subdirs (list of str): A list of subdirectories to be created within the model directory.
+        root (Path): The path to the project root directory.
+        models_dir (Path): The path to the `models` directory where all model directories are stored.
 
     Methods:
         __init__(model_name: str) -> None:
