@@ -12,8 +12,8 @@ The `ModelDirectoryBuilder` class is designed to create and and enforce the obli
 
 Create an instance of `ModelDirectoryBuilder` by providing the model name in the format adjective_noun, e.g., 'happy_kitten'.
 
-    1. Run `python meta_tools/make_new_model_dir.py`.
-    2. After the required directores are created, run `meta_tools/make_new_scripts.py` to build the obligatory script files for your model.
+1. Run `python meta_tools/make_new_model_dir.py`.
+2. After the required directores are created, run `meta_tools/make_new_scripts.py` to build the obligatory script files for your model.
 
 ## ModelScriptBuilder
 
