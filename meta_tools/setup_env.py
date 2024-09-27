@@ -7,7 +7,7 @@ from utils.utils_model_paths import find_project_root
 
 # Configure logging to display information level messages
 logging.basicConfig(
-    level=logging.INFO,
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
 )
 
 # Define the path to the environment.yml file
