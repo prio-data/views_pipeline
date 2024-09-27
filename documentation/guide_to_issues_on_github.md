@@ -10,6 +10,10 @@ To ensure that our team handles GitHub issues correctly and consistently. This g
 
 **Clarity**: Provide clear, actionable guidelines for communication within issues, including how to ask for help, provide updates, and close issues when resolved.
 
+## Templates
+
+For issues related to [bugfixes](https://github.com/prio-data/views_pipeline/blob/github_issue_guide/documentation/github_bugfix_issue_template.md) and [feature requests](https://github.com/prio-data/views_pipeline/blob/github_issue_guide/documentation/github_feature_request_template.md).
+
 ## Guide Content
 ### Creating an Issue
 1. **Writing a Clear and Concise Issue Title**
