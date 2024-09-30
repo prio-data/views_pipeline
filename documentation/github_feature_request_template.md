@@ -30,7 +30,7 @@ Assign appropriate labels to categorize the feature request (e.g., enhancement, 
 ## **Assignees**
 Assign the feature request to relevant team members.
 
-## **Milestones**
+## **Actionable Tasks**
 - [ ] Task 1
 - [ ] Task 2
 - [ ] Task 3
@@ -44,6 +44,9 @@ Link to any related issues or pull requests.
 
 ## **README Generation**
 - Ensure that the features are documented in the project's relevant README file.
+
+## **ADR Generation**
+- Ensure that any decisions made as part of the feature implementations are properly documented as one or more [ADRs](https://github.com/prio-data/views_pipeline/tree/github_issue_guide/documentation/ADRs) and linked to in the pull request.
 
 ## **Future Flexibility**
 - Consider how this feature might affect future development and document any potential impacts.
