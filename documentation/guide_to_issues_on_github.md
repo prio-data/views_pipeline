@@ -31,7 +31,7 @@ For issues related to [bugfixes](https://github.com/prio-data/views_pipeline/blo
     * Ensure labels are applied consistently.
 
 4. **Assigning Issues**
-    * Assign issues to the appropriate team members based on expertise.
+    * Assign issues to **at least two** appropriate team members based on expertise. If the task is increasingly significant, additional members may be added.
     * Use the Assignees feature in GitHub.
 
 ### Addressing an Issue
@@ -67,8 +67,11 @@ For issues related to [bugfixes](https://github.com/prio-data/views_pipeline/blo
 3. **Documenting the Resolution**
     * [Link to the relevant pull request](https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/linking-a-pull-request-to-an-issue).
     * Summarize the solution and any important details.
+  
+4. **Updating the ADR**
+    * Ensure that any decisions made as part of the feature/bugfix implementations are properly documented as one or more ADRs and linked to in the pull request if the solution involves major changes to the codebase.
 
-4. **Reopening Issues**
+5. **Reopening Issues**
     * Reopen if the problem persists.
     * Provide additional context or information.
 
