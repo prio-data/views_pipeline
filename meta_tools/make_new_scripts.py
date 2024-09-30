@@ -4,7 +4,7 @@ from typing import Dict
 from utils.utils_model_naming import validate_model_name
 from utils.utils_model_paths import find_project_root
 
-# TOOD: Implement a mechanism to generate the scripts from template files at views_pipeline/meta_tools/templates
+# TODO: Implement a mechanism to generate the scripts from template files at views_pipeline/meta_tools/templates
 from templates import (
     template_config_deployment,
     template_config_hyperparameters,
