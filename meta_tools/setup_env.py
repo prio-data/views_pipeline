@@ -210,6 +210,9 @@ def check_environment():
             )
 
         if discrepancies:
+            logging.info(
+                "See 'https://github.com/prio-data/ViEWS_organization/blob/main/The%20Views%20Environment/Setting%20up.MD' to setup the ViEWS environment."
+            )
             logging.warning("Discrepancies found:")
             for discrepancy in discrepancies:
                 logging.warning(discrepancy)
