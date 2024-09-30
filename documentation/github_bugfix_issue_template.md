@@ -19,7 +19,8 @@ Describe what actually happened.
 ## **Environment**
 - **OS**: (e.g., Windows 10, macOS 11.2)
 - **Relevant model**: (e.g., purple_alien)
-- **Version**: (e.g., 1.0.0)
+- **Relevant Library Version**: (e.g., 1.0.0)
+- If possible, include the environment.yml file from your current conda environment by running `conda env export | grep -v "^prefix: " > environment.yml`.
 
 ## **Additional Context**
 Add any other context about the problem here.
@@ -48,6 +49,9 @@ Link to any related issues or pull requests.
 
 ## **Future Flexibility**
 - Consider how this issue might affect future development and document any potential impacts.
+
+## **ADR Generation**
+- Consider whether resolving this issue necessitates the updating and/or the creation of one or more [ADRs](https://github.com/prio-data/views_pipeline/tree/github_issue_guide/documentation/ADRs) to ensure that the ADRs accurately represent the current codebase.
 
 ## **Branch**
 - Work on a new branch named `issue_<issue_number>_<short_description>`.
