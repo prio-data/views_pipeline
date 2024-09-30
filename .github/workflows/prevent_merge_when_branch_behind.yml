@@ -1,0 +1,29 @@
+name: Require Branch to Be Up-to-Date with Main
+
+# Trigger this workflow on pull request events targeting a specific branch.
+on:
+  pull_request:
+    branches:
+      - main
+      - test-protect-main-merge # for testing
+  workflow_dispatch: # enables manual triggering
+
+jobs:
+  check-branch:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Fetch main branch
+        run: |
+          git fetch origin main
+      - name: Compare branch with main
+        run: |
+          if ! git merge-base --is-ancestor HEAD origin/main; then
+            echo "Branch is behind main. Aborting."
+            exit 1
+          fi
+      - name: Approve merge if branch is up to date
+        run: |
+          echo "Branch is up-to-date with main."
+
+ 
