@@ -22,7 +22,7 @@ jobs:
           git fetch origin main
       - name: Compare branch with main
         run: |
-          if ! git merge-base --is-ancestor HEAD origin/main; then
+          if ! git merge-base --is-ancestor origin/main HEAD; then
             echo "Branch is behind main. Aborting."
             exit 1
           fi
