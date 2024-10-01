@@ -126,7 +126,9 @@ def setup_project_paths(PATH) -> None:
         PATH_CONFIGS = PATH_MODEL / "configs"
         PATH_SRC = PATH_MODEL / "src"
         PATH_UTILS = PATH_SRC / "utils"
-        PATH_MANAGEMENT = PATH_SRC / "management" # added to keep the management scripts in a separate folder the utils according to Sara's point
+        PATH_MANAGEMENT = (
+            PATH_SRC / "management"
+        )  # added to keep the management scripts in a separate folder the utils according to Sara's point
         PATH_ARCHITECTURES = PATH_SRC / "architectures"
         PATH_TRAINING = PATH_SRC / "training"
         PATH_FORECASTING = PATH_SRC / "forecasting"
@@ -150,7 +152,9 @@ def setup_project_paths(PATH) -> None:
         PATH_CONFIGS_E = PATH_ENSEMBLE / "configs"
         PATH_SRC_E = PATH_ENSEMBLE / "src"
         PATH_UTILS_E = PATH_SRC_E / "utils"
-        PATH_MANAGEMENT_E = PATH_SRC_E / "management"  # added to keep the management scripts in a separate folder the utils according to Sara's point
+        PATH_MANAGEMENT_E = (
+            PATH_SRC_E / "management"
+        )  # added to keep the management scripts in a separate folder the utils according to Sara's point
         PATH_ARCHITECTURES_E = PATH_SRC_E / "architectures"
         PATH_TRAINING_E = PATH_SRC_E / "training"
         PATH_FORECASTING_E = PATH_SRC_E / "forecasting"
@@ -175,6 +179,8 @@ def setup_project_paths(PATH) -> None:
             path.exists() and path_str not in sys.path
         ):  # whith the current implementation, PATH_COMMON_UTILS is already in sys.path and will not be added (or printed) again
             # print(f"Adding {path_str} to sys.path") # debug
+            if not path.exists():
+                path.mkdir(parents=True)
             sys.path.insert(0, path_str)
 
 
@@ -219,3 +225,27 @@ def setup_artifacts_paths(PATH) -> Path:
 
     PATH_ARTIFACTS = PATH_MODEL / "artifacts"
     return PATH_ARTIFACTS
+
+
+# # Case 1: "views_pipeline" directory not found
+# path1 = Path("/Users/dylanpinheiro/Desktop/project/scripts")
+# setup_project_paths(path1)
+
+# # Case 2: "models" directory not found
+# path2 = Path("/Users/dylanpinheiro/Desktop/views_pipeline/scripts")
+# setup_project_paths(path2)
+
+# # Case 3: "ensembles" directory not found
+# path3 = Path("/Users/dylanpinheiro/Desktop/views_pipeline/models/scripts")
+# setup_project_paths(path3)
+
+# # Case 4: Invalid PATH type (string instead of Path object)
+# path4 = "/Users/dylanpinheiro/Desktop/views_pipeline/models/scripts"
+# try:
+#     setup_project_paths(path4)
+# except AttributeError as e:
+#     print(f"Error: {e}")
+
+# # Case 5: Empty PATH
+# path5 = Path("")
+# setup_project_paths(path5)
