@@ -20,14 +20,24 @@ jobs:
       - name: Fetch main branch
         run: |
           git fetch origin main
+          git status
+
+      - name: Print commit hashes
+        run: |
+          echo "Current branch: $(git rev-parse --abbrev-ref HEAD)"
+          echo "Current head: $(git rev-parse HEAD)"
+          echo "Main: $(git rev-parse origin/main)"
+          BASE=$(git merge-base HEAD origin/main)
+          echo "Merge base: $BASE"
+
+
       - name: Compare branch with main
         run: |
           if ! git merge-base --is-ancestor origin/main HEAD; then
             echo "Branch is behind main. Aborting."
             exit 1
+          else
+            echo "Branch is up-to-date with main."
           fi
-      - name: Approve merge if branch is up to date
-        run: |
-          echo "Branch is up-to-date with main."
 
  
