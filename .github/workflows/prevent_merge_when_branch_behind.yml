@@ -20,18 +20,7 @@ jobs:
       - name: Fetch main branch
         run: |
           git fetch --unshallow
-          git fetch --all
-          git status
-
-      - name: Print commit hashes
-        run: |
-          echo "Current branch: $(git rev-parse --abbrev-ref HEAD)"
-          echo "Current head: $(git rev-parse HEAD)"
-          echo "Main: $(git rev-parse origin/main)"
-          git branch -a
-          git log --oneline
-          
-
+          git fetch origin main
 
       - name: Compare branch with main
         run: |
