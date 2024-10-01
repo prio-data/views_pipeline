@@ -28,13 +28,7 @@ jobs:
           echo "Current head: $(git rev-parse HEAD)"
           echo "Main: $(git rev-parse origin/main)"
           git branch -a
-          git log --oneline --graph --decorate
-          BASE=$(git merge-base HEAD origin/main)
-          if [ $? -eq 0 ]; then
-            echo "Merge base: $BASE"
-          else
-            echo "Failed to find merge base."
-          fi
+          
 
 
       - name: Compare branch with main
@@ -43,6 +37,7 @@ jobs:
             echo "Branch is up-to-date with main."
           else
             echo "Branch is behind main. Aborting."
+            echo "Merge base: $(git merge-base HEAD origin/main)"
             exit 1
           fi
 
