@@ -6,17 +6,17 @@ def generate(script_dir: Path) -> bool:
     """
     Generates a Python script that sets up and executes model runs with Weights & Biases (WandB) integration.
 
-    This function creates a script that imports necessary modules, sets up project paths, and defines the 
-    main execution logic for running either a single model run or a sweep of model configurations. The 
+    This function creates a script that imports necessary modules, sets up project paths, and defines the
+    main execution logic for running either a single model run or a sweep of model configurations. The
     generated script includes command-line argument parsing, validation, and runtime logging.
 
     Parameters:
-        script_dir (Path): 
-            The directory where the generated Python script will be saved. This should be a valid writable 
+        script_dir (Path):
+            The directory where the generated Python script will be saved. This should be a valid writable
             path that exists within the project structure.
 
     Returns:
-        bool: 
+        bool:
             True if the script was successfully written to the specified directory, False otherwise.
 
     The generated script includes the following features:
@@ -29,13 +29,17 @@ def generate(script_dir: Path) -> bool:
     - Calculates and prints the runtime of the execution in minutes.
 
     Note:
-        - Ensure that the `common_utils` module and all other imported modules are accessible from the 
+        - Ensure that the `common_utils` module and all other imported modules are accessible from the
           specified script directory.
         - The generated script is designed to be executed as a standalone Python script.
     """
     code = """import time
 import wandb
 import sys
+import logging
+logging.basicConfig(filename='run.log', encoding='utf-8', level=logging.INFO,
+                    format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 from pathlib import Path
 # Set up the path to include common_utils module
 PATH = Path(__file__)
@@ -46,6 +50,7 @@ from set_path import setup_project_paths
 setup_project_paths(PATH)
 from utils_cli_parser import parse_args, validate_arguments
 from execute_model_runs import execute_sweep_run, execute_single_run
+
 if __name__ == "__main__":
     # Parse command-line arguments
     args = parse_args()
@@ -66,6 +71,6 @@ if __name__ == "__main__":
     
     # Calculate and print the runtime in minutes
     minutes = (end_t - start_t) / 60
-    print(f'Done. Runtime: {minutes:.3f} minutes')
+    logger.info(f'Done. Runtime: {minutes:.3f} minutes')
 """
     return utils_script_gen.save_script(script_dir, code)
