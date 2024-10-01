@@ -19,7 +19,7 @@ jobs:
     
       - name: Fetch main branch
         run: |
-          git fetch origin main
+          git fetch --all
           git status
 
       - name: Print commit hashes
@@ -27,17 +27,23 @@ jobs:
           echo "Current branch: $(git rev-parse --abbrev-ref HEAD)"
           echo "Current head: $(git rev-parse HEAD)"
           echo "Main: $(git rev-parse origin/main)"
+          git branch -a
+          git log --oneline --graph --decorate
           BASE=$(git merge-base HEAD origin/main)
-          echo "Merge base: $BASE"
+          if [ $? -eq 0 ]; then
+            echo "Merge base: $BASE"
+          else
+            echo "Failed to find merge base."
+          fi
 
 
       - name: Compare branch with main
         run: |
-          if ! git merge-base --is-ancestor origin/main HEAD; then
+          if git merge-base --is-ancestor origin/main HEAD; then
+            echo "Branch is up-to-date with main."
+          else
             echo "Branch is behind main. Aborting."
             exit 1
-          else
-            echo "Branch is up-to-date with main."
           fi
 
  
