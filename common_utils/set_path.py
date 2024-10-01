@@ -118,6 +118,10 @@ def setup_project_paths(PATH) -> None:
         PATH_FORECASTING,
         PATH_OFFLINE_EVALUATION,
         PATH_DATALOADERS,
+        PATH_NOTEBOOKS,
+        PATH_REPORTS,
+        PATH_VISUALIZATION,
+        PATH_ONLINE_EVALUATION,
     ]
 
     for path in paths_to_add:
