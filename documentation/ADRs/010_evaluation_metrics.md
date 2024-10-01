@@ -5,7 +5,7 @@
 |---------------------|--------------------|
 | Subject             | Evaluation metrics |
 | ADR Number          | 010                |
-| Status              | Accepted           |
+| Status              | Proposed           |
 | Author              | Xiaolong           |
 | Date                | 12.09.2024         |
 

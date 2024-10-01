@@ -11,7 +11,7 @@
 
 ## Context
 In the context of the VIEWS pipeline, there is a need to create a log file to ensure that models and data are tracked accurately and meet certain criteria before running. 
-This log file will provide a detailed record of the data generation process, including the model artifact, the generated data, and the input raw data, to facilitate further checks. 
+These log file, used as metadata for deployment and orchestration,  will provide a detailed record of the data generation process, including the model artifact, the generated data, and the input raw data. 
 This is critical to ensure the reliability and reproducibility of model outputs and to prevent outdated or incorrect data from being used in production systems.
 
 ## Decision
@@ -27,7 +27,8 @@ Additionally, ensemble models will enforce a set of preconditions before running
 - The generated data must be from the current month.
 - The raw data must also have been fetched in the current month.
 
-If any of these conditions are not met, the ensemble model will automatically shut down and output a clear and verbose warning, detailing where the issue occurred.
+In the deployment, when one tries to run an ensemble model, a model check must be passed before executing evaluation or forecatsing. 
+If any of these conditions are not met, the pipeline will automatically shut down and output a clear and verbose warning, detailing where the issue occurred.
 
 ## Consequences
 **Positive Effects:**
