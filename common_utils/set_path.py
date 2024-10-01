@@ -99,7 +99,7 @@ def setup_project_paths(PATH) -> None:
 
     # new
     # PATH_ARTIFACTS = PATH_MODEL / "artifacts"
-    # alredy defined in setup_artifacts_paths
+    # PATH_ARTIFACTS alredy defined in setup_artifacts_paths
     PATH_NOTEBOOKS = PATH_MODEL / "notebooks"
     PATH_REPORTS = PATH_MODEL / "reports"
     PATH_VISUALIZATION = PATH_SRC / "visualization"
