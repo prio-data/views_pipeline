@@ -19,6 +19,7 @@ jobs:
     
       - name: Fetch main branch
         run: |
+          git fetch --unshallow
           git fetch --all
           git status
 
@@ -28,6 +29,7 @@ jobs:
           echo "Current head: $(git rev-parse HEAD)"
           echo "Main: $(git rev-parse origin/main)"
           git branch -a
+          git log --oneline
           
 
 
