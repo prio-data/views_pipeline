@@ -280,6 +280,11 @@ def fix_environment(prune=False):
     logging.warning(
         "Very experimental. Fixing the environment may cause issues. Proceed with caution. See 'https://github.com/prio-data/ViEWS_organization/blob/main/The%20Views%20Environment/Setting%20up.MD'"
     )
+    print("Are you sure you want to proceed? (y/n)")
+    response = input()
+    if response.lower() != "y":
+        logging.info("Exiting without making changes.")
+        return
     discrepancies = check_environment()
     if not discrepancies:
         logging.info("No discrepancies found. Environment is already up to date.")
