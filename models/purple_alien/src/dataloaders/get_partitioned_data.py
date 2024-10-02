@@ -11,6 +11,7 @@ setup_project_paths(PATH)
 
 # Import necessary functions
 from utils_dataloaders import fetch_or_load_views_df, create_or_load_views_vol, parse_args, get_alert_help_string
+from utils_dataloaders import publish_drift_detection_test_ps
 from common_configs import config_drift_detection
 
 if __name__ == "__main__":
@@ -41,16 +42,18 @@ if __name__ == "__main__":
 
     config = config_drift_detection.drift_detection_partition_dict
 
+    publish_drift_detection_test_ps()
+
     with wandb.init(project=project, entity="views_pipeline", config=config, notes=get_alert_help_string()):
 
-#        wandb.log({f"_Input drift detection": get_alert_help_string()})
-
-#        print(get_alert_help_string())
-
         # Process calibration data if flag is set
+
+        self_test = True
+
         if args.calibration:
 
-            df_cal, alerts_cal = fetch_or_load_views_df('calibration', PATH_RAW, args.saved)
+            df_cal, alerts_cal = fetch_or_load_views_df('calibration', PATH_RAW, self_test, args.saved)
+            self_test = False
             for ialert, alert in enumerate(str(alerts_cal).strip('[').strip(']').split('Input')):
                 if 'offender' in alert:
                     wandb.log({f"calibration data alert {ialert}": str(alert)})
@@ -63,7 +66,8 @@ if __name__ == "__main__":
         # Process testing data if flag is set
         if args.testing:
 
-            df_test, alerts_test = fetch_or_load_views_df('testing', PATH_RAW, args.saved)
+            df_test, alerts_test = fetch_or_load_views_df('testing', PATH_RAW, self_test, args.saved)
+            self_test = False
             for ialert, alert in enumerate(str(alerts_test).strip('[').strip(']').split('Input')):
                 if 'offender' in alert:
                     wandb.log({f"test data alert {ialert}": str(alert)})
@@ -75,7 +79,9 @@ if __name__ == "__main__":
 
         # Process forecasting data if flag is set
         if args.forecasting:
-            df_forecast, alerts_forecast = fetch_or_load_views_df('forecasting', PATH_RAW, args.saved, args.override_month)
+            df_forecast, alerts_forecast = fetch_or_load_views_df('forecasting', PATH_RAW, self_test, args.saved,
+                                                                  args.override_month)
+            self_test = False
             for ialert, alert in enumerate(str(alerts_forecast).strip('[').strip(']').split('Input')):
                 if 'offender' in alert:
                     wandb.log({f"forecasting data alert {ialert}": str(alert)})
