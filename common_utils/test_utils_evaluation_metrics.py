@@ -7,7 +7,12 @@ from utils_evaluation_metrics import EvaluationMetrics, generate_metric_dict
 
 @pytest.fixture
 def mock_df():
-    """Fixture to create a mock DataFrame."""
+    """
+    Fixture to create a mock DataFrame for testing.
+
+    Returns:
+        pd.DataFrame: A DataFrame containing mock data with columns 'depvar', 'step_pred_1', and 'step_pred_2'.
+    """
     data = {
         "depvar": [0.1, 0.2, 0.3, 0.4],
         "step_pred_1": [0.15, 0.25, 0.35, 0.45],
@@ -18,7 +23,12 @@ def mock_df():
 
 @pytest.fixture
 def mock_config():
-    """Fixture to create a mock configuration."""
+    """
+    Fixture to create a mock configuration for testing.
+
+    Returns:
+        Config: A mock configuration object with attributes 'steps' and 'depvar'.
+    """
 
     class Config:
         steps = [1, 2]
@@ -30,6 +40,9 @@ def mock_config():
 def test_evaluation_metrics_default_values():
     """
     Test the default values and types of the EvaluationMetrics attributes.
+
+    Asserts:
+        None: All attributes of EvaluationMetrics should be None by default.
     """
     metrics = EvaluationMetrics()
     assert metrics.MSE is None
@@ -48,7 +61,16 @@ def test_evaluation_metrics_default_values():
 def test_make_evaluation_dict():
     """
     Test the make_evaluation_dict method.
-    Verify the type and shape of the output dictionary.
+
+    Verifies:
+        - The output is a dictionary.
+        - The dictionary has the correct number of steps.
+        - Each value in the dictionary is an instance of EvaluationMetrics.
+
+    Asserts:
+        dict: The output should be a dictionary.
+        int: The length of the dictionary should match the number of steps.
+        EvaluationMetrics: Each value in the dictionary should be an instance of EvaluationMetrics.
     """
     evaluation_dict = EvaluationMetrics.make_evaluation_dict(steps=2)
     assert isinstance(evaluation_dict, dict)
@@ -61,7 +83,14 @@ def test_make_evaluation_dict():
 def test_evaluation_dict_to_dataframe():
     """
     Test the evaluation_dict_to_dataframe method.
-    Verify the type and shape of the output DataFrame.
+
+    Verifies:
+        - The output is a DataFrame.
+        - The DataFrame has the correct columns.
+
+    Asserts:
+        pd.DataFrame: The output should be a DataFrame.
+        set: The columns of the DataFrame should match the attributes of EvaluationMetrics.
     """
     evaluation_dict = EvaluationMetrics.make_evaluation_dict(steps=2)
     df = EvaluationMetrics.evaluation_dict_to_dataframe(evaluation_dict)
@@ -72,8 +101,16 @@ def test_evaluation_dict_to_dataframe():
 def test_calculate_aggregate_metrics():
     """
     Test the calculate_aggregate_metrics method.
-    Verify the type and shape of the output dictionary.
-    Check that the aggregate metrics are correctly calculated.
+
+    Verifies:
+        - The output is a dictionary.
+        - The dictionary contains keys 'mean', 'std', and 'median'.
+        - The aggregate metrics are correctly calculated.
+
+    Asserts:
+        dict: The output should be a dictionary.
+        set: The keys of the dictionary should include 'mean', 'std', and 'median'.
+        float: The calculated metrics should be approximately correct.
     """
     evaluation_dict = EvaluationMetrics.make_evaluation_dict(steps=2)
     evaluation_dict["step01"].MSE = 0.1
@@ -89,8 +126,16 @@ def test_calculate_aggregate_metrics():
 def test_output_metrics():
     """
     Test the output_metrics method.
-    Verify the type and shape of the output dictionary.
-    Check that the output dictionary contains the correct metrics.
+
+    Verifies:
+        - The output is a dictionary.
+        - The dictionary contains keys 'mean', 'std', and 'median'.
+        - The output metrics are correctly calculated.
+
+    Asserts:
+        dict: The output should be a dictionary.
+        set: The keys of the dictionary should include 'mean', 'std', and 'median'.
+        float: The calculated metrics should be approximately correct.
     """
     evaluation_dict = EvaluationMetrics.make_evaluation_dict(steps=2)
     evaluation_dict["step01"].MSE = 0.1
@@ -108,8 +153,19 @@ def test_output_metrics():
 def test_generate_metric_dict(mock_df, mock_config):
     """
     Test the generate_metric_dict function.
-    Verify the type and shape of the output dictionary and DataFrame.
-    Check that the metrics are correctly calculated.
+
+    Verifies:
+        - The output is a dictionary and a DataFrame.
+        - The dictionary contains instances of EvaluationMetrics.
+        - The metrics are correctly calculated.
+        - The DataFrame has the correct columns and shape.
+
+    Asserts:
+        dict: The output dictionary should contain instances of EvaluationMetrics.
+        pd.DataFrame: The output should be a DataFrame.
+        set: The columns of the DataFrame should match the attributes of EvaluationMetrics.
+        int: The length of the DataFrame should match the number of steps plus aggregate metrics.
+        float: The calculated metrics should be approximately correct.
     """
     evaluation_dict, df_evaluation_dict = generate_metric_dict(mock_df, mock_config)
     print(evaluation_dict)
