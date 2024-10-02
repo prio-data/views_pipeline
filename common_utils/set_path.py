@@ -168,7 +168,7 @@ def setup_project_paths(PATH) -> None:
     for path in paths_to_add:
         path_str = str(path)
         if (
-            path_str not in sys.path  # path.exists() and
+            path_str not in sys.path
         ):  # whith the current implementation, PATH_COMMON_UTILS is already in sys.path and will not be added (or printed) again
             # print(f"Adding {path_str} to sys.path") # debug
             if not path.exists():
@@ -218,27 +218,3 @@ def setup_artifacts_paths(PATH) -> Path:
     PATH_ARTIFACTS = PATH_MODEL / "artifacts"
     # print(f"Artifacts path: {PATH_ARTIFACTS}")
     return PATH_ARTIFACTS
-
-
-# # Case 1: "views_pipeline" directory not found
-# path1 = Path("/Users/dylanpinheiro/Desktop/project/scripts")
-# setup_project_paths(path1)
-
-# # Case 2: "models" directory not found
-# path2 = Path("/Users/dylanpinheiro/Desktop/views_pipeline/scripts")
-# setup_project_paths(path2)
-
-# # Case 3: "ensembles" directory not found
-# path3 = Path("/Users/dylanpinheiro/Desktop/views_pipeline/models/scripts")
-# setup_project_paths(path3)
-
-# # Case 4: Invalid PATH type (string instead of Path object)
-# path4 = "/Users/dylanpinheiro/Desktop/views_pipeline/models/scripts"
-# try:
-#     setup_project_paths(path4)
-# except AttributeError as e:
-#     print(f"Error: {e}")
-
-# # Case 5: Empty PATH
-# path5 = Path("")
-# setup_project_paths(path5)
