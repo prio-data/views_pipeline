@@ -1,0 +1,35 @@
+name: Require Branch to Be Up-to-Date with Main
+
+# Trigger this workflow on pull request events targeting a specific branch.
+on:
+  pull_request:
+    branches:
+      - main
+      - test-protect-main-merge # for testing
+  workflow_dispatch: # enables manual triggering
+
+jobs:
+  check-branch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout pull request branch
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+    
+      - name: Fetch main branch
+        run: |
+          git fetch --unshallow
+          git fetch origin main
+
+      - name: Compare branch with main
+        run: |
+          if git merge-base --is-ancestor origin/main HEAD; then
+            echo "::notice ::Branch is up-to-date with main."
+          else
+            echo "::error ::Merge Blocked: Your branch is behind the latest commits on main. Please update your branch with the latest changes from main before attempting to merge."
+            echo "Merge base: $(git merge-base HEAD origin/main)"
+            exit 1
+          fi
+
+ 
