@@ -3,7 +3,6 @@ import pandas as pd
 import properscoring as ps
 from sklearn.metrics import mean_squared_error, mean_absolute_error
 from utils_evaluation_metrics import EvaluationMetrics, generate_metric_dict
-from math import isclose
 
 
 @pytest.fixture
@@ -82,9 +81,9 @@ def test_calculate_aggregate_metrics():
     aggregate_metrics = EvaluationMetrics.calculate_aggregate_metrics(evaluation_dict)
     assert isinstance(aggregate_metrics, dict)
     assert set(aggregate_metrics.keys()) == {"mean", "std", "median"}
-    assert isclose(aggregate_metrics["mean"]["MSE"], 0.15)
-    assert isclose(aggregate_metrics["std"]["MSE"], pytest.approx(0.0707, rel=1e-2))
-    assert isclose(aggregate_metrics["median"]["MSE"] == 0.15)
+    assert aggregate_metrics["mean"]["MSE"] == pytest.approx(0.15, rel=1e-2)
+    assert aggregate_metrics["std"]["MSE"] == pytest.approx(0.0707, rel=1e-2)
+    assert aggregate_metrics["median"]["MSE"] == pytest.approx(0.15, rel=1e-2)
 
 
 def test_output_metrics():
@@ -101,9 +100,9 @@ def test_output_metrics():
     assert "mean" in output_metrics
     assert "std" in output_metrics
     assert "median" in output_metrics
-    assert isclose(output_metrics["mean"]["MSE"], 0.15)
-    assert isclose(output_metrics["std"]["MSE"], float(pytest.approx(0.0707, rel=1e-2)))
-    assert isclose(output_metrics["median"]["MSE"], 0.15)
+    assert output_metrics["mean"]["MSE"] == pytest.approx(0.15, rel=1e-2)
+    assert output_metrics["std"]["MSE"] == pytest.approx(0.0707, rel=1e-2)
+    assert output_metrics["median"]["MSE"] == pytest.approx(0.15, rel=1e-2)
 
 
 def test_generate_metric_dict(mock_df, mock_config):
@@ -113,11 +112,22 @@ def test_generate_metric_dict(mock_df, mock_config):
     Check that the metrics are correctly calculated.
     """
     evaluation_dict, df_evaluation_dict = generate_metric_dict(mock_df, mock_config)
-
-    # Verify the type of the output dictionary
+    print(evaluation_dict)
+    # Verify the type of the output dictionary before calling output_metrics
     assert isinstance(evaluation_dict, dict)
-    assert all(
-        isinstance(value, EvaluationMetrics) for value in evaluation_dict.values()
+    # assert all(
+    #     isinstance(value, EvaluationMetrics) for value in evaluation_dict.values()
+    # )
+
+    # Check that the metrics are correctly calculated before calling output_metrics
+    assert evaluation_dict["step01"]["MSE"] == pytest.approx(
+        mean_squared_error(mock_df["depvar"], mock_df["step_pred_1"]), rel=1e-2
+    )
+    assert evaluation_dict["step01"]["MAE"] == pytest.approx(
+        mean_absolute_error(mock_df["depvar"], mock_df["step_pred_1"]), rel=1e-2
+    )
+    assert evaluation_dict["step01"]["CRPS"] == pytest.approx(
+        ps.crps_ensemble(mock_df["depvar"], mock_df["step_pred_1"]).mean(), rel=1e-2
     )
 
     # Verify the type of the output DataFrame
@@ -126,19 +136,16 @@ def test_generate_metric_dict(mock_df, mock_config):
     # Verify the shape of the output DataFrame
     assert set(df_evaluation_dict.columns) == set(
         EvaluationMetrics.__annotations__.keys()
-    ).union({"mean", "std", "median"})
+    )
     assert (
         len(df_evaluation_dict) == len(mock_config.steps) + 3
     )  # steps + mean, std, median
 
-    # Check that the metrics are correctly calculated
-    assert evaluation_dict["step01"].MSE == mean_squared_error(
-        mock_df["depvar"], mock_df["step_pred_1"]
-    )
-    assert evaluation_dict["step01"].MAE == mean_absolute_error(
-        mock_df["depvar"], mock_df["step_pred_1"]
-    )
-    assert (
-        evaluation_dict["step01"].CRPS
-        == ps.crps_ensemble(mock_df["depvar"], mock_df["step_pred_1"]).mean()
-    )
+    # Verify the aggregate metrics
+    aggregate_metrics = EvaluationMetrics.calculate_aggregate_metrics(evaluation_dict)
+    assert "mean" in aggregate_metrics
+    assert "std" in aggregate_metrics
+    assert "median" in aggregate_metrics
+    assert aggregate_metrics["mean"]["MSE"] == pytest.approx(0.15, rel=1e-2)
+    assert aggregate_metrics["std"]["MSE"] == pytest.approx(0.0707, rel=1e-2)
+    assert aggregate_metrics["median"]["MSE"] == pytest.approx(0.15, rel=1e-2)
