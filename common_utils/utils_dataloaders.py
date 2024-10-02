@@ -8,9 +8,10 @@ from set_partition import get_partitioner_dict
 from config_input_data import get_input_data_config  # this is model specific
 from common_configs import config_drift_detection
 from utils_df_to_vol_conversion import df_to_vol
+from viewser import Queryset, Column
 
 
-def fetch_data_from_viewser(month_first, month_last, drift_config_dict):
+def fetch_data_from_viewser(month_first, month_last, drift_config_dict, self_test):
     """
     Fetches and prepares the initial DataFrame from viewser.
 
@@ -21,7 +22,11 @@ def fetch_data_from_viewser(month_first, month_last, drift_config_dict):
     """
     print(f'Beginning file download through viewser with month range {month_first},{month_last}')
     queryset_base = get_input_data_config()  # just used here..
-    df, alerts = queryset_base.publish().fetch_with_drift_detection(month_first, month_last - 1, drift_config_dict)
+    df, alerts = queryset_base.publish().fetch_with_drift_detection(start_date=month_first,
+                                                                    end_date=month_last - 1,
+                                                                    drift_config_dict=drift_config_dict,
+                                                                    self_test=self_test)
+
     df = ensure_float64(df)  # The dataframe must contain only np.float64 floats
 
     # Not required for stepshift model
@@ -129,7 +134,7 @@ def filter_dataframe_by_month_range(df, month_first, month_last):
     return df[df['month_id'].isin(month_range)].copy()
 
 
-def get_views_df(partition, override_month=None):
+def get_views_df(partition, override_month=None, self_test=False):
     """
     Fetches and processes a DataFrame containing spatial-temporal data for the specified partition type.
 
@@ -164,12 +169,12 @@ def get_views_df(partition, override_month=None):
         month_last = override_month
         print(f'\n ***Warning: overriding end month in forecasting partition to {month_last} ***\n')
 
-    df, alerts = fetch_data_from_viewser(month_first, month_last, drift_config_dict)
+    df, alerts = fetch_data_from_viewser(month_first, month_last, drift_config_dict, self_test)
 
     return df, alerts
 
 
-def fetch_or_load_views_df(partition, PATH_RAW, use_saved=False, override_month=None):
+def fetch_or_load_views_df(partition, PATH_RAW, self_test=False, use_saved=False, override_month=None):
     """
     Fetches or loads a DataFrame for a given partition from viewser.
 
@@ -205,7 +210,7 @@ def fetch_or_load_views_df(partition, PATH_RAW, use_saved=False, override_month=
 
     else:
         print(f'Fetching file...')
-        df, alerts = get_views_df(partition, override_month)  # which is then used here
+        df, alerts = get_views_df(partition, override_month, self_test)  # which is then used here
         print(f'Saving file to {path_viewser_df}')
         df.to_pickle(path_viewser_df)
 
@@ -276,6 +281,51 @@ def get_alert_help_string():
 
     return help_string
 
+
+def publish_drift_detection_test_ps():
+
+    """
+    This function defines and publishes a small simple test queryset used by the drift-detection system for
+    self testing.
+
+    This MUST be done before self-testing can be done.
+
+    This queryset should only be modified in EXCEPTIONAL CIRCUMSTANCES after CAREFUL CONSIDERATION!
+
+    Returns: Nothing
+
+    """
+
+    qs_self_test = (Queryset("drift_detection_self_test", "country_month")
+
+                    .with_column(Column("ln_ged_ns", from_loa="country_month",
+                                        from_column="ged_ns_best_sum_nokgi")
+                                 .transform.ops.ln()
+                                 .transform.missing.fill()
+                                 )
+
+                    .with_column(Column("ln_ged_os", from_loa="country_month",
+                                        from_column="ged_os_best_sum_nokgi")
+                                 .transform.ops.ln()
+                                 .transform.missing.fill()
+                                 )
+
+                    .with_column(Column("ln_ged_sb", from_loa="country_month",
+                                        from_column="ged_sb_best_sum_nokgi")
+                                 .transform.ops.ln()
+                                 .transform.missing.fill()
+                                 )
+
+                    .with_column(Column("wdi_sp_pop_totl", from_loa="country_year",
+                                        from_column="wdi_sp_pop_totl")
+                                 .transform.missing.replace_na()
+                                 .transform.ops.ln()
+                                 )
+                    )
+
+    qs_self_test.publish()
+
+    return
 
 def ensure_float64(df):
     """
