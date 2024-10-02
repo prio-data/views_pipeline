@@ -51,6 +51,12 @@ def save_script(output_file: Path, code: str) -> bool:
 
     try:
         # Write the sample code to the Python file
+        if not output_file.suffix.endswith(".py"):
+            logger.exception(f"{output_file} is not a Python file.")
+            return False
+        if not output_file.parent.exists():
+            logger.info(f"Creating parent directories for {output_file}")
+            output_file.parent.mkdir(parents=True, exist_ok=True)
         with open(output_file, "w") as file:
             file.write(code)
 

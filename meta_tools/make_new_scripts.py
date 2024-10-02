@@ -58,7 +58,7 @@ class ModelScriptBuilder:
         self.obligatory_scripts = [
             "configs/config_deployment.py",
             "configs/config_hyperparameters.py",
-            "configs/config_input_data.py",
+            # "configs/config_input_data.py",
             "configs/config_meta.py",
             "configs/config_sweep.py",
             "src/dataloaders/get_data.py",
@@ -100,7 +100,7 @@ class ModelScriptBuilder:
             model_algorithm=self.model_algorithm,
         )
         template_config_input_data.generate(
-            script_dir=self.model_dir / "configs/config_input_data.py",
+            script_dir=self.root / "common_querysets" / f"config_input_data_{self.model_name}.py",
             model_name=self.model_name,
         )
         template_config_meta.generate(
