@@ -20,9 +20,7 @@ def fetch_data_from_viewser(month_first, month_last, drift_config_dict, self_tes
     Returns:
         pd.DataFrame: The prepared DataFrame with initial processing done.
     """
-    print(
-        f"Beginning file download through viewser with month range {month_first},{month_last}"
-    )
+    print(f'Beginning file download through viewser with month range {month_first},{month_last}')
     queryset_base = get_input_data_config()  # just used here..
     df, alerts = queryset_base.publish().fetch_with_drift_detection(start_date=month_first,
                                                                     end_date=month_last - 1,
@@ -53,16 +51,14 @@ def get_month_range(partition):
         ValueError: If partition is not 'calibration', 'testing', or 'forecasting'.
     """
     partitioner_dict = get_partitioner_dict(partition)
-    month_first = partitioner_dict["train"][0]
+    month_first = partitioner_dict['train'][0]
 
-    if partition == "forecasting":
-        month_last = partitioner_dict["train"][1] + 1
-    elif partition == "calibration" or partition == "testing":
-        month_last = partitioner_dict["predict"][1] + 1
+    if partition == 'forecasting':
+        month_last = partitioner_dict['train'][1] + 1
+    elif partition == 'calibration' or partition == 'testing':
+        month_last = partitioner_dict['predict'][1] + 1
     else:
-        raise ValueError(
-            'partition should be either "calibration", "testing" or "forecasting"'
-        )
+        raise ValueError('partition should be either "calibration", "testing" or "forecasting"')
 
     return month_first, month_last
 
@@ -102,17 +98,17 @@ def validate_df_partition(df, partition, override_month=None):
 
     """
 
-    if "month_id" in df.columns:
-        df_time_units = df["month_id"].values
+    if 'month_id' in df.columns:
+        df_time_units = df['month_id'].values
     else:
-        df_time_units = df.index.get_level_values("month_id").values
+        df_time_units = df.index.get_level_values('month_id').values
     partitioner_dict = get_partitioner_dict(partition)
-    if partition in ["calibration", "testing"]:
-        first_month = partitioner_dict["train"][0]
-        last_month = partitioner_dict["predict"][1]
+    if partition in ['calibration', 'testing']:
+        first_month = partitioner_dict['train'][0]
+        last_month = partitioner_dict['predict'][1]
     else:
-        first_month = partitioner_dict["train"][0]
-        last_month = partitioner_dict["train"][1]
+        first_month = partitioner_dict['train'][0]
+        last_month = partitioner_dict['train'][1]
         if override_month is not None:
             last_month = override_month - 1
 
@@ -135,7 +131,7 @@ def filter_dataframe_by_month_range(df, month_first, month_last):
         pd.DataFrame: The filtered DataFrame.
     """
     month_range = np.arange(month_first, month_last)
-    return df[df["month_id"].isin(month_range)].copy()
+    return df[df['month_id'].isin(month_range)].copy()
 
 
 def get_views_df(partition, override_month=None, self_test=False):
@@ -169,11 +165,9 @@ def get_views_df(partition, override_month=None, self_test=False):
     month_first, month_last = get_month_range(partition)
     drift_config_dict = get_drift_config_dict(partition)
 
-    if partition == "forecasting" and override_month is not None:
+    if partition == 'forecasting' and override_month is not None:
         month_last = override_month
-        print(
-            f"\n ***Warning: overriding end month in forecasting partition to {month_last} ***\n"
-        )
+        print(f'\n ***Warning: overriding end month in forecasting partition to {month_last} ***\n')
 
     df, alerts = fetch_data_from_viewser(month_first, month_last, drift_config_dict, self_test)
 
@@ -197,9 +191,7 @@ def fetch_or_load_views_df(partition, PATH_RAW, self_test=False, use_saved=False
         pd.DataFrame: The DataFrame fetched or loaded from viewser, with minimum preprocessing applied.
     """
 
-    path_viewser_df = os.path.join(
-        str(PATH_RAW), f"{partition}_viewser_df.pkl"
-    )  # maby change to df...
+    path_viewser_df = os.path.join(str(PATH_RAW), f'{partition}_viewser_df.pkl')  # maby change to df...
 
     # Create the folders if they don't exist
     os.makedirs(str(PATH_RAW), exist_ok=True)
@@ -211,12 +203,10 @@ def fetch_or_load_views_df(partition, PATH_RAW, self_test=False, use_saved=False
         # Check if the VIEWSER data file exists
         try:
             df = pd.read_pickle(path_viewser_df)
-            print(f"Reading saved data from {path_viewser_df}")
+            print(f'Reading saved data from {path_viewser_df}')
 
         except:
-            raise RuntimeError(
-                f"Use of saved data was specified but {path_viewser_df} not found"
-            )
+            raise RuntimeError(f'Use of saved data was specified but {path_viewser_df} not found')
 
     else:
         print(f'Fetching file...')
@@ -229,9 +219,7 @@ def fetch_or_load_views_df(partition, PATH_RAW, self_test=False, use_saved=False
         return df, alerts
 
     else:
-        raise RuntimeError(
-            f"file at {path_viewser_df} incompatible with partition {partition}"
-        )
+        raise RuntimeError(f'file at {path_viewser_df} incompatible with partition {partition}')
 
 
 # could be moved to common_utils/utils_df_to_vol_conversion.py but it is not really a conversion function so I would keep it here for now.
@@ -254,30 +242,30 @@ def create_or_load_views_vol(partition, PATH_PROCESSED, PATH_RAW):
 
     """
 
-    path_vol = os.path.join(str(PATH_PROCESSED), f"{partition}_vol.npy")
+    path_vol = os.path.join(str(PATH_PROCESSED), f'{partition}_vol.npy')
 
     # Create the folders if they don't exist
     os.makedirs(str(PATH_PROCESSED), exist_ok=True)
 
     # Check if the volume exists
     if os.path.isfile(path_vol):
-        print("Volume already created")
+        print('Volume already created')
         vol = np.load(path_vol)
     else:
-        print("Creating volume...")
-        path_raw = os.path.join(str(PATH_RAW), f"{partition}_viewser_df.pkl")
+        print('Creating volume...')
+        path_raw = os.path.join(str(PATH_RAW), f'{partition}_viewser_df.pkl')
         vol = df_to_vol(pd.read_pickle(path_raw))
-        print(f"shape of volume: {vol.shape}")
-        print(f"Saving volume to {path_vol}")
+        print(f'shape of volume: {vol.shape}')
+        print(f'Saving volume to {path_vol}')
         np.save(path_vol, vol)
 
-    print("Done")
+    print('Done')
 
     return vol
 
 
 def get_alert_help_string():
-    help_string = f"""
+    help_string = (f"""
                  # Data fetching and drift detection run
                  Issues alerts if drift detection algorithms selected in config\_drift\_detection
                  are triggered\n
@@ -289,7 +277,7 @@ def get_alert_help_string():
                  whole dataset\n
                  **threshold**: what threshold was set in config dict\n
                  **severity**: indication of how far over the threshold the trigger is
-                 """
+                 """)
 
     return help_string
 
@@ -345,14 +333,12 @@ def ensure_float64(df):
     and convert the DataFrame to use np.float64 for all its numeric columns.
     """
 
-    non_float64_cols = df.select_dtypes(include=["number"]).columns[
-        df.select_dtypes(include=["number"]).dtypes != np.float64
-    ]
+    non_float64_cols = df.select_dtypes(include=['number']).columns[
+        df.select_dtypes(include=['number']).dtypes != np.float64]
 
     if len(non_float64_cols) > 0:
         print(
-            f"Warning: DataFrame contains non-np.float64 numeric columns. Converting the following columns: {', '.join(non_float64_cols)}"
-        )
+            f"Warning: DataFrame contains non-np.float64 numeric columns. Converting the following columns: {', '.join(non_float64_cols)}")
 
         for col in non_float64_cols:
             df[col] = df[col].astype(np.float64)
@@ -361,29 +347,13 @@ def ensure_float64(df):
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(description="Fetch data for different partitions")
+    parser = argparse.ArgumentParser(description='Fetch data for different partitions')
 
     # Add binary flags for each partition
-    parser.add_argument(
-        "-c",
-        "--calibration",
-        action="store_true",
-        help="Fetch calibration data from viewser",
-    )
-    parser.add_argument(
-        "-t", "--testing", action="store_true", help="Fetch testing data from viewser"
-    )
-    parser.add_argument(
-        "-f",
-        "--forecasting",
-        action="store_true",
-        help="Fetch forecasting data from viewser",
-    )
-    parser.add_argument(
-        "-s", "--saved", action="store_true", help="Used locally stored data"
-    )
-    parser.add_argument(
-        "-o", "--override_month", help="Over-ride use of current month", type=int
-    )
+    parser.add_argument('-c', '--calibration', action='store_true', help='Fetch calibration data from viewser')
+    parser.add_argument('-t', '--testing', action='store_true', help='Fetch testing data from viewser')
+    parser.add_argument('-f', '--forecasting', action='store_true', help='Fetch forecasting data from viewser')
+    parser.add_argument('-s', '--saved', action='store_true', help='Used locally stored data')
+    parser.add_argument('-o', '--override_month', help='Over-ride use of current month', type=int)
 
     return parser.parse_args()
