@@ -225,27 +225,3 @@ def setup_artifacts_paths(PATH) -> Path:
 
     PATH_ARTIFACTS = PATH_MODEL / "artifacts"
     return PATH_ARTIFACTS
-
-
-# # Case 1: "views_pipeline" directory not found
-# path1 = Path("/Users/dylanpinheiro/Desktop/project/scripts")
-# setup_project_paths(path1)
-
-# # Case 2: "models" directory not found
-# path2 = Path("/Users/dylanpinheiro/Desktop/views_pipeline/scripts")
-# setup_project_paths(path2)
-
-# # Case 3: "ensembles" directory not found
-# path3 = Path("/Users/dylanpinheiro/Desktop/views_pipeline/models/scripts")
-# setup_project_paths(path3)
-
-# # Case 4: Invalid PATH type (string instead of Path object)
-# path4 = "/Users/dylanpinheiro/Desktop/views_pipeline/models/scripts"
-# try:
-#     setup_project_paths(path4)
-# except AttributeError as e:
-#     print(f"Error: {e}")
-
-# # Case 5: Empty PATH
-# path5 = Path("")
-# setup_project_paths(path5)
