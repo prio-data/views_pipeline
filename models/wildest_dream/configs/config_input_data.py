@@ -5,10 +5,10 @@ def get_input_data_config():
     qs_sptime_dist = (Queryset("fatalities002_pgm_conflict_sptime_dist", "priogrid_month")
                       # target variable
                       .with_column(
-        Column("ln_ged_sb_dep", from_loa="priogrid_month", from_column="ged_sb_best_sum_nokgi")
-        .transform.missing.replace_na()
-        .transform.ops.ln()
-        )
+                                Column("ln_ged_sb_dep", from_loa="priogrid_month", from_column="ged_sb_best_sum_nokgi")
+                                .transform.missing.replace_na()
+                                .transform.ops.ln()
+                                )
 
                       # dichotomous version, primarily for downsampling....
                       .with_column(Column("ged_gte_1", from_loa="priogrid_month", from_column="ged_sb_best_sum_nokgi")
