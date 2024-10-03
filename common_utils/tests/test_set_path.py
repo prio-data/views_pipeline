@@ -1,6 +1,9 @@
 import pytest
 import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "common_utils"))
+
 from set_path import (
     setup_root_paths,
     setup_model_paths,
@@ -14,6 +17,8 @@ from set_path import (
 @pytest.fixture
 def temp_path(tmp_path):
     """Fixture to create a temporary path for testing."""
+    # add common_utils to sys.path
+
     return tmp_path / "views_pipeline" / "models" / "test_model"
 
 

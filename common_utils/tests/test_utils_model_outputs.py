@@ -1,6 +1,10 @@
 import pytest
 import pandas as pd
 from utils_model_outputs import ModelOutputs, generate_output_dict
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "common_utils"))
 
 
 @pytest.fixture
