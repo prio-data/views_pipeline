@@ -12,7 +12,7 @@ Overview of utils package scripts:
 - `utils_df_to_vol_conversion.py`: Functions to convert data frames and volumes (used in purple_alien)
 - `utils_evaluation_metrics.py`: Class defining evaluation metrics
 - `utils_model_outputs.py`: Class for storing and managing model outputs for evaluation and true forcasting
-
+- `utils_wandb.py`: Sets up and logs monthly evaluation metrics in WandB, using a specific step metric for tracking.
 To run tests: `pytest -v common_utils`
 
 To do list:
