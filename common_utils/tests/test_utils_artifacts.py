@@ -1,5 +1,9 @@
 import pytest
 from pathlib import Path
+import sys
+
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "common_utils"))
+
 from utils_artifacts import get_artifact_files, get_latest_model_artifact
 
 

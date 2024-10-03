@@ -2,6 +2,11 @@ import pytest
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "common_utils"))
+
 from utils_df_to_vol_conversion import (
     get_requried_columns_for_vol,
     calculate_absolute_indices,

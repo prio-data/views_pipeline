@@ -2,6 +2,11 @@ import pytest
 import pandas as pd
 import properscoring as ps
 from sklearn.metrics import mean_squared_error, mean_absolute_error
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "common_utils"))
+
 from utils_evaluation_metrics import EvaluationMetrics, generate_metric_dict
 
 

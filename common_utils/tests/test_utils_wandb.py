@@ -1,6 +1,12 @@
 import pytest
 import wandb
 from unittest.mock import patch, MagicMock
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "common_utils"))
+
+
 from utils_wandb import (
     add_wandb_monthly_metrics,
     generate_wandb_log_dict,
