@@ -17,3 +17,5 @@ The `ModelDirectoryBuilder` class is designed to create and and enforce the obli
 The `ModelScriptBuilder` class is designed to build and manage essential Python scripts for machine learning model deployment and evaluation within the ViEWS pipeline.
 
 **`ModelScriptBuilder` uses script templates stored in the `meta_tools/templates` directory. Ensure that the model directories are created first to avoid any errors.**
+
+To test the scripts in meta_tools, run `pytest -v meta_tools`
