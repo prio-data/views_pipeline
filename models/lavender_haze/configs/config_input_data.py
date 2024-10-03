@@ -1,14 +1,8 @@
-import numpy as np
 from viewser import Queryset, Column
 
-def get_input_data_config():
-    
-    thetacrit_spatial = 0.7
-    return_values = 'distances'
-    n_nearest = 1
-    power = 0.0
 
-    qs_broad = (Queryset("fatalities003_pgm_broad", "priogrid_month")
+def get_input_data_config():
+    qs_broad = (Queryset("fatalities002_pgm_broad", "priogrid_month")
 
                 # target variable
                 .with_column(Column("ln_ged_sb_dep", from_loa="priogrid_month", from_column="ged_sb_best_sum_nokgi")
@@ -74,30 +68,33 @@ def get_input_data_config():
 
                 .with_column(Column("treelag_1_sb", from_loa="priogrid_month", from_column="ged_sb_best_sum_nokgi")
                              .transform.missing.replace_na()
-                             .transform.spatial.treelag(thetacrit_spatial, 1)
+                             .transform.spatial.treelag(0.7, 1)
                              )
 
                 .with_column(Column("treelag_2_sb", from_loa="priogrid_month", from_column="ged_sb_best_sum_nokgi")
                              .transform.missing.replace_na()
-                             .transform.spatial.treelag(thetacrit_spatial, 2)
+                             .transform.spatial.treelag(0.7, 2)
                              )
                 # sptime
 
                 # continuous, sptime_dist, nu=1
-                .with_column(Column("sptime_dist_k1_1_ged_sb", from_loa="priogrid_month", from_column="ged_sb_best_sum_nokgi")
-                             .transform.missing.replace_na()
-                             .transform.spatial.sptime_dist(return_values, n_nearest, 1.0, power)
-                             )
+                .with_column(
+        Column("sptime_dist_k1_ged_sb", from_loa="priogrid_month", from_column="ged_sb_best_sum_nokgi")
+        .transform.missing.replace_na()
+        .transform.spatial.sptime_dist('distances', 1, 1.0, 0.0)
+        )
 
-                .with_column(Column("sptime_dist_k1_2_ged_sb", from_loa="priogrid_month", from_column="ged_sb_best_sum_nokgi")
-                             .transform.missing.replace_na()
-                             .transform.spatial.sptime_dist(return_values, n_nearest, 10.0, power)
-                             )
+                .with_column(
+        Column("sptime_dist_k10_ged_sb", from_loa="priogrid_month", from_column="ged_sb_best_sum_nokgi")
+        .transform.missing.replace_na()
+        .transform.spatial.sptime_dist('distances', 1, 10.0, 0.0)
+        )
 
-                .with_column(Column("sptime_dist_k1_3_ged_sb", from_loa="priogrid_month", from_column="ged_sb_best_sum_nokgi")
-                             .transform.missing.replace_na()
-                             .transform.spatial.sptime_dist(return_values, n_nearest, 0.01, power)
-                             )
+                .with_column(
+        Column("sptime_dist_k001_ged_sb", from_loa="priogrid_month", from_column="ged_sb_best_sum_nokgi")
+        .transform.missing.replace_na()
+        .transform.spatial.sptime_dist('distances', 1, 0.01, 0.0)
+        )
 
                 # From natsoc
                 .with_column(Column("ln_ttime_mean", from_loa="priogrid_year", from_column="ttime_mean")
@@ -163,5 +160,5 @@ def get_input_data_config():
 
                           """)
                 )
-                    
+
     return qs_broad
