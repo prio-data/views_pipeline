@@ -2,8 +2,7 @@ import numpy as np
 from viewser import Queryset, Column
 
 def get_input_data_config():
-    
-    qs_natsoc = (Queryset("fatalities003_pgm_natsoc", "priogrid_month")
+    qs_natsoc = (Queryset("fatalities002_pgm_natsoc", "priogrid_month")
 
                  # target variable
                  .with_column(Column("ln_ged_sb_dep", from_loa="priogrid_month", from_column="ged_sb_best_sum_nokgi")
