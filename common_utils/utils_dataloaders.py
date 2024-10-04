@@ -5,61 +5,10 @@ import pandas as pd
 
 # from config_partitioner import get_partitioner_dict
 from set_partition import get_partitioner_dict
-from common_querysets.get_queryset_purple_alien import get_queryset  # this is model specific
+from config_input_data import get_input_data_config  # this is model specific
 from common_configs import config_drift_detection
 from utils_df_to_vol_conversion import df_to_vol
 from viewser import Queryset, Column
-
-"""
-import importlib
-def import_and_get_queryset(model_name):
-    module_name = f"common_querysets.get_queryset_{model_name}"
-    
-    try:
-        module = importlib.import_module(module_name)
-        return module.get_queryset
-    
-    except ModuleNotFoundError:
-        print(f"Module '{module_name}' not found.")
-    except AttributeError:
-        print(f"Function 'get_queryset' not found in module '{module_name}'.")
-
-# Example: purple_alien
-MODEL_NAME = "purple_alien" 
-get_queryset = import_and_get_queryset(MODEL_NAME)
-
-if get_queryset:
-    print("Successfully imported and executed get_queryset.")
-else:
-    print("Failed to import or execute get_queryset.")
-"""
-
-"""
-def import_and_get_queryset(model_name):
-    module_name = f"common_querysets.get_queryset_{model_name}"
-
-    try:
-        module = __import__(module_name, fromlist=[''])
-        get_queryset_function = getattr(module, 'get_queryset', None)
-        
-        if get_queryset_function:
-            queryset = get_queryset_function
-            print("Successfully imported and executed get_queryset.")
-            return queryset
-        else:
-            print(f"'get_queryset' function not found in module '{module_name}'.")
-            return None
-    
-    except ModuleNotFoundError:
-        print(f"Module '{module_name}' not found.")
-    except AttributeError as e:
-        print(f"Error: {e}")
-
-# Example: purple_alien
-MODEL_NAME = "purple_alien"
-get_queryset = import_and_get_queryset(MODEL_NAME)
-"""
-
 
 
 def fetch_data_from_viewser(month_first, month_last, drift_config_dict, self_test):
@@ -72,7 +21,7 @@ def fetch_data_from_viewser(month_first, month_last, drift_config_dict, self_tes
         pd.DataFrame: The prepared DataFrame with initial processing done.
     """
     print(f'Beginning file download through viewser with month range {month_first},{month_last}')
-    queryset_base = get_queryset()  # just used here..
+    queryset_base = get_input_data_config()  # just used here..
     df, alerts = queryset_base.publish().fetch_with_drift_detection(start_date=month_first,
                                                                     end_date=month_last - 1,
                                                                     drift_config_dict=drift_config_dict,
