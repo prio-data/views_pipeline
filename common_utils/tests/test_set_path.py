@@ -17,10 +17,7 @@ from set_path import (
 @pytest.fixture
 def temp_path(tmp_path):
     """Fixture to create a temporary path for testing."""
-    # add common_utils to sys.path
-
     return tmp_path / "views_pipeline" / "models" / "test_model"
-
 
 def test_setup_root_paths(temp_path):
     """
@@ -33,7 +30,6 @@ def test_setup_root_paths(temp_path):
     result = setup_root_paths(temp_path)
     assert result == temp_path.parent.parent
 
-
 def test_setup_model_paths(temp_path):
     """
     Test extracting the model-specific path including the "models" directory and its immediate subdirectory.
@@ -45,7 +41,6 @@ def test_setup_model_paths(temp_path):
     result = setup_model_paths(temp_path)
     assert result == temp_path
 
-
 def test_setup_model_paths_no_models(temp_path):
     """
     Test handling when the "models" directory is not present.
@@ -55,9 +50,8 @@ def test_setup_model_paths_no_models(temp_path):
     """
     temp_path = temp_path.parent.parent / "no_models"
     temp_path.mkdir(parents=True)
-    result = setup_model_paths(temp_path)
-    assert result is None
-
+    with pytest.raises(ValueError, match="The 'models' directory was not found in the provided path."):
+        setup_model_paths(temp_path)
 
 def test_setup_ensemble_paths(temp_path):
     """
@@ -71,7 +65,6 @@ def test_setup_ensemble_paths(temp_path):
     result = setup_ensemble_paths(temp_path)
     assert result == temp_path
 
-
 def test_setup_ensemble_paths_no_ensembles(temp_path):
     """
     Test handling when the "ensembles" directory is not present.
@@ -81,9 +74,8 @@ def test_setup_ensemble_paths_no_ensembles(temp_path):
     """
     temp_path = temp_path.parent.parent / "no_ensembles"
     temp_path.mkdir(parents=True)
-    result = setup_ensemble_paths(temp_path)
-    assert result is None
-
+    with pytest.raises(ValueError, match="The 'ensembles' directory was not found in the provided path."):
+        setup_ensemble_paths(temp_path)
 
 def test_setup_project_paths(temp_path):
     """
@@ -108,11 +100,8 @@ def test_setup_project_paths(temp_path):
         str(temp_path / "src" / "offline_evaluation"),
         str(temp_path / "src" / "dataloaders"),
     ]
-    print(sys.path)
     for path in expected_paths:
-        print(path)
         assert path in sys.path
-
 
 def test_setup_data_paths(temp_path):
     """
@@ -126,7 +115,6 @@ def test_setup_data_paths(temp_path):
     assert raw == temp_path / "data" / "raw"
     assert processed == temp_path / "data" / "processed"
     assert generated == temp_path / "data" / "generated"
-
 
 def test_setup_artifacts_paths(temp_path):
     """
