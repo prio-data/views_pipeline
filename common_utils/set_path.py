@@ -107,6 +107,10 @@ def setup_project_paths(PATH) -> None:
     #    PATH_MODEL = Path(*[i for i in PATH.parts[:PATH.parts.index("models")+2]]) # The +2 is to include the "models" and the individual model name in the path
 
     PATH_ROOT = setup_root_paths(PATH)
+    #    PATH_ROOT  = Path(*[i for i in PATH.parts[:PATH.parts.index("views_pipeline")+1]]) # The +1 is to include the "views_pipeline" part in the path
+    #    PATH_MODEL = Path(*[i for i in PATH.parts[:PATH.parts.index("models")+2]]) # The +2 is to include the "models" and the individual model name in the path
+
+    PATH_ROOT = setup_root_paths(PATH)
     PATH_MODEL = setup_model_paths(PATH)
     PATH_ENSEMBLE = setup_ensemble_paths(PATH)
 
@@ -126,6 +130,9 @@ def setup_project_paths(PATH) -> None:
         PATH_CONFIGS = PATH_MODEL / "configs"
         PATH_SRC = PATH_MODEL / "src"
         PATH_UTILS = PATH_SRC / "utils"
+        PATH_MANAGEMENT = (
+            PATH_SRC / "management"
+        )  # added to keep the management scripts in a separate folder the utils according to Sara's point
         PATH_MANAGEMENT = (
             PATH_SRC / "management"
         )  # added to keep the management scripts in a separate folder the utils according to Sara's point
@@ -155,6 +162,9 @@ def setup_project_paths(PATH) -> None:
         PATH_MANAGEMENT_E = (
             PATH_SRC_E / "management"
         )  # added to keep the management scripts in a separate folder the utils according to Sara's point
+        PATH_MANAGEMENT_E = (
+            PATH_SRC_E / "management"
+        )  # added to keep the management scripts in a separate folder the utils according to Sara's point
         PATH_ARCHITECTURES_E = PATH_SRC_E / "architectures"
         PATH_TRAINING_E = PATH_SRC_E / "training"
         PATH_FORECASTING_E = PATH_SRC_E / "forecasting"
@@ -181,6 +191,8 @@ def setup_project_paths(PATH) -> None:
             # print(f"Adding {path_str} to sys.path") # debug
             if not path.exists():
                 path.mkdir(parents=True)
+            if not path.exists():
+                path.mkdir(parents=True)
             sys.path.insert(0, path_str)
 
 
@@ -194,6 +206,7 @@ def setup_data_paths(PATH) -> Path:
 
     """
 
+    # PATH_MODEL = Path(*[i for i in PATH.parts[:PATH.parts.index("models")+2]]) # The +2 is to include the "models" and the individual model name in the path
     # PATH_MODEL = Path(*[i for i in PATH.parts[:PATH.parts.index("models")+2]]) # The +2 is to include the "models" and the individual model name in the path
     PATH_MODEL = setup_model_paths(PATH)
     PATH_ENSEMBLE = setup_ensemble_paths(PATH)
@@ -220,6 +233,9 @@ def setup_artifacts_paths(PATH) -> Path:
 
     """
 
+    """
+
+    # PATH_MODEL = Path(*[i for i in PATH.parts[:PATH.parts.index("models")+2]]) # The +2 is to include the "models" and the individual model name in the path
     # PATH_MODEL = Path(*[i for i in PATH.parts[:PATH.parts.index("models")+2]]) # The +2 is to include the "models" and the individual model name in the path
     PATH_MODEL = setup_model_paths(PATH)
 
