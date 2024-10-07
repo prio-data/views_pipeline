@@ -1,11 +1,16 @@
+import logging
 import sys
 from pathlib import Path
 
-def setup_root_paths(PATH) -> Path:
 
+# Configure logging - don't know if this is necessary here
+logging.basicConfig(level=logging.WARNING)
+logger = logging.getLogger(__name__)
+
+def setup_root_paths(PATH) -> Path:
     """
     Extracts and returns the root path (pathlib path object) up to and including the "views_pipeline" directory from any given path.
-    This function identifies the "views_pipeline" directory within the provided path and constructs a new path up to and including this directory. 
+    This function identifies the "views_pipeline" directory within the provided path and constructs a new path up to and including this directory.
     This is useful for setting up root paths for project-wide resources and utilities.
 
     Args:
@@ -13,17 +18,23 @@ def setup_root_paths(PATH) -> Path:
 
     Returns:
         PATH_ROOT: The root path (pathlib path object) including the "views_pipeline" directory.
-    """
 
-    PATH_ROOT  = Path(*[i for i in PATH.parts[:PATH.parts.index("views_pipeline")+1]]) # The +1 is to include the "views_pipeline" part in the path
-    return PATH_ROOT
+    Raises:
+        ValueError: If the "views_pipeline" directory is not found in the provided path.
+    """
+    if "views_pipeline" in PATH.parts:
+        PATH_ROOT = Path(*[i for i in PATH.parts[:PATH.parts.index("views_pipeline") + 1]])
+        return PATH_ROOT
+    else:
+        error_message = "The 'views_pipeline' directory was not found in the provided path."
+        logger.warning(error_message)
+        raise ValueError(error_message)
 
 
 def setup_model_paths(PATH):
-
     """
     Extracts and returns the model-specific path (pathlib path object) including the "models" directory and its immediate subdirectory.
-    This function identifies the "models" (e.g. purple_alien or orange_pasta) directory within the provided path and constructs a new path up to and including the next subdirectory after "models". 
+    This function identifies the "models" (e.g. purple_alien or orange_pasta) directory within the provided path and constructs a new path up to and including the next subdirectory after "models".
     This is useful for setting up paths specific to a model within the project.
 
     Args:
@@ -33,17 +44,19 @@ def setup_model_paths(PATH):
         PATH_model: The path (pathlib path object) including the "models" directory and its immediate subdirectory.
     """
 
-    try:
+    if "models" in PATH.parts:
         PATH_MODEL = Path(*[i for i in PATH.parts[:PATH.parts.index("models") + 2]])
         return PATH_MODEL
-    except ValueError:
-        return None
-
+    else:
+        error_message = "The 'models' directory was not found in the provided path."
+        logger.warning(error_message)
+        raise ValueError(error_message)
+    
 
 def setup_ensemble_paths(PATH):
     """
     Extracts and returns the model-specific path (pathlib path object) including the "ensembles" directory and its immediate subdirectory.
-    This function identifies the "ensembles" (e.g. white_mustang) directory within the provided path and constructs a new path up to and including the next subdirectory after "models".
+    This function identifies the "ensembles" (e.g. white_mustang) directory within the provided path and constructs a new path up to and including the next subdirectory after "ensembles".
     This is useful for setting up paths specific to a model within the project.
 
     Args:
@@ -52,16 +65,17 @@ def setup_ensemble_paths(PATH):
     Returns:
         PATH_ENSEMBLE: The path (pathlib path object) including the "ensembles" directory and its immediate subdirectory.
     """
-
-    try:
+    if "ensembles" in PATH.parts:
         PATH_ENSEMBLE = Path(*[i for i in PATH.parts[:PATH.parts.index("ensembles") + 2]])
         return PATH_ENSEMBLE
-    except ValueError:
-        return None
+    
+    else:
+        error_message = "The 'ensembles' directory was not found in the provided path."
+        logger.warning(error_message)
+        raise ValueError(error_message)
 
 
 def setup_project_paths(PATH) -> None:
-
     """
     Configures project-wide access to common utilities, configurations, and model-specific paths by adjusting `sys.path`.
 
@@ -79,7 +93,7 @@ def setup_project_paths(PATH) -> None:
             from pathlib import Path
 
             PATH = Path(__file__)
-            sys.path.insert(0, str(Path(*[i for i in PATH.parts[:PATH.parts.index("views_pipeline")+1]]) / "common_utils")) # PATH_COMMON_UTILS  
+            sys.path.insert(0, str(Path(*[i for i in PATH.parts[:PATH.parts.index("views_pipeline")+1]]) / "common_utils")) # PATH_COMMON_UTILS
 
             from set_path import setup_project_paths
             setup_project_paths(PATH)
@@ -89,10 +103,10 @@ def setup_project_paths(PATH) -> None:
     Disclaimer: A solution that avoids the insertion of the code above would be preferred.
     """
 
-#    PATH_ROOT  = Path(*[i for i in PATH.parts[:PATH.parts.index("views_pipeline")+1]]) # The +1 is to include the "views_pipeline" part in the path
-#    PATH_MODEL = Path(*[i for i in PATH.parts[:PATH.parts.index("models")+2]]) # The +2 is to include the "models" and the individual model name in the path
- 
-    PATH_ROOT  = setup_root_paths(PATH) 
+    #    PATH_ROOT  = Path(*[i for i in PATH.parts[:PATH.parts.index("views_pipeline")+1]]) # The +1 is to include the "views_pipeline" part in the path
+    #    PATH_MODEL = Path(*[i for i in PATH.parts[:PATH.parts.index("models")+2]]) # The +2 is to include the "models" and the individual model name in the path
+
+    PATH_ROOT = setup_root_paths(PATH)
     PATH_MODEL = setup_model_paths(PATH)
     PATH_ENSEMBLE = setup_ensemble_paths(PATH)
 
@@ -118,9 +132,18 @@ def setup_project_paths(PATH) -> None:
         PATH_FORECASTING = PATH_SRC / "forecasting"
         PATH_OFFLINE_EVALUATION = PATH_SRC / "offline_evaluation"
         PATH_DATALOADERS = PATH_SRC / "dataloaders"
-        paths_to_add = [PATH_ROOT, PATH_COMMON_UTILS, PATH_COMMON_CONFIGS, PATH_COMMON_QUERYSETS,
-                        PATH_CONFIGS, PATH_UTILS, PATH_MANAGEMENT, PATH_ARCHITECTURES, PATH_TRAINING,
-                        PATH_FORECASTING, PATH_OFFLINE_EVALUATION, PATH_DATALOADERS]
+        paths_to_add = [PATH_ROOT, 
+                        PATH_COMMON_UTILS, 
+                        PATH_COMMON_CONFIGS, 
+                        PATH_COMMON_QUERYSETS,
+                        PATH_CONFIGS, 
+                        PATH_UTILS, 
+                        PATH_MANAGEMENT, 
+                        PATH_ARCHITECTURES, 
+                        PATH_TRAINING,
+                        PATH_FORECASTING, 
+                        PATH_OFFLINE_EVALUATION, 
+                        PATH_DATALOADERS]
 
     # Define ensemble paths
     if PATH_ENSEMBLE:
@@ -133,29 +156,39 @@ def setup_project_paths(PATH) -> None:
         PATH_FORECASTING_E = PATH_SRC_E / "forecasting"
         PATH_OFFLINE_EVALUATION_E = PATH_SRC_E / "offline_evaluation"
         PATH_DATALOADERS_E = PATH_SRC_E / "dataloaders"
-        paths_to_add = [PATH_ROOT, PATH_COMMON_UTILS, PATH_COMMON_CONFIGS,PATH_COMMON_QUERYSETS,
-                        PATH_CONFIGS_E, PATH_UTILS_E, PATH_MANAGEMENT_E, PATH_ARCHITECTURES_E, PATH_TRAINING_E,
-                        PATH_FORECASTING_E, PATH_OFFLINE_EVALUATION_E, PATH_DATALOADERS_E]
+        paths_to_add = [PATH_ROOT, 
+                        PATH_COMMON_UTILS, 
+                        PATH_COMMON_CONFIGS,
+                        PATH_COMMON_QUERYSETS,
+                        PATH_CONFIGS_E, 
+                        PATH_UTILS_E, 
+                        PATH_MANAGEMENT_E, 
+                        PATH_ARCHITECTURES_E, 
+                        PATH_TRAINING_E,
+                        PATH_FORECASTING_E, 
+                        PATH_OFFLINE_EVALUATION_E, 
+                        PATH_DATALOADERS_E]
 
     for path in paths_to_add:
         path_str = str(path)
-        if path.exists() and path_str not in sys.path: # whith the current implementation, PATH_COMMON_UTILS is already in sys.path and will not be added (or printed) again
+        if (
+            path.exists() and path_str not in sys.path
+        ):  # whith the current implementation, PATH_COMMON_UTILS is already in sys.path and will not be added (or printed) again
             # print(f"Adding {path_str} to sys.path") # debug
             sys.path.insert(0, path_str)
 
 
 def setup_data_paths(PATH) -> Path:
-
     """
     Returns the raw, processed, and generated data paths (pathlib path object) for the specified model.
 
     Args:
     PATH (Path): The base path, typically the path of the script invoking this function (i.e., `Path(__file__)`).
     config (str): The model configuration file.
-    
-    """    
 
-    #PATH_MODEL = Path(*[i for i in PATH.parts[:PATH.parts.index("models")+2]]) # The +2 is to include the "models" and the individual model name in the path
+    """
+
+    # PATH_MODEL = Path(*[i for i in PATH.parts[:PATH.parts.index("models")+2]]) # The +2 is to include the "models" and the individual model name in the path
     PATH_MODEL = setup_model_paths(PATH)
     PATH_ENSEMBLE = setup_ensemble_paths(PATH)
 
@@ -164,23 +197,25 @@ def setup_data_paths(PATH) -> Path:
     PATH_PROCCEDS = PATH_DATA / "processed"
     PATH_GENERATED = PATH_DATA / "generated"
 
-    return PATH_RAW, PATH_PROCCEDS, PATH_GENERATED # added in accordance with Sara's escwa branch
+    return (
+        PATH_RAW,
+        PATH_PROCCEDS,
+        PATH_GENERATED,
+    )
 
 
 def setup_artifacts_paths(PATH) -> Path:
-
     """
     Returns the paths (pathlib path object) for the artifacts for the specified model.
 
     Args:
     PATH (Path): The base path, typically the path of the script invoking this function (i.e., `Path(__file__)`).
     config (str): The model configuration file.
-    
-    """    
 
-    #PATH_MODEL = Path(*[i for i in PATH.parts[:PATH.parts.index("models")+2]]) # The +2 is to include the "models" and the individual model name in the path
+    """
+
+    # PATH_MODEL = Path(*[i for i in PATH.parts[:PATH.parts.index("models")+2]]) # The +2 is to include the "models" and the individual model name in the path
     PATH_MODEL = setup_model_paths(PATH)
 
     PATH_ARTIFACTS = PATH_MODEL / "artifacts"
-    # print(f"Artifacts path: {PATH_ARTIFACTS}")
     return PATH_ARTIFACTS
