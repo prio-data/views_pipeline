@@ -1,6 +1,6 @@
 from viewser import Queryset, Column
 
-def get_queryset_purple_alien():
+def generate():
 
     """
     Contains the configuration for the input data in the form of a viewser queryset. That is the data from viewser that is used to train the model.
