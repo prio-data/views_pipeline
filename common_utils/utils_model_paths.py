@@ -218,8 +218,10 @@ class ModelPath:
         # Detect if another model's paths are already added
         for path in sys.path:
             # Extract model name from path
+            # print(Path(path).parts)
             if "models" in Path(path).parts:
-                model_name = str(path).split("/models/").split("/")
+                model_name = str(path).split("/models/")[-1].split("/")[0]
+                print(model_name)
                 if model_name != self.model_name:
                     logger.error(
                         f"Paths for another model ('{model_name}') are already added to sys.path. Please remove them first by calling remove_paths_from_sys()."
@@ -378,3 +380,13 @@ class ModelPath:
             else:
                 scripts[str(path)] = None
         return scripts
+
+
+if __name__ == "__main__":
+    purple_alien = ModelPath(model_name="purple_alien")
+    orange_pasta = ModelPath(model_name="orange_pasta")
+    purple_alien.add_paths_to_sys()
+    purple_alien.remove_paths_from_sys()
+    orange_pasta.add_paths_to_sys()
+    # print(orange_pasta.get_scripts())
+    purple_alien.remove_paths_from_sys()
