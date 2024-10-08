@@ -1,12 +1,7 @@
 import time
 import wandb
 import sys
-
 import logging
-logging.basicConfig(filename='run.log', encoding='utf-8', level=logging.INFO,
-                    format='%(asctime)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
-
 from pathlib import Path
 PATH = Path(__file__)
 sys.path.insert(0, str(Path(
@@ -16,6 +11,10 @@ setup_project_paths(PATH)
 
 from utils_cli_parser import parse_args, validate_arguments
 from execute_model_runs import execute_sweep_run, execute_single_run
+
+logging.basicConfig(filename='run.log', encoding='utf-8', level=logging.INFO,
+                    format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 
 if __name__ == "__main__":

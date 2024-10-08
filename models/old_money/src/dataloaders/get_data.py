@@ -1,6 +1,5 @@
 import sys
 import logging
-logger = logging.getLogger(__name__)
 
 from pathlib import Path
 PATH = Path(__file__)
@@ -10,6 +9,8 @@ from set_path import setup_project_paths, setup_data_paths
 setup_project_paths(PATH)
 
 from utils_dataloaders import fetch_or_load_views_df, create_or_load_views_vol, get_alert_help_string
+
+logger = logging.getLogger(__name__)
 
 
 def get_data(args):
