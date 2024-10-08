@@ -1,8 +1,7 @@
 import pickle
 from darts import TimeSeries
 from darts.models import LightGBMModel, XGBModel, LinearRegressionModel, RandomForest
-import warnings
-warnings.filterwarnings("ignore")
+from sklearn.utils.validation import check_is_fitted
 from typing import List, Dict
 from views_forecasts.extensions import *
 from .validation import views_validate
@@ -34,9 +33,11 @@ class StepshifterModel:
             model = self.reg(lags_past_covariates=[-step], **self._params)
             model.fit(self._target, past_covariates=self._past_cov)
             self._models[step] = model
+        self.is_fitted_ = True
 
     @views_validate
     def predict(self, run_type, df: pd.DataFrame) -> pd.DataFrame:
+        check_is_fitted(self, 'is_fitted_')
         pred_by_step = [self._predict_by_step(self._models[step], step, self._target, run_type) for step in self.steps]
         pred = pd.concat(pred_by_step, axis=1)
 
