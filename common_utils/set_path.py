@@ -227,7 +227,7 @@ def setup_project_paths(PATH) -> None:
                 Path(path).mkdir(parents=True)
             if path not in sys.path:
                 sys.path.insert(0, path)
-    print(f"{sys.path}")
+    # print(f"{sys.path}")
 
 
 def setup_data_paths(PATH) -> Path:

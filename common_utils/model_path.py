@@ -302,11 +302,9 @@ class ModelPath:
         # Detect if another model's paths are already added
         for path in sys.path:
             # Extract model name from path
-            # print(Path(path).parts)
             path = Path(path)
             if "models" in path.parts:
                 model_name = self._get_model_name_from_path(path)
-                # print(path)
                 if model_name != self.model_name:
                     logger.error(
                         f"Paths for another model ('{model_name}') are already added to sys.path. Please remove them first by calling remove_paths_from_sys()."
@@ -329,7 +327,7 @@ class ModelPath:
                 "_queryset_path",
                 "_queryset",
             ]:
-                print(attr, value)
+                # print(attr, value)
                 if (
                     isinstance(value, Path)
                     and value.is_absolute()
