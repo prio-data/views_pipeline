@@ -14,7 +14,7 @@ sys.path.insert(
     ),
 )
 
-from utils_model_paths import ModelPath
+from common_utils.model_path import ModelPath
 
 
 @pytest.fixture
