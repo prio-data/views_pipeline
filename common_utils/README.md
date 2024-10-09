@@ -18,7 +18,7 @@ To run tests: `pytest -v common_utils`
 To do list:
 - Align the function generate_metric_dict in utils_evaluation_metrics.py with Simon's eval function
 
-# ModelPath (common_utils/utils_model_paths.py)
+# ModelPath (common_utils/model_path.py)
 
 ### Initialization
 
