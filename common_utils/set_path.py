@@ -281,3 +281,7 @@ def setup_artifacts_paths(PATH) -> Path:
     model = get_model_path_instance(PATH)
     PATH_ARTIFACTS = model.artifacts
     return PATH_ARTIFACTS
+
+def get_queryset(PATH):
+    model = get_model_path_instance(PATH)
+    return model.get_queryset()

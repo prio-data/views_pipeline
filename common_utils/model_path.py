@@ -1,6 +1,5 @@
 from pathlib import Path
 import sys
-import re
 
 sys.path.append(str(Path(__file__).parent.parent))
 
@@ -57,7 +56,7 @@ class ModelPath:
         else:
             if not utils_model_naming.validate_model_name(self.model_name):
                 raise ValueError(
-                    "Invalid model name. Please provide a valid model name that follows the lowercase 'adjective_noun' format."
+                    "Invalid model name. Please provide a valid model name that follows the lowercase 'adjective_noun' format that doesn't already exist."
                 )
             else:
                 logger.info(f"Model name detected: {self.model_name}")
@@ -188,9 +187,9 @@ class ModelPath:
         Returns:
             module or None: The queryset module if it exists, or None otherwise.
         """
-        if self.validate and not self._check_if_dir_exists(self._common_querysets):
+        if self.validate and not self._check_if_dir_exists(self.common_querysets):
             raise FileNotFoundError(
-                f"Common queryset directory {self._common_querysets} does not exist. Please create it first using `make_new_scripts.py` or set validate to `False`."
+                f"Common queryset directory {self.common_querysets} does not exist. Please create it first using `make_new_scripts.py` or set validate to `False`."
             )
         elif self.validate and self._check_if_dir_exists(self._queryset_path):
             try:
@@ -310,6 +309,12 @@ class ModelPath:
                         f"Paths for another model ('{model_name}') are already added to sys.path. Please remove them first by calling remove_paths_from_sys()."
                     )
                     return
+                if model_name == self.model_name:
+                    logger.info(
+                        f"Paths for '{model_name}' are already added to sys.path. Skipping..."
+                    )
+
+                    
             # Add paths to sys.path
         # Initialize _sys_paths if not already done
         if self._sys_paths is None:
@@ -332,14 +337,14 @@ class ModelPath:
                     isinstance(value, Path)
                     and value.is_absolute()
                     and self._check_if_dir_exists(value)
-                    # and str(value) not in current_sys_path
+                    and str(value) not in sys.path
                 ):
                     # current_sys_path.insert(0, str(value))
                     self._sys_paths.append(str(value))
                     sys.path.insert(0, str(value))
                     logger.info(f"Added path to sys.path: {value}")
                 else:
-                    logger.warning(f"Skipping path: {value}.")
+                    logger.warning(f"Skipping path: {value}. Invalid, does not exist or already in sys.path.")
         # sys.path = current_sys_path
         return self._sys_paths
 
@@ -367,7 +372,7 @@ class ModelPath:
                     sys.path.remove(path)
                     if path not in sys.path:
                         logger.info(f"Removed path from sys.path: {path}")
-                        print(f"Removed path from sys.path: {path}")
+                        # print(f"Removed path from sys.path: {path}")
                     else:
                         logger.warning(f"Unable to remove path '{path}'. Continuing...")
                 except ValueError:
@@ -390,12 +395,14 @@ class ModelPath:
             if attr not in [
                 "model_name",
                 "root",
-                "model_dir",
                 "scripts",
                 "validate",
+                "models",
+                "templates",
                 "_sys_paths",
-                "_common_querysets",
+                # "common_querysets",
                 "_queryset",
+                "_queryset_path",
             ] and isinstance(value, Path):
                 print("{:<20}\t{:<50}".format(str(attr), str(value)))
 
@@ -433,7 +440,7 @@ class ModelPath:
                 "models",
                 "templates",
                 "_sys_paths",
-                "_common_querysets",
+                # "common_querysets",
                 "_queryset",
                 "_queryset_path",
             ] and isinstance(value, Path):
@@ -476,10 +483,29 @@ class ModelPath:
         return scripts
 
 
-# if __name__ == "__main__":
-#     purple_alien = ModelPath(model_name_or_path="blank_space", validate=True)
-#     directories = list(purple_alien.get_directories().values())
-#     path_directories = [Path(d) for d in directories if d is not None]
-#     print(path_directories)
-# print(purple_alien.get_scripts())
-# print(purple_alien.data_raw)
+if __name__ == "__main__":
+
+    # purple_alien = ModelPath(model_name_or_path="purple_alien", validate=True)
+    # print("\n", purple_alien.get_directories(), "\n")
+    # print(purple_alien.get_scripts(), "\n")
+    # print(purple_alien.dataloaders)
+
+    # print(sys.path, "\n")
+    # purple_alien.add_paths_to_sys()
+    # print(sys.path, "\n")
+
+    # # print(sys.path, "\n")
+    # purple_alien.add_paths_to_sys()
+    # print(sys.path, "\n")
+
+    orange_pasta = ModelPath(model_name_or_path="/Users/dylanpinheiro/Desktop/views_pipeline/models/test_model/reports/papers", validate=True)
+    orange_pasta.add_paths_to_sys()
+
+    # purple_alien.remove_paths_from_sys()
+    # print(sys.path, "\n")
+
+    # orange_pasta.add_paths_to_sys()
+    # print(sys.path, "\n")
+
+    # print(purple_alien.view_directories(), "\n")
+    # print(purple_alien.view_scripts(), "\n")
