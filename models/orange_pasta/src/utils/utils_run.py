@@ -1,6 +1,5 @@
 import sys
 import numpy as np
-from darts.models import LightGBMModel, XGBModel
 
 from pathlib import Path
 PATH = Path(__file__)
@@ -9,21 +8,21 @@ sys.path.insert(0, str(Path(
 from set_path import setup_project_paths
 setup_project_paths(PATH)
 
-from hurdle_model import HurdleRegression
+from views_stepshifter_darts.stepshifter import StepshifterModel
+from views_stepshifter_darts.hurdle_model import HurdleModel
 from views_forecasts.extensions import *
 
 
-def get_model(config):
+def get_model(config, partitioner_dict):
     """
     Get the model based on the algorithm specified in the config
     """
 
     if config["algorithm"] == "HurdleRegression":
-        model = HurdleRegression(clf_name=config["model_clf"], reg_name=config["model_reg"],
-                                 clf_params=config["parameters"]["clf"], reg_params=config["parameters"]["reg"])
+        model = HurdleModel(config, partitioner_dict)
     else:
-        parameters = get_parameters(config)
-        model = globals()[config["algorithm"]](**parameters)
+        config['model_reg'] = config['algorithm']
+        model = StepshifterModel(config, partitioner_dict)
 
     return model
 
