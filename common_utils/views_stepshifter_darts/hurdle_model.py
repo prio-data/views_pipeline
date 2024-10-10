@@ -50,7 +50,7 @@ class HurdleModel(StepshifterModel):
         # So use astype(float) instead of astype(int) (we should have binary outputs 0,1 though)
         target_binary = [s.map(lambda x: (x > threshold).astype(float)) for s in self._target_train]
 
-        # Positive outcome (for cases where target > 0)
+        # Positive outcome (for cases where target > threshold)
         target_pos, past_cov_pos = zip(*[(t, p) for t, p in zip(self._target_train, self._past_cov_train)
                                          if (t.values() > threshold).any()])
 
