@@ -10,11 +10,30 @@ class HurdleModel(StepshifterModel):
     1. Binary stage: Predicts whether the target variable is 0 or > 0.
     2. Positive stage: Predicts the value of the target variable when it is > 0.
 
-    ! Note:
-    We use a lightly different algorithm here. For the binary stage, a regression model is used, but the target is binary (0 or 1).
-    For the positive stage, a regression model is used as well. We select countries/priogrids that have at least one positive value in the target variable.
-    Since the target variable can be a float number, we use a threshold (default 0.1) to determine whether the target variable is positive or not.
+    Note:
+    This algorithm uses a two-step approach. 
+
+    **Step 1: Classification Stage**  
+    In the first step, a regression model is used with a binary target (0 or 1), 
+    indicating the absence or presence of violence. This stage functions similarly 
+    to a linear probability model, estimating the likelihood of a positive outcome. 
+    Since the model is a regression rather than a classification model, 
+    these estimates are not strictly bounded between 0 and 1, 
+    but this is acceptable for the purpose of this step.
+
+    To determine whether an observation is classified as "positive," we apply a threshold. 
+    The default threshold is 0.1, meaning that predictions above this value 
+    are considered positive outcomes. This threshold can be adjusted as 
+    a tunable hyperparameter to better suit specific requirements.
+
+    **Step 2: Regression Stage**  
+    In the second step, we use a regression model to predict a continuous or count value 
+    (e.g., the expected number of conflict fatalities) for the selected time series. 
+    We include the entire time series for countries or PRIO grids where the 
+    classification stage yielded at least one "positive" prediction, 
+    rather than limiting the regression to just the predicted positive values.
     """
+    
     def __init__(self, config: Dict, partitioner_dict: Dict[str, List[int]]):
         super().__init__(config, partitioner_dict)
         self._clf = self._resolve_estimator(config['model_clf'])
