@@ -2,10 +2,10 @@ import logging
 import sys
 from pathlib import Path
 
-
 # Configure logging - don't know if this is necessary here
-logging.basicConfig(level=logging.WARNING)
+# logging.basicConfig(level=logging.WARNING)
 logger = logging.getLogger(__name__)
+
 
 def setup_root_paths(PATH) -> Path:
     """
@@ -48,9 +48,10 @@ def setup_model_paths(PATH):
         PATH_MODEL = Path(*[i for i in PATH.parts[:PATH.parts.index("models") + 2]])
         return PATH_MODEL
     else:
-        error_message = "The 'models' directory was not found in the provided path."
-        logger.warning(error_message)
-        raise ValueError(error_message)
+        # error_message = "The 'models' directory was not found in the provided path."
+        # logger.warning(error_message)
+        # raise ValueError(error_message)
+        return None
     
 
 def setup_ensemble_paths(PATH):
@@ -70,10 +71,10 @@ def setup_ensemble_paths(PATH):
         return PATH_ENSEMBLE
     
     else:
-        error_message = "The 'ensembles' directory was not found in the provided path."
-        logger.warning(error_message)
-        raise ValueError(error_message)
-
+        # error_message = "The 'ensembles' directory was not found in the provided path."
+        # logger.warning(error_message)
+        # raise ValueError(error_message)
+        return None
 
 def setup_project_paths(PATH) -> None:
     """
@@ -107,8 +108,19 @@ def setup_project_paths(PATH) -> None:
     #    PATH_MODEL = Path(*[i for i in PATH.parts[:PATH.parts.index("models")+2]]) # The +2 is to include the "models" and the individual model name in the path
 
     PATH_ROOT = setup_root_paths(PATH)
-    PATH_MODEL = setup_model_paths(PATH)
-    PATH_ENSEMBLE = setup_ensemble_paths(PATH)
+    
+
+    try:
+        PATH_MODEL = setup_model_paths(PATH)
+    except ValueError as e:
+        PATH_MODEL = None
+        logger.warning(e)
+
+    try:
+        PATH_ENSEMBLE = setup_ensemble_paths(PATH)
+    except ValueError as e:
+        PATH_ENSEMBLE = None
+        logger.warning(e)
 
     # print(f"Root path: {PATH_ROOT}") # debug
     # print(f"Model path: {PATH_MODEL}") # debug
@@ -156,25 +168,24 @@ def setup_project_paths(PATH) -> None:
         PATH_FORECASTING_E = PATH_SRC_E / "forecasting"
         PATH_OFFLINE_EVALUATION_E = PATH_SRC_E / "offline_evaluation"
         PATH_DATALOADERS_E = PATH_SRC_E / "dataloaders"
-        paths_to_add = [PATH_ROOT, 
-                        PATH_COMMON_UTILS, 
+        paths_to_add = [PATH_ROOT,
+                        PATH_COMMON_UTILS,
                         PATH_COMMON_CONFIGS,
                         PATH_COMMON_QUERYSETS,
-                        PATH_CONFIGS_E, 
-                        PATH_UTILS_E, 
-                        PATH_MANAGEMENT_E, 
-                        PATH_ARCHITECTURES_E, 
+                        PATH_CONFIGS_E,
+                        PATH_UTILS_E,
+                        PATH_MANAGEMENT_E,
+                        PATH_ARCHITECTURES_E,
                         PATH_TRAINING_E,
-                        PATH_FORECASTING_E, 
-                        PATH_OFFLINE_EVALUATION_E, 
+                        PATH_FORECASTING_E,
+                        PATH_OFFLINE_EVALUATION_E,
                         PATH_DATALOADERS_E]
 
     for path in paths_to_add:
         path_str = str(path)
-        if (
-            path.exists() and path_str not in sys.path
-        ):  # whith the current implementation, PATH_COMMON_UTILS is already in sys.path and will not be added (or printed) again
-            # print(f"Adding {path_str} to sys.path") # debug
+        if not path.exists():
+            path.mkdir(parents=True)
+        if path_str not in sys.path:
             sys.path.insert(0, path_str)
 
 
@@ -189,8 +200,17 @@ def setup_data_paths(PATH) -> Path:
     """
 
     # PATH_MODEL = Path(*[i for i in PATH.parts[:PATH.parts.index("models")+2]]) # The +2 is to include the "models" and the individual model name in the path
-    PATH_MODEL = setup_model_paths(PATH)
-    PATH_ENSEMBLE = setup_ensemble_paths(PATH)
+    try:
+        PATH_MODEL = setup_model_paths(PATH)
+    except ValueError as e:
+        PATH_MODEL = None
+        logger.warning(e)
+
+    try:
+        PATH_ENSEMBLE = setup_ensemble_paths(PATH)
+    except ValueError as e:
+        PATH_ENSEMBLE = None
+        logger.warning(e)
 
     PATH_DATA = PATH_MODEL / "data" if PATH_MODEL else PATH_ENSEMBLE / "data"
     PATH_RAW = PATH_DATA / "raw"
