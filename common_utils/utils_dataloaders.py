@@ -3,13 +3,34 @@ import os
 import numpy as np
 import pandas as pd
 from pathlib import Path
+import sys
 # from config_partitioner import get_partitioner_dict
 from set_partition import get_partitioner_dict
-from config_input_data import get_input_data_config  # this is model specific
+# from config_input_data import get_input_data_config  # this is model specific
 from common_configs import config_drift_detection
 from utils_df_to_vol_conversion import df_to_vol
 from viewser import Queryset, Column
 
+sys.path.append(str(Path(__file__).parent))
+from meta_tools.utils import utils_model_paths
+import logging
+import importlib
+from model_path import ModelPath
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
+logger = logging.getLogger(__name__)
+
+# Super sus but works for now.
+def find_model_name():
+    for path in sys.path:
+        try:
+            model_name = utils_model_paths.get_model_name_from_path(path)
+            if model_name:
+                return model_name
+        except:
+            continue
+    raise RuntimeError('Could not find model name')
 
 def fetch_data_from_viewser(month_first, month_last, drift_config_dict, self_test):
     """
@@ -21,7 +42,9 @@ def fetch_data_from_viewser(month_first, month_last, drift_config_dict, self_tes
         pd.DataFrame: The prepared DataFrame with initial processing done.
     """
     print(f'Beginning file download through viewser with month range {month_first},{month_last}')
-    queryset_base = get_input_data_config()  # just used here..
+    model_path = ModelPath(model_name_or_path=find_model_name(), validate=True)
+    queryset_base = model_path.get_queryset()  # just used here..
+    del model_path
     df, alerts = queryset_base.publish().fetch_with_drift_detection(start_date=month_first,
                                                                     end_date=month_last - 1,
                                                                     drift_config_dict=drift_config_dict,
