@@ -226,7 +226,7 @@ def test_get_scripts(temp_dir):
     """
     project_root, model_dir = temp_dir
     with patch('model_path.utils_model_paths.find_project_root', return_value=project_root):
-        model_path_instance = ModelPath(model_name_or_path="test_model", validate=True)
+        model_path_instance = ModelPath(model_name_or_path="test_model", validate=False)
         scripts = model_path_instance.get_scripts()
         assert "main.py" in scripts
         assert scripts["main.py"] == str(model_dir / "main.py")

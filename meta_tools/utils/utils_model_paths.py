@@ -47,7 +47,7 @@ def get_model_name_from_path(path) -> str:
     """
     path = Path(path)
     logger.info(f"Extracting model name from Path: {path}")
-    if "models" in path.parts:
+    if "models" in path.parts and "ensembles" not in path.parts:
         try:
             model_idx = path.parts.index("models")
             model_name = path.parts[model_idx + 1]
@@ -60,6 +60,19 @@ def get_model_name_from_path(path) -> str:
                 raise ValueError(error_message)
         except Exception as e:
             logger.error(f"Could not find model name in path: {e}")
+    if "ensembles" in path.parts and "models" not in path.parts:
+        try:
+            ensemble_idx = path.parts.index("ensembles")
+            ensemble_name = path.parts[ensemble_idx + 1]
+            if validate_model_name(ensemble_name):
+                logger.info(f"Valid ensemble name found in path: {ensemble_name}")
+                return str(ensemble_name)
+            else:
+                error_message = f"Invalid ensemble name `{ensemble_name}` found in path. Please provide a valid ensemble name that follows the lowercase 'adjective_noun' format."
+                logger.error(error_message)
+                raise ValueError(error_message)
+        except Exception as e:
+            logger.error(f"Could not find ensemble name in path: {e}")  
     else:
         error_message = (
             "`models` directory not found in path. Please provide a valid path."

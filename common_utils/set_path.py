@@ -28,15 +28,18 @@ def get_model_path_instance(path) -> ModelPath:
     """
     model_name = get_model_name_from_path(path)
     if model_name not in _model_path_cache:
-        print(f"{model_name} not found in cache. Creating new ModelPath instance...")
+        logger.info(f"{model_name} not found in cache. Creating new ModelPath instance...")
         model = ModelPath(model_name)
         _model_path_cache[model_name] = model
     else:
         model = _model_path_cache[model_name]
-
-    print(f"Returning cached ModelPath instance for path: {path}")
-    print(f"Model name: {model.model_name}")
-    print(f"Model directory: {model.model_dir}")
+    if model.model_dir is None:
+        error_message = f"Unable to create ModelPath instance for {model_name}. "
+        logger.warning(error_message)
+        raise ValueError(error_message)
+    logger.info(f"Returning cached ModelPath instance for path: {path}")
+    logger.info(f"Model name: {model.model_name}")
+    logger.info(f"Model directory: {model.model_dir}")
     return model
 
 
@@ -80,16 +83,15 @@ def setup_model_paths(PATH):
     Returns:
         PATH_model: The path (pathlib path object) including the "models" directory and its immediate subdirectory.
     """
-    model = get_model_path_instance(PATH)
-    PATH_MODEL = model.model_dir
-    return PATH_MODEL
-    # if "models" in PATH.parts:
-    #     PATH_MODEL = Path(*[i for i in PATH.parts[:PATH.parts.index("models") + 2]])
-    #     return PATH_MODEL
-    # else:
-    #     error_message = "The 'models' directory was not found in the provided path."
-    #     logger.warning(error_message)
-    #     raise ValueError(error_message)
+    if "models" in PATH.parts:
+        # PATH_MODEL = Path(*[i for i in PATH.parts[:PATH.parts.index("models") + 2]])
+        model = get_model_path_instance(PATH)
+        PATH_MODEL = model.model_dir
+        return PATH_MODEL
+    else:
+        error_message = "The 'models' directory was not found in the provided path."
+        logger.warning(error_message)
+        raise ValueError(error_message)
 
 
 def setup_ensemble_paths(PATH):
@@ -165,14 +167,14 @@ def setup_project_paths(PATH) -> None:
     # print(f"Model path: {PATH_MODEL}") # debug
 
     # Define common paths
-    PATH_COMMON_UTILS = PATH_ROOT / "common_utils"
-    PATH_COMMON_CONFIGS = PATH_ROOT / "common_configs"
-    PATH_COMMON_QUERYSETS = PATH_ROOT / "common_querysets"
 
     # print(f"Common utils path: {PATH_COMMON_UTILS}") # debug
     # print(f"Common configs path: {PATH_COMMON_CONFIGS}") # debug
     # Define model-specific paths
     if PATH_MODEL:
+        PATH_COMMON_UTILS = model.common_utils
+        PATH_COMMON_CONFIGS = model.common_configs
+        PATH_COMMON_QUERYSETS = model.common_querysets
         # PATH_CONFIGS = model.configs
         # PATH_SRC = model.src
         # PATH_UTILS = model.utils
@@ -195,6 +197,9 @@ def setup_project_paths(PATH) -> None:
 
     # Define ensemble paths
     if PATH_ENSEMBLE:
+        PATH_COMMON_UTILS = PATH_ROOT / "common_utils"
+        PATH_COMMON_CONFIGS = PATH_ROOT / "common_configs"
+        PATH_COMMON_QUERYSETS = PATH_ROOT / "common_querysets"
         PATH_CONFIGS_E = PATH_ENSEMBLE / "configs"
         PATH_SRC_E = PATH_ENSEMBLE / "src"
         PATH_UTILS_E = PATH_SRC_E / "utils"
@@ -226,7 +231,7 @@ def setup_project_paths(PATH) -> None:
             if not Path(path).exists():
                 Path(path).mkdir(parents=True)
             if path not in sys.path:
-                sys.path.insert(0, path)
+                sys.path.insert(0, str(path))
     # print(f"{sys.path}")
 
 
