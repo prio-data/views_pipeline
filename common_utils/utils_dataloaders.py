@@ -5,7 +5,10 @@ import pandas as pd
 from pathlib import Path
 import sys
 # from config_partitioner import get_partitioner_dict
-from set_partition import get_partitioner_dict
+try:
+    from set_partition import get_partitioner_dict
+except:
+    pass
 # from config_input_data import get_input_data_config  # this is model specific
 from common_configs import config_drift_detection
 from utils_df_to_vol_conversion import df_to_vol
@@ -13,11 +16,12 @@ from viewser import Queryset, Column
 
 sys.path.append(str(Path(__file__).parent))
 from meta_tools.utils import utils_model_paths
+from meta_tools.utils import utils_model_naming
 import logging
 import importlib
 from model_path import ModelPath
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+    level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -41,9 +45,13 @@ def fetch_data_from_viewser(month_first, month_last, drift_config_dict, self_tes
     Returns:
         pd.DataFrame: The prepared DataFrame with initial processing done.
     """
-    print(f'Beginning file download through viewser with month range {month_first},{month_last}')
+    logger.info(f'Beginning file download through viewser with month range {month_first},{month_last}')
     model_path = ModelPath(model_name_or_path=find_model_name(), validate=True)
     queryset_base = model_path.get_queryset()  # just used here..
+    if queryset_base is None:
+        raise RuntimeError(f'Could not find queryset for {model_path.model_name} in common_querysets')
+    else:
+        logger.info(f'Found queryset for {model_path.model_name} in common_querysets')
     del model_path
     df, alerts = queryset_base.publish().fetch_with_drift_detection(start_date=month_first,
                                                                     end_date=month_last - 1,

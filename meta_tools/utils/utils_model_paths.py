@@ -75,7 +75,7 @@ def get_model_name_from_path(path) -> str:
             logger.error(f"Could not find ensemble name in path: {e}")  
     else:
         error_message = (
-            "`models` directory not found in path. Please provide a valid path."
+            "No model or ensemble directory found in path. Please provide a valid path."
         )
         logger.warning(error_message)
         raise ValueError(error_message)

@@ -6,7 +6,7 @@ sys.path.append(str(Path(__file__).parent.parent))
 import logging
 
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format="%(asctime)s %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -217,7 +217,7 @@ class ModelPath:
             logger.warning(
                 f"Queryset {self._queryset_path} does not exist. Continuing..."
             )
-        return
+        return None
 
     def _get_model_dir(self) -> Path:
         """
@@ -501,3 +501,9 @@ class ModelPath:
             else:
                 scripts[str(path)] = None
         return scripts
+    
+if __name__ == "__main__":
+    model = ModelPath("blank_space", validate=True)
+    print(model.model_dir)
+    del model
+    print(sys.path)

@@ -36,7 +36,7 @@ def make_new_ensemble_dir(ensemble_name):
         "notebooks",
         "reports",
         "data/generated",
-        "data/processed",
+        "/data/processed",
         "src/dataloaders",
         "src/architecture",
         "src/utils",
