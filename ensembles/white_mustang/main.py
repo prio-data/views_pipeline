@@ -1,11 +1,7 @@
 import sys
-import time
 import wandb
-
 import logging
-logging.basicConfig(filename='run.log', encoding='utf-8', level=logging.INFO,
-                    format='%(asctime)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
+import warnings
 
 from pathlib import Path
 PATH = Path(__file__)
@@ -17,19 +13,18 @@ setup_project_paths(PATH)
 from execute_model_runs import execute_single_run
 from utils_cli_parser import parse_args, validate_arguments
 
+warnings.filterwarnings("ignore")
+
+logging.basicConfig(encoding='utf-8',
+                    level=logging.INFO,
+                    format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger("wandb")
+
 
 if __name__ == "__main__":
     args = parse_args()
     validate_arguments(args)
 
-    # wandb login
     wandb.login()
 
-    start_t = time.time()
-
     execute_single_run(args)
-
-    end_t = time.time()
-    minutes = (end_t - start_t) / 60
-    logger.info(f'Done. Runtime: {minutes:.3f} minutes.\n')
-

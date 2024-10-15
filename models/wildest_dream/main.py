@@ -2,7 +2,6 @@ import wandb
 import sys
 import logging
 import warnings
-warnings.filterwarnings("ignore")
 
 from pathlib import Path
 PATH = Path(__file__)
@@ -14,6 +13,8 @@ setup_project_paths(PATH)
 from utils_cli_parser import parse_args, validate_arguments
 from execute_model_runs import execute_sweep_run, execute_single_run
 
+warnings.filterwarnings("ignore")
+
 logging.basicConfig(encoding='utf-8',
                     level=logging.INFO,
                     format='%(asctime)s - %(levelname)s - %(message)s')
@@ -24,7 +25,6 @@ if __name__ == "__main__":
     args = parse_args()
     validate_arguments(args)
 
-    # wandb login
     wandb.login()
 
     if args.sweep:
