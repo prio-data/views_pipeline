@@ -2,10 +2,7 @@ import sys
 from datetime import datetime
 import pandas as pd
 import warnings
-warnings.filterwarnings("ignore")
-
 import logging
-logger = logging.getLogger(__name__)
 
 from pathlib import Path
 PATH = Path(__file__)
@@ -22,6 +19,9 @@ from utils_evaluation_metrics import generate_metric_dict
 from utils_model_outputs import generate_output_dict
 from utils_wandb import log_wandb_log_dict
 from views_forecasts.extensions import *
+
+warnings.filterwarnings("ignore")
+logger = logging.getLogger(__name__)
 
 
 def evaluate_model_artifact(config, artifact_name):
