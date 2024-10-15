@@ -7,14 +7,18 @@ PATH = Path(__file__)
 sys.path.insert(0, str(Path(
     *[i for i in PATH.parts[:PATH.parts.index("views_pipeline") + 1]]) / "common_utils"))  # PATH_COMMON_UTILS
 from utils_cli_parser import parse_args, validate_arguments
+from model_path import ModelPath
+from ensemble_path import EnsemblePath
 
-MODEL_DIR = PATH.parent.parent / "models"
-ENSEMBLE_DIR = PATH.parent.parent / "ensembles"
+model = ModelPath('test_model', validate=False)
+ensemble = EnsemblePath('test_ensemble', validate=False)
+MODEL_DIR = model.models
+ENSEMBLE_DIR = ensemble.models
 
 
 def initialize():
     # Define paths to main.py files for each model and ensemble
-    model_main_files = list(MODEL_DIR.rglob('main.py')) 
+    model_main_files = list(MODEL_DIR.rglob('main.py'))
     ensemble_main_files = list(ENSEMBLE_DIR.rglob('main.py'))
 
     return model_main_files, ensemble_main_files
@@ -52,7 +56,7 @@ def run_ensemble_script(script_path, name, run_type, evaluate, forecast):
     cli_args = []
     cli_args.extend(["--run_type", run_type])
     cli_args.append("--ensemble")
-    
+
     if evaluate:
         cli_args.append("--evaluate")
     if forecast:
