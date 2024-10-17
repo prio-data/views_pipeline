@@ -47,10 +47,10 @@ def get_model_path_instance(path) -> ModelPath:
     else:
         model = _model_path_cache[model_name]
     if model.model_dir is None:
-        error_message = f"Unable to create ModelPath instance for {model_name}. "
+        error_message = f"Unable to create ModelPath/EnsemblePath instance for {model_name}. "
         logger.warning(error_message)
         raise ValueError(error_message)
-    logger.info(f"Returning cached ModelPath instance for path: {path}")
+    logger.info(f"Returning cached ModelPath/EnsemblePath instance for path: {path}")
     logger.info(f"Model name: {model.model_name}")
     logger.info(f"Model directory: {model.model_dir}")
     print(_model_path_cache)
@@ -83,7 +83,7 @@ def setup_root_paths(PATH) -> Path:
             "The 'views_pipeline' directory was not found in the provided path."
         )
         logger.warning(error_message)
-        raise ValueError(error_message)
+        raise FileNotFoundError(error_message)
 
 
 def setup_model_paths(PATH):
@@ -106,7 +106,7 @@ def setup_model_paths(PATH):
     else:
         error_message = "The 'models' directory was not found in the provided path."
         logger.warning(error_message)
-        raise ValueError(error_message)
+        raise FileNotFoundError(error_message)
 
 
 def setup_ensemble_paths(PATH):
@@ -122,15 +122,15 @@ def setup_ensemble_paths(PATH):
         PATH_ENSEMBLE: The path (pathlib path object) including the "ensembles" directory and its immediate subdirectory.
     """
     if "ensembles" in PATH.parts:
-        PATH_ENSEMBLE = Path(
-            *[i for i in PATH.parts[: PATH.parts.index("ensembles") + 2]]
-        )
+        model = get_model_path_instance(PATH)
+        PATH_ENSEMBLE = model.model_dir
+
         return PATH_ENSEMBLE
 
     else:
         error_message = "The 'ensembles' directory was not found in the provided path."
         logger.warning(error_message)
-        raise ValueError(error_message)
+        raise FileNotFoundError(error_message)
 
 
 def setup_project_paths(PATH) -> None:
@@ -163,7 +163,7 @@ def setup_project_paths(PATH) -> None:
 
     #    PATH_ROOT  = Path(*[i for i in PATH.parts[:PATH.parts.index("views_pipeline")+1]]) # The +1 is to include the "views_pipeline" part in the path
     #    PATH_MODEL = Path(*[i for i in PATH.parts[:PATH.parts.index("models")+2]]) # The +2 is to include the "models" and the individual model name in the path
-    print(f"setup_project_paths :: Path : {PATH}")
+    # print(f"setup_project_paths :: Path : {PATH}")
     model = get_model_path_instance(PATH)
     # PATH_ROOT = model.root
     # PATH_MODEL = None
