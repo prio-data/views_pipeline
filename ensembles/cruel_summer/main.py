@@ -1,6 +1,5 @@
-import sys
 import wandb
-import logging
+import sys
 import warnings
 
 from pathlib import Path
@@ -10,21 +9,19 @@ sys.path.insert(0, str(Path(
 from set_path import setup_project_paths
 setup_project_paths(PATH)
 
-from execute_model_runs import execute_single_run
 from utils_cli_parser import parse_args, validate_arguments
+from utils_logger import setup_logging
+from execute_model_runs import execute_single_run
 
 warnings.filterwarnings("ignore")
 
-logging.basicConfig(encoding='utf-8',
-                    level=logging.INFO,
-                    format='%(asctime)s - %(levelname)s - %(message)s')
-logger = logging.getLogger("wandb")
+logger = setup_logging('run.log')
 
 
 if __name__ == "__main__":
+    wandb.login()
+
     args = parse_args()
     validate_arguments(args)
-
-    wandb.login()
 
     execute_single_run(args)
