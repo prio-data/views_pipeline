@@ -305,7 +305,7 @@ class ModelPath:
                     return
                 if model_name == self.model_name:
                     logger.info(
-                        f"Paths for '{model_name}' are already added to sys.path. Skipping..."
+                        f"Path {str(path)} for '{model_name}' is already added to sys.path. Skipping..."
                     )
                     
             # Add paths to sys.path
