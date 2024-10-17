@@ -10,7 +10,7 @@ pgm_querysets_path = '../viewsforecasting/Tools/pgm_querysets.py'
 
 # The GitHub repo link 
 # TODO: github_workflows should be changed to main when merged
-GITHUB_URL = 'https://github.com/prio-data/viewsforecasting/blob/github_workflows/' 
+GITHUB_URL = 'https://github.com/prio-data/viewsforecasting/blob/main/' 
 
 
 
@@ -140,7 +140,7 @@ def generate_markdown_table(models):
 models_dict = extract_models(model_def_path)
 markdown_table = generate_markdown_table(models_dict)
 
-with open('documentation/catalogs/cm_model_catalog.md', 'w') as f:
+with open('documentation/catalogs/cm_model_catalog_old_pipeline.md', 'w') as f:
     f.write(markdown_table)
 
 
