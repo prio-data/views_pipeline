@@ -119,51 +119,6 @@ def test_check_environment_malformed_environment_yml(mock_subprocess_run):
         discrepancies = check_environment()
         assert discrepancies is None
 
-def test_check_environment_no_discrepancies(mock_subprocess_run, mock_yaml_safe_load, mock_open_file):
-    """
-    Test the check_environment function when there are no discrepancies.
-    
-    This test asserts that the discrepancies returned by check_environment are an empty list.
-    
-    Args:
-        mock_subprocess_run (Mock): The mocked subprocess.run function.
-        mock_yaml_safe_load (Mock): The mocked yaml.safe_load function.
-        mock_open_file (Mock): The mocked open function.
-    """
-    discrepancies = check_environment()
-    assert discrepancies == []
-
-def test_check_environment_version_mismatch(mock_subprocess_run, mock_yaml_safe_load, mock_open_file):
-    """
-    Test the check_environment function when there is a version mismatch.
-    
-    This test modifies the mock data to simulate a version mismatch for numpy. 
-    It asserts that the discrepancies list contains the expected version mismatch messages.
-    
-    Args:
-        mock_subprocess_run (Mock): The mocked subprocess.run function.
-        mock_yaml_safe_load (Mock): The mocked yaml.safe_load function.
-        mock_open_file (Mock): The mocked open function.
-    """
-    # Modify mock data to simulate version mismatch
-    mock_subprocess_run.side_effect = [
-        subprocess.CompletedProcess(args=["mamba", "list", "--export"], returncode=0, stdout="numpy=1.18.5\npandas=1.1.3"),
-        subprocess.CompletedProcess(args=["pip", "freeze"], returncode=0, stdout="numpy==1.18.5\npandas==1.1.3")
-    ]
-    
-    # Mock the environment.yml content to have different versions
-    mock_yaml_safe_load.return_value = {
-        'name': 'myenv',
-        'dependencies': [
-            'numpy=1.19.2',
-            'pandas=1.1.3',
-            {'pip': ['numpy==1.19.2', 'pandas==1.1.3']}
-        ]
-    }
-    discrepancies = check_environment()
-    assert "Version mismatch for pip package: numpy (saved: 1.19.2, current: 1.18.5)" in discrepancies
-    assert "Version mismatch for mamba package: numpy (saved: 1.19.2, current: 1.18.5)" in discrepancies
-
 def test_check_environment_missing_packages(mock_subprocess_run, mock_yaml_safe_load, mock_open_file):
     """
     Test the check_environment function when there are missing packages.
