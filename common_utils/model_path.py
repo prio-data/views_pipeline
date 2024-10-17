@@ -502,8 +502,8 @@ class ModelPath:
                 scripts[str(path)] = None
         return scripts
     
-if __name__ == "__main__":
-    model = ModelPath("blank_space", validate=True)
-    print(model.model_dir)
-    del model
-    print(sys.path)
+# if __name__ == "__main__":
+#     model = ModelPath("blank_space", validate=True)
+#     print(model.model_dir)
+#     del model
+#     print(sys.path)
