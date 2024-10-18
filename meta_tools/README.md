@@ -12,7 +12,7 @@ This folder contains several scripts for creating and assessing new model folder
 
 The `ModelBuilder` class is designed to create and and enforce the obligatory directory structure of a machine learning model in the VIEWS pipeline. For definitions of a model and information on the structure, see this [ADR](https://github.com/prio-data/views_pipeline/blob/main/documentation/ADRs/005_model_definition_and_structure.md).
 
-The `ModelBuilder` class is designed to build and manage essential Python scripts for machine learning model deployment and evaluation within the ViEWS pipeline.
+The `ModelBuilder` class is also designed to build and manage essential Python scripts for machine learning model deployment and evaluation within the ViEWS pipeline.
 **`ModelBuilder` uses script templates stored in the `meta_tools/templates` directory. Ensure that the model directories are created first to avoid any errors.**
 
 To test the scripts in meta_tools, run `pytest -v meta_tools`
