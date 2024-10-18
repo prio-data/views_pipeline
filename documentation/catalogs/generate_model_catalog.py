@@ -67,7 +67,7 @@ def extract_models(model_class):
         model_dict['hyperparameters'] = create_link(f"hyperparameters {model_class.model_name}", model_class.get_scripts()['config_hyperparameters.py'])
   
     model_dict['level'] = model_class.get_queryset().loa if model_class.get_queryset() else None
-    
+
     return model_dict
 
 
@@ -113,7 +113,7 @@ def generate_markdown_table(models_list):
         row = [
             model.get('name', ''),
             str(model.get('algorithm', '')).split('(')[0],
-            model.get('depvar', '') if model.get('depvar', '') else f"{model.get('target(S)', '')}",
+            model.get('depvar', '') if model.get('depvar', '') else ", ".join(model.get('target(S)', '')),
             model.get('queryset', ''),
             model.get('hyperparameters',''),
             'None',#Direct multi-step',
