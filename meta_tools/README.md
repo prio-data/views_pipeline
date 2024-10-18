@@ -22,7 +22,7 @@ The `ModelScriptBuilder` class is designed to build and manage essential Python 
 
 `validate_environment.py`contains a set of utilities for managing Python package environments using mamba and pip. The provided script helps in listing, comparing, and synchronizing package versions between the current environment and a saved environment.yml file.
 
-`--check`: Check if the environment matches the environment.yml file.
+`--check`: Check if the environment matches the environment.yml file.     
 `--write`: Write the current environment to environment.yml.
 
 To test the scripts in meta_tools, run `pytest -v meta_tools`
