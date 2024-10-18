@@ -18,4 +18,6 @@ The `ModelScriptBuilder` class is designed to build and manage essential Python 
 
 **`ModelScriptBuilder` uses script templates stored in the `meta_tools/templates` directory. Ensure that the model directories are created first to avoid any errors.**
 
+`validate_environment.py`contains a set of utilities for managing Python package environments using mamba and pip. The provided script helps in listing, comparing, and synchronizing package versions between the current environment and a saved environment.yml file.
+
 To test the scripts in meta_tools, run `pytest -v meta_tools`
