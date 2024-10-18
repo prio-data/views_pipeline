@@ -10,7 +10,7 @@ from pathlib import Path
 PATH = Path(__file__)
 sys.path.insert(0, str(Path(
     *[i for i in PATH.parts[:PATH.parts.index("views_pipeline") + 1]]) ))  # PATH_ROOT
-PATH_ROOT =sys.path[0]
+PATH_ROOT = sys.path[0]
 
 from common_utils.model_path import ModelPath
 
@@ -52,6 +52,8 @@ def extract_models(model_class):
             code = file.read()
             exec(code, {}, tmp_dict)
         model_dict.update(tmp_dict['get_meta_config']())
+        model_dict['queryset'] = create_link(model_dict['queryset'], model_class.get_scripts()[f"queryset_{model_class.model_name}.py"])
+
 
     if os.path.exists(config_deployment):
         logging.info(f"Found deployment config: {config_deployment}")
@@ -61,15 +63,9 @@ def extract_models(model_class):
         model_dict.update(tmp_dict['get_deployment_config']())
 
     if os.path.exists(config_hyperparameters):
-        logging.info(f"Found hyperparameters config: {config_hyperparameters}")
-        with open(config_hyperparameters, 'r') as file:
-            code = file.read()
-            exec(code, {}, tmp_dict) 
-        model_dict.update(tmp_dict['get_hp_config']())
-        
-    if 'queryset' in model_dict and 'hyperparameters' in model_dict:
-        model_dict['queryset'] = create_link(model_dict['queryset'], model_class.get_scripts()[f"queryset_{model_class.model_name}.py"])
+        logging.info(f"Found hyperparameters config: {config_hyperparameters}") 
         model_dict['hyperparameters'] = create_link(f"hyperparameters {model_class.model_name}", model_class.get_scripts()['config_hyperparameters.py'])
+  
     model_dict['level'] = model_class.get_queryset().loa if model_class.get_queryset() else None
     
     return model_dict
@@ -87,6 +83,7 @@ def create_link(marker, filepath):
     Returns:
     str: A markdown link in the format `- [marker](GITHUB_URL/relative_filepath)`
     """
+
     relative_path = filepath.split('views_pipeline/')[1]
     link_template = '- [{marker}]({url}{file})'
     return link_template.format(marker=marker, url=GITHUB_URL, file=relative_path)
@@ -103,6 +100,7 @@ def generate_markdown_table(models_list):
     Returns:
     markdown_table: a markdown table with links to the querysets and hyperparameters
     """
+
     headers = ['Model Name', 'Algorithm', 'Target', 'Input Features', 'Non-default Hyperparameters', 'Forecasting Type', 'Implementation Status', 'Implementation Date', 'Author']
     
     markdown_table = '| ' + ' '.join([f"{header} |" for header in headers]) + '\n'
