@@ -22,19 +22,18 @@ logger = logging.getLogger(__name__)
 
 class ModelBuilder:
     """
-    A class to create and manage the directory structure for a machine learning model.
+    A class to create and manage the directory structure and scripts for a machine learning model.
 
     Attributes:
-        expected_structure (list of str): A list of expected directories to be created within the model directory.
         model_name (str): The name of the model for which the directory structure is to be created.
-        model_dir (Path): The path to the model directory where the structure and files will be created.
+        _model (ModelPath): An instance of the ModelPath class to manage model paths.
         _subdirs (list of str): A list of subdirectories to be created within the model directory.
-        root (Path): The path to the project root directory.
-        models_dir (Path): The path to the `models` directory where all model directories are stored.
-
+        _scripts (list of str): A list of script paths to be created within the model directory.
+        _model_algorithm (str): The algorithm used by the model.
+    
     Methods:
         __init__(model_name: str) -> None:
-            Initializes the ModelDirectoryBuilder with the given model name and sets up paths.
+            Initializes the ModelBuilder with the given model name and sets up paths.
 
         build_model_directory() -> Path:
             Creates the model directory and its subdirectories, and initializes necessary files such as README.md
@@ -46,6 +45,12 @@ class ModelBuilder:
             Raises:
                 FileExistsError: If the model directory already exists.
 
+        build_model_scripts() -> None:
+            Generates the necessary configuration and main scripts for the model.
+
+            Raises:
+                FileNotFoundError: If the model directory does not exist.
+
         assess_model_directory() -> dict:
             Assesses the model directory by checking for the presence of expected directories.
 
@@ -53,6 +58,14 @@ class ModelBuilder:
                 dict: A dictionary containing assessment results with two keys:
                     - 'model_dir': The path to the model directory.
                     - 'structure_errors': A list of errors related to missing directories.
+
+        assess_model_scripts() -> dict:
+            Assesses the model directory by checking for the presence of expected scripts.
+
+            Returns:
+                dict: A dictionary containing assessment results with two keys:
+                    - 'model_dir': The path to the model directory.
+                    - 'missing_scripts': A set of missing script paths.
     """
 
     def __init__(self, model_name) -> None:
