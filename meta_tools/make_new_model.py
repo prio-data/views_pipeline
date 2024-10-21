@@ -4,7 +4,9 @@ import datetime
 import logging
 import sys
 sys.path.append(str(Path(__file__).parent.parent))
+sys.path.append(str(Path(__file__).parent.parent / "common_utils"))
 
+# print(str(Path(__file__).parent.parent))
 from common_utils import model_path
 
 from templates import (
@@ -18,7 +20,6 @@ from templates import (
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
 
 class ModelBuilder:
     """

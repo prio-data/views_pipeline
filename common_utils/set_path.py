@@ -14,8 +14,6 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
-# cache = GlobalCache()
-
 
 def get_model_path_instance(path) -> ModelPath:
     """
