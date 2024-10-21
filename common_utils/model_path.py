@@ -17,7 +17,7 @@ import importlib
 
 from meta_tools.utils import utils_model_naming
 from meta_tools.utils import utils_model_paths
-
+from global_cache import GlobalCache
 
 class ModelPath:
     def __init__(self, model_name_or_path, validate=True, target="model") -> None:
@@ -65,6 +65,8 @@ class ModelPath:
         self._validate = validate
         self._target = target
         self.model_name = model_name_or_path
+
+        # Check if the input is a path and extract the model name
         if self._is_path(self.model_name):
             logger.info(f"Path input detected: {self.model_name}")
             self.model_name = utils_model_paths.get_model_name_from_path(self.model_name)
@@ -75,6 +77,16 @@ class ModelPath:
                 )
             else:
                 logger.info(f"{self._target.title()} name detected: {self.model_name}")
+
+        # Cache check
+        self._cache = GlobalCache()
+        try:
+            if self._cache.get(self.model_name):
+                logger.info(f"Model {self.model_name} already exists in cache.")
+                self._return_cached_model()
+        except:
+            logger.info(f"{self.model_name} not found in cache.")
+            pass
         
         self.root = utils_model_paths.find_project_root()
         self.models = self.root / Path(self._target + "s")
@@ -151,7 +163,16 @@ class ModelPath:
                 "_queryset",
                 "_ignore_paths",
                 "_target",
+                "_cache",
             ]
+        self._cache.set(self.model_name, self)
+
+    def _return_cached_model(self):
+        """
+        Returns the cached model if it exists.
+        """
+        logger.info(f"Returning cached model: {self.model_name}")
+        return self._cache.get(self.model_name)
 
     def _is_path(self, path_input) -> bool:
         """
@@ -465,6 +486,7 @@ class ModelPath:
                 "_queryset_path",
                 "_ignore_paths",
                 "_target",
+                "_cache",
             ] and isinstance(value, Path):
                 if not relative:
                     directories[str(attr)] = str(value)

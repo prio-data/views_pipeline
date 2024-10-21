@@ -7,14 +7,14 @@ from ensemble_path import EnsemblePath
 sys.path.append(str(Path(__file__).parent.parent))
 
 from meta_tools.utils.utils_model_paths import get_model_name_from_path
-
+# from global_cache import GlobalCache
 # Configure logging - don't know if this is necessary here
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
-_model_path_cache = {}
+# cache = GlobalCache()
 
 
 def get_model_path_instance(path) -> ModelPath:
@@ -33,26 +33,59 @@ def get_model_path_instance(path) -> ModelPath:
     Raises:
         ValueError: If the ModelPath instance cannot be created due to missing model directory.
     """
+    # model_name = get_model_name_from_path(path)
+    # if model_name not in _model_path_cache:
+    #     logger.info(f"{model_name} not found in cache. Creating new instance...")
+    #     if "models" in path.parts:
+    #         logger.info(f"Creating ModelPath instance for path: {path}")
+    #         model = ModelPath(model_name)
+    #     if "ensembles" in path.parts:
+    #         logger.info(f"Creating EnsemblePath instance for path: {path}")
+    #         model = EnsemblePath(model_name)
+    #     _model_path_cache[model_name] = model
+    # else:
+    #     model = _model_path_cache[model_name]
+    # if model.model_dir is None:
+    #     error_message = f"Unable to create ModelPath/EnsemblePath instance for {model_name}. "
+    #     logger.warning(error_message)
+    #     raise ValueError(error_message)
+    # logger.info(f"Returning cached ModelPath/EnsemblePath instance for path: {path}")
+    # logger.info(f"Model name: {model.model_name}")
+    # logger.info(f"Model directory: {model.model_dir}")
+    # return model
+
     model_name = get_model_name_from_path(path)
-    if model_name not in _model_path_cache:
-        logger.info(f"{model_name} not found in cache. Creating new instance...")
-        if "models" in path.parts:
-            logger.info(f"Creating ModelPath instance for path: {path}")
-            model = ModelPath(model_name)
-        if "ensembles" in path.parts:
-            logger.info(f"Creating EnsemblePath instance for path: {path}")
-            model = EnsemblePath(model_name)
-        _model_path_cache[model_name] = model
-    else:
-        model = _model_path_cache[model_name]
-    if model.model_dir is None:
-        error_message = f"Unable to create ModelPath/EnsemblePath instance for {model_name}. "
-        logger.warning(error_message)
-        raise ValueError(error_message)
-    logger.info(f"Returning cached ModelPath/EnsemblePath instance for path: {path}")
-    logger.info(f"Model name: {model.model_name}")
-    logger.info(f"Model directory: {model.model_dir}")
-    return model
+    # if not cache.get(model_name):
+    #     logger.info(f"{model_name} not found in cache. Creating new instance...")
+    #     if "models" in path.parts:
+    #         logger.info(f"Creating ModelPath instance for path: {path}")
+    #         model = ModelPath(model_name)
+    #     if "ensembles" in path.parts:
+    #         logger.info(f"Creating EnsemblePath instance for path: {path}")
+    #         model = EnsemblePath(model_name)
+    #     # _model_path_cache[model_name] = model
+    #     cache.set(model_name, model)
+    # else:
+    #     # model = _model_path_cache[model_name]
+    #     model = cache.get(model_name)
+    # if model.model_dir is None:
+    #     error_message = f"Unable to create ModelPath/EnsemblePath instance for {model_name}."
+    #     logger.warning(error_message)
+    #     raise ValueError(error_message)
+    # logger.info(f"Returning cached ModelPath/EnsemblePath instance for path: {path}")
+    # logger.info(f"Model name: {model.model_name}")
+    # logger.info(f"Model directory: {model.model_dir}")
+    if "models" in path.parts:
+        # logger.info(f"Creating ModelPath instance for path: {path}")
+        model_path = ModelPath(model_name)
+    if "ensembles" in path.parts:
+        # logger.info(f"Creating EnsemblePath instance for path: {path}")
+        model_path = EnsemblePath(model_name)
+        # _model_path_cache[model_name] = model
+        # cache.set(model_name, model)
+    return model_path
+
+
 
 
 def setup_root_paths(PATH) -> Path:
@@ -71,9 +104,9 @@ def setup_root_paths(PATH) -> Path:
     Raises:
         ValueError: If the "views_pipeline" directory is not found in the provided path.
     """
-    model = get_model_path_instance(PATH)
+    model_path = get_model_path_instance(PATH)
     if "views_pipeline" in PATH.parts:
-        return model.root
+        return model_path.root
     else:
         error_message = (
             "The 'views_pipeline' directory was not found in the provided path."
@@ -99,8 +132,8 @@ def setup_model_paths(PATH):
         FileNotFoundError: If the "models" directory is not found in the provided path.
     """
     if "models" in PATH.parts:
-        model = get_model_path_instance(PATH)
-        return model.model_dir
+        model_path = get_model_path_instance(PATH)
+        return model_path.model_dir
     else:
         error_message = "The 'models' directory was not found in the provided path."
         logger.warning(error_message)
@@ -124,8 +157,8 @@ def setup_ensemble_paths(PATH):
         FileNotFoundError: If the "ensembles" directory is not found in the provided path.
     """
     if "ensembles" in PATH.parts:
-        model = get_model_path_instance(PATH)
-        return model.model_dir
+        model_path = get_model_path_instance(PATH)
+        return model_path.model_dir
     else:
         error_message = "The 'ensembles' directory was not found in the provided path."
         logger.warning(error_message)
@@ -159,8 +192,8 @@ def setup_project_paths(PATH) -> None:
     Note: Paths are only added to sys.path if they exist and are not already included `(e.g. PATH_COMMON_UTILS), to avoid redundancy.
     Disclaimer: A solution that avoids the insertion of the code above would be preferred.
     """
-    model = get_model_path_instance(PATH)
-    model.add_paths_to_sys()
+    model_path = get_model_path_instance(PATH)
+    model_path.add_paths_to_sys()
 
 def setup_data_paths(PATH) -> Path:
     """
@@ -172,11 +205,11 @@ def setup_data_paths(PATH) -> Path:
     Returns:
         tuple: A tuple containing the raw, processed, and generated data paths.
     """
-    model = get_model_path_instance(PATH)
+    model_path = get_model_path_instance(PATH)
     return (
-        model.data_raw,
-        model.data_processed,
-        model.data_generated,
+        model_path.data_raw,
+        model_path.data_processed,
+        model_path.data_generated,
     )
 
 
@@ -190,5 +223,5 @@ def setup_artifacts_paths(PATH) -> Path:
     Returns:
         Path: The path to the artifacts directory.
     """
-    model = get_model_path_instance(PATH)
-    return model.artifacts
+    model_path = get_model_path_instance(PATH)
+    return model_path.artifacts
