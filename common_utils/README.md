@@ -105,3 +105,67 @@ The `get_queryset()` method returns the queryset module for the model, which con
 queryset = model_path.get_queryset()
 ```
 The `ModelPath` class checks if the queryset file exists, attempts to import it, and logs the process. If validation is enabled and the queryset file is missing, it raises an error.
+
+# GlobalCache (common_utils/global_cache.py)
+
+`GlobalCache` is a thread-safe singleton cache class that uses a global cache file to store key-value pairs. It ensures that only one instance of the cache exists and provides methods to set, get, and delete values in the cache. The cache is saved to a file, ensuring persistence through single or parallel model executions and to avoid object duplication in memory while also ensuring destruction after pipeline excution or interrupt signals.
+
+### Usage
+
+You can initialize the `GlobalCache` with an optional filepath argument. If no filepath is provided, it defaults to `.global_cache.pkl` in the project root.
+
+```python
+from global_cache import GlobalCache
+
+GlobalCache()["key1"] = "value1"
+
+# Get a value from the cache
+value = GlobalCache()["key1"]
+print(value)  # Output: value1
+
+# Delete a key from the cache
+GlobalCache().delete("key1")
+```
+
+### Making Your Data Structure/Class Compatible with GlobalCache
+
+To make your data structure or class compatible with `GlobalCache`, you need to ensure that it can be serialized using Python's pickle module. Here is an example using a GenericClass class:
+
+```python
+import hashlib
+import logging
+
+class GenericClass:
+    def __init__(self, name, force_cache_overwrite=False):
+        self._name = name
+        self._force_cache_overwrite = force_cache_overwrite
+
+        # Cache management
+        try:
+            if self._force_cache_overwrite:
+                GlobalCache()[self.__hash__()] = self
+                logger.info(f"GenericClass {self._name} with hash {self.__hash__()} overwritten to cache.")
+                self._return_cached_generic_obj()
+            
+            if not GlobalCache().__getitem__(self.__hash__()):
+                GlobalCache()[self.__hash__()] = self
+                logger.info(f"GenericClass {self._name} with hash {self.__hash__()} added to cache.")
+                self._return_cached_generic_obj()
+        except Exception as e:
+            logger.error(f"Error adding GenericClass {self._name} to cache: {e}")
+            pass
+
+    def __hash__(self):
+        return hashlib.sha256(str(self._name)).encode()).hexdigest()
+
+    def _return_cached_generic_obj(self):
+        try:
+            result = GlobalCache([self.__hash__()])
+            if result:
+                logger.info(f"GenericClass {self._name} with hash {self.__hash__()} found in cache.")
+                return result
+        except KeyError:
+            logger.warning(f"GenericClass {self._name} not found in cache.")
+```
+
+
