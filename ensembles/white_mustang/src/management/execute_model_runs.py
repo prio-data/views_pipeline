@@ -20,9 +20,12 @@ def execute_single_run(args):
     meta_config = get_meta_config()
     config = update_config(hp_config, meta_config, dp_config, args)
 
-    ensemble_model_check(config)
-
     project = f"{config['name']}_{args.run_type}"
-    execute_model_tasks(config=config, project=project, eval=args.evaluate, forecast=args.forecast)
+    if args.train:
+        # If training, check model will be executed during training
+        execute_model_tasks(config=config, project=project, train=args.train, eval=args.evaluate, forecast=args.forecast)
+    else:
+        ensemble_model_check(config)
+        execute_model_tasks(config=config, project=project, train=args.train, eval=args.evaluate, forecast=args.forecast)
 
 
