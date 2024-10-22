@@ -1,9 +1,12 @@
 import pytest
 from pathlib import Path
 import sys
+import os
+import signal
+from unittest.mock import patch
 
 sys.path.append(str(Path(__file__).parent.parent))
-from global_cache import GlobalCache, cleanup_cache_file
+from global_cache import GlobalCache, cleanup_cache_file, signal_handler
 
 @pytest.fixture(scope="function")
 def cache_file(tmp_path):
@@ -59,3 +62,17 @@ def test_cleanup_cache_file(global_cache, cache_file):
     cleanup_cache_file()
     assert global_cache.filepath.exists() == False
 
+@patch("sys.exit")
+def test_signal_handler(mock_exit, global_cache, cache_file):
+    """
+    Test the signal handler to ensure the cache file is deleted upon user interruption.
+    """
+    global_cache["key1"] = "value1"
+    assert global_cache.filepath.exists() == True
+    
+    # Send a SIGINT signal to the current process
+    os.kill(os.getpid(), signal.SIGINT)
+    
+    # Verify that the cache file is deleted
+    assert not global_cache.filepath.exists(), "Cache file was not deleted by the signal handler"
+    mock_exit.assert_called_once_with(0)
