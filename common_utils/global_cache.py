@@ -6,7 +6,6 @@ from pathlib import Path
 import threading
 import atexit
 import signal
-
 sys.path.append(str(Path(__file__).parent.parent))
 
 # Configure logging
@@ -87,7 +86,7 @@ class GlobalCache:
         """
         Ensures that the cache file exists. If it does not exist, creates a new cache file.
         """
-        if not os.path.exists(self.filepath):
+        if not self.filepath.exists():
             logging.info(f'Cache file: {self.filepath} does not exist. Creating new cache file...')
             with open(self.filepath, 'wb') as f:
                 pickle.dump({}, f)
@@ -146,12 +145,23 @@ class GlobalCache:
         """
         Loads the cache from the cache file into the in-memory cache.
         """
-        if os.path.exists(self.filepath):
-            with open(self.filepath, 'rb') as f:
-                self.cache = pickle.load(f)
-            logging.info(f'Cache loaded from file: {self.filepath}')
+        if self.filepath.exists():
+            try:
+                with open(str(self.filepath), 'rb') as f:
+                    # print(f, str(self.filepath))
+                    loaded_cache = pickle.loads(f.read())
+                    if isinstance(loaded_cache, dict):
+                        self.cache = loaded_cache
+                        logging.info(f'Cache loaded from file: {self.filepath}')
+                    else:
+                        logging.error(f'Loaded cache is not a dictionary. Initializing empty cache.')
+                        self.cache = {}
+            except (EOFError, pickle.UnpicklingError) as e:
+                logging.error(f'Failed to load cache from file: {self.filepath}. Error: {e}')
+                self.cache = {}
         else:
-            logging.warning(f'Cache file: {self.filepath} does not exist')
+            self.cache = {}
+            logging.info(f'Cache file does not exist. Initialized empty cache.')
 
 def cleanup_cache_file():
     """
@@ -180,8 +190,8 @@ def signal_handler(sig, frame):
     cleanup_cache_file()
     sys.exit(0)
 
-# Register the cleanup_cache_file function to be called upon normal program termination
-atexit.register(cleanup_cache_file)
+# # Register the cleanup_cache_file function to be called upon normal program termination
+# atexit.register(cleanup_cache_file)
 
-# Register the signal handler for SIGINT
-signal.signal(signal.SIGINT, signal_handler)
+# # Register the signal handler for SIGINT
+# signal.signal(signal.SIGINT, signal_handler)

@@ -32,11 +32,11 @@ def get_model_path_instance(path) -> ModelPath:
 
     model_name = get_model_name_from_path(path)
     if "models" in path.parts:
-        logger.debug(f"Getting ModelPath instance for path: {path}")
-        model_path = ModelPath(model_name, force_cache_overwrite=False)
+        logger.debug(f"Getting ModelPath instance {model_name} for path: {path}")
+        model_path = ModelPath(model_name)
     if "ensembles" in path.parts:
-        logger.debug(f"Getting EnsemblePath instance for path: {path}")
-        model_path = EnsemblePath(model_name, force_cache_overwrite=False)
+        logger.debug(f"Getting EnsemblePath instance {model_name} for path: {path}")
+        model_path = EnsemblePath(model_name)
     return model_path
 
 

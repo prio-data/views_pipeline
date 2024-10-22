@@ -6,7 +6,7 @@ logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
-sys.path.append(str(Path(__file__).parent))
+# sys.path.append(str(Path(__file__).parent))
 
 def find_project_root(marker="LICENSE.md") -> Path:
     """
@@ -42,6 +42,7 @@ def get_model_name_from_path(path) -> str:
     Raises:
         ValueError: If the model name is not found in the provided path.
     """
+    sys.path.append(str(Path(__file__).parent))
     from utils_model_naming import validate_model_name  # Local import to avoid circular dependency
 
     path = Path(path)

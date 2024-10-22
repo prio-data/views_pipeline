@@ -56,7 +56,32 @@ class ModelPath:
     """
     __instances__ = 0
 
+    # def __new__(cls, model_name_or_path, validate=True, target="model", force_cache_overwrite=False):
+    #     """
+    #     Ensures that only one instance of the ModelPath class is created for each unique set of arguments.
+    #     """
+    #     instance_hash = cls._generate_hash(model_name_or_path, validate, target)
+    #     cached_instance = GlobalCache().get(instance_hash)
+    #     if cached_instance and not force_cache_overwrite:
+    #         logger.info(f"Using cached ModelPath instance for hash: {instance_hash}")
+    #         return cached_instance
+    #     instance = super(ModelPath, cls).__new__(cls)
+    #     instance._instance_hash = instance_hash
+    #     return instance
+
     def __init__(self, model_name_or_path, validate=True, target="model", force_cache_overwrite=False) -> None:
+        """
+        Initializes a ModelPath instance.
+
+        Args:
+            model_name_or_path (str or Path): The model name or path.
+            validate (bool, optional): Whether to validate paths and names. Defaults to True.
+            target (str, optional): The target type (e.g., 'model'). Defaults to 'model'.
+            force_cache_overwrite (bool, optional): Whether to force overwrite the cache. Defaults to False.
+        """
+        # if hasattr(self, 'initialized') and self.initialized:
+        #     return
+
         """
         Initializes a ModelPath instance.
 
@@ -143,18 +168,21 @@ class ModelPath:
 
         # Cache management
         try:
+            instance_hash = self._generate_hash(model_name_or_path, validate, target)
             if self._force_cache_overwrite:
-                GlobalCache()[self.__hash__()] = self
-                logger.info(f"Model {self.model_name} with hash {self.__hash__()} overwritten to cache.")
+                GlobalCache()[instance_hash] = self
+                logger.info(f"Model {self.model_name} with hash {instance_hash} overwritten to cache.")
                 self._return_cached_model_path()
             
-            if not GlobalCache().__getitem__(self.__hash__()):
-                GlobalCache()[self.__hash__()] = self
-                logger.info(f"Model {self.model_name} with hash {self.__hash__()} added to cache.")
+            if not GlobalCache().__getitem__(instance_hash):
+                GlobalCache()[instance_hash] = self
+                logger.info(f"Model {self.model_name} with hash {instance_hash} added to cache.")
                 self._return_cached_model_path()
         except Exception as e:
             logger.error(f"Error adding model {self.model_name} to cache: {e}")
             pass
+
+        # self.initialized = True
 
     def __hash__(self):
         """
@@ -179,6 +207,21 @@ class ModelPath:
                 return result
         except KeyError:
             logger.warning(f"Model {self.model_name} not found in cache.")
+    
+    @staticmethod
+    def _generate_hash(model_name_or_path, validate, target):
+        """
+        Generates a unique hash for the ModelPath instance.
+
+        Args:
+            model_name_or_path (str or Path): The model name or path.
+            validate (bool): Whether to validate paths and names.
+            target (str): The target type (e.g., 'model').
+
+        Returns:
+            str: The SHA-256 hash of the model name, validation flag, and target.
+        """
+        return hashlib.sha256(str((model_name_or_path, validate, target)).encode()).hexdigest()
 
     def _is_path(self, path_input) -> bool:
         """
