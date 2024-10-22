@@ -1,80 +1,78 @@
 from pathlib import Path
 import sys
+import logging
+import importlib
+import hashlib
 
 sys.path.append(str(Path(__file__).parent.parent))
-
-import logging
+from meta_tools.utils import utils_model_naming, utils_model_paths
+from global_cache import GlobalCache
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
-
-import importlib
-
-# meta_tools/utils
-
-from meta_tools.utils import utils_model_naming
-from meta_tools.utils import utils_model_paths
-from global_cache import GlobalCache
-import hashlib
-
 class ModelPath:
+    """
+    A class to manage model paths and directories within the ViEWS Pipeline.
 
+    Attributes:
+        __instances__ (int): A class-level counter to track the number of ModelPath instances.
+        model_name (str): The name of the model.
+        _validate (bool): A flag to indicate whether to validate paths and names.
+        _target (str): The target type (e.g., 'model').
+        _force_cache_overwrite (bool): A flag to indicate whether to force overwrite the cache.
+        root (Path): The root directory of the project.
+        models (Path): The directory for models.
+        common_utils (Path): The directory for common utilities.
+        common_configs (Path): The directory for common configurations.
+        model_dir (Path): The directory for the specific model.
+        architectures (Path): The directory for model architectures.
+        artifacts (Path): The directory for model artifacts.
+        configs (Path): The directory for model configurations.
+        data (Path): The directory for model data.
+        data_generated (Path): The directory for generated data.
+        data_processed (Path): The directory for processed data.
+        data_raw (Path): The directory for raw data.
+        dataloaders (Path): The directory for data loaders.
+        forecasting (Path): The directory for forecasting scripts.
+        management (Path): The directory for management scripts.
+        notebooks (Path): The directory for notebooks.
+        offline_evaluation (Path): The directory for offline evaluation scripts.
+        online_evaluation (Path): The directory for online evaluation scripts.
+        reports (Path): The directory for reports.
+        src (Path): The source directory.
+        _templates (Path): The directory for templates.
+        training (Path): The directory for training scripts.
+        utils (Path): The directory for utility scripts.
+        visualization (Path): The directory for visualization scripts.
+        _sys_paths (list): A list of system paths.
+        common_querysets (Path): The directory for common querysets.
+        _queryset_path (Path): The path to the queryset script.
+        _queryset (module): The imported queryset module.
+        scripts (list): A list of script paths.
+        _ignore_paths (list): A list of paths to ignore.
+    """
     __instances__ = 0
-    
 
     def __init__(self, model_name_or_path, validate=True, target="model", force_cache_overwrite=False) -> None:
         """
-        Initializes a ModelPath object with the given model name or path and sets up the directory structure.
+        Initializes a ModelPath instance.
 
         Args:
-            model_name_or_path (str, Path): The name or path from inside the model directory.
-            validate (bool): Whether to validate the existence of the model directory or script file. Defaults to True.
-
-        Attributes:
-            validate (bool): Indicates whether to validate the existence of the model directory or script file.
-            model_name (str): The name of the model.
-            root (Path): The root directory of the project.
-            models (Path): The directory containing all models.
-            common_utils (Path): Path to the common utilities directory.
-            common_configs (Path): Path to the common configurations directory.
-            model_dir (Path or None): The directory of the model if it exists, otherwise None.
-            architectures (Path): Path to the architectures directory.
-            artifacts (Path): Path to the artifacts directory.
-            configs (Path): Path to the configs directory.
-            data (Path): Path to the data directory.
-            data_generated (Path): Path to the generated data directory.
-            data_processed (Path): Path to the processed data directory.
-            data_raw (Path): Path to the raw data directory.
-            dataloaders (Path): Path to the dataloaders directory.
-            forecasting (Path): Path to the forecasting directory.
-            management (Path): Path to the management directory.
-            notebooks (Path): Path to the notebooks directory.
-            offline_evaluation (Path): Path to the offline evaluation directory.
-            online_evaluation (Path): Path to the online evaluation directory.
-            reports (Path): Path to the reports directory.
-            src (Path): Path to the src directory.
-            templates (Path): Path to the templates directory.
-            training (Path): Path to the training directory.
-            utils (Path): Path to the utils directory.
-            visualization (Path): Path to the visualization directory.
-            common_querysets (Path): Path to the common querysets directory.
-            scripts (list of Path): List of paths to expected script files.
-
-        Raises:
-            ValueError: If the model name is invalid.
-            FileNotFoundError: If the model directory does not exist and validation is enabled.
+            model_name_or_path (str or Path): The model name or path.
+            validate (bool, optional): Whether to validate paths and names. Defaults to True.
+            target (str, optional): The target type (e.g., 'model'). Defaults to 'model'.
+            force_cache_overwrite (bool, optional): Whether to force overwrite the cache. Defaults to False.
         """
         ModelPath.__instances__ += 1
         self._validate = validate
         self._target = target
         self._force_cache_overwrite = force_cache_overwrite
         self.model_name = model_name_or_path
-        # Check if the input is a path and extract the model name
         if self._is_path(self.model_name):
-            logger.info(f"Path input detected: {self.model_name}")
+            logger.debug(f"Path input detected: {self.model_name}")
             self.model_name = utils_model_paths.get_model_name_from_path(self.model_name)
         else:
             if not utils_model_naming.validate_model_name(self.model_name):
@@ -82,9 +80,8 @@ class ModelPath:
                     f"Invalid {self._target} name. Please provide a valid {self._target} name that follows the lowercase 'adjective_noun' format that doesn't already exist."
                 )
             else:
-                logger.info(f"{self._target.title()} name detected: {self.model_name}")
+                logger.debug(f"{self._target.title()} name detected: {self.model_name}")
         logger.debug(f"ModelPath instance count: {ModelPath.__instances__}")
-        # self._return_cached_model_path()
         self.root = utils_model_paths.find_project_root()
         self.models = self.root / Path(self._target + "s")
         self.common_utils = self.root / "common_utils"
@@ -93,27 +90,19 @@ class ModelPath:
         self.architectures = self._build_absolute_directory(Path("src/architectures"))
         self.artifacts = self._build_absolute_directory(Path("artifacts"))
         self.configs = self._build_absolute_directory(Path("configs"))
-        self.data = self._build_absolute_directory(Path("data"))  # new
-        self.data_generated = self._build_absolute_directory(
-            Path("data/generated")
-        )  # new
-        self.data_processed = self._build_absolute_directory(
-            Path("data/processed")
-        )  # new
-        self.data_raw = self._build_absolute_directory(Path("data/raw"))  # new
+        self.data = self._build_absolute_directory(Path("data"))
+        self.data_generated = self._build_absolute_directory(Path("data/generated"))
+        self.data_processed = self._build_absolute_directory(Path("data/processed"))
+        self.data_raw = self._build_absolute_directory(Path("data/raw"))
         self.dataloaders = self._build_absolute_directory(Path("src/dataloaders"))
         self.forecasting = self._build_absolute_directory(Path("src/forecasting"))
         self.management = self._build_absolute_directory(Path("src/management"))
         self.notebooks = self._build_absolute_directory(Path("notebooks"))
-        self.offline_evaluation = self._build_absolute_directory(
-            Path("src/offline_evaluation")
-        )
-        self.online_evaluation = self._build_absolute_directory(
-            Path("src/online_evaluation")
-        )
+        self.offline_evaluation = self._build_absolute_directory(Path("src/offline_evaluation"))
+        self.online_evaluation = self._build_absolute_directory(Path("src/online_evaluation"))
         self.reports = self._build_absolute_directory(Path("reports"))
         self.src = self._build_absolute_directory(Path("src"))
-        self._templates = self.root / "meta_tools" / "templates"  # new
+        self._templates = self.root / "meta_tools" / "templates"
         self.training = self._build_absolute_directory(Path("src/training"))
         self.utils = self._build_absolute_directory(Path("src/utils"))
         self.visualization = self._build_absolute_directory(Path("src/visualization"))
@@ -123,9 +112,7 @@ class ModelPath:
             sys.path.insert(0, str(self.common_querysets))
         self._queryset_path = self.common_querysets / f"queryset_{self.model_name}.py"
         self._queryset = None
-        # ALWAYS use _build_absolute_directory to set the paths. This will check if the directory exists and return None if it doesn't. Linked to validate flag.
         self.scripts = [
-            # self._build_absolute_directory(self._queryset_path),
             self._build_absolute_directory(Path("configs/config_deployment.py")),
             self._build_absolute_directory(Path("configs/config_hyperparameters.py")),
             self._build_absolute_directory(Path("configs/config_input_data.py")),
@@ -133,35 +120,28 @@ class ModelPath:
             self._build_absolute_directory(Path("configs/config_sweep.py")),
             self._build_absolute_directory(Path("main.py")),
             self._build_absolute_directory(Path("README.md")),
-            # self._build_absolute_directory(Path("requirements.txt")),
             self._build_absolute_directory(Path("src/dataloaders/get_data.py")),
-            self._build_absolute_directory(
-                Path("src/forecasting/generate_forecast.py")
-            ),
-            self._build_absolute_directory(
-                Path("src/management/execute_model_runs.py")
-            ),
-            self._build_absolute_directory(
-                Path("src/management/execute_model_tasks.py")
-            ),
-            self._build_absolute_directory(
-                Path("src/offline_evaluation/evaluate_model.py")
-            ),
+            self._build_absolute_directory(Path("src/forecasting/generate_forecast.py")),
+            self._build_absolute_directory(Path("src/management/execute_model_runs.py")),
+            self._build_absolute_directory(Path("src/management/execute_model_tasks.py")),
+            self._build_absolute_directory(Path("src/offline_evaluation/evaluate_model.py")),
             self._build_absolute_directory(Path("src/training/train_ensemble.py")),
         ]
         self._ignore_paths = [
-                "model_name",
-                "model_dir",
-                "scripts",
-                "_validate",
-                "models",
-                "_sys_paths",
-                "_queryset_path",
-                "_queryset",
-                "_ignore_paths",
-                "_target",
-                "_force_cache_overwrite",
-            ]
+            "model_name",
+            "model_dir",
+            "scripts",
+            "_validate",
+            "models",
+            "_sys_paths",
+            "_queryset_path",
+            "_queryset",
+            "_ignore_paths",
+            "_target",
+            "_force_cache_overwrite",
+        ]
+
+        # Cache management
         try:
             if self._force_cache_overwrite:
                 GlobalCache().__setitem__(self.__hash__(), self)
@@ -172,16 +152,25 @@ class ModelPath:
                 GlobalCache().__setitem__(self.__hash__(), self)
                 logger.info(f"Model {self.model_name} with hash {self.__hash__()} added to cache.")
                 self._return_cached_model_path()
-        except:
-            logger.error(f"Error adding model {self.model_name} to cache.")
+        except Exception as e:
+            logger.error(f"Error adding model {self.model_name} to cache: {e}")
             pass
 
     def __hash__(self):
+        """
+        Generates a unique hash for the ModelPath instance.
+
+        Returns:
+            str: The SHA-256 hash of the model name, validation flag, and target.
+        """
         return hashlib.sha256(str((self.model_name, self._validate, self._target)).encode()).hexdigest()
 
     def _return_cached_model_path(self):
         """
-        Returns the cached model if it exists.
+        Returns the cached model path if it exists in the cache.
+
+        Returns:
+            ModelPath or None: The cached ModelPath instance or None if not found.
         """
         try:
             result = GlobalCache()[self.__hash__()]
@@ -189,7 +178,7 @@ class ModelPath:
                 logger.info(f"Model {self.model_name} with hash {self.__hash__()} found in cache.")
                 return result
         except KeyError:
-            logger.info(f"Model {self.model_name} not found in cache.")
+            logger.warning(f"Model {self.model_name} not found in cache.")
 
     def _is_path(self, path_input) -> bool:
         """
@@ -204,18 +193,13 @@ class ModelPath:
             bool: True if the input is a valid path, False otherwise.
         """
         try:
-            # Ensure the input is either a string or a Path object
             if not isinstance(path_input, (str, Path)):
                 logger.error(f"Invalid type for path_input: {type(path_input)}. Expected str or Path.")
                 return False
-
-            # Convert string input to Path object
             if isinstance(path_input, str):
                 path_input = Path(path_input)
             if len(path_input.parts) == 1:
                 return False
-            
-            # Check if the path exists
             if path_input.exists():
                 return True
             else:
@@ -307,7 +291,7 @@ class ModelPath:
 
     def add_paths_to_sys(self) -> list:
         """
-        Adds the necessary paths for the current model to the system path (sys.path).
+        (Will be deprecated soon) Adds the necessary paths for the current model to the system path (sys.path).
 
         This method checks if paths for another model are already added to sys.path. If so, it logs an error and exits.
         If no paths are added yet, it initializes the _sys_paths attribute and adds the relevant paths to sys.path.
@@ -329,11 +313,8 @@ class ModelPath:
         Raises:
             AttributeError: If sys.path is not found.
         """
-        # Detect if another model's paths are already added
         for path in sys.path:
-            # Extract model name from path
             path = Path(path)
-            # print(path)
             if str(self._target + "s") in path.parts:
                 model_name = utils_model_paths.get_model_name_from_path(path)
                 if model_name != self.model_name:
@@ -345,12 +326,8 @@ class ModelPath:
                     logger.info(
                         f"Path {str(path)} for '{model_name}' is already added to sys.path. Skipping..."
                     )
-                    
-            # Add paths to sys.path
-        # Initialize _sys_paths if not already done
         if self._sys_paths is None:
             self._sys_paths = []
-        # Add paths to sys.path
         for attr, value in self.__dict__.items():
             if str(attr) not in self._ignore_paths:
                 if (
@@ -359,59 +336,15 @@ class ModelPath:
                     and self._check_if_dir_exists(value)
                     and str(value) not in sys.path
                 ):
-                    # current_sys_path.insert(0, str(value))
                     sys.path.insert(0, str(value))
                     if str(value) in sys.path:
                         self._sys_paths.append(str(value))
-                        logger.info(f"Added path to sys.path: {str(value)}")
+                        logger.debug(f"Added path to sys.path: {str(value)}")
                     else:
                         logger.warning(f"Unable to add path to sys.path: {str(value)}")
                 else:
                     logger.warning(f"Skipping path: {value}. Does not exist or already in sys.path.")
-        # sys.path = current_sys_path
         return self._sys_paths
-        
-
-    def _add_path_to_sys(self, path: Path) -> None:
-        """
-        Helper method to add a path to sys.path.
-
-        This method checks if the path is not already in sys.path and adds it to the beginning of sys.path.
-        It also appends the path to the _sys_paths attribute.
-
-        Args:
-            path (Path): The path to add to sys.path.
-
-        Raises:
-            Warning: If the path cannot be added to sys.path.
-        """
-        if str(path) not in sys.path:
-            sys.path.insert(0, str(path))
-            if str(path) not in sys.path:
-                logger.warning(f"Unable to add path to sys.path: {str(path)}")
-            else:
-                self._sys_paths.append(str(path))
-                logger.info(f"Added path to sys.path: {str(path)}")
-
-    def _create_and_add_path(self, path: Path) -> None:
-        """
-        Helper method to create a directory and add it to sys.path.
-
-        This method attempts to create the specified directory and adds it to sys.path if successful.
-
-        Args:
-            path (Path): The directory path to create and add to sys.path.
-
-        Raises:
-            Exception: If there is an error creating the directory.
-        """
-        try:
-            path.mkdir(parents=True)
-            logger.info(f"Created directory: {path}")
-            self._add_path_to_sys(path)
-        except Exception as e:
-            logger.error(f"Error creating directory: {e}")
-
 
     def remove_paths_from_sys(self) -> None:
         """
@@ -436,8 +369,7 @@ class ModelPath:
                 try:
                     sys.path.remove(path)
                     if path not in sys.path:
-                        logger.info(f"Removed path from sys.path: {path}")
-                        # print(f"Removed path from sys.path: {path}")
+                        logger.debug(f"Removed path from sys.path: {path}")
                     else:
                         logger.warning(f"Unable to remove path '{path}'. Continuing...")
                 except ValueError:
@@ -478,7 +410,6 @@ class ModelPath:
             else:
                 print("{:<20}\t{:<50}".format(str(path), "None"))
 
-    # Relative paths flag will always be False. Not a good idea to use it but logic still maintained.
     def get_directories(self) -> dict:
         """
         Retrieve a dictionary of directory names and their paths.
@@ -489,7 +420,6 @@ class ModelPath:
         directories = {}
         relative = False
         for attr, value in self.__dict__.items():
-            # Ignore certain attributes and check if the value is a Path object
             if str(attr) not in [
                 "model_name",
                 "root",
@@ -498,7 +428,6 @@ class ModelPath:
                 "models",
                 "templates",
                 "_sys_paths",
-                # "common_querysets",
                 "_queryset",
                 "_queryset_path",
                 "_ignore_paths",
@@ -512,7 +441,6 @@ class ModelPath:
                         relative_path = value.relative_to(self.model_dir)
                     else:
                         relative_path = value
-                        # relative_path = value.relative_to(self.root)
                     if relative_path == Path("."):
                         continue
                     directories[str(attr)] = str(relative_path)
@@ -533,16 +461,9 @@ class ModelPath:
                     if self.model_dir in path.parents:
                         scripts[str(path.name)] = str(path.relative_to(self.model_dir))
                     else:
-                        # scripts[str(path.name)] = str(path.relative_to(self.root))
                         scripts[str(path.name)] = str(path)
                 else:
                     scripts[str(path.name)] = str(path)
             else:
                 scripts[str(path)] = None
         return scripts
-    
-# if __name__ == "__main__":
-#     model = ModelPath("blank_space", validate=True)
-#     print(model.model_dir)
-#     del model
-#     print(sys.path)

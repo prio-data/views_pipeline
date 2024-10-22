@@ -7,8 +7,6 @@ from ensemble_path import EnsemblePath
 sys.path.append(str(Path(__file__).parent.parent))
 
 from meta_tools.utils.utils_model_paths import get_model_name_from_path
-# from global_cache import GlobalCache
-# Configure logging - don't know if this is necessary here
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s %(name)s - %(levelname)s - %(message)s"
 )
@@ -31,56 +29,14 @@ def get_model_path_instance(path) -> ModelPath:
     Raises:
         ValueError: If the ModelPath instance cannot be created due to missing model directory.
     """
-    # model_name = get_model_name_from_path(path)
-    # if model_name not in _model_path_cache:
-    #     logger.info(f"{model_name} not found in cache. Creating new instance...")
-    #     if "models" in path.parts:
-    #         logger.info(f"Creating ModelPath instance for path: {path}")
-    #         model = ModelPath(model_name)
-    #     if "ensembles" in path.parts:
-    #         logger.info(f"Creating EnsemblePath instance for path: {path}")
-    #         model = EnsemblePath(model_name)
-    #     _model_path_cache[model_name] = model
-    # else:
-    #     model = _model_path_cache[model_name]
-    # if model.model_dir is None:
-    #     error_message = f"Unable to create ModelPath/EnsemblePath instance for {model_name}. "
-    #     logger.warning(error_message)
-    #     raise ValueError(error_message)
-    # logger.info(f"Returning cached ModelPath/EnsemblePath instance for path: {path}")
-    # logger.info(f"Model name: {model.model_name}")
-    # logger.info(f"Model directory: {model.model_dir}")
-    # return model
 
     model_name = get_model_name_from_path(path)
-    # if not cache.get(model_name):
-    #     logger.info(f"{model_name} not found in cache. Creating new instance...")
-    #     if "models" in path.parts:
-    #         logger.info(f"Creating ModelPath instance for path: {path}")
-    #         model = ModelPath(model_name)
-    #     if "ensembles" in path.parts:
-    #         logger.info(f"Creating EnsemblePath instance for path: {path}")
-    #         model = EnsemblePath(model_name)
-    #     # _model_path_cache[model_name] = model
-    #     cache.set(model_name, model)
-    # else:
-    #     # model = _model_path_cache[model_name]
-    #     model = cache.get(model_name)
-    # if model.model_dir is None:
-    #     error_message = f"Unable to create ModelPath/EnsemblePath instance for {model_name}."
-    #     logger.warning(error_message)
-    #     raise ValueError(error_message)
-    # logger.info(f"Returning cached ModelPath/EnsemblePath instance for path: {path}")
-    # logger.info(f"Model name: {model.model_name}")
-    # logger.info(f"Model directory: {model.model_dir}")
     if "models" in path.parts:
-        # logger.info(f"Creating ModelPath instance for path: {path}")
+        logger.debug(f"Getting ModelPath instance for path: {path}")
         model_path = ModelPath(model_name, force_cache_overwrite=False)
     if "ensembles" in path.parts:
-        # logger.info(f"Creating EnsemblePath instance for path: {path}")
+        logger.debug(f"Getting EnsemblePath instance for path: {path}")
         model_path = EnsemblePath(model_name, force_cache_overwrite=False)
-        # _model_path_cache[model_name] = model
-        # cache.set(model_name, model)
     return model_path
 
 

@@ -52,10 +52,10 @@ def get_model_name_from_path(path) -> str:
             model_idx = path.parts.index("models")
             model_name = path.parts[model_idx + 1]
             if validate_model_name(model_name):
-                logger.info(f"Valid model name found in path: {model_name}")
+                logger.info(f"Valid model name {model_name} found in path {path}")
                 return str(model_name)
             else:
-                error_message = f"Invalid model name `{model_name}` found in path. Please provide a valid model name that follows the lowercase 'adjective_noun' format."
+                error_message = f"Invalid model name `{model_name}` found in path {path}. Please provide a valid model name that follows the lowercase 'adjective_noun' format."
                 logger.error(error_message)
                 raise ValueError(error_message)
         except Exception as e:
@@ -65,7 +65,7 @@ def get_model_name_from_path(path) -> str:
             ensemble_idx = path.parts.index("ensembles")
             ensemble_name = path.parts[ensemble_idx + 1]
             if validate_model_name(ensemble_name):
-                logger.info(f"Valid ensemble name found in path: {ensemble_name}")
+                logger.info(f"Valid model name {model_name} found in path {path}")
                 return str(ensemble_name)
             else:
                 error_message = f"Invalid ensemble name `{ensemble_name}` found in path. Please provide a valid ensemble name that follows the lowercase 'adjective_noun' format."
