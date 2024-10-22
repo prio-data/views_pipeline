@@ -1,6 +1,4 @@
 import pytest
-import os
-import pickle
 from pathlib import Path
 import sys
 

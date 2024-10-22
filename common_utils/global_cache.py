@@ -5,6 +5,7 @@ import sys
 from pathlib import Path
 import threading
 import atexit
+import signal
 
 sys.path.append(str(Path(__file__).parent.parent))
 
@@ -167,5 +168,20 @@ def cleanup_cache_file():
             os.remove(GlobalCache().filepath)
             logging.info(f'Cache file: {GlobalCache().filepath} deleted at exit')
 
+def signal_handler(sig, frame):
+    """
+    Signal handler for SIGINT to delete the cache file upon user interruption.
+    
+    Args:
+        sig (int): The signal number.
+        frame (FrameType): The current stack frame.
+    """
+    logging.info('SIGINT received. Deleting cache file...')
+    cleanup_cache_file()
+    sys.exit(0)
+
 # Register the cleanup_cache_file function to be called upon normal program termination
 atexit.register(cleanup_cache_file)
+
+# Register the signal handler for SIGINT
+signal.signal(signal.SIGINT, signal_handler)
