@@ -122,10 +122,9 @@ def validate_arguments(args):
         print("To fix: Set --run_type to forecasting if --forecast is flagged.")
         sys.exit(1)
 
-    if args.ensemble:
-        # This is a temporary solution. In the future we might need to train and sweep the ensemble models.
-        if args.sweep or args.train:
-            print(
-                "Error: --aggregation flag cannot be used with --sweep or --train. Exiting."
-            )
-            sys.exit(1)
+    if args.ensemble and args.sweep:
+        # This is a temporary solution. In the future we might need to sweep the ensemble models.
+        print(
+            "Error: Ensemble model doesn't support sweep right now. Please go to the single model and do sweeping. Exiting."
+        )
+        sys.exit(1)
