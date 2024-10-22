@@ -173,7 +173,7 @@ class ModelPath:
             ModelPath or None: The cached ModelPath instance or None if not found.
         """
         try:
-            result = GlobalCache()[self.__hash__()]
+            result = GlobalCache().__getitem__(self.__hash__())
             if result:
                 logger.info(f"Model {self.model_name} with hash {self.__hash__()} found in cache.")
                 return result

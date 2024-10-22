@@ -5,8 +5,8 @@ import sys
 from pathlib import Path
 import threading
 import atexit
+
 sys.path.append(str(Path(__file__).parent.parent))
-from meta_tools.utils import utils_model_paths
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -18,7 +18,7 @@ class GlobalCache:
     Attributes:
         _instance (GlobalCache): The singleton instance of the GlobalCache class.
         _lock (threading.Lock): A lock to ensure thread safety.
-        filename (Path): The path to the cache file.
+        filepath (Path): The path to the cache file.
         cache (dict): The in-memory cache dictionary.
         initialized (bool): A flag to check if the instance is initialized.
     """
@@ -33,20 +33,22 @@ class GlobalCache:
         """
         if cls._instance is None:
             with cls._lock:
-                if cls._instance is None:  # Double-checked locking.
-                    # Reasoning: Ensure that only one thread can create the instance in multithreaded environments to prevent race conditions.
+                if cls._instance is None:
                     cls._instance = super(GlobalCache, cls).__new__(cls)
         return cls._instance
 
-    def __init__(self, filename=utils_model_paths.find_project_root() / '.global_cache.pkl'):
+    def __init__(self, filepath=None):
         """
         Initializes the GlobalCache instance.
         
         Args:
-            filename (Path, optional): The path to the cache file. Defaults to '.global_cache.pkl' in the project root.
+            filepath (Path, optional): The path to the cache file. Defaults to '.global_cache.pkl' in the project root.
         """
         if not hasattr(self, 'initialized'):
-            self.filename = filename
+            self.local_imports()
+            if filepath is None:
+                filepath = self.utils_model_paths.find_project_root() / '.global_cache.pkl'
+            self.filepath = filepath
             self.cache = {}
             self.ensure_cache_file_exists()
             self.load_cache()
@@ -76,15 +78,19 @@ class GlobalCache:
         with self._lock:
             self.set(key, value)
 
+    def local_imports(self):
+        from meta_tools.utils import utils_model_paths  # To avoid circular dependency
+        self.utils_model_paths = utils_model_paths
+
     def ensure_cache_file_exists(self):
         """
         Ensures that the cache file exists. If it does not exist, creates a new cache file.
         """
-        if not os.path.exists(self.filename):
-            logging.info(f'Cache file: {self.filename} does not exist. Creating new cache file...')
-            with open(self.filename, 'wb') as f:
+        if not os.path.exists(self.filepath):
+            logging.info(f'Cache file: {self.filepath} does not exist. Creating new cache file...')
+            with open(self.filepath, 'wb') as f:
                 pickle.dump({}, f)
-            logging.info(f'Created new cache file: {self.filename}')
+            logging.info(f'Created new cache file: {self.filepath}')
 
     def set(self, key, value):
         """
@@ -131,30 +137,20 @@ class GlobalCache:
         """
         Saves the in-memory cache to the cache file.
         """
-        with open(self.filename, 'wb') as f:
+        with open(self.filepath, 'wb') as f:
             pickle.dump(self.cache, f)
-        logging.info(f'Cache saved to file: {self.filename}')
+        logging.info(f'Cache saved to file: {self.filepath}')
 
     def load_cache(self):
         """
         Loads the cache from the cache file into the in-memory cache.
         """
-        if os.path.exists(self.filename):
-            with open(self.filename, 'rb') as f:
+        if os.path.exists(self.filepath):
+            with open(self.filepath, 'rb') as f:
                 self.cache = pickle.load(f)
-            logging.info(f'Cache loaded from file: {self.filename}')
+            logging.info(f'Cache loaded from file: {self.filepath}')
         else:
-            logging.warning(f'Cache file: {self.filename} does not exist')
-
-    def delete_cache_file(self):
-        """
-        Deletes the cache file from the filesystem.
-        """
-        if os.path.exists(self.filename):
-            os.remove(self.filename)
-            logging.info(f'Cache file: {self.filename} deleted')
-        else:
-            logging.warning(f'Cache file: {self.filename} does not exist')
+            logging.warning(f'Cache file: {self.filepath} does not exist')
 
 def cleanup_cache_file():
     """
@@ -167,12 +163,9 @@ def cleanup_cache_file():
     """
     # Acquire the lock to ensure thread safety
     with GlobalCache._lock:
-        # Check if the cache file exists
-        if os.path.exists(GlobalCache().filename):
-            # Delete the cache file
-            os.remove(GlobalCache().filename)
-            # Log the deletion of the cache file
-            logging.info(f'Cache file: {GlobalCache().filename} deleted at exit')
+        if os.path.exists(GlobalCache().filepath):
+            os.remove(GlobalCache().filepath)
+            logging.info(f'Cache file: {GlobalCache().filepath} deleted at exit')
 
 # Register the cleanup_cache_file function to be called upon normal program termination
 atexit.register(cleanup_cache_file)

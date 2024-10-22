@@ -7,8 +7,6 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 sys.path.append(str(Path(__file__).parent))
-from utils_model_naming import validate_model_name
-
 
 def find_project_root(marker="LICENSE.md") -> Path:
     """
@@ -31,7 +29,6 @@ def find_project_root(marker="LICENSE.md") -> Path:
         f"{marker} not found in the directory hierarchy. Unable to find project root."
     )
 
-
 def get_model_name_from_path(path) -> str:
     """
     Returns the model name based on the provided path.
@@ -45,6 +42,8 @@ def get_model_name_from_path(path) -> str:
     Raises:
         ValueError: If the model name is not found in the provided path.
     """
+    from utils_model_naming import validate_model_name  # Local import to avoid circular dependency
+
     path = Path(path)
     logger.info(f"Extracting model name from Path: {path}")
     if "models" in path.parts and "ensembles" not in path.parts:
@@ -65,7 +64,7 @@ def get_model_name_from_path(path) -> str:
             ensemble_idx = path.parts.index("ensembles")
             ensemble_name = path.parts[ensemble_idx + 1]
             if validate_model_name(ensemble_name):
-                logger.info(f"Valid model name {model_name} found in path {path}")
+                logger.info(f"Valid model name {ensemble_name} found in path {path}")
                 return str(ensemble_name)
             else:
                 error_message = f"Invalid ensemble name `{ensemble_name}` found in path. Please provide a valid ensemble name that follows the lowercase 'adjective_noun' format."
