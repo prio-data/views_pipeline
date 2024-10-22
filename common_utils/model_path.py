@@ -144,12 +144,12 @@ class ModelPath:
         # Cache management
         try:
             if self._force_cache_overwrite:
-                GlobalCache().__setitem__(self.__hash__(), self)
+                GlobalCache()[self.__hash__()] = self
                 logger.info(f"Model {self.model_name} with hash {self.__hash__()} overwritten to cache.")
                 self._return_cached_model_path()
             
             if not GlobalCache().__getitem__(self.__hash__()):
-                GlobalCache().__setitem__(self.__hash__(), self)
+                GlobalCache()[self.__hash__()] = self
                 logger.info(f"Model {self.model_name} with hash {self.__hash__()} added to cache.")
                 self._return_cached_model_path()
         except Exception as e:
@@ -173,7 +173,7 @@ class ModelPath:
             ModelPath or None: The cached ModelPath instance or None if not found.
         """
         try:
-            result = GlobalCache().__getitem__(self.__hash__())
+            result = GlobalCache()[self.__hash__()]
             if result:
                 logger.info(f"Model {self.model_name} with hash {self.__hash__()} found in cache.")
                 return result
