@@ -96,5 +96,3 @@ def create_log_file(PATH_GENERATED,
     
     logger.info(f"Log file created at {PATH_GENERATED}/{run_type}_log.txt")
         
-
-

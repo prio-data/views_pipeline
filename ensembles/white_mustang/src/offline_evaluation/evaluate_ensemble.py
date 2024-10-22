@@ -43,9 +43,11 @@ def evaluate_ensemble(config):
 
         pkl_path = f'{PATH_GENERATED}/predictions_{steps[-1]}_{run_type}_{ts}.pkl'
         if Path(pkl_path).exists():
+            logger.info(f"Loading existing {run_type} predictions from {pkl_path}")
             with open(pkl_path, 'rb') as file:
                 df = pickle.load(file)
         else:
+            logger.info(f"No existing {run_type} predictions found. Generating new {run_type} predictions...")
             model_config = get_single_model_config(model_name)
             model_config["timestamp"] = ts
             model_config["run_type"] = run_type
