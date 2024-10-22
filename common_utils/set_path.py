@@ -75,10 +75,10 @@ def get_model_path_instance(path) -> ModelPath:
     # logger.info(f"Model directory: {model.model_dir}")
     if "models" in path.parts:
         # logger.info(f"Creating ModelPath instance for path: {path}")
-        model_path = ModelPath(model_name)
+        model_path = ModelPath(model_name, force_cache_overwrite=False)
     if "ensembles" in path.parts:
         # logger.info(f"Creating EnsemblePath instance for path: {path}")
-        model_path = EnsemblePath(model_name)
+        model_path = EnsemblePath(model_name, force_cache_overwrite=False)
         # _model_path_cache[model_name] = model
         # cache.set(model_name, model)
     return model_path

@@ -25,7 +25,7 @@ class ModelPath:
     __instances__ = 0
     
 
-    def __init__(self, model_name_or_path, validate=True, target="model") -> None:
+    def __init__(self, model_name_or_path, validate=True, target="model", force_cache_overwrite=False) -> None:
         """
         Initializes a ModelPath object with the given model name or path and sets up the directory structure.
 
@@ -70,6 +70,7 @@ class ModelPath:
         ModelPath.__instances__ += 1
         self._validate = validate
         self._target = target
+        self._force_cache_overwrite = force_cache_overwrite
         self.model_name = model_name_or_path
         # Check if the input is a path and extract the model name
         if self._is_path(self.model_name):
@@ -83,7 +84,7 @@ class ModelPath:
             else:
                 logger.info(f"{self._target.title()} name detected: {self.model_name}")
         logger.debug(f"ModelPath instance count: {ModelPath.__instances__}")
-        self._return_cached_model()
+        # self._return_cached_model_path()
         self.root = utils_model_paths.find_project_root()
         self.models = self.root / Path(self._target + "s")
         self.common_utils = self.root / "common_utils"
@@ -159,12 +160,18 @@ class ModelPath:
                 "_queryset",
                 "_ignore_paths",
                 "_target",
-                "_cache",
+                "_force_cache_overwrite",
             ]
         try:
+            if self._force_cache_overwrite:
+                GlobalCache().__setitem__(self.__hash__(), self)
+                logger.info(f"Model {self.model_name} with hash {self.__hash__()} overwritten to cache.")
+                self._return_cached_model_path()
+            
             if not GlobalCache().__getitem__(self.__hash__()):
                 GlobalCache().__setitem__(self.__hash__(), self)
                 logger.info(f"Model {self.model_name} with hash {self.__hash__()} added to cache.")
+                self._return_cached_model_path()
         except:
             logger.error(f"Error adding model {self.model_name} to cache.")
             pass
@@ -172,7 +179,7 @@ class ModelPath:
     def __hash__(self):
         return hashlib.sha256(str((self.model_name, self._validate, self._target)).encode()).hexdigest()
 
-    def _return_cached_model(self):
+    def _return_cached_model_path(self):
         """
         Returns the cached model if it exists.
         """
@@ -181,7 +188,6 @@ class ModelPath:
             if result:
                 logger.info(f"Model {self.model_name} with hash {self.__hash__()} found in cache.")
                 return result
-            # return GlobalCache()[self.model_name]
         except KeyError:
             logger.info(f"Model {self.model_name} not found in cache.")
 
@@ -497,7 +503,7 @@ class ModelPath:
                 "_queryset_path",
                 "_ignore_paths",
                 "_target",
-                "_cache",
+                "_force_cache_overwrite",
             ] and isinstance(value, Path):
                 if not relative:
                     directories[str(attr)] = str(value)
