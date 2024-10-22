@@ -21,29 +21,7 @@ from global_cache import GlobalCache
 import hashlib
 
 class ModelPath:
-    # def __new__(cls, model_name_or_path, validate=True, target="model"):
-    #     cls.model_name = model_name_or_path
-    #     cls._validate = validate
-    #     cls._target = target
-    #     # Check if the input is a path and extract the model name
-    #     if cls._is_path(cls, cls.model_name):
-    #         logger.info(f"Path input detected: {cls.model_name}")
-    #         cls.model_name = utils_model_paths.get_model_name_from_path(cls.model_name)
-    #     else:
-    #         if not utils_model_naming.validate_model_name(cls.model_name):
-    #             raise ValueError(
-    #                 f"Invalid {cls._target} name. Please provide a valid {cls._target} name that follows the lowercase 'adjective_noun' format that doesn't already exist."
-    #             )
-    #         else:
-    #             logger.info(f"{cls._target.title()} name detected: {cls.model_name}")
-    #     instance = GlobalCache().get(model_name_or_path)
-    #     if instance:
-    #         logger.info(f"Returning cached instance for model: {model_name_or_path}")
-    #         return instance
-    #     else:
-    #         instance = super(ModelPath, cls).__new__(cls, model_name_or_path, validate, target)
-    #         GlobalCache()[model_name_or_path] = instance
-    #         return instance
+
     __instances__ = 0
     
 
@@ -104,7 +82,7 @@ class ModelPath:
                 )
             else:
                 logger.info(f"{self._target.title()} name detected: {self.model_name}")
-        logger.info(f"ModelPath count {ModelPath.__instances__}")
+        logger.debug(f"ModelPath instance count: {ModelPath.__instances__}")
         self._return_cached_model()
         self.root = utils_model_paths.find_project_root()
         self.models = self.root / Path(self._target + "s")
@@ -184,8 +162,8 @@ class ModelPath:
                 "_cache",
             ]
         try:
-            if not GlobalCache()[self.__hash__()]:
-                GlobalCache()[self.__hash__()] = self
+            if not GlobalCache().__getitem__(self.__hash__()):
+                GlobalCache().__setitem__(self.__hash__(), self)
                 logger.info(f"Model {self.model_name} with hash {self.__hash__()} added to cache.")
         except:
             logger.error(f"Error adding model {self.model_name} to cache.")

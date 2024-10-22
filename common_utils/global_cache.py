@@ -3,6 +3,7 @@ import os
 import logging
 import sys
 from pathlib import Path
+import threading
 sys.path.append(str(Path(__file__).parent.parent))
 from meta_tools.utils import utils_model_paths
 
@@ -11,10 +12,14 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 
 class GlobalCache:
     _instance = None
+    _lock = threading.Lock()
 
     def __new__(cls, *args, **kwargs):
         if cls._instance is None:
-            cls._instance = super(GlobalCache, cls).__new__(cls)
+            with cls._lock:
+                if cls._instance is None:  # Double-checked locking.
+                    # Reasoning: Ensure that only one thread can create the instance in multithreaded environments to prevent race conditions.
+                    cls._instance = super(GlobalCache, cls).__new__(cls)
         return cls._instance
 
     def __init__(self, filename=utils_model_paths.find_project_root() / '.global_cache.pkl'):
@@ -26,12 +31,14 @@ class GlobalCache:
             self.initialized = True
 
     def __getitem__(self, key):
-        self.load_cache()
-        return self.get(key)
+        with self._lock:
+            return self.get(key)
 
     def __setitem__(self, key, value):
-        self.set(key, value)
+        with self._lock:
+            self.set(key, value)
 
+    # DO NOT USE THREAD LOCKS IN THESE METHODS. WILL CAUSE DEADLOCKS!
     def ensure_cache_file_exists(self):
         if not os.path.exists(self.filename):
             logging.info(f'Cache file: {self.filename} does not exist. Creating new cache file...')
@@ -39,7 +46,6 @@ class GlobalCache:
                 pickle.dump({}, f)
                 f.close()
                 logging.info(f'Created new cache file: {self.filename}')
-
 
     def set(self, key, value):
         self.cache[key] = value
@@ -83,19 +89,19 @@ class GlobalCache:
             logging.info(f'Cache file: {self.filename} does not exist')
 
 # Example usage
-if __name__ == "__main__":
-    cache = GlobalCache()
-    cache.set('key1', 'value1')
-    print(cache.get('key1'))  # Output: value1
-    cache.delete('key1')
-    print(cache.get('key1'))  # Output: None
-    cache.delete_cache_file()
+# if __name__ == "__main__":
+#     cache = GlobalCache()
+#     cache.set('key1', 'value1')
+#     print(cache.get('key1'))  # Output: value1
+#     cache.delete('key1')
+#     print(cache.get('key1'))  # Output: None
+#     cache.delete_cache_file()
 
-    # New usage example
-    try:
-        model_name = 'example_model'
-        if not GlobalCache()[model_name]:
-            GlobalCache()[model_name] = 'model_instance'
-            logging.info(f"Model {model_name} added to cache.")
-    except Exception as e:
-        logging.error(f"Error adding model {model_name} to cache: {e}")
+#     # New usage example
+#     try:
+#         model_name = 'example_model'
+#         if not GlobalCache()[model_name]:
+#             GlobalCache()[model_name] = 'model_instance'
+#             logging.info(f"Model {model_name} added to cache.")
+#     except Exception as e:
+#         logging.error(f"Error adding model {model_name} to cache: {e}")
