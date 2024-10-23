@@ -1,17 +1,10 @@
-import sys
 from datetime import datetime
 import pandas as pd
 import logging
-
 from pathlib import Path
-PATH = Path(__file__)
-sys.path.insert(0, str(Path(
-    *[i for i in PATH.parts[:PATH.parts.index("views_pipeline") + 1]]) / "common_utils"))  # PATH_COMMON_UTILS
-from set_path import setup_project_paths, setup_data_paths, setup_artifacts_paths
-setup_project_paths(PATH)
-
+from set_path import setup_data_paths, setup_artifacts_paths
 from utils_log_files import create_log_file
-from utils_outputs import save_model_outputs
+from utils_outputs import save_model_outputs, save_predictions
 from utils_run import get_standardized_df
 from utils_artifacts import get_latest_model_artifact
 from utils_evaluation_metrics import generate_metric_dict
@@ -20,6 +13,7 @@ from utils_wandb import log_wandb_log_dict
 from views_forecasts.extensions import *
 
 logger = logging.getLogger(__name__)
+PATH = Path(__file__)
 
 
 def evaluate_model_artifact(config, artifact_name):
@@ -57,4 +51,5 @@ def evaluate_model_artifact(config, artifact_name):
     log_wandb_log_dict(config, evaluation)
 
     save_model_outputs(df_evaluation, df_output, PATH_GENERATED, config)
+    save_predictions(df, PATH_GENERATED, config)
     create_log_file(PATH_GENERATED, config, config["timestamp"], data_generation_timestamp)

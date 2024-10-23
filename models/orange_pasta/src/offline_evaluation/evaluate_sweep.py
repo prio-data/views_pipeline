@@ -1,18 +1,13 @@
-import sys
 import pandas as pd
 import wandb
 from sklearn.metrics import mean_squared_error
-
 from pathlib import Path
-PATH = Path(__file__)
-sys.path.insert(0, str(Path(
-    *[i for i in PATH.parts[:PATH.parts.index("views_pipeline") + 1]]) / "common_utils"))  # PATH_COMMON_UTILS
-from set_path import setup_project_paths, setup_data_paths
-setup_project_paths(PATH)
-
+from set_path import setup_data_paths
 from utils_run import get_standardized_df
 from utils_wandb import log_wandb_log_dict
 from utils_evaluation_metrics import generate_metric_dict
+
+PATH = Path(__file__)
 
 
 def evaluate_sweep(config, stepshift_model):

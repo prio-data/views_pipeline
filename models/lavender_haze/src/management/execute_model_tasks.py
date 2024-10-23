@@ -1,15 +1,6 @@
-import sys
 import wandb
 import logging
 import time
-
-from pathlib import Path
-PATH = Path(__file__)
-sys.path.insert(0, str(Path(
-    *[i for i in PATH.parts[:PATH.parts.index("views_pipeline") + 1]]) / "common_utils"))  # PATH_COMMON_UTILS
-from set_path import setup_project_paths
-setup_project_paths(PATH)
-
 from evaluate_model import evaluate_model_artifact
 from evaluate_sweep import evaluate_sweep
 from generate_forecast import forecast_model_artifact

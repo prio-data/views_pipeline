@@ -1,22 +1,20 @@
 from datetime import datetime
 import pandas as pd
-
 from pathlib import Path
-PATH = Path(__file__) 
-from set_path import setup_project_paths, setup_data_paths, setup_artifacts_paths
-setup_project_paths(PATH)
-
+from set_path import setup_data_paths, setup_artifacts_paths
 from utils_log_files import create_log_file
 from utils_run import get_model
 from set_partition import get_partitioner_dict
 from views_forecasts.extensions import *
+
+PATH = Path(__file__) 
 
 
 def train_model_artifact(config):
     # print(config)
     PATH_RAW, _, _ = setup_data_paths(PATH)
     PATH_ARTIFACTS = setup_artifacts_paths(PATH)
-    run_type = config['run_type']
+    run_type = config["run_type"]
     df_viewser = pd.read_pickle(PATH_RAW / f"{run_type}_viewser_df.pkl")
 
     stepshift_model = stepshift_training(config, run_type, df_viewser)

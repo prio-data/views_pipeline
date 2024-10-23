@@ -1,15 +1,8 @@
-import sys
 import pandas as pd
 from datetime import datetime
 import logging
-
 from pathlib import Path
-PATH = Path(__file__)
-sys.path.insert(0, str(Path(
-    *[i for i in PATH.parts[:PATH.parts.index("views_pipeline") + 1]]) / "common_utils"))  # PATH_COMMON_UTILS
-from set_path import setup_project_paths, setup_data_paths, setup_artifacts_paths
-setup_project_paths(PATH)
-
+from set_path import setup_data_paths, setup_artifacts_paths
 from set_partition import get_partitioner_dict
 from utils_log_files import create_log_file
 from utils_run import get_standardized_df
@@ -17,6 +10,7 @@ from utils_outputs import save_predictions
 from utils_artifacts import get_latest_model_artifact
 
 logger = logging.getLogger(__name__)
+PATH = Path(__file__)
 
 
 def forecast_model_artifact(config, artifact_name):
