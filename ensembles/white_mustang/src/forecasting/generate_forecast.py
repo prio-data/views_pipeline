@@ -8,9 +8,10 @@ from pathlib import Path
 PATH = Path(__file__)
 sys.path.insert(0, str(Path(
     *[i for i in PATH.parts[:PATH.parts.index("views_pipeline") + 1]]) / "common_utils"))  # PATH_COMMON_UTILS
-from set_path import setup_project_paths, setup_data_paths, setup_artifacts_paths, setup_root_paths
+from set_path import setup_project_paths, setup_data_paths, setup_artifacts_paths
 setup_project_paths(PATH)
 
+from model_path import ModelPath
 from set_partition import get_partitioner_dict
 from utils_log_files import create_log_file
 from utils_outputs import save_predictions
@@ -23,21 +24,22 @@ logger = logging.getLogger(__name__)
 def forecast_ensemble(config):
     run_type = config["run_type"]
     steps = config["steps"]
-    PATH_MODELS = setup_root_paths(PATH) / "models"
     _, _, PATH_GENERATED_E = setup_data_paths(PATH)
     dfs = []
     timestamp = ''
 
-    for model in config["models"]:
-        logger.info(f"Running single model {model}...")
+    for model_name in config["models"]:
+        logger.info(f"Running single model {model_name}...")
 
-        PATH_MODEL = PATH_MODELS / model
+        model_path = ModelPath(model_name, validate=False)
+
+        PATH_MODEL = model_path.model_dir
         PATH_RAW, _, PATH_GENERATED = setup_data_paths(PATH_MODEL)
         PATH_ARTIFACTS = setup_artifacts_paths(PATH_MODEL)
         PATH_ARTIFACT = get_latest_model_artifact(PATH_ARTIFACTS, run_type)
 
         ts = PATH_ARTIFACT.stem[-15:]
-        timestamp += model + ts + '_'
+        timestamp += model_name + ts + '_'
 
         pkl_path = f'{PATH_GENERATED}/predictions_{steps[-1]}_{run_type}_{ts}.pkl'
         if Path(pkl_path).exists():
@@ -46,7 +48,7 @@ def forecast_ensemble(config):
                 df = pickle.load(file)
         else:
             logger.info(f"No existing {run_type} predictions found. Generating new {run_type} predictions...")
-            model_config = get_single_model_config(model)
+            model_config = get_single_model_config(model_name)
             model_config["timestamp"] = ts
             model_config["run_type"] = run_type
             df_viewser = pd.read_pickle(PATH_RAW / f"{run_type}_viewser_df.pkl")
@@ -69,8 +71,7 @@ def forecast_ensemble(config):
     df_prediction = get_aggregated_df(dfs, config["aggregation"])
     data_generation_timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
-    # I don't think current timestamp is useful here.
-    # Timestamp of single models is more important but how should we register them in ensemble config?
+    # I don't think current timestamp is useful here because timestamp of single models is more important.
     config["timestamp"] = timestamp[:-1]
     save_predictions(df_prediction, PATH_GENERATED_E, config)
 
