@@ -190,8 +190,8 @@ def signal_handler(sig, frame):
     cleanup_cache_file()
     sys.exit(0)
 
-# # Register the cleanup_cache_file function to be called upon normal program termination
-# atexit.register(cleanup_cache_file)
+# Register the cleanup_cache_file function to be called upon normal program termination
+atexit.register(cleanup_cache_file)
 
-# # Register the signal handler for SIGINT
-# signal.signal(signal.SIGINT, signal_handler)
+# Register the signal handler for SIGINT
+signal.signal(signal.SIGINT, signal_handler)

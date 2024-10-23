@@ -12,10 +12,10 @@ from model_path import ModelPath
 from ensemble_path import EnsemblePath
 # from utils_logger import setup_logging
 
-model = ModelPath('test_model', validate=False)
-ensemble = EnsemblePath('test_ensemble', validate=False)
-MODEL_DIR = model.models
-ENSEMBLE_DIR = ensemble.models
+model_path = ModelPath('test_model', validate=False)
+ensemble_path = EnsemblePath('test_ensemble', validate=False)
+MODEL_DIR = model_path.models
+ENSEMBLE_DIR = ensemble_path.models
 
 # logger = setup_logging(str(model.root / 'run.log'))
 

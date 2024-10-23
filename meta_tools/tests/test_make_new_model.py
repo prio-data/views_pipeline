@@ -7,7 +7,7 @@ import pytest
 from unittest.mock import patch, MagicMock
 import tempfile
 import shutil
-from make_new_model import ModelBuilder
+from make_new_model import ModelScaffoldBuilder
 
 
 @pytest.fixture
@@ -80,13 +80,13 @@ def mock_templates():
 
 def test_model_builder_init(mock_model_path):
     """
-    Test the initialization of the ModelBuilder class.
+    Test the initialization of the ModelScaffoldBuilder class.
 
     Args:
         mock_model_path (MagicMock): The mock object for `ModelPath`.
 
     Asserts:
-        - The `ModelBuilder` attributes are correctly initialized.
+        - The `ModelScaffoldBuilder` attributes are correctly initialized.
     """
     mock_model_instance = mock_model_path.return_value
     mock_model_instance.get_directories.return_value = {
@@ -98,7 +98,7 @@ def test_model_builder_init(mock_model_path):
         "script2": "path2",
     }
 
-    builder = ModelBuilder("test_model")
+    builder = ModelScaffoldBuilder("test_model")
 
     assert builder._model == mock_model_instance
     assert set(builder._subdirs) == {"path1", "path2"}
@@ -125,7 +125,7 @@ def test_build_model_directory(temp_dir, mock_model_path):
         "subdir1": temp_dir / "test_model" / "subdir1"
     }
 
-    builder = ModelBuilder("test_model")
+    builder = ModelScaffoldBuilder("test_model")
     model_dir = builder.build_model_directory()
 
     assert model_dir == mock_model_instance.model_dir
@@ -158,7 +158,7 @@ def test_build_model_scripts(mock_input, temp_dir, mock_model_path, mock_templat
     }
     mock_model_instance.validate = False  # Set validate flag to False
 
-    builder = ModelBuilder("test_model")
+    builder = ModelScaffoldBuilder("test_model")
     builder.build_model_directory()
     builder.build_model_scripts()
 
@@ -193,7 +193,7 @@ def test_assess_model_directory(temp_dir, mock_model_path):
         "subdir1": temp_dir / "test_model" / "subdir1"
     }
 
-    builder = ModelBuilder("test_model")
+    builder = ModelScaffoldBuilder("test_model")
     builder.build_model_directory()
     assessment = builder.assess_model_directory()
 
@@ -222,7 +222,7 @@ def test_assess_model_scripts(mock_input, temp_dir, mock_model_path):
     }
     mock_model_instance.validate = False  # Set validate flag to False
 
-    builder = ModelBuilder("test_model")
+    builder = ModelScaffoldBuilder("test_model")
     builder.build_model_directory()
     builder.build_model_scripts()
     assessment = builder.assess_model_scripts()

@@ -28,7 +28,7 @@ To start using the `ModelPath` class, you need to initialize it with a specific 
 from utils_model_paths import ModelPath
 
 # Initialize ModelPath with a model name
-purple_alien = ModelPath("purple_alien", validate=True)
+purple_alien_paths = ModelPath("purple_alien", validate=True)
 ```
 
 * `model_name`: The name of the model you are working with. This will be used to locate the corresponding directories and scripts.
@@ -39,17 +39,17 @@ Once the ModelPath instance is created, you can view all the directories and scr
 
 * **View Directories**: This method prints a formatted list of all directories associated with the model.
 ```python
-purple_alien.view_directories()
+purple_alien_paths.view_directories()
 ```
 
 * **View Scripts**: This method lists all expected scripts for the model.
 ```python
-purple_alien.view_scripts()
+purple_alien_paths.view_scripts()
 ```
 
 ### Working with model and script paths
 ```python
-purple_alien.get_directories()
+purple_alien_paths.get_directories()
 ```
 This method returns a dictionary of directory names and their absolute paths for the current model. The method scans through all class attributes and collects directories that are part of the model's structure, excluding internal or unrelated attributes.
 #### Key Points:
@@ -65,7 +65,7 @@ This method returns a dictionary of directory names and their absolute paths for
 ```
 
 ```python
-purple_alien.get_scripts()
+purple_alien_paths.get_scripts()
 ```
 This method retrieves a dictionary of script file names and their absolute paths. It looks for the specific script files related to the model (such as configuration, training, and evaluation scripts) that are predefined during class initialization.
 #### Key Points:
@@ -85,28 +85,28 @@ This method retrieves a dictionary of script file names and their absolute paths
 
 #### Example:
 ```python
-directories = purple_alien.get_directories()
+directories = purple_alien_paths.get_directories()
 ```
 
 ### Adding and Removing Paths
 The `ModelPath` class provides methods to add the relevant directories to Python's sys.path so that scripts can be easily imported, and to remove them when they are no longer needed.
 * **Add Paths to sys.path**:
 ```python
-purple_alien.add_paths_to_sys()
+purple_alien_paths.add_paths_to_sys()
 ```
 * **Remove Paths from sys.path**:
 ```python
-model_path.remove_paths_from_sys()
+purple_alien_paths.remove_paths_from_sys()
 ```
 
 ### Working with Querysets
 The `get_queryset()` method returns the queryset module for the model, which contains functions for data querying. This can be useful for retrieving specific data relevant to your model.
 ```python
-queryset = model_path.get_queryset()
+queryset = purple_alien_paths.get_queryset()
 ```
 The `ModelPath` class checks if the queryset file exists, attempts to import it, and logs the process. If validation is enabled and the queryset file is missing, it raises an error.
 
-# GlobalCache (common_utils/global_cache.py)
+# GlobalCache (common_utils/global_cache.py) (Experimental)
 
 `GlobalCache` is a thread-safe singleton cache class that uses a global cache file to store key-value pairs. It ensures that only one instance of the cache exists and provides methods to set, get, and delete values in the cache. The cache is saved to a file, ensuring persistence through single or parallel model executions and to avoid object duplication in memory while also ensuring destruction after pipeline excution or interrupt signals.
 
@@ -126,46 +126,3 @@ print(value)  # Output: value1
 # Delete a key from the cache
 GlobalCache().delete("key1")
 ```
-
-### Making Your Data Structure/Class Compatible with GlobalCache
-
-To make your data structure or class compatible with `GlobalCache`, you need to ensure that it can be serialized using Python's pickle module. Here is an example using a GenericClass class:
-
-```python
-import hashlib
-import logging
-
-class GenericClass:
-    def __init__(self, name, force_cache_overwrite=False):
-        self._name = name
-        self._force_cache_overwrite = force_cache_overwrite
-
-        # Cache management
-        try:
-            if self._force_cache_overwrite:
-                GlobalCache()[self.__hash__()] = self
-                logger.info(f"GenericClass {self._name} with hash {self.__hash__()} overwritten to cache.")
-                self._return_cached_generic_obj()
-            
-            if not GlobalCache().__getitem__(self.__hash__()):
-                GlobalCache()[self.__hash__()] = self
-                logger.info(f"GenericClass {self._name} with hash {self.__hash__()} added to cache.")
-                self._return_cached_generic_obj()
-        except Exception as e:
-            logger.error(f"Error adding GenericClass {self._name} to cache: {e}")
-            pass
-
-    def __hash__(self):
-        return hashlib.sha256(str(self._name)).encode()).hexdigest()
-
-    def _return_cached_generic_obj(self):
-        try:
-            result = GlobalCache([self.__hash__()])
-            if result:
-                logger.info(f"GenericClass {self._name} with hash {self.__hash__()} found in cache.")
-                return result
-        except KeyError:
-            logger.warning(f"GenericClass {self._name} not found in cache.")
-```
-
-

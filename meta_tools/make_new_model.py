@@ -21,7 +21,7 @@ from templates import (
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-class ModelBuilder:
+class ModelScaffoldBuilder:
     """
     A class to create and manage the directory structure and scripts for a machine learning model.
 
@@ -34,7 +34,7 @@ class ModelBuilder:
     
     Methods:
         __init__(model_name: str) -> None:
-            Initializes the ModelBuilder with the given model name and sets up paths.
+            Initializes the ModelScaffoldBuilder with the given model name and sets up paths.
 
         build_model_directory() -> Path:
             Creates the model directory and its subdirectories, and initializes necessary files such as README.md
@@ -208,12 +208,11 @@ class ModelBuilder:
 
 if __name__ == "__main__":
     model_name = str(input("Enter the name of the model: "))
-    while not validate_model_name(model_name):
-        logging.error(
-            "Invalid model name. Please use the format 'adjective_noun' in lowercase, e.g., 'happy_kitten'."
-        )
+    while not validate_model_name(model_name) or model_path.ModelPath.check_if_model_dir_exists(model_name):
+        error = "Invalid input. Please use the format 'adjective_noun' in lowercase, e.g., 'happy_kitten' that does not already exist."
+        logging.error(error)
         model_name = str(input("Enter the name of the model: "))
-    model_directory_builder = ModelBuilder(model_name)
+    model_directory_builder = ModelScaffoldBuilder(model_name)
     model_directory_builder.build_model_directory()
     assessment = model_directory_builder.assess_model_directory()
     if not assessment["structure_errors"]:

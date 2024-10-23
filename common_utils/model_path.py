@@ -3,10 +3,9 @@ import sys
 import logging
 import importlib
 import hashlib
-
+from typing import Union, Optional, List, Dict
 sys.path.append(str(Path(__file__).parent.parent))
 from meta_tools.utils import utils_model_naming, utils_model_paths
-from global_cache import GlobalCache
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s %(name)s - %(levelname)s - %(message)s"
@@ -52,24 +51,83 @@ class ModelPath:
         _queryset_path (Path): The path to the queryset script.
         _queryset (module): The imported queryset module.
         scripts (list): A list of script paths.
-        _ignore_paths (list): A list of paths to ignore.
+        _ignore_attributes (list): A list of paths to ignore.
     """
+
+    __slots__ = (
+        '_validate', '_target', '_use_global_cache', '_force_cache_overwrite', 'root', 'models',
+        'common_utils', 'common_configs', '_ignore_attributes', 'model_name', '_instance_hash', '_queryset',
+        'model_dir', 'architectures', 'artifacts', 'configs', 'data', 'data_generated', 'data_processed',
+        'data_raw', 'dataloaders', 'forecasting', 'management', 'notebooks', 'offline_evaluation',
+        'online_evaluation', 'reports', 'src', '_templates', 'training', 'utils', 'visualization',
+        '_sys_paths', 'common_querysets', '_queryset_path', 'scripts', "meta_tools"
+    )
+
     __instances__ = 0
+    # Class variables for paths
+    _root = None
+    _models = None
+    _common_utils = None
+    _common_configs = None
+    _common_querysets = None
+    _meta_tools = None
 
-    # def __new__(cls, model_name_or_path, validate=True, target="model", force_cache_overwrite=False):
-    #     """
-    #     Ensures that only one instance of the ModelPath class is created for each unique set of arguments.
-    #     """
-    #     instance_hash = cls._generate_hash(model_name_or_path, validate, target)
-    #     cached_instance = GlobalCache().get(instance_hash)
-    #     if cached_instance and not force_cache_overwrite:
-    #         logger.info(f"Using cached ModelPath instance for hash: {instance_hash}")
-    #         return cached_instance
-    #     instance = super(ModelPath, cls).__new__(cls)
-    #     instance._instance_hash = instance_hash
-    #     return instance
+    @classmethod
+    def _initialize_class_paths(cls):
+        """Initialize class-level paths."""
+        cls._root = utils_model_paths.find_project_root()
+        cls._models = cls._root / "models"
+        cls._common_utils = cls._root / "common_utils"
+        cls._common_configs = cls._root / "common_configs"
+        cls._common_querysets = cls._root / "common_querysets"
+        cls._meta_tools = cls._root / "meta_tools"
 
-    def __init__(self, model_name_or_path, validate=True, target="model", force_cache_overwrite=False) -> None:
+
+    @classmethod
+    def get_root(cls) -> Path:
+        """Get the root path."""
+        if cls._root is None:
+            cls._initialize_class_paths()
+        return cls._root
+
+    @classmethod
+    def get_models(cls) -> Path:
+        """Get the models path."""
+        if cls._models is None:
+            cls._initialize_class_paths()
+        return cls._models
+
+    @classmethod
+    def get_common_utils(cls) -> Path:
+        """Get the common utils path."""
+        if cls._common_utils is None:
+            cls._initialize_class_paths()
+        return cls._common_utils
+
+    @classmethod
+    def get_common_configs(cls) -> Path:
+        """Get the common configs path."""
+        if cls._common_configs is None:
+            cls._initialize_class_paths()
+        return cls._common_configs
+
+    @classmethod
+    def get_common_querysets(cls) -> Path:
+        """Get the common querysets path."""
+        if cls._common_querysets is None:
+            cls._initialize_class_paths()
+        return cls._common_querysets
+    
+    @classmethod
+    def get_meta_tools(cls) -> Path:
+        """Get the meta tools path."""
+        if cls._meta_tools is None:
+            cls._initialize_class_paths()
+        return cls._meta_tools
+
+
+
+    def __init__(self, model_name_or_path: Union[str, Path], validate=True, target="model") -> None:
         """
         Initializes a ModelPath instance.
 
@@ -77,40 +135,121 @@ class ModelPath:
             model_name_or_path (str or Path): The model name or path.
             validate (bool, optional): Whether to validate paths and names. Defaults to True.
             target (str, optional): The target type (e.g., 'model'). Defaults to 'model'.
-            force_cache_overwrite (bool, optional): Whether to force overwrite the cache. Defaults to False.
-        """
-        # if hasattr(self, 'initialized') and self.initialized:
-        #     return
+        """ 
 
-        """
-        Initializes a ModelPath instance.
-
-        Args:
-            model_name_or_path (str or Path): The model name or path.
-            validate (bool, optional): Whether to validate paths and names. Defaults to True.
-            target (str, optional): The target type (e.g., 'model'). Defaults to 'model'.
-            force_cache_overwrite (bool, optional): Whether to force overwrite the cache. Defaults to False.
-        """
+        # Configs
         ModelPath.__instances__ += 1
         self._validate = validate
         self._target = target
-        self._force_cache_overwrite = force_cache_overwrite
-        self.model_name = model_name_or_path
-        if self._is_path(self.model_name):
-            logger.debug(f"Path input detected: {self.model_name}")
-            self.model_name = utils_model_paths.get_model_name_from_path(self.model_name)
+
+        # DO NOT USE GLOBAL CACHE FOR NOW
+        self._use_global_cache = False
+        self._force_cache_overwrite=False
+
+        # Common paths
+        self.root = ModelPath.get_root()
+        self.models = ModelPath.get_models()
+        self.common_utils = ModelPath.get_common_utils()
+        self.common_configs = ModelPath.get_common_configs()
+        self.common_querysets = ModelPath.get_common_querysets()
+        self.meta_tools = ModelPath.get_meta_tools()
+
+        # Ignore attributes while processing
+        self._ignore_attributes = [
+            "model_name",
+            "model_dir",
+            "scripts",
+            "_validate",
+            "models",
+            "_sys_paths",
+            "_queryset_path",
+            "_queryset",
+            "_ignore_attributes",
+            "_target",
+            "_force_cache_overwrite",
+            "initialized",
+            "_instance_hash"
+            "_use_global_cache"
+        ]
+
+        self.model_name = self._process_model_name(model_name_or_path)
+        self._instance_hash = self.generate_hash(self.model_name, self._validate, self._target)
+
+        if self._use_global_cache:
+            self._handle_global_cache()
+
+        self._initialize_directories()
+        self._initialize_scripts()
+
+        if self._use_global_cache:
+            self._write_to_global_cache()
+
+    def _process_model_name(self, model_name_or_path: Union[str, Path]) -> str:
+        """
+        Processes the input model name or path and returns a valid model name.
+
+        If the input is a path, it extracts the model name from the path.
+        If the input is a model name, it validates the name format.
+
+        Args:
+            model_name_or_path (Union[str, Path]): The model name or path to process.
+
+        Returns:
+            str: The processed model name.
+
+        Raises:
+            ValueError: If the model name is invalid.
+
+        Example:
+            >>> self._process_model_name("models/my_model")
+            'my_model'
+        """
+        if self._is_path(model_name_or_path):
+            logger.debug(f"Path input detected: {model_name_or_path}")
+            return utils_model_paths.get_model_name_from_path(model_name_or_path)
         else:
-            if not utils_model_naming.validate_model_name(self.model_name):
+            if not utils_model_naming.validate_model_name(model_name_or_path):
                 raise ValueError(
                     f"Invalid {self._target} name. Please provide a valid {self._target} name that follows the lowercase 'adjective_noun' format that doesn't already exist."
                 )
-            else:
-                logger.debug(f"{self._target.title()} name detected: {self.model_name}")
-        logger.debug(f"ModelPath instance count: {ModelPath.__instances__}")
-        self.root = utils_model_paths.find_project_root()
-        self.models = self.root / Path(self._target + "s")
-        self.common_utils = self.root / "common_utils"
-        self.common_configs = self.root / "common_configs"
+            logger.debug(f"{self._target.title()} name detected: {model_name_or_path}")
+            return model_name_or_path
+
+    def _handle_global_cache(self) -> None:
+        """
+        Handles the global cache for the model instance.
+
+        Attempts to retrieve the model instance from the global cache.
+        If the instance is not found or cache overwrite is forced, initializes a new instance.
+
+        Raises:
+            Exception: If there is an error accessing the global cache.
+        """
+        try:
+            from global_cache import GlobalCache
+            cached_instance = GlobalCache().get(self._instance_hash)
+            if cached_instance and not self._force_cache_overwrite:
+                return cached_instance
+        except Exception as e:
+            logger.error(f"Error adding model {self.model_name} to cache: {e}. Initializing new ModelPath instance.")
+    
+    def _write_to_global_cache(self) -> None:
+        """
+        Writes the current model instance to the global cache.
+
+        Adds the model instance to the global cache using the instance hash as the key.
+        """
+        from global_cache import GlobalCache
+        logger.info(f"Writing ModelPath object to cache for model {self.model_name}.")
+        GlobalCache()[self._instance_hash] = self
+
+
+    def _initialize_directories(self) -> None:
+        """
+        Initializes the necessary directories for the model.
+
+        Creates and sets up various directories required for the model, such as architectures, artifacts, configs, data, etc.
+        """
         self.model_dir = self._get_model_dir()
         self.architectures = self._build_absolute_directory(Path("src/architectures"))
         self.artifacts = self._build_absolute_directory(Path("artifacts"))
@@ -127,16 +266,22 @@ class ModelPath:
         self.online_evaluation = self._build_absolute_directory(Path("src/online_evaluation"))
         self.reports = self._build_absolute_directory(Path("reports"))
         self.src = self._build_absolute_directory(Path("src"))
-        self._templates = self.root / "meta_tools" / "templates"
+        self._templates = self.meta_tools / "templates"
         self.training = self._build_absolute_directory(Path("src/training"))
         self.utils = self._build_absolute_directory(Path("src/utils"))
         self.visualization = self._build_absolute_directory(Path("src/visualization"))
         self._sys_paths = None
-        self.common_querysets = self.root / "common_querysets"
         if self.common_querysets not in sys.path:
             sys.path.insert(0, str(self.common_querysets))
         self._queryset_path = self.common_querysets / f"queryset_{self.model_name}.py"
         self._queryset = None
+
+    def _initialize_scripts(self) -> None:
+        """
+        Initializes the necessary scripts for the model.
+
+        Creates and sets up various scripts required for the model, such as configuration scripts, main script, and other utility scripts.
+        """
         self.scripts = [
             self._build_absolute_directory(Path("configs/config_deployment.py")),
             self._build_absolute_directory(Path("configs/config_hyperparameters.py")),
@@ -152,64 +297,9 @@ class ModelPath:
             self._build_absolute_directory(Path("src/offline_evaluation/evaluate_model.py")),
             self._build_absolute_directory(Path("src/training/train_ensemble.py")),
         ]
-        self._ignore_paths = [
-            "model_name",
-            "model_dir",
-            "scripts",
-            "_validate",
-            "models",
-            "_sys_paths",
-            "_queryset_path",
-            "_queryset",
-            "_ignore_paths",
-            "_target",
-            "_force_cache_overwrite",
-        ]
-
-        # Cache management
-        try:
-            instance_hash = self._generate_hash(model_name_or_path, validate, target)
-            if self._force_cache_overwrite:
-                GlobalCache()[instance_hash] = self
-                logger.info(f"Model {self.model_name} with hash {instance_hash} overwritten to cache.")
-                self._return_cached_model_path()
-            
-            if not GlobalCache().__getitem__(instance_hash):
-                GlobalCache()[instance_hash] = self
-                logger.info(f"Model {self.model_name} with hash {instance_hash} added to cache.")
-                self._return_cached_model_path()
-        except Exception as e:
-            logger.error(f"Error adding model {self.model_name} to cache: {e}")
-            pass
-
-        # self.initialized = True
-
-    def __hash__(self):
-        """
-        Generates a unique hash for the ModelPath instance.
-
-        Returns:
-            str: The SHA-256 hash of the model name, validation flag, and target.
-        """
-        return hashlib.sha256(str((self.model_name, self._validate, self._target)).encode()).hexdigest()
-
-    def _return_cached_model_path(self):
-        """
-        Returns the cached model path if it exists in the cache.
-
-        Returns:
-            ModelPath or None: The cached ModelPath instance or None if not found.
-        """
-        try:
-            result = GlobalCache()[self.__hash__()]
-            if result:
-                logger.info(f"Model {self.model_name} with hash {self.__hash__()} found in cache.")
-                return result
-        except KeyError:
-            logger.warning(f"Model {self.model_name} not found in cache.")
     
     @staticmethod
-    def _generate_hash(model_name_or_path, validate, target):
+    def generate_hash(model_name: str, validate: bool, target: str) -> str:
         """
         Generates a unique hash for the ModelPath instance.
 
@@ -221,9 +311,23 @@ class ModelPath:
         Returns:
             str: The SHA-256 hash of the model name, validation flag, and target.
         """
-        return hashlib.sha256(str((model_name_or_path, validate, target)).encode()).hexdigest()
+        return hashlib.sha256(str((model_name, validate, target)).encode()).hexdigest()
+    
+    @staticmethod
+    def check_if_model_dir_exists(model_name: str) -> bool:
+        """
+        Checks if the model directory already exists.
 
-    def _is_path(self, path_input) -> bool:
+        Args:
+            model_name (str): The name of the model.
+
+        Returns:
+            bool: True if the model directory exists, False otherwise.
+        """
+        model_dir = ModelPath.get_models() / model_name
+        return model_dir.exists()
+
+    def _is_path(self, path_input: Union[str, Path]) -> bool:
         """
         Determines if the given input is a valid path.
 
@@ -236,18 +340,8 @@ class ModelPath:
             bool: True if the input is a valid path, False otherwise.
         """
         try:
-            if not isinstance(path_input, (str, Path)):
-                logger.error(f"Invalid type for path_input: {type(path_input)}. Expected str or Path.")
-                return False
-            if isinstance(path_input, str):
-                path_input = Path(path_input)
-            if len(path_input.parts) == 1:
-                return False
-            if path_input.exists():
-                return True
-            else:
-                logger.warning(f"Path {path_input} does not exist. Use model name instead")
-                return False
+            path_input = Path(path_input) if isinstance(path_input, str) else path_input
+            return path_input.exists() and len(path_input.parts) > 1
         except Exception as e:
             logger.error(f"Error checking if input is a path: {e}")
             return False
@@ -266,9 +360,9 @@ class ModelPath:
             FileNotFoundError: If the common queryset directory does not exist and validation is enabled.
         """
         if self._validate and not self._check_if_dir_exists(self.common_querysets):
-            raise FileNotFoundError(
-                f"Common queryset directory {self.common_querysets} does not exist. Please create it first using `make_new_scripts.py` or set validate to `False`."
-            )
+            error = f"Common queryset directory {self.common_querysets} does not exist. Please create it first using `make_new_scripts.py` or set validate to `False`."
+            logger.error(error)
+            raise FileNotFoundError(error)
         elif self._validate and self._check_if_dir_exists(self._queryset_path):
             try:
                 self._queryset = importlib.import_module(self._queryset_path.stem)
@@ -297,17 +391,12 @@ class ModelPath:
         Raises:
             FileNotFoundError: If the model directory does not exist and validation is enabled.
         """
-        try:
-            model_dir = self.models / self.model_name
-            if not self._check_if_dir_exists(model_dir):
-                if self._validate:
-                    raise FileNotFoundError(
-                        f"{self._target.title()} directory {model_dir} does not exist. Please run the `make_new_{self._target}.py` script first."
-                    )
-            return model_dir
-        except Exception as e:
-            logger.error(f"Error getting {self._target} directory: {e}")
-            return
+        model_dir = self.models / self.model_name
+        if not self._check_if_dir_exists(model_dir) and self._validate:
+            error = f"{self._target.title()} directory {model_dir} does not exist. Please create it first using `make_new_model.py` or set validate to `False`."
+            logger.error(error)
+            raise FileNotFoundError(error)
+        return model_dir
 
     def _check_if_dir_exists(self, directory: Path) -> bool:
         """
@@ -359,7 +448,10 @@ class ModelPath:
         for path in sys.path:
             path = Path(path)
             if str(self._target + "s") in path.parts:
-                model_name = utils_model_paths.get_model_name_from_path(path)
+                try:
+                    model_name = utils_model_paths.get_model_name_from_path(path)
+                except:
+                    continue
                 if model_name != self.model_name:
                     logger.error(
                         f"Paths for another {self._target} ('{model_name}') are already added to sys.path. Please remove them first by calling remove_paths_from_sys()."
@@ -371,8 +463,9 @@ class ModelPath:
                     )
         if self._sys_paths is None:
             self._sys_paths = []
-        for attr, value in self.__dict__.items():
-            if str(attr) not in self._ignore_paths:
+        for attr in self.__slots__:
+            value = getattr(self, attr)
+            if str(attr) not in self._ignore_attributes:
                 if (
                     isinstance(value, Path)
                     and value.is_absolute()
@@ -430,12 +523,13 @@ class ModelPath:
         Prints a formatted list of the directories and their absolute paths.
 
         This method iterates through the instance's attributes and prints the name and path of each directory.
-        It ignores certain attributes specified in the _ignore_paths list.
+        It ignores certain attributes specified in the _ignore_attributes list.
         """
         print("\n{:<20}\t{:<50}".format("Name", "Path"))
         print("=" * 72)
-        for attr, value in self.__dict__.items():
-            if attr not in self._ignore_paths and isinstance(value, Path):
+        for attr in self.__slots__:
+            value = getattr(self, attr)
+            if attr not in self._ignore_attributes and isinstance(value, Path):
                 print("{:<20}\t{:<50}".format(str(attr), str(value)))
 
     def view_scripts(self) -> None:
@@ -460,9 +554,27 @@ class ModelPath:
         Returns:
             dict: A dictionary where keys are directory names and values are their paths.
         """
+        # Not in use yet.
+        # self._ignore_attributes = [
+        #     "model_name",
+        #     "model_dir",
+        #     "scripts",
+        #     "_validate",
+        #     "models",
+        #     "_sys_paths",
+        #     "_queryset_path",
+        #     "_queryset",
+        #     "_ignore_attributes",
+        #     "_target",
+        #     "_force_cache_overwrite",
+        #     "initialized",
+        #     "_instance_hash"
+        #     "use_global_cache"
+        # ]
         directories = {}
         relative = False
-        for attr, value in self.__dict__.items():
+        for attr in self.__slots__:
+            value = getattr(self, attr)
             if str(attr) not in [
                 "model_name",
                 "root",
@@ -473,9 +585,11 @@ class ModelPath:
                 "_sys_paths",
                 "_queryset",
                 "_queryset_path",
-                "_ignore_paths",
+                "_ignore_attributes",
                 "_target",
                 "_force_cache_overwrite",
+                "initialized",
+                "_instance_hash"
             ] and isinstance(value, Path):
                 if not relative:
                     directories[str(attr)] = str(value)
@@ -510,3 +624,16 @@ class ModelPath:
             else:
                 scripts[str(path)] = None
         return scripts
+
+    
+if __name__ == "__main__":
+    model_path = ModelPath("blank_space", validate=True)
+    model_path.view_directories()
+    model_path.view_scripts()
+    model_path.get_directories()
+    model_path.get_scripts()
+    print(model_path.get_queryset())
+    # model_path.remove_paths_from_sys()
+    # model_path.add_paths_to_sys()
+
+    print(ModelPath.get_common_configs())
