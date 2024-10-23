@@ -14,9 +14,9 @@ from utils_log_files import read_log_file
 logger = logging.getLogger(__name__)
 
 
-def check_model_conditions(PATH_GENERATED, config):
+def check_model_conditions(PATH_GENERATED, run_type):
     """
-    Checks if the model meets the required conditions based on the log file.
+    Checks if the single model meets the required conditions based on the log file.
 
     Args:
     - model_folder (str): The path to the model-specific folder containing the log file.
@@ -25,7 +25,8 @@ def check_model_conditions(PATH_GENERATED, config):
     Returns:
     - bool: True if all conditions are met, False otherwise.
     """
-    log_file_path = Path(PATH_GENERATED) / f"{config['run_type']}_log.txt"
+    
+    log_file_path = Path(PATH_GENERATED) / f"{run_type}_log.txt"
     try:
         log_data = read_log_file(log_file_path)
     except Exception as e:
@@ -36,8 +37,9 @@ def check_model_conditions(PATH_GENERATED, config):
     current_year = current_time.year
     current_month = current_time.month
 
-    # Extract timestamps from log data
-    model_timestamp = datetime.strptime(log_data["Model Timestamp"], "%Y%m%d_%H%M%S")
+    # Extract from log data
+    model_name = log_data["Single Model Name"]
+    model_timestamp = datetime.strptime(log_data["Single Model Timestamp"], "%Y%m%d_%H%M%S")
     data_generation_timestamp = None if log_data["Data Generation Timestamp"] == 'None' else (
         datetime.strptime(log_data["Data Generation Timestamp"], "%Y%m%d_%H%M%S"))
 
@@ -47,7 +49,7 @@ def check_model_conditions(PATH_GENERATED, config):
     # Condition 1: Model trained in the current year after July
     if current_month >= 7:
         if not (model_timestamp.year == current_year and model_timestamp.month >= 7):
-            logger.error(f"Model '{log_data['Model Name']}' was trained in {model_timestamp.year}_{model_timestamp.month}. "
+            logger.error(f"Model '{model_name}' was trained in {model_timestamp.year}_{model_timestamp.month}. "
                          f"Please use the latest model that is trained after {current_year}_07. Exiting.")
             return False
     elif current_month < 7:
@@ -55,28 +57,28 @@ def check_model_conditions(PATH_GENERATED, config):
                 (model_timestamp.year == current_year - 1 and model_timestamp.month >= 7) or
                 (model_timestamp.year == current_year and model_timestamp.month < 7)
         ):
-            logger.error(f"Model '{log_data['Model Name']}' was trained in {model_timestamp.year}_{model_timestamp.month}. "
+            logger.error(f"Model '{model_name}' was trained in {model_timestamp.year}_{model_timestamp.month}. "
                          f"Please use the latest model that is trained after {current_year - 1}_07. Exiting.")
             return False
 
     # Condition 2: Data generated in the current month
     if data_generation_timestamp and not (
             data_generation_timestamp.year == current_year and data_generation_timestamp.month == current_month):
-        logger.error(f"Data for model '{log_data['Model Name']}' was not generated in the current month. Exiting.")
+        logger.error(f"Data for model '{model_name}' was not generated in the current month. Exiting.")
         return False
 
     # Condition 3: Raw data fetched in the current month
     if data_fetch_timestamp and not (
             data_fetch_timestamp.year == current_year and data_fetch_timestamp.month == current_month):
-        logger.error(f"Raw data for model '{log_data['Model Name']}' was not fetched in the current month. Exiting.")
+        logger.error(f"Raw data for model {model_name} was not fetched in the current month. Exiting.")
         return False
 
     return True
 
 
-def check_model_deployment_status(PATH_GENERATED, config):
+def check_model_deployment_status(PATH_GENERATED, run_type, deployment_status):
     """
-    Checks if the model meets the required conditions based on the log file.
+    Checks if the ensemble model meets the required deployment status conditions based on the log file.
 
     Args:
     - model_folder (str): The path to the model-specific folder containing the log file.
@@ -84,14 +86,20 @@ def check_model_deployment_status(PATH_GENERATED, config):
     Returns:
     - bool: True if all conditions are met, False otherwise.
     """
-    log_file_path = Path(PATH_GENERATED) / f"{config['run_type']}_log.txt"
-    log_data = read_log_file(log_file_path)
 
+    log_file_path = Path(PATH_GENERATED) / f"{run_type}_log.txt"
+    try:
+        log_data = read_log_file(log_file_path)
+    except Exception as e:
+        logger.error(f"Error reading log file: {e}. Exiting.")
+        return False
+
+    model_name = log_data["Single Model Name"]
     model_dp_status = log_data["Deployment Status"]
 
     # More check conditions can be added here
-    if model_dp_status == "Deployed" and config["deployment_status"] != "Deployed":
-        logger.error(f"Model '{log_data['Model Name']}' deployment status is deployed "
+    if model_dp_status == "Deployed" and deployment_status != "Deployed":
+        logger.error(f"Model {model_name} deployment status is deployed "
                      f"but the ensemble is not. Exiting.")
         return False
 
@@ -108,14 +116,15 @@ def ensemble_model_check(config):
     Returns:
     - None: Shuts down if conditions are not met; proceeds otherwise.
     """
+
     PATH_MODELS = setup_root_paths(PATH) / "models"
     for model in config["models"]:
         PATH_MODEL = PATH_MODELS / model
         _, _, PATH_GENERATED = setup_data_paths(PATH_MODEL)
 
         if (
-                (not check_model_conditions(PATH_GENERATED, config)) or
-                (not check_model_deployment_status(PATH_GENERATED, config))
+                (not check_model_conditions(PATH_GENERATED, config["run_type"])) or
+                (not check_model_deployment_status(PATH_GENERATED, config["run_type"], config["deployment_status"]))
         ):
             exit(1)  # Shut down if conditions are not met
     logger.info(f"Model {config['name']} meets the required conditions.")
