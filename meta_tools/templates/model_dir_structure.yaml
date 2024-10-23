@@ -1,0 +1,53 @@
+paths:
+  # The root directory of the pipeline, determined at runtime
+  pipeline_root: "${pipeline_root}"
+  
+  # Path to the models directory within the pipeline
+  models: "${pipeline_root}/models"
+  
+  # Path to common utilities shared across models
+  common_utils: "${pipeline_root}/common_utils"
+  
+  # Path to common configurations shared across models
+  common_configs: "${pipeline_root}/common_configs"
+  
+  # Path to common querysets shared across models
+  common_querysets: "${pipeline_root}/common_querysets"
+
+  # Path to common cache shared across models
+  common_cache: "${pipeline_root}/common_cache"
+
+  # Path to the specific model directory, based on the model name
+  model_dir: "${models}/${model_name}"
+  
+  # Path to the templates directory within meta_tools
+  templates: "${pipeline_root}/meta_tools/templates"
+  
+  # Placeholder for system paths (set to null if not used)
+  _sys_paths: null
+  
+  # Subdirectories within the model directory
+  artifacts: "artifacts"        # Directory for storing generated artifacts (e.g., models, outputs)
+  configs: "configs"            # Directory for model-specific configuration files
+  
+  # Data directories within the model directory
+  data: "data"                       # Base data directory
+  data_generated: "data/generated"   # Directory for generated data
+  data_processed: "data/processed"   # Directory for processed data
+  data_raw: "data/raw"               # Directory for raw input data
+  
+  # Source code directories within the model directory
+  src: "src"                                      # Base source code directory
+  architectures: "src/architectures"              # Model architecture definitions
+  training: "src/training"                        # Training scripts and modules
+  utils: "src/utils"                              # Utility scripts and helper functions
+  #visualization: "src/visualization"              # Data and result visualization scripts
+  dataloaders: "src/dataloaders"                  # Data loading and preprocessing modules
+  forecasting: "src/forecasting"                  # Forecasting and prediction scripts
+  management: "src/management"                    # Model management and orchestration scripts
+  offline_evaluation: "src/offline_evaluation"    # Scripts for evaluating models offline
+  #online_evaluation: "src/online_evaluation"      # Scripts for evaluating models in production
+  
+  # Additional directories within the model directory
+  notebooks: "notebooks"        # Jupyter notebooks for experiments and analysis
+  reports: "reports"            # Reports, presentations, slides, and other documentation
