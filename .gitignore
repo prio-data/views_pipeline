@@ -195,6 +195,7 @@ cython_debug/
 
 # folders
 **/wandb/
+**/notebooks/
 
 # mac specific 
 .DS_Store
@@ -205,3 +206,8 @@ cython_debug/
 
 # backup files
 *.bak
+
+# txt logs
+calibration_log.txt
+testing_log.txt
+forecasting_log.txt
