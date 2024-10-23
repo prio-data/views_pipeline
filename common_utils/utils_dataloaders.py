@@ -212,9 +212,9 @@ def fetch_or_load_views_df(partition, PATH_RAW, self_test=False, use_saved=False
             raise RuntimeError(f'Use of saved data was specified but {path_viewser_df} not found')
 
     else:
-        logger.info(f'Fetching file...')
+        logger.info(f'Fetching data...')
         df, alerts = get_views_df(partition, override_month, self_test)  # which is then used here
-        logger.info(f'Saving file to {path_viewser_df}')
+        logger.info(f'Saving data to {path_viewser_df}')
         df.to_pickle(path_viewser_df)
 
     if validate_df_partition(df, partition, override_month):
