@@ -6,15 +6,11 @@ from pathlib import Path
 PATH = Path(__file__)
 sys.path.insert(0, str(Path(
     *[i for i in PATH.parts[:PATH.parts.index("views_pipeline") + 1]]) / "common_utils"))  # PATH_COMMON_UTILS
-
 from utils_cli_parser import parse_args, validate_arguments
-from model_path import ModelPath
-from ensemble_path import EnsemblePath
 
-model = ModelPath('test_model', validate=False)
-ensemble = EnsemblePath('test_ensemble', validate=False)
-MODEL_DIR = model.models
-ENSEMBLE_DIR = ensemble.models
+MODEL_DIR = PATH.parent.parent / "models"
+ENSEMBLE_DIR = PATH.parent.parent / "ensembles"
+
 
 
 def initialize():
