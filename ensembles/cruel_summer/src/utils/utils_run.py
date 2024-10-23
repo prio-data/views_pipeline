@@ -1,8 +1,12 @@
 import numpy as np
-from views_forecasts.extensions import *
+import runpy
 import logging
+from pathlib import Path
+from set_path import setup_root_paths
+from views_forecasts.extensions import *
 
 logger = logging.getLogger(__name__)
+PATH = Path(__file__)
 
 
 def get_standardized_df(df, config):
@@ -60,3 +64,32 @@ def update_config(hp_config, meta_config, dp_config, args):
     config['deployment_status'] = dp_config['deployment_status']
 
     return config
+
+
+def get_single_model_config(model_name):
+    model_path = setup_root_paths(PATH) / "models" / model_name
+    hp_config = runpy.run_path(model_path / "configs" / "config_hyperparameters.py")["get_hp_config"]()
+    meta_config = runpy.run_path(model_path / "configs" / "config_meta.py")["get_meta_config"]()
+    dp_config = runpy.run_path(model_path / "configs" / "config_deployment.py")["get_deployment_config"]()
+
+    return {**hp_config, **meta_config, **dp_config}
+
+
+def get_model(config):
+    """
+    Get the model based on the algorithm specified in the config
+    Will be deprecated in the future
+    """
+    from hurdle_model import HurdleRegression
+    from lightgbm import LGBMRegressor
+    from xgboost import XGBRegressor
+    from sklearn.ensemble import RandomForestClassifier
+
+    if config["algorithm"] == "HurdleRegression":
+        model = HurdleRegression(clf_name=config["model_clf"], reg_name=config["model_reg"],
+                                 clf_params=config["parameters"]["clf"], reg_params=config["parameters"]["reg"])
+    else:
+        parameters = config["parameters"]
+        model = globals()[config["algorithm"]](**parameters)
+
+    return model
