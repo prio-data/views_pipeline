@@ -6,7 +6,6 @@ from ensemble_path import EnsemblePath
 
 sys.path.append(str(Path(__file__).parent.parent))
 
-from meta_tools.utils.utils_model_paths import get_model_name_from_path
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s %(name)s - %(levelname)s - %(message)s"
 )
@@ -30,7 +29,7 @@ def get_model_path_instance(path) -> ModelPath:
         ValueError: If the ModelPath instance cannot be created due to missing model directory.
     """
 
-    model_name = get_model_name_from_path(path)
+    model_name = ModelPath.get_model_name_from_path(path)
     if "models" in path.parts:
         logger.debug(f"Getting ModelPath instance {model_name} for path: {path}")
         model_path = ModelPath(model_name)

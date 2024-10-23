@@ -15,7 +15,6 @@ from utils_df_to_vol_conversion import df_to_vol
 from viewser import Queryset, Column
 
 sys.path.append(str(Path(__file__).parent))
-from meta_tools.utils import utils_model_paths
 import logging
 from model_path import ModelPath
 logging.basicConfig(
@@ -27,7 +26,7 @@ logger = logging.getLogger(__name__)
 def find_model_name():
     for path in sys.path:
         try:
-            model_name = utils_model_paths.get_model_name_from_path(path)
+            model_name = ModelPath.get_model_name_from_path(path)
             if model_name:
                 return model_name
         except:

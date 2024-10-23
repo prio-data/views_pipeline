@@ -125,8 +125,6 @@ class ModelPath:
             cls._initialize_class_paths()
         return cls._meta_tools
 
-
-
     def __init__(self, model_name_or_path: Union[str, Path], validate=True, target="model") -> None:
         """
         Initializes a ModelPath instance.
@@ -206,11 +204,18 @@ class ModelPath:
         """
         if self._is_path(model_name_or_path):
             logger.debug(f"Path input detected: {model_name_or_path}")
-            return utils_model_paths.get_model_name_from_path(model_name_or_path)
+            try:
+                result = ModelPath.get_model_name_from_path(model_name_or_path)
+                if utils_model_naming.validate_model_name(result):
+                    logger.debug(f"Model name extracted from path: {result}")
+                    return result
+            except Exception as e:
+                logger.error(f"Error extracting model name from path: {e}")
+                raise ValueError(f"Invalid {self._target} name. Please provide a valid {self._target} name that follows the lowercase 'adjective_noun' format.")
         else:
             if not utils_model_naming.validate_model_name(model_name_or_path):
                 raise ValueError(
-                    f"Invalid {self._target} name. Please provide a valid {self._target} name that follows the lowercase 'adjective_noun' format that doesn't already exist."
+                    f"Invalid {self._target} name. Please provide a valid {self._target} name that follows the lowercase 'adjective_noun' format."
                 )
             logger.debug(f"{self._target.title()} name detected: {model_name_or_path}")
             return model_name_or_path
@@ -326,6 +331,41 @@ class ModelPath:
         """
         model_dir = ModelPath.get_models() / model_name
         return model_dir.exists()
+    
+    @staticmethod
+    def get_model_name_from_path(path: Union[Path, str]) -> str:
+        """
+        Returns the model name based on the provided path.
+
+        Args:
+            PATH (Path): The base path, typically the path of the script invoking this function (e.g., `Path(__file__)`).
+
+        Returns:
+            str: The model name extracted from the provided path.
+
+        Raises:
+            ValueError: If the model name is not found in the provided path.
+        """
+        path = Path(path)
+        logger.info(f"Extracting model name from Path: {path}")
+        if "models" in path.parts and "ensembles" not in path.parts:
+                model_idx = path.parts.index("models")
+                model_name = path.parts[model_idx + 1]
+                if utils_model_naming.validate_model_name(model_name):
+                    logger.info(f"Valid model name {model_name} found in path {path}")
+                    return str(model_name)
+                else:
+                    logger.info(f"No valid model name found in path {path}")
+                    return None
+        if "ensembles" in path.parts and "models" not in path.parts:
+                model_idx = path.parts.index("ensembles")
+                model_name = path.parts[model_idx + 1]
+                if utils_model_naming.validate_model_name(model_name):
+                    logger.info(f"Valid ensemble name {model_name} found in path {path}")
+                    return str(model_name)
+                else:
+                    logger.info(f"No valid ensemble name found in path {path}")
+                    return None
 
     def _is_path(self, path_input: Union[str, Path]) -> bool:
         """
