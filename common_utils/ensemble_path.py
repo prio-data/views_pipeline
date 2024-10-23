@@ -1,6 +1,8 @@
 from model_path import ModelPath
-import sys
 import logging
+from pathlib import Path
+from meta_tools.utils import utils_model_paths
+from typing import Union, Optional, List, Dict
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
@@ -8,11 +10,36 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 class EnsemblePath(ModelPath):
-    def __init__(self, model_name_or_path, validate=True) -> None:
-        self._target = "ensemble"
-        super().__init__(model_name_or_path, validate, target="ensemble")
+    """
+    A class to manage ensemble paths and directories within the ViEWS Pipeline.
+    Inherits from ModelPath and sets the target to 'ensemble'.
+    """
 
-# if __name__ == "__main__":
-#     model = EnsemblePath("white_mustang", validate=True)
-#     print(model.model_dir)
-#     del model
+    _target = str("ensemble")
+
+    @classmethod
+    def _initialize_class_paths(cls):
+        """Initialize class-level paths for ensemble."""
+        cls._root = utils_model_paths.find_project_root()
+        cls._models = cls._root / Path(cls._target + "s")
+        cls._common_utils = cls._root / "common_utils"
+        cls._common_configs = cls._root / "common_configs"
+        cls._common_querysets = cls._root / "common_querysets"
+        cls._meta_tools = cls._root / "meta_tools"
+
+    def __init__(self, ensemble_name_or_path: Union[str, Path], validate: bool = True) -> None:
+        """
+        Initializes an EnsemblePath instance.
+
+        Args:
+            ensemble_name_or_path (str or Path): The ensemble name or path.
+            validate (bool, optional): Whether to validate paths and names. Defaults to True.
+        """
+        super().__init__(ensemble_name_or_path, validate)
+
+if __name__ == "__main__":
+    ensemble_path = EnsemblePath("white_mustang", validate=True)
+    ensemble_path.view_directories()
+    ensemble_path.view_scripts()
+    print(ensemble_path.get_queryset())
+    del ensemble_path

@@ -20,7 +20,7 @@ class ModelPath:
         __instances__ (int): A class-level counter to track the number of ModelPath instances.
         model_name (str): The name of the model.
         _validate (bool): A flag to indicate whether to validate paths and names.
-        _target (str): The target type (e.g., 'model').
+        target (str): The target type (e.g., 'model').
         _force_cache_overwrite (bool): A flag to indicate whether to force overwrite the cache.
         root (Path): The root directory of the project.
         models (Path): The directory for models.
@@ -55,7 +55,7 @@ class ModelPath:
     """
 
     __slots__ = (
-        '_validate', '_target', '_use_global_cache', '_force_cache_overwrite', 'root', 'models',
+        '_validate', 'target', '_use_global_cache', '_force_cache_overwrite', 'root', 'models',
         'common_utils', 'common_configs', '_ignore_attributes', 'model_name', '_instance_hash', '_queryset',
         'model_dir', 'architectures', 'artifacts', 'configs', 'data', 'data_generated', 'data_processed',
         'data_raw', 'dataloaders', 'forecasting', 'management', 'notebooks', 'offline_evaluation',
@@ -63,6 +63,8 @@ class ModelPath:
         '_sys_paths', 'common_querysets', '_queryset_path', 'scripts', "meta_tools"
     )
 
+
+    _target = str("model")
     __instances__ = 0
     # Class variables for paths
     _root = None
@@ -76,7 +78,7 @@ class ModelPath:
     def _initialize_class_paths(cls):
         """Initialize class-level paths."""
         cls._root = utils_model_paths.find_project_root()
-        cls._models = cls._root / "models"
+        cls._models = cls._root / Path(cls._target + "s")
         cls._common_utils = cls._root / "common_utils"
         cls._common_configs = cls._root / "common_configs"
         cls._common_querysets = cls._root / "common_querysets"
@@ -124,8 +126,15 @@ class ModelPath:
         if cls._meta_tools is None:
             cls._initialize_class_paths()
         return cls._meta_tools
+    
+    @classmethod
+    def get_target(cls) -> Path:
+        """Get the target (model, ensemble)."""
+        if cls._target is None:
+            cls._initialize_class_paths()
+        return cls._target
 
-    def __init__(self, model_name_or_path: Union[str, Path], validate=True, target="model") -> None:
+    def __init__(self, model_name_or_path: Union[str, Path], validate: bool = True) -> None:
         """
         Initializes a ModelPath instance.
 
@@ -137,8 +146,10 @@ class ModelPath:
 
         # Configs
         ModelPath.__instances__ += 1
+        
         self._validate = validate
-        self._target = target
+        self.target = ModelPath.get_target()
+
 
         # DO NOT USE GLOBAL CACHE FOR NOW
         self._use_global_cache = False
@@ -163,7 +174,7 @@ class ModelPath:
             "_queryset_path",
             "_queryset",
             "_ignore_attributes",
-            "_target",
+            "target",
             "_force_cache_overwrite",
             "initialized",
             "_instance_hash"
@@ -171,13 +182,14 @@ class ModelPath:
         ]
 
         self.model_name = self._process_model_name(model_name_or_path)
-        self._instance_hash = self.generate_hash(self.model_name, self._validate, self._target)
+        self._instance_hash = self.generate_hash(self.model_name, self._validate, self.target)
 
         if self._use_global_cache:
             self._handle_global_cache()
 
         self._initialize_directories()
         self._initialize_scripts()
+        logger.debug(f"ModelPath instance {ModelPath.__instances__} initialized for {self.model_name}.")
 
         if self._use_global_cache:
             self._write_to_global_cache()
@@ -211,13 +223,13 @@ class ModelPath:
                     return result
             except Exception as e:
                 logger.error(f"Error extracting model name from path: {e}")
-                raise ValueError(f"Invalid {self._target} name. Please provide a valid {self._target} name that follows the lowercase 'adjective_noun' format.")
+                raise ValueError(f"Invalid {self.target} name. Please provide a valid {self.target} name that follows the lowercase 'adjective_noun' format.")
         else:
             if not utils_model_naming.validate_model_name(model_name_or_path):
                 raise ValueError(
-                    f"Invalid {self._target} name. Please provide a valid {self._target} name that follows the lowercase 'adjective_noun' format."
+                    f"Invalid {self.target} name. Please provide a valid {self.target} name that follows the lowercase 'adjective_noun' format."
                 )
-            logger.debug(f"{self._target.title()} name detected: {model_name_or_path}")
+            logger.debug(f"{self.target.title()} name detected: {model_name_or_path}")
             return model_name_or_path
 
     def _handle_global_cache(self) -> None:
@@ -366,6 +378,7 @@ class ModelPath:
                 else:
                     logger.info(f"No valid ensemble name found in path {path}")
                     return None
+        return None
 
     def _is_path(self, path_input: Union[str, Path]) -> bool:
         """
@@ -433,7 +446,7 @@ class ModelPath:
         """
         model_dir = self.models / self.model_name
         if not self._check_if_dir_exists(model_dir) and self._validate:
-            error = f"{self._target.title()} directory {model_dir} does not exist. Please create it first using `make_new_model.py` or set validate to `False`."
+            error = f"{self.target.title()} directory {model_dir} does not exist. Please create it first using `make_new_model.py` or set validate to `False`."
             logger.error(error)
             raise FileNotFoundError(error)
         return model_dir
@@ -487,14 +500,14 @@ class ModelPath:
         """
         for path in sys.path:
             path = Path(path)
-            if str(self._target + "s") in path.parts:
+            if str(self.target + "s") in path.parts:
                 try:
-                    model_name = utils_model_paths.get_model_name_from_path(path)
+                    model_name = ModelPath.get_model_name_from_path(path)
                 except:
                     continue
                 if model_name != self.model_name:
                     logger.error(
-                        f"Paths for another {self._target} ('{model_name}') are already added to sys.path. Please remove them first by calling remove_paths_from_sys()."
+                        f"Paths for another {self.target} ('{model_name}') are already added to sys.path. Please remove them first by calling remove_paths_from_sys()."
                     )
                     return
                 if model_name == self.model_name:
@@ -605,7 +618,7 @@ class ModelPath:
         #     "_queryset_path",
         #     "_queryset",
         #     "_ignore_attributes",
-        #     "_target",
+        #     "target",
         #     "_force_cache_overwrite",
         #     "initialized",
         #     "_instance_hash"
@@ -626,7 +639,7 @@ class ModelPath:
                 "_queryset",
                 "_queryset_path",
                 "_ignore_attributes",
-                "_target",
+                "target",
                 "_force_cache_overwrite",
                 "initialized",
                 "_instance_hash"
@@ -667,7 +680,7 @@ class ModelPath:
 
     
 if __name__ == "__main__":
-    model_path = ModelPath("blank_space", validate=True)
+    model_path = ModelPath("taco_cat", validate=False)
     model_path.view_directories()
     model_path.view_scripts()
     model_path.get_directories()
