@@ -1,9 +1,7 @@
 from pathlib import Path
 import pickle
-
 import logging
-logging.basicConfig(filename='../../run.log', encoding='utf-8', level=logging.INFO,
-                    format='%(asctime)s - %(levelname)s - %(message)s')
+
 logger = logging.getLogger(__name__)
 
 

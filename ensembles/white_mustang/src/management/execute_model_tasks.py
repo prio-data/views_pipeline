@@ -1,10 +1,6 @@
 import sys
 import wandb
-
 import logging
-logging.basicConfig(filename='../../run.log', encoding='utf-8', level=logging.INFO,
-                    format='%(asctime)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
 
 from pathlib import Path
 PATH = Path(__file__)
@@ -16,6 +12,8 @@ setup_project_paths(PATH)
 from evaluate_ensemble import evaluate_ensemble
 from generate_forecast import forecast_ensemble
 from utils_wandb import add_wandb_monthly_metrics
+
+logger = logging.getLogger(__name__)
 
 
 def execute_model_tasks(config=None, project=None, eval=None, forecast=None):

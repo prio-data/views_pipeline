@@ -1,11 +1,5 @@
 import sys
-import warnings
-warnings.filterwarnings("ignore")
-
 import logging
-logging.basicConfig(filename='../../run.log', encoding='utf-8', level=logging.INFO,
-                    format='%(asctime)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
 
 from pathlib import Path
 PATH = Path(__file__)
@@ -22,6 +16,8 @@ from utils_model_outputs import generate_output_dict
 from utils_artifacts import get_latest_model_artifact
 from utils_wandb import log_wandb_log_dict
 from views_forecasts.extensions import *
+
+logger = logging.getLogger(__name__)
 
 
 def evaluate_ensemble(config):

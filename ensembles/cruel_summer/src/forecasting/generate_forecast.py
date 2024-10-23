@@ -2,11 +2,7 @@ import sys
 from datetime import datetime
 import pandas as pd
 import pickle
-
 import logging
-logging.basicConfig(filename='../../run.log', encoding='utf-8', level=logging.INFO,
-                    format='%(asctime)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
 
 from pathlib import Path
 PATH = Path(__file__)
@@ -20,6 +16,8 @@ from utils_log_files import create_log_file
 from utils_outputs import save_predictions
 from utils_run import get_standardized_df, get_aggregated_df
 from utils_artifacts import get_latest_model_artifact
+
+logger = logging.getLogger(__name__)
 
 
 def forecast_ensemble(config):

@@ -1,5 +1,8 @@
-import os
+import logging
 from pathlib import Path
+
+logger = logging.getLogger(__name__)
+
 
 def get_artifact_files(PATH, run_type):
     """
@@ -51,7 +54,7 @@ def get_latest_model_artifact(PATH, run_type):
 
     #print statements for debugging
     # print(f"artifacts availible: {model_files}")
-    print(f"artifact used: {model_files[0]}")
+    logger.info(f"artifact used: {model_files[0]}")
     
     # Return the latest model file
     #PATH_MODEL_ARTIFACT = os.path.join(path, model_files[0])

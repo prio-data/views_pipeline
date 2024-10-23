@@ -2,6 +2,7 @@ import argparse
 import os
 import numpy as np
 import pandas as pd
+import logging
 
 # from config_partitioner import get_partitioner_dict
 from set_partition import get_partitioner_dict
@@ -9,6 +10,8 @@ from config_input_data import get_input_data_config  # this is model specific
 from common_configs import config_drift_detection
 from utils_df_to_vol_conversion import df_to_vol
 from viewser import Queryset, Column
+
+logger = logging.getLogger(__name__)
 
 
 def fetch_data_from_viewser(month_first, month_last, drift_config_dict, self_test):
@@ -20,7 +23,7 @@ def fetch_data_from_viewser(month_first, month_last, drift_config_dict, self_tes
     Returns:
         pd.DataFrame: The prepared DataFrame with initial processing done.
     """
-    print(f'Beginning file download through viewser with month range {month_first},{month_last}')
+    logger.info(f'Beginning file download through viewser with month range {month_first},{month_last}')
     queryset_base = get_input_data_config()  # just used here..
     df, alerts = queryset_base.publish().fetch_with_drift_detection(start_date=month_first,
                                                                     end_date=month_last - 1,
@@ -167,7 +170,7 @@ def get_views_df(partition, override_month=None, self_test=False):
 
     if partition == 'forecasting' and override_month is not None:
         month_last = override_month
-        print(f'\n ***Warning: overriding end month in forecasting partition to {month_last} ***\n')
+        logger.warning(f'Overriding end month in forecasting partition to {month_last} ***\n')
 
     df, alerts = fetch_data_from_viewser(month_first, month_last, drift_config_dict, self_test)
 
@@ -203,15 +206,15 @@ def fetch_or_load_views_df(partition, PATH_RAW, self_test=False, use_saved=False
         # Check if the VIEWSER data file exists
         try:
             df = pd.read_pickle(path_viewser_df)
-            print(f'Reading saved data from {path_viewser_df}')
+            logger.info(f'Reading saved data from {path_viewser_df}')
 
         except:
             raise RuntimeError(f'Use of saved data was specified but {path_viewser_df} not found')
 
     else:
-        print(f'Fetching file...')
+        logger.info(f'Fetching file...')
         df, alerts = get_views_df(partition, override_month, self_test)  # which is then used here
-        print(f'Saving file to {path_viewser_df}')
+        logger.info(f'Saving file to {path_viewser_df}')
         df.to_pickle(path_viewser_df)
 
     if validate_df_partition(df, partition, override_month):
@@ -249,17 +252,17 @@ def create_or_load_views_vol(partition, PATH_PROCESSED, PATH_RAW):
 
     # Check if the volume exists
     if os.path.isfile(path_vol):
-        print('Volume already created')
+        logger.info('Volume already created')
         vol = np.load(path_vol)
     else:
-        print('Creating volume...')
+        logger.info('Creating volume...')
         path_raw = os.path.join(str(PATH_RAW), f'{partition}_viewser_df.pkl')
         vol = df_to_vol(pd.read_pickle(path_raw))
-        print(f'shape of volume: {vol.shape}')
-        print(f'Saving volume to {path_vol}')
+        logger.info(f'shape of volume: {vol.shape}')
+        logger.info(f'Saving volume to {path_vol}')
         np.save(path_vol, vol)
 
-    print('Done')
+    logger.info('Done')
 
     return vol
 
@@ -337,8 +340,8 @@ def ensure_float64(df):
         df.select_dtypes(include=['number']).dtypes != np.float64]
 
     if len(non_float64_cols) > 0:
-        print(
-            f"Warning: DataFrame contains non-np.float64 numeric columns. Converting the following columns: {', '.join(non_float64_cols)}")
+        logger.warning(
+            f"DataFrame contains non-np.float64 numeric columns. Converting the following columns: {', '.join(non_float64_cols)}")
 
         for col in non_float64_cols:
             df[col] = df[col].astype(np.float64)

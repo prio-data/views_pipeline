@@ -1,10 +1,6 @@
 import sys
 from datetime import datetime
-
 import logging
-logging.basicConfig(filename='../../run.log', encoding='utf-8', level=logging.INFO,
-                    format='%(asctime)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
 
 from pathlib import Path
 PATH = Path(__file__)
@@ -14,6 +10,9 @@ from set_path import setup_project_paths, setup_data_paths, setup_root_paths
 setup_project_paths(PATH)
 
 from utils_log_files import read_log_file
+
+logger = logging.getLogger(__name__)
+
 
 def check_model_conditions(PATH_GENERATED, config):
     """

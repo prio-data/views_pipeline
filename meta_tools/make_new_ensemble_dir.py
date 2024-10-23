@@ -38,7 +38,7 @@ def make_new_ensemble_dir(ensemble_name):
         "data/generated",
         "data/processed",
         "src/dataloaders",
-        "src/architecture",
+        "src/architectures",
         "src/utils",
         "src/visualization",
         "src/offline_evaluation",

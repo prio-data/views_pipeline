@@ -1,10 +1,7 @@
 import sys
 import wandb
-
 import logging
-logging.basicConfig(filename='../../run.log', encoding='utf-8', level=logging.INFO,
-                    format='%(asctime)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
+import time
 
 from pathlib import Path
 PATH = Path(__file__)
@@ -16,6 +13,8 @@ setup_project_paths(PATH)
 from evaluate_ensemble import evaluate_ensemble
 from generate_forecast import forecast_ensemble
 from utils_wandb import add_wandb_monthly_metrics
+
+logger = logging.getLogger(__name__)
 
 
 def execute_model_tasks(config=None, project=None, eval=None, forecast=None):
@@ -33,6 +32,8 @@ def execute_model_tasks(config=None, project=None, eval=None, forecast=None):
         forecast: Flag to indicate if forecasting should be performed.
         artifact_name (optional): Specific names of the model artifact to load for evaluation or forecasting.
     """
+
+    start_t = time.time()
 
     # Initialize WandB
     with wandb.init(project=project, entity="views_pipeline",
@@ -52,3 +53,7 @@ def execute_model_tasks(config=None, project=None, eval=None, forecast=None):
         if forecast:
             logger.info(f"Forecasting ensemble model {config['name']}...")
             forecast_ensemble(config)
+
+        end_t = time.time()
+        minutes = (end_t - start_t) / 60
+        logger.info(f'Done. Runtime: {minutes:.3f} minutes.\n')
