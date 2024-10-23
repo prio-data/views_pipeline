@@ -8,7 +8,9 @@ def create_log_file(PATH_GENERATED,
                     config,
                     model_timestamp,
                     data_generation_timestamp=None,
-                    data_fetch_timestamp=None):
+                    data_fetch_timestamp=None,
+                    model_type="single",
+                    mode="w"):
     """
     Creates a log file in the specified model-specific folder with details about the generated data.
 
@@ -23,12 +25,12 @@ def create_log_file(PATH_GENERATED,
     Path(PATH_GENERATED).mkdir(parents=True, exist_ok=True)
     log_file_path = f"{PATH_GENERATED}/{config['run_type']}_log.txt"
 
-    with open(log_file_path, 'w') as log_file:
-        log_file.write(f"Model Name: {config['name']}\n")
-        log_file.write(f"Model Timestamp: {model_timestamp}\n")
+    with open(log_file_path, mode) as log_file:
+        log_file.write(f"{model_type} Model Name: {config['name']}\n")
+        log_file.write(f"{model_type} Model Timestamp: {model_timestamp}\n")
         log_file.write(f"Data Generation Timestamp: {data_generation_timestamp}\n")
         log_file.write(f"Data Fetch Timestamp: {data_fetch_timestamp}\n")
-        log_file.write(f"Deployment Status: {config['deployment_status']}\n")
+        log_file.write(f"Deployment Status: {config['deployment_status']}\n\n")
 
     logger.info(f"Model log file created at: {log_file_path}")
 
@@ -44,9 +46,19 @@ def read_log_file(log_file_path):
     - dict: A dictionary containing the model name, model timestamp, data generation timestamp, and data fetch timestamp.
     """
     log_data = {}
-    with open(log_file_path, 'r') as file:
-        for line in file:
-            key, value = line.strip().split(': ', 1)
-            log_data[key] = value
 
+    logger.debug(f"Reading log file: {log_file_path}")
+    with open(log_file_path, "r") as file:
+        for line in file:
+            line = line.strip()
+
+            # Skip blank lines
+            if not line:
+                continue
+            else:
+                key, value = line.split(": ", 1)
+                # There are duplicated keys for ensemble models, but it's not a problem bc these keys are not used
+                log_data[key] = value
+    logger.debug(f"Log file read successfully.")
+    
     return log_data
