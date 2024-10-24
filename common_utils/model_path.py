@@ -266,7 +266,8 @@ class ModelPath:
             "target",
             "_force_cache_overwrite",
             "initialized",
-            "_instance_hash" "_use_global_cache",
+            "_instance_hash",
+            "_use_global_cache",
         ]
 
         self.model_name = self._process_model_name(model_name_or_path)
