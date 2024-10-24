@@ -11,7 +11,16 @@ sys.path.append(str(Path(__file__).parent.parent))
 # Configure logging
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
-class GlobalCache:
+class GlobalCacheMeta(type):
+    def __getitem__(cls, key):
+        instance = cls()
+        return instance[key]
+
+    def __setitem__(cls, key, value):
+        instance = cls()
+        instance[key] = value
+
+class GlobalCache(metaclass=GlobalCacheMeta):
     """
     A thread-safe singleton cache class that uses a global cache file to store key-value pairs.
     
@@ -148,7 +157,6 @@ class GlobalCache:
         if self.filepath.exists():
             try:
                 with open(str(self.filepath), 'rb') as f:
-                    # print(f, str(self.filepath))
                     loaded_cache = pickle.loads(f.read())
                     if isinstance(loaded_cache, dict):
                         self.cache = loaded_cache
@@ -195,3 +203,11 @@ atexit.register(cleanup_cache_file)
 
 # Register the signal handler for SIGINT
 signal.signal(signal.SIGINT, signal_handler)
+
+
+# if __name__ == '__main__':
+#     # Example usage of the GlobalCache class
+#     print(GlobalCache["test"]) # Returns None
+
+#     GlobalCache["test"] = "Hello, World!"
+#     print(GlobalCache["test"])
