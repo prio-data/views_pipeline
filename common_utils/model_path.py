@@ -728,14 +728,11 @@ class ModelPath:
         return scripts
 
 
-if __name__ == "__main__":
-    model_path = ModelPath("taco_cat", validate=False)
-    model_path.view_directories()
-    model_path.view_scripts()
-    model_path.get_directories()
-    model_path.get_scripts()
-    print(model_path.get_queryset())
-    # model_path.remove_paths_from_sys()
-    # model_path.add_paths_to_sys()
-
-    print(ModelPath.get_common_configs())
+# if __name__ == "__main__":
+#     model_path = ModelPath("taco_cat", validate=False)
+#     model_path.view_directories()
+#     model_path.view_scripts()
+#     model_path.get_directories()
+#     model_path.get_scripts()
+#     print(model_path.get_queryset())
+#     print(ModelPath.get_common_configs())
