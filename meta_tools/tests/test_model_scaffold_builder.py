@@ -7,7 +7,7 @@ import pytest
 from unittest.mock import patch, MagicMock
 import tempfile
 import shutil
-from make_new_model import ModelScaffoldBuilder
+from meta_tools.model_scaffold_builder import ModelScaffoldBuilder
 
 
 @pytest.fixture
@@ -31,7 +31,7 @@ def mock_validate_model_name():
     Yields:
         MagicMock: The mock object for `validate_model_name`.
     """
-    with patch("make_new_model.validate_model_name") as mock:
+    with patch("model_scaffold_builder.validate_model_name") as mock:
         yield mock
 
 
@@ -43,7 +43,7 @@ def mock_model_path():
     Yields:
         MagicMock: The mock object for `ModelPath`.
     """
-    with patch("make_new_model.model_path.ModelPath") as mock:
+    with patch("model_scaffold_builder.model_path.ModelPath") as mock:
         yield mock
 
 
@@ -56,17 +56,17 @@ def mock_templates():
         dict: A dictionary of mock objects for template functions.
     """
     with patch(
-        "make_new_model.template_config_deployment.generate"
+        "model_scaffold_builder.template_config_deployment.generate"
     ) as mock_deployment, patch(
-        "make_new_model.template_config_hyperparameters.generate"
+        "model_scaffold_builder.template_config_hyperparameters.generate"
     ) as mock_hyperparameters, patch(
-        "make_new_model.template_config_input_data.generate"
+        "model_scaffold_builder.template_config_input_data.generate"
     ) as mock_input_data, patch(
-        "make_new_model.template_config_meta.generate"
+        "model_scaffold_builder.template_config_meta.generate"
     ) as mock_meta, patch(
-        "make_new_model.template_config_sweep.generate"
+        "model_scaffold_builder.template_config_sweep.generate"
     ) as mock_sweep, patch(
-        "make_new_model.template_main.generate"
+        "model_scaffold_builder.template_main.generate"
     ) as mock_main:
         yield {
             "deployment": mock_deployment,

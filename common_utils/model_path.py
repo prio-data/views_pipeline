@@ -4,6 +4,7 @@ import logging
 import importlib
 import hashlib
 from typing import Union, Optional, List, Dict
+
 sys.path.append(str(Path(__file__).parent.parent))
 from meta_tools.utils import utils_model_naming, utils_model_paths
 
@@ -11,6 +12,7 @@ logging.basicConfig(
     level=logging.INFO, format="%(asctime)s %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
+
 
 class ModelPath:
     """
@@ -55,16 +57,46 @@ class ModelPath:
     """
 
     __slots__ = (
-        '_validate', 'target', '_use_global_cache', '_force_cache_overwrite', 'root', 'models',
-        'common_utils', 'common_configs', '_ignore_attributes', 'model_name', '_instance_hash', '_queryset',
-        'model_dir', 'architectures', 'artifacts', 'configs', 'data', 'data_generated', 'data_processed',
-        'data_raw', 'dataloaders', 'forecasting', 'management', 'notebooks', 'offline_evaluation',
-        'online_evaluation', 'reports', 'src', '_templates', 'training', 'utils', 'visualization',
-        '_sys_paths', 'common_querysets', '_queryset_path', 'scripts', "meta_tools"
+        "_validate",
+        "target",
+        "_use_global_cache",
+        "_force_cache_overwrite",
+        "root",
+        "models",
+        "common_utils",
+        "common_configs",
+        "_ignore_attributes",
+        "model_name",
+        "_instance_hash",
+        "_queryset",
+        "model_dir",
+        "architectures",
+        "artifacts",
+        "configs",
+        "data",
+        "data_generated",
+        "data_processed",
+        "data_raw",
+        "dataloaders",
+        "forecasting",
+        "management",
+        "notebooks",
+        "offline_evaluation",
+        "online_evaluation",
+        "reports",
+        "src",
+        "_templates",
+        "training",
+        "utils",
+        "visualization",
+        "_sys_paths",
+        "common_querysets",
+        "_queryset_path",
+        "scripts",
+        "meta_tools",
     )
 
-
-    _target = str("model")
+    _target = "model"
     __instances__ = 0
     # Class variables for paths
     _root = None
@@ -83,7 +115,6 @@ class ModelPath:
         cls._common_configs = cls._root / "common_configs"
         cls._common_querysets = cls._root / "common_querysets"
         cls._meta_tools = cls._root / "meta_tools"
-
 
     @classmethod
     def get_root(cls) -> Path:
@@ -119,22 +150,24 @@ class ModelPath:
         if cls._common_querysets is None:
             cls._initialize_class_paths()
         return cls._common_querysets
-    
+
     @classmethod
     def get_meta_tools(cls) -> Path:
         """Get the meta tools path."""
         if cls._meta_tools is None:
             cls._initialize_class_paths()
         return cls._meta_tools
-    
-    @classmethod
-    def get_target(cls) -> Path:
-        """Get the target (model, ensemble)."""
-        if cls._target is None:
-            cls._initialize_class_paths()
-        return cls._target
 
-    def __init__(self, model_name_or_path: Union[str, Path], validate: bool = True) -> None:
+    # @classmethod
+    # def get_target(cls) -> Path:
+    #     """Get the target (model, ensemble)."""
+    #     if cls._target is None:
+    #         cls._initialize_class_paths()
+    #     return cls._target
+
+    def __init__(
+        self, model_name_or_path: Union[str, Path], validate: bool = True
+    ) -> None:
         """
         Initializes a ModelPath instance.
 
@@ -142,27 +175,25 @@ class ModelPath:
             model_name_or_path (str or Path): The model name or path.
             validate (bool, optional): Whether to validate paths and names. Defaults to True.
             target (str, optional): The target type (e.g., 'model'). Defaults to 'model'.
-        """ 
+        """
 
         # Configs
         ModelPath.__instances__ += 1
-        
-        self._validate = validate
-        self.target = ModelPath.get_target()
 
+        self._validate = validate
+        self.target = self.__class__._target
 
         # DO NOT USE GLOBAL CACHE FOR NOW
         self._use_global_cache = False
-        self._force_cache_overwrite=False
+        self._force_cache_overwrite = False
 
         # Common paths
-        self.root = ModelPath.get_root()
-        self.models = ModelPath.get_models()
-        self.common_utils = ModelPath.get_common_utils()
-        self.common_configs = ModelPath.get_common_configs()
-        self.common_querysets = ModelPath.get_common_querysets()
-        self.meta_tools = ModelPath.get_meta_tools()
-
+        self.root = self.__class__.get_root()
+        self.models = self.__class__.get_models()
+        self.common_utils = self.__class__.get_common_utils()
+        self.common_configs = self.__class__.get_common_configs()
+        self.common_querysets = self.__class__.get_common_querysets()
+        self.meta_tools = self.__class__.get_meta_tools()
         # Ignore attributes while processing
         self._ignore_attributes = [
             "model_name",
@@ -177,19 +208,22 @@ class ModelPath:
             "target",
             "_force_cache_overwrite",
             "initialized",
-            "_instance_hash"
-            "_use_global_cache"
+            "_instance_hash" "_use_global_cache",
         ]
 
         self.model_name = self._process_model_name(model_name_or_path)
-        self._instance_hash = self.generate_hash(self.model_name, self._validate, self.target)
+        self._instance_hash = self.generate_hash(
+            self.model_name, self._validate, self.target
+        )
 
         if self._use_global_cache:
             self._handle_global_cache()
 
         self._initialize_directories()
         self._initialize_scripts()
-        logger.debug(f"ModelPath instance {ModelPath.__instances__} initialized for {self.model_name}.")
+        logger.debug(
+            f"ModelPath instance {ModelPath.__instances__} initialized for {self.model_name}."
+        )
 
         if self._use_global_cache:
             self._write_to_global_cache()
@@ -214,16 +248,20 @@ class ModelPath:
             >>> self._process_model_name("models/my_model")
             'my_model'
         """
+        # Should fail as violently as possible if the model name is invalid.
         if self._is_path(model_name_or_path):
             logger.debug(f"Path input detected: {model_name_or_path}")
             try:
                 result = ModelPath.get_model_name_from_path(model_name_or_path)
-                if utils_model_naming.validate_model_name(result):
+                if result:
                     logger.debug(f"Model name extracted from path: {result}")
                     return result
+                else:
+                    raise ValueError(
+                        f"Invalid {self.target} name. Please provide a valid {self.target} name that follows the lowercase 'adjective_noun' format."
+                    )
             except Exception as e:
                 logger.error(f"Error extracting model name from path: {e}")
-                raise ValueError(f"Invalid {self.target} name. Please provide a valid {self.target} name that follows the lowercase 'adjective_noun' format.")
         else:
             if not utils_model_naming.validate_model_name(model_name_or_path):
                 raise ValueError(
@@ -244,12 +282,15 @@ class ModelPath:
         """
         try:
             from global_cache import GlobalCache
+
             cached_instance = GlobalCache().get(self._instance_hash)
             if cached_instance and not self._force_cache_overwrite:
                 return cached_instance
         except Exception as e:
-            logger.error(f"Error adding model {self.model_name} to cache: {e}. Initializing new ModelPath instance.")
-    
+            logger.error(
+                f"Error adding model {self.model_name} to cache: {e}. Initializing new ModelPath instance."
+            )
+
     def _write_to_global_cache(self) -> None:
         """
         Writes the current model instance to the global cache.
@@ -257,9 +298,9 @@ class ModelPath:
         Adds the model instance to the global cache using the instance hash as the key.
         """
         from global_cache import GlobalCache
+
         logger.info(f"Writing ModelPath object to cache for model {self.model_name}.")
         GlobalCache()[self._instance_hash] = self
-
 
     def _initialize_directories(self) -> None:
         """
@@ -279,8 +320,12 @@ class ModelPath:
         self.forecasting = self._build_absolute_directory(Path("src/forecasting"))
         self.management = self._build_absolute_directory(Path("src/management"))
         self.notebooks = self._build_absolute_directory(Path("notebooks"))
-        self.offline_evaluation = self._build_absolute_directory(Path("src/offline_evaluation"))
-        self.online_evaluation = self._build_absolute_directory(Path("src/online_evaluation"))
+        self.offline_evaluation = self._build_absolute_directory(
+            Path("src/offline_evaluation")
+        )
+        self.online_evaluation = self._build_absolute_directory(
+            Path("src/online_evaluation")
+        )
         self.reports = self._build_absolute_directory(Path("reports"))
         self.src = self._build_absolute_directory(Path("src"))
         self._templates = self.meta_tools / "templates"
@@ -308,13 +353,21 @@ class ModelPath:
             self._build_absolute_directory(Path("main.py")),
             self._build_absolute_directory(Path("README.md")),
             self._build_absolute_directory(Path("src/dataloaders/get_data.py")),
-            self._build_absolute_directory(Path("src/forecasting/generate_forecast.py")),
-            self._build_absolute_directory(Path("src/management/execute_model_runs.py")),
-            self._build_absolute_directory(Path("src/management/execute_model_tasks.py")),
-            self._build_absolute_directory(Path("src/offline_evaluation/evaluate_model.py")),
+            self._build_absolute_directory(
+                Path("src/forecasting/generate_forecast.py")
+            ),
+            self._build_absolute_directory(
+                Path("src/management/execute_model_runs.py")
+            ),
+            self._build_absolute_directory(
+                Path("src/management/execute_model_tasks.py")
+            ),
+            self._build_absolute_directory(
+                Path("src/offline_evaluation/evaluate_model.py")
+            ),
             self._build_absolute_directory(Path("src/training/train_ensemble.py")),
         ]
-    
+
     @staticmethod
     def generate_hash(model_name: str, validate: bool, target: str) -> str:
         """
@@ -329,7 +382,7 @@ class ModelPath:
             str: The SHA-256 hash of the model name, validation flag, and target.
         """
         return hashlib.sha256(str((model_name, validate, target)).encode()).hexdigest()
-    
+
     @staticmethod
     def check_if_model_dir_exists(model_name: str) -> bool:
         """
@@ -343,7 +396,7 @@ class ModelPath:
         """
         model_dir = ModelPath.get_models() / model_name
         return model_dir.exists()
-    
+
     @staticmethod
     def get_model_name_from_path(path: Union[Path, str]) -> str:
         """
@@ -361,23 +414,23 @@ class ModelPath:
         path = Path(path)
         logger.info(f"Extracting model name from Path: {path}")
         if "models" in path.parts and "ensembles" not in path.parts:
-                model_idx = path.parts.index("models")
-                model_name = path.parts[model_idx + 1]
-                if utils_model_naming.validate_model_name(model_name):
-                    logger.info(f"Valid model name {model_name} found in path {path}")
-                    return str(model_name)
-                else:
-                    logger.info(f"No valid model name found in path {path}")
-                    return None
+            model_idx = path.parts.index("models")
+            model_name = path.parts[model_idx + 1]
+            if utils_model_naming.validate_model_name(model_name):
+                logger.info(f"Valid model name {model_name} found in path {path}")
+                return str(model_name)
+            else:
+                logger.info(f"No valid model name found in path {path}")
+                return None
         if "ensembles" in path.parts and "models" not in path.parts:
-                model_idx = path.parts.index("ensembles")
-                model_name = path.parts[model_idx + 1]
-                if utils_model_naming.validate_model_name(model_name):
-                    logger.info(f"Valid ensemble name {model_name} found in path {path}")
-                    return str(model_name)
-                else:
-                    logger.info(f"No valid ensemble name found in path {path}")
-                    return None
+            model_idx = path.parts.index("ensembles")
+            model_name = path.parts[model_idx + 1]
+            if utils_model_naming.validate_model_name(model_name):
+                logger.info(f"Valid ensemble name {model_name} found in path {path}")
+                return str(model_name)
+            else:
+                logger.info(f"No valid ensemble name found in path {path}")
+                return None
         return None
 
     def _is_path(self, path_input: Union[str, Path]) -> bool:
@@ -399,7 +452,7 @@ class ModelPath:
             logger.error(f"Error checking if input is a path: {e}")
             return False
 
-    def get_queryset(self):
+    def get_queryset(self) -> Optional[Dict[str, str]]:
         """
         Returns the queryset for the model if it exists.
 
@@ -474,7 +527,7 @@ class ModelPath:
                 return None
         return directory
 
-    def add_paths_to_sys(self) -> list:
+    def add_paths_to_sys(self) -> List[str]:
         """
         (Will be deprecated soon) Adds the necessary paths for the current model to the system path (sys.path).
 
@@ -532,10 +585,12 @@ class ModelPath:
                     else:
                         logger.warning(f"Unable to add path to sys.path: {str(value)}")
                 else:
-                    logger.warning(f"Skipping path: {value}. Does not exist or already in sys.path.")
+                    logger.warning(
+                        f"Skipping path: {value}. Does not exist or already in sys.path."
+                    )
         return self._sys_paths
 
-    def remove_paths_from_sys(self) -> None:
+    def remove_paths_from_sys(self) -> bool:
         """
         Removes the paths added by the current model from the system path (sys.path).
 
@@ -600,7 +655,7 @@ class ModelPath:
             else:
                 print("{:<20}\t{:<50}".format(str(path), "None"))
 
-    def get_directories(self) -> dict:
+    def get_directories(self) -> Dict[str, Optional[str]]:
         """
         Retrieve a dictionary of directory names and their paths.
 
@@ -642,7 +697,7 @@ class ModelPath:
                 "target",
                 "_force_cache_overwrite",
                 "initialized",
-                "_instance_hash"
+                "_instance_hash",
             ] and isinstance(value, Path):
                 if not relative:
                     directories[str(attr)] = str(value)
@@ -656,7 +711,7 @@ class ModelPath:
                     directories[str(attr)] = str(relative_path)
         return directories
 
-    def get_scripts(self) -> dict:
+    def get_scripts(self) -> Dict[str, Optional[str]]:
         """
         Returns a dictionary of the scripts and their absolute paths.
 
@@ -678,7 +733,7 @@ class ModelPath:
                 scripts[str(path)] = None
         return scripts
 
-    
+
 if __name__ == "__main__":
     model_path = ModelPath("taco_cat", validate=False)
     model_path.view_directories()
