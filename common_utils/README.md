@@ -173,12 +173,14 @@ You can initialize the `GlobalCache` with an optional filepath argument. If no f
 ```python
 from global_cache import GlobalCache
 
-GlobalCache()["key1"] = "value1"
+# Set a value to the cache
+GlobalCache["key1"] = "value1"
 
 # Get a value from the cache
-value = GlobalCache()["key1"]
-print(value)  # Output: value1
+print(GlobalCache["key1"])  # Output: value1
 
-# Delete a key from the cache
-GlobalCache().delete("key1")
+# Delete a value from the cache
+GlobalCache.delete("key1")
+
+print(GlobalCache["key1"]) # Returns None
 ```

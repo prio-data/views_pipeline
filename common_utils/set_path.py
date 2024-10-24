@@ -7,7 +7,7 @@ from ensemble_path import EnsemblePath
 sys.path.append(str(Path(__file__).parent.parent))
 
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s %(name)s - %(levelname)s - %(message)s"
+    level=logging.DEBUG, format="%(asctime)s %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -32,29 +32,32 @@ def get_model_path_instance(path) -> ModelPath:
     """
 
     model_name = ModelPath.get_model_name_from_path(path)
-    # if "models" in path.parts:
-    #     logger.debug(f"Getting ModelPath instance {model_name} for path: {path}")
-    #     model_path = ModelPath(model_name)
-    # if "ensembles" in path.parts:
-    #     logger.debug(f"Getting EnsemblePath instance {model_name} for path: {path}")
-    #     model_path = EnsemblePath(model_name)
-    if model_name not in _set_path_cache:
-        logger.info(f"{model_name} not found in cache. Creating new instance...")
+    if ModelPath._use_global_cache:
+        logger.info(f"Using global cache for ModelPath instance {model_name}")
         if "models" in path.parts:
-            logger.info(f"Creating ModelPath instance for path: {path}")
-            model_path = ModelPath(model_name)
+            logger.info(f"Getting ModelPath instance {model_name} for path: {path}")
+            return ModelPath(model_name)
         if "ensembles" in path.parts:
-            logger.info(f"Creating EnsemblePath instance for path: {path}")
-            model_path = EnsemblePath(model_name)
-        _set_path_cache[model_name] = model_path
+            logger.info(f"Getting EnsemblePath instance {model_name} for path: {path}")
+            return EnsemblePath(model_name)
     else:
-        model_path = _set_path_cache[model_name]
-    if model_path.model_dir is None:
-        error_message = f"Unable to create ModelPath/EnsemblePath instance for {model_name}. "
-        logger.warning(error_message)
-        raise ValueError(error_message)
-    logger.info(f"Returning cached ModelPath/EnsemblePath instance {model_path.model_name} for path: {path}")
-    return _set_path_cache[model_name]
+        logger.info(f"Using local cache in set_path for ModelPath instance {model_name}")
+        if model_name not in _set_path_cache:
+            if "models" in path.parts:
+                logger.info(f"Creating ModelPath instance for path: {path}")
+                model_path = ModelPath(model_name)
+            if "ensembles" in path.parts:
+                logger.info(f"Creating EnsemblePath instance for path: {path}")
+                model_path = EnsemblePath(model_name)
+            _set_path_cache[model_name] = model_path
+        else:
+            model_path = _set_path_cache[model_name]
+        if model_path.model_dir is None:
+            error_message = f"Unable to create ModelPath/EnsemblePath instance for {model_name}. "
+            logger.warning(error_message)
+            raise ValueError(error_message)
+        logger.info(f"Returning cached ModelPath/EnsemblePath instance {model_path.model_name} for path: {path}")
+        return model_path
 
 
 

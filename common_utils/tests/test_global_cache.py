@@ -48,7 +48,7 @@ def test_delete_key(global_cache):
     Test deleting a key from the cache.
     """
     global_cache["key1"] = "value1"
-    global_cache.delete("key1")
+    global_cache._delete("key1")
     assert global_cache["key1"] is None, "Failed to delete the key from the cache"
 
 def test_cleanup_cache_file(global_cache, cache_file):
@@ -62,7 +62,7 @@ def test_cleanup_cache_file(global_cache, cache_file):
     cleanup_cache_file()
     assert global_cache.filepath.exists() == False
 
-@patch("sys.exit")
+@patch("os._exit")
 def test_signal_handler(mock_exit, global_cache, cache_file):
     """
     Test the signal handler to ensure the cache file is deleted upon user interruption.
