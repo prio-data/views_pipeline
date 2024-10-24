@@ -1,8 +1,7 @@
 from model_path import ModelPath
 import logging
 from pathlib import Path
-from meta_tools.utils import utils_model_paths
-from typing import Union, Optional, List, Dict
+from typing import Union
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
@@ -31,7 +30,7 @@ class EnsemblePath(ModelPath):
         """
         Initializes an EnsemblePath instance.
 
-        Args:
+        Args:c
             ensemble_name_or_path (str or Path): The ensemble name or path.
             validate (bool, optional): Whether to validate paths and names. Defaults to True.
         """
@@ -39,9 +38,9 @@ class EnsemblePath(ModelPath):
         # Additional ensemble-specific initialization...
 
 
-if __name__ == "__main__":
-    ensemble_path = EnsemblePath("white_mustang", validate=True)
-    ensemble_path.view_directories()
-    ensemble_path.view_scripts()
-    print(ensemble_path.get_queryset())
-    del ensemble_path
+# if __name__ == "__main__":
+#     ensemble_path = EnsemblePath("white_mustang", validate=True)
+#     ensemble_path.view_directories()
+#     ensemble_path.view_scripts()
+#     print(ensemble_path.get_queryset())
+#     del ensemble_path

@@ -7,7 +7,7 @@ sys.path.append(str(Path(__file__).parent.parent))
 sys.path.append(str(Path(__file__).parent.parent / "common_utils"))
 
 # print(str(Path(__file__).parent.parent))
-from common_utils import model_path
+from common_utils import model_path, ensemble_path
 
 from templates import (
     template_config_deployment,
@@ -208,8 +208,8 @@ class ModelScaffoldBuilder:
 
 if __name__ == "__main__":
     model_name = str(input("Enter the name of the model: "))
-    while not validate_model_name(model_name) or model_path.ModelPath.check_if_model_dir_exists(model_name):
-        error = "Invalid input. Please use the format 'adjective_noun' in lowercase, e.g., 'happy_kitten' that does not already exist."
+    while not validate_model_name(model_name) or model_path.ModelPath.check_if_model_dir_exists(model_name) or ensemble_path.EnsemblePath.check_if_model_dir_exists(model_name):
+        error = "Invalid input. Please use the format 'adjective_noun' in lowercase, e.g., 'happy_kitten' that does not already exist as a model or ensemble."
         logging.error(error)
         model_name = str(input("Enter the name of the model: "))
     model_directory_builder = ModelScaffoldBuilder(model_name)

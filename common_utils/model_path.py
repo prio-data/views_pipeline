@@ -100,7 +100,6 @@ class ModelPath:
     __instances__ = 0
     # Class variables for paths
     _root = None
-    _models = None
     _common_utils = None
     _common_configs = None
     _common_querysets = None
@@ -110,7 +109,7 @@ class ModelPath:
     def _initialize_class_paths(cls):
         """Initialize class-level paths."""
         cls._root = utils_model_paths.find_project_root()
-        cls._models = cls._root / Path(cls._target + "s")
+        # cls._models = cls._root / Path(cls._target + "s")
         cls._common_utils = cls._root / "common_utils"
         cls._common_configs = cls._root / "common_configs"
         cls._common_querysets = cls._root / "common_querysets"
@@ -126,9 +125,9 @@ class ModelPath:
     @classmethod
     def get_models(cls) -> Path:
         """Get the models path."""
-        if cls._models is None:
+        if cls._root is None:
             cls._initialize_class_paths()
-        return cls._models
+        return cls._root / Path(cls._target + "s")
 
     @classmethod
     def get_common_utils(cls) -> Path:
@@ -157,13 +156,72 @@ class ModelPath:
         if cls._meta_tools is None:
             cls._initialize_class_paths()
         return cls._meta_tools
+    
+    @classmethod
+    def check_if_model_dir_exists(cls, model_name: str) -> bool:
+        """
+        Check if the model directory exists.
 
-    # @classmethod
-    # def get_target(cls) -> Path:
-    #     """Get the target (model, ensemble)."""
-    #     if cls._target is None:
-    #         cls._initialize_class_paths()
-    #     return cls._target
+        Args:
+            cls (type): The class calling this method.
+            model_name (str): The name of the model.
+
+        Returns:
+            bool: True if the model directory exists, False otherwise.
+        """
+        model_dir = cls.get_models() / model_name
+        return model_dir.exists()
+
+    @staticmethod
+    def generate_hash(model_name: str, validate: bool, target: str) -> str:
+        """
+        Generates a unique hash for the ModelPath instance.
+
+        Args:
+            model_name_or_path (str or Path): The model name or path.
+            validate (bool): Whether to validate paths and names.
+            target (str): The target type (e.g., 'model').
+
+        Returns:
+            str: The SHA-256 hash of the model name, validation flag, and target.
+        """
+        return hashlib.sha256(str((model_name, validate, target)).encode()).hexdigest()
+
+    @staticmethod
+    def get_model_name_from_path(path: Union[Path, str]) -> str:
+        """
+        Returns the model name based on the provided path.
+
+        Args:
+            PATH (Path): The base path, typically the path of the script invoking this function (e.g., `Path(__file__)`).
+
+        Returns:
+            str: The model name extracted from the provided path.
+
+        Raises:
+            ValueError: If the model name is not found in the provided path.
+        """
+        path = Path(path)
+        logger.info(f"Extracting model name from Path: {path}")
+        if "models" in path.parts and "ensembles" not in path.parts:
+            model_idx = path.parts.index("models")
+            model_name = path.parts[model_idx + 1]
+            if utils_model_naming.validate_model_name(model_name):
+                logger.info(f"Valid model name {model_name} found in path {path}")
+                return str(model_name)
+            else:
+                logger.info(f"No valid model name found in path {path}")
+                return None
+        if "ensembles" in path.parts and "models" not in path.parts:
+            model_idx = path.parts.index("ensembles")
+            model_name = path.parts[model_idx + 1]
+            if utils_model_naming.validate_model_name(model_name):
+                logger.info(f"Valid ensemble name {model_name} found in path {path}")
+                return str(model_name)
+            else:
+                logger.info(f"No valid ensemble name found in path {path}")
+                return None
+        return None
 
     def __init__(
         self, model_name_or_path: Union[str, Path], validate: bool = True
@@ -178,7 +236,7 @@ class ModelPath:
         """
 
         # Configs
-        ModelPath.__instances__ += 1
+        self.__class__.__instances__ += 1
 
         self._validate = validate
         self.target = self.__class__._target
@@ -367,71 +425,6 @@ class ModelPath:
             ),
             self._build_absolute_directory(Path("src/training/train_ensemble.py")),
         ]
-
-    @staticmethod
-    def generate_hash(model_name: str, validate: bool, target: str) -> str:
-        """
-        Generates a unique hash for the ModelPath instance.
-
-        Args:
-            model_name_or_path (str or Path): The model name or path.
-            validate (bool): Whether to validate paths and names.
-            target (str): The target type (e.g., 'model').
-
-        Returns:
-            str: The SHA-256 hash of the model name, validation flag, and target.
-        """
-        return hashlib.sha256(str((model_name, validate, target)).encode()).hexdigest()
-
-    @staticmethod
-    def check_if_model_dir_exists(model_name: str) -> bool:
-        """
-        Checks if the model directory already exists.
-
-        Args:
-            model_name (str): The name of the model.
-
-        Returns:
-            bool: True if the model directory exists, False otherwise.
-        """
-        model_dir = ModelPath.get_models() / model_name
-        return model_dir.exists()
-
-    @staticmethod
-    def get_model_name_from_path(path: Union[Path, str]) -> str:
-        """
-        Returns the model name based on the provided path.
-
-        Args:
-            PATH (Path): The base path, typically the path of the script invoking this function (e.g., `Path(__file__)`).
-
-        Returns:
-            str: The model name extracted from the provided path.
-
-        Raises:
-            ValueError: If the model name is not found in the provided path.
-        """
-        path = Path(path)
-        logger.info(f"Extracting model name from Path: {path}")
-        if "models" in path.parts and "ensembles" not in path.parts:
-            model_idx = path.parts.index("models")
-            model_name = path.parts[model_idx + 1]
-            if utils_model_naming.validate_model_name(model_name):
-                logger.info(f"Valid model name {model_name} found in path {path}")
-                return str(model_name)
-            else:
-                logger.info(f"No valid model name found in path {path}")
-                return None
-        if "ensembles" in path.parts and "models" not in path.parts:
-            model_idx = path.parts.index("ensembles")
-            model_name = path.parts[model_idx + 1]
-            if utils_model_naming.validate_model_name(model_name):
-                logger.info(f"Valid ensemble name {model_name} found in path {path}")
-                return str(model_name)
-            else:
-                logger.info(f"No valid ensemble name found in path {path}")
-                return None
-        return None
 
     def _is_path(self, path_input: Union[str, Path]) -> bool:
         """
