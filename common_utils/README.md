@@ -20,6 +20,8 @@ To do list:
 
 # ModelPath (common_utils/model_path.py)
 
+The `ModelPath` class is designed to manage model paths and directories within the ViEWS Pipeline. It provides a structured way to handle various directories and scripts associated with a specific model.
+
 ### Initialization
 
 To start using the `ModelPath` class, you need to initialize it with a specific model name. You can optionally validate whether the directories and scripts exist. 
@@ -31,7 +33,7 @@ from utils_model_paths import ModelPath
 purple_alien_paths = ModelPath("purple_alien", validate=True)
 ```
 
-* `model_name`: The name of the model you are working with. This will be used to locate the corresponding directories and scripts.
+* `model_name_or_path`: The name or path of the model you are working with. This will be used to locate the corresponding directories and scripts.
 * `validate`: If set to True, the class will check if the specified directories and scripts exist and raise errors if they do not. Defaults to True.
 
 ### Viewing Directories and Scripts
@@ -105,6 +107,63 @@ The `get_queryset()` method returns the queryset module for the model, which con
 queryset = purple_alien_paths.get_queryset()
 ```
 The `ModelPath` class checks if the queryset file exists, attempts to import it, and logs the process. If validation is enabled and the queryset file is missing, it raises an error.
+
+### Class Methods and Static Methods
+
+The `ModelPath` class includes several class methods and static methods to manage and access commonly used paths which are unrelated to a specific model.
+
+* `check_if_model_dir_exists(cls, model_name)`: Checks if the model directory exists.
+```python
+exists = ModelPath.check_if_model_dir_exists("purple_alien")
+```
+
+* `get_root(cls)`: Returns the root directory of the project.
+```python
+root = ModelPath.get_root()
+```
+
+* `get_models(cls)`: Returns the models directory.
+```python
+models = ModelPath.get_models()
+```
+
+* `get_common_utils(cls)`: Returns the common utilities directory.
+```python
+common_utils = ModelPath.get_common_utils()
+```
+
+* `get_common_configs(cls)`: Returns the common configurations directory. (In development)
+```python
+common_configs = ModelPath.get_common_configs()
+```
+
+* `get_common_querysets(cls)`: Returns the common querysets directory.
+```python
+common_querysets = ModelPath.get_common_querysets()
+```
+
+* `_is_path(path_input)`: Checks if the input is a valid path.
+```python
+is_valid_path = ModelPath._is_path("/path/to/models/purple_alien")
+```
+
+# EnsemblePath (common_utils/ensemble_path.py)
+
+The `EnsemblePath` class extends the ModelPath class to manage ensemble paths and directories within the ViEWS Pipeline. It inherits all the functionalities of `ModelPath` and sets the target to 'ensemble'.
+
+### Initialization
+
+To start using the `EnsemblePath` class, you need to initialize it with a specific model name. You can optionally validate whether the directories and scripts exist. 
+
+```python
+from common_utils.ensemble_path import EnsemblePath
+
+# Initialize EnsemblePath with an ensemble name
+white_mustang_paths = EnsemblePath("white_mustang", validate=True)
+```
+
+* `ensemble_name_or_path`: The name or path of the ensemble you are working with. This will be used to locate the corresponding directories and scripts.
+* `validate`: If set to True, the class will check if the specified directories and scripts exist and raise errors if they do not. Defaults to True.
 
 # GlobalCache (common_utils/global_cache.py) (Experimental)
 

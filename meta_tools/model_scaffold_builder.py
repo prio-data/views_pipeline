@@ -3,6 +3,7 @@ from utils.utils_model_naming import validate_model_name
 import datetime
 import logging
 import sys
+
 sys.path.append(str(Path(__file__).parent.parent))
 sys.path.append(str(Path(__file__).parent.parent / "common_utils"))
 
@@ -21,6 +22,7 @@ from templates import (
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+
 class ModelScaffoldBuilder:
     """
     A class to create and manage the directory structure and scripts for a machine learning model.
@@ -31,7 +33,7 @@ class ModelScaffoldBuilder:
         _subdirs (list of str): A list of subdirectories to be created within the model directory.
         _scripts (list of str): A list of script paths to be created within the model directory.
         _model_algorithm (str): The algorithm used by the model.
-    
+
     Methods:
         __init__(model_name: str) -> None:
             Initializes the ModelScaffoldBuilder with the given model name and sets up paths.
@@ -135,36 +137,39 @@ class ModelScaffoldBuilder:
         else:
             logging.error(f"Did not create requirements.txt: {requirements_path}")
         return self._model.model_dir
-    
+
     def build_model_scripts(self):
         if not self._model.model_dir.exists():
             raise FileNotFoundError(
                 f"Model directory {self._model.model_dir} does not exist. Please call build_model_directory() first. Aborting script generation."
             )
         template_config_deployment.generate(
-            script_dir = self._model.model_dir / "configs/config_deployment.py"
+            script_dir=self._model.model_dir / "configs/config_deployment.py"
         )
-        self._model_algorithm = str(input(
-            "Enter the algorithm of the model (e.g. XGBoost, LightBGM, HydraNet): "
-        ))
+        self._model_algorithm = str(
+            input(
+                "Enter the algorithm of the model (e.g. XGBoost, LightBGM, HydraNet): "
+            )
+        )
         template_config_hyperparameters.generate(
-            script_dir = self._model.model_dir / "configs/config_hyperparameters.py",
-            model_algorithm = self._model_algorithm,
+            script_dir=self._model.model_dir / "configs/config_hyperparameters.py",
+            model_algorithm=self._model_algorithm,
         )
         template_config_input_data.generate(
-            script_dir = self._model.common_querysets / f"queryset_{self._model.model_name}.py",
-            model_name = self._model.model_name,
+            script_dir=self._model.common_querysets
+            / f"queryset_{self._model.model_name}.py",
+            model_name=self._model.model_name,
         )
         template_config_meta.generate(
-            script_dir = self._model.model_dir / "configs/config_meta.py",
-            model_name = self._model.model_name,
+            script_dir=self._model.model_dir / "configs/config_meta.py",
+            model_name=self._model.model_name,
             model_algorithm=self._model_algorithm,
         )
         template_config_sweep.generate(
-            script_dir = self._model.model_dir / "configs/config_sweep.py",
-            model_algorithm = self._model_algorithm,
+            script_dir=self._model.model_dir / "configs/config_sweep.py",
+            model_algorithm=self._model_algorithm,
         )
-        template_main.generate(script_dir = self._model.model_dir / "main.py")
+        template_main.generate(script_dir=self._model.model_dir / "main.py")
 
     def assess_model_directory(self) -> dict:
         """
@@ -181,10 +186,12 @@ class ModelScaffoldBuilder:
                 f"Model directory {self._model.model_dir} does not exist. Please call build_model_directory() first."
             )
         updated_model_path = model_path.ModelPath(self._model.model_name, validate=True)
-        assessment["structure_errors"] = set(updated_model_path.get_directories().values()) - set(self._subdirs)
+        assessment["structure_errors"] = set(
+            updated_model_path.get_directories().values()
+        ) - set(self._subdirs)
         del updated_model_path
         return assessment
-    
+
     def assess_model_scripts(self) -> dict:
         """
         Assess the model directory by checking for the presence of expected directories.
@@ -208,7 +215,11 @@ class ModelScaffoldBuilder:
 
 if __name__ == "__main__":
     model_name = str(input("Enter the name of the model: "))
-    while not validate_model_name(model_name) or model_path.ModelPath.check_if_model_dir_exists(model_name) or ensemble_path.EnsemblePath.check_if_model_dir_exists(model_name):
+    while (
+        not validate_model_name(model_name)
+        or model_path.ModelPath.check_if_model_dir_exists(model_name)
+        or ensemble_path.EnsemblePath.check_if_model_dir_exists(model_name)
+    ):
         error = "Invalid input. Please use the format 'adjective_noun' in lowercase, e.g., 'happy_kitten' that does not already exist as a model or ensemble."
         logging.error(error)
         model_name = str(input("Enter the name of the model: "))
