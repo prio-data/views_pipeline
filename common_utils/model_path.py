@@ -97,7 +97,7 @@ class ModelPath:
     )
 
     _target = "model"
-    _use_global_cache = False
+    _use_global_cache = True
     __instances__ = 0
     # Class variables for paths
     _root = None
@@ -344,6 +344,9 @@ class ModelPath:
 
             cached_instance = GlobalCache[self._instance_hash]
             if cached_instance and not self._force_cache_overwrite:
+                logger.info(
+                    f"ModelPath instance {self.model_name} found in GlobalCache. Using cached instance."
+                )
                 return cached_instance
         except Exception as e:
             logger.error(
@@ -357,9 +360,9 @@ class ModelPath:
         Adds the model instance to the global cache using the instance hash as the key.
         """
         from global_cache import GlobalCache
-
-        logger.info(f"Writing ModelPath object to cache for model {self.model_name}.")
+        
         if GlobalCache[self._instance_hash] is None:
+            logger.info(f"Writing {self.target.title}Path object to cache for model {self.model_name}.")
             GlobalCache[self._instance_hash] = self
 
     def _initialize_directories(self) -> None:
