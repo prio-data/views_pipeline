@@ -142,11 +142,6 @@ common_configs = ModelPath.get_common_configs()
 common_querysets = ModelPath.get_common_querysets()
 ```
 
-* `_is_path(path_input)`: Checks if the input is a valid path.
-```python
-is_valid_path = ModelPath._is_path("/path/to/models/purple_alien")
-```
-
 # EnsemblePath (common_utils/ensemble_path.py)
 
 The `EnsemblePath` class extends the ModelPath class to manage ensemble paths and directories within the ViEWS Pipeline. It inherits all the functionalities of `ModelPath` and sets the target to 'ensemble'.
