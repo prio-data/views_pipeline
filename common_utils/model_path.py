@@ -102,7 +102,7 @@ class ModelPath:
     )
 
     _target = "model"
-    _use_global_cache = False
+    _use_global_cache = True
     __instances__ = 0
     # Class variables for paths
     _root = None
