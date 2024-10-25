@@ -2,6 +2,7 @@ import pytest
 import pandas as pd
 import properscoring as ps
 from sklearn.metrics import mean_squared_error, mean_absolute_error
+# WARNING: mean_squared_error is deprecated!
 import sys
 from pathlib import Path
 PATH = Path(__file__)
