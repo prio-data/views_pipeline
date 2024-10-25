@@ -119,6 +119,12 @@ The `ModelPath` class includes several class methods and static methods to manag
 exists = ModelPath.check_if_model_dir_exists("purple_alien")
 ```
 
+* `get_model_name_from_path(path)`: Returns the model name based on the provided path.
+```python
+model_name = ModelPath.get_model_name_from_path("/path/to/models/purple_alien/src/")
+# Returns "purple_alien"
+```
+
 * `get_root(cls)`: Returns the root directory of the project.
 ```python
 root = ModelPath.get_root()
