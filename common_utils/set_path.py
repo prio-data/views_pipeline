@@ -4,7 +4,7 @@ from pathlib import Path
 from model_path import ModelPath
 from ensemble_path import EnsemblePath
 
-sys.path.append(str(Path(__file__).parent.parent))
+# sys.path.append(str(Path(__file__).parent.parent))
 
 logging.basicConfig(
     level=logging.DEBUG, format="%(asctime)s %(name)s - %(levelname)s - %(message)s"

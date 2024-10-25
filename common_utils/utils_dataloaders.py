@@ -14,7 +14,7 @@ from common_configs import config_drift_detection
 from utils_df_to_vol_conversion import df_to_vol
 from viewser import Queryset, Column
 
-sys.path.append(str(Path(__file__).parent))
+# sys.path.append(str(Path(__file__).parent))
 import logging
 from model_path import ModelPath
 logging.basicConfig(

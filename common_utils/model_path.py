@@ -5,7 +5,12 @@ import importlib
 import hashlib
 from typing import Union, Optional, List, Dict
 
-sys.path.append(str(Path(__file__).parent.parent))
+PATH = Path(__file__)
+if 'views_pipeline' in PATH.parts:
+    PATH_ROOT = Path(*PATH.parts[:PATH.parts.index('views_pipeline') + 1])
+    sys.path.insert(0, str(PATH_ROOT))
+else:
+    raise ValueError("The 'views_pipeline' directory was not found in the provided path.")
 from meta_tools.utils import utils_model_naming, utils_model_paths
 
 logging.basicConfig(
@@ -364,6 +369,10 @@ class ModelPath:
         if GlobalCache[self._instance_hash] is None:
             logger.info(f"Writing {self.target.title}Path object to cache for model {self.model_name}.")
             GlobalCache[self._instance_hash] = self
+        else:
+            if self._force_cache_overwrite:
+                logger.info(f"Overwriting {self.target.title}Path object in cache for model {self.model_name}. (_force_cache_overwrite is set to True)")
+                GlobalCache[self._instance_hash] = self
 
     def _initialize_directories(self) -> None:
         """

@@ -1,7 +1,16 @@
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "meta_tools"))
+PATH = Path(__file__)
+if 'views_pipeline' in PATH.parts:
+    PATH_ROOT = Path(*PATH.parts[:PATH.parts.index('views_pipeline') + 1])
+    PATH_META_TOOLS = PATH_ROOT / 'meta_tools'
+    if not PATH_META_TOOLS.exists():
+        raise ValueError("The 'meta_tools' directory was not found in the provided path.")
+    sys.path.insert(0, str(PATH_META_TOOLS))
+else:
+    raise ValueError("The 'views_pipeline' directory was not found in the provided path.")
+
 import os
 import pytest
 from unittest.mock import patch, MagicMock
@@ -131,7 +140,8 @@ def test_build_model_directory(temp_dir, mock_model_path):
     assert model_dir == mock_model_instance.model_dir
     assert (model_dir / "subdir1").exists()
     assert (model_dir / "README.md").exists()
-    assert (model_dir / "requirements.txt").exists()
+    # assert (model_dir / "requirements.txt").exists()
+    # Project is moving away from model level requirements.txt. This test will fail in the future.
 
 
 # DO NOT TRUST THIS TEST!!!!
