@@ -436,7 +436,7 @@ class ModelPath:
             self._build_absolute_directory(
                 Path("src/offline_evaluation/evaluate_model.py")
             ),
-            self._build_absolute_directory(Path("src/training/train_ensemble.py")),
+            self._build_absolute_directory(Path(f"src/training/train_{self.target}.py")),
             self.common_querysets / f"queryset_{self.model_name}.py"
         ]
 
