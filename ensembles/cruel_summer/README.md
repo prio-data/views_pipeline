@@ -50,7 +50,7 @@ cruel_summer/ # should follow the naming convention adjective_noun
     |   |-- evaluate_ensemble.py # script to evaluate an ensemble model
     |
     |-- training/ 
-    |   |-- train_model.py # script to train an ensemble model
+    |   |-- train_ensemble.py # script to train an ensemble model
     |
     |-- utils/ # functions and classes 
     |   |-- utils_outputs.py # util functions to save outputs
