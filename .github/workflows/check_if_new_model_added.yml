@@ -18,9 +18,7 @@ jobs:
       
       - name: Check for new directories
         run: |
-          ls -la
           git status
-          git checkout create_pgm_catalog_01
 
           # List all directories currently in the views_pipeline/models folder
           current_dirs=$(find models -type d -maxdepth 1)
@@ -40,9 +38,10 @@ jobs:
 
       - name: Generate catalog if models directory has changed
         run: |
-          # run generate_model_catalog.py
           if [ -n "$new_dirs" ] || [ -n "$removed_dirs" ]; then
-            python documentation/catalogs/generate_model_catalog.py             
+            git checkout create_pgm_catalog_01
+            python documentation/catalogs/generate_model_catalog.py  
+            echo "Model catalog is updated."           
           else
             echo "No new or removed folders detected."
           fi
