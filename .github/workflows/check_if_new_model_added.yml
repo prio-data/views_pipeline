@@ -20,7 +20,8 @@ jobs:
       - name: Check for new directories and generate catalog if models directory has changed
         run: |
           ls -la
-          cd views_pipeline
+          cd work
+          ls -la
           git status
 
           # List all directories currently in the views_pipeline/models folder
