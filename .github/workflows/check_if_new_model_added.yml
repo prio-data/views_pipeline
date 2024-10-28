@@ -13,10 +13,14 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
       
       - name: Check for new directories
         run: |
           ls -la
+          git status
+          git checkout create_pgm_catalog_01
 
           # List all directories currently in the views_pipeline/models folder
           current_dirs=$(find models -type d -maxdepth 1)
