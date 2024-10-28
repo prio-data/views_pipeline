@@ -1,7 +1,7 @@
 import os
 import logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s %(name)s - %(levelname)s - %(message)s"
+    level=logging.ERROR, format="%(asctime)s %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -18,6 +18,7 @@ sys.path.insert(0, str(PATH_ROOT/"common_utils"))
 from common_utils.model_path import ModelPath
 
 GITHUB_URL = 'https://github.com/prio-data/views_pipeline/blob/main/' 
+
 
 
 
@@ -85,7 +86,6 @@ def create_link(marker, filepath: Path):
     Returns:
     str: A markdown link in the format `- [marker](GITHUB_URL/relative_filepath)`
     """
-    print("HERRRRE", filepath.relative_to(ModelPath.get_root()), type(filepath), type(ModelPath.get_root()))
     relative_path = filepath.relative_to(ModelPath.get_root())
     link_template = '- [{marker}]({url}{file})'
     return link_template.format(marker=marker, url=GITHUB_URL, file=relative_path)
@@ -131,6 +131,9 @@ def generate_markdown_table(models_list):
 
 
 if __name__ == "__main__":
+    #import time
+    #start_time = time.time()
+
     models_list_cm = []
     models_list_pgm = []
 
@@ -163,5 +166,6 @@ if __name__ == "__main__":
     with open('documentation/catalogs/cm_model_catalog.md', 'w') as f:
         f.write(markdown_table_cm)
 
+    #print("--- %s seconds ---" % (time.time() - start_time))
 
 
