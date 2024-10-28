@@ -1,7 +1,6 @@
 import sys
 from datetime import datetime
 import pandas as pd
-import warnings
 import logging
 
 from pathlib import Path
@@ -20,7 +19,6 @@ from utils_model_outputs import generate_output_dict
 from utils_wandb import log_wandb_log_dict
 from views_forecasts.extensions import *
 
-warnings.filterwarnings("ignore")
 logger = logging.getLogger(__name__)
 
 

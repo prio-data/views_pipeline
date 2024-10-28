@@ -44,14 +44,10 @@ def setup_model_paths(PATH):
         PATH_model: The path (pathlib path object) including the "models" directory and its immediate subdirectory.
     """
 
-    if "models" in PATH.parts:
-        PATH_MODEL = Path(*[i for i in PATH.parts[:PATH.parts.index("models") + 2]])
-        return PATH_MODEL
-    else:
-        # error_message = "The 'models' directory was not found in the provided path."
-        # logger.warning(error_message)
-        # raise ValueError(error_message)
-        return None
+    PATH_MODEL = Path(*[i for i in PATH.parts[:PATH.parts.index("models") + 2]])
+
+    return PATH_MODEL
+
     
 
 def setup_ensemble_paths(PATH):
@@ -66,15 +62,11 @@ def setup_ensemble_paths(PATH):
     Returns:
         PATH_ENSEMBLE: The path (pathlib path object) including the "ensembles" directory and its immediate subdirectory.
     """
-    if "ensembles" in PATH.parts:
-        PATH_ENSEMBLE = Path(*[i for i in PATH.parts[:PATH.parts.index("ensembles") + 2]])
-        return PATH_ENSEMBLE
-    
-    else:
-        # error_message = "The 'ensembles' directory was not found in the provided path."
-        # logger.warning(error_message)
-        # raise ValueError(error_message)
-        return None
+
+    PATH_ENSEMBLE = Path(*[i for i in PATH.parts[:PATH.parts.index("ensembles") + 2]])
+
+    return PATH_ENSEMBLE
+
 
 def setup_project_paths(PATH) -> None:
     """
@@ -108,19 +100,15 @@ def setup_project_paths(PATH) -> None:
     #    PATH_MODEL = Path(*[i for i in PATH.parts[:PATH.parts.index("models")+2]]) # The +2 is to include the "models" and the individual model name in the path
 
     PATH_ROOT = setup_root_paths(PATH)
-    
 
-    try:
+    if "models" in PATH.parts:
         PATH_MODEL = setup_model_paths(PATH)
-    except ValueError as e:
-        PATH_MODEL = None
-        logger.warning(e)
-
-    try:
-        PATH_ENSEMBLE = setup_ensemble_paths(PATH)
-    except ValueError as e:
         PATH_ENSEMBLE = None
-        logger.warning(e)
+    elif "ensembles" in PATH.parts:
+        PATH_MODEL = None
+        PATH_ENSEMBLE = setup_ensemble_paths(PATH)
+    else:
+        logger.error("The provided path does not contain a model or ensemble directory.")
 
     # print(f"Root path: {PATH_ROOT}") # debug
     # print(f"Model path: {PATH_MODEL}") # debug
@@ -199,18 +187,14 @@ def setup_data_paths(PATH) -> Path:
 
     """
 
-    # PATH_MODEL = Path(*[i for i in PATH.parts[:PATH.parts.index("models")+2]]) # The +2 is to include the "models" and the individual model name in the path
-    try:
+    if "models" in PATH.parts:
         PATH_MODEL = setup_model_paths(PATH)
-    except ValueError as e:
-        PATH_MODEL = None
-        logger.warning(e)
-
-    try:
-        PATH_ENSEMBLE = setup_ensemble_paths(PATH)
-    except ValueError as e:
         PATH_ENSEMBLE = None
-        logger.warning(e)
+    elif "ensembles" in PATH.parts:
+        PATH_MODEL = None
+        PATH_ENSEMBLE = setup_ensemble_paths(PATH)
+    else:
+        logger.error("The provided path does not contain a model or ensemble directory.")
 
     PATH_DATA = PATH_MODEL / "data" if PATH_MODEL else PATH_ENSEMBLE / "data"
     PATH_RAW = PATH_DATA / "raw"
