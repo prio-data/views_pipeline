@@ -11,8 +11,6 @@ if 'views_pipeline' in PATH.parts:
 else:
     raise ValueError("The 'views_pipeline' directory was not found in the provided path.")
 
-print(sys.path)
-
 import os
 import pytest
 from unittest.mock import patch, MagicMock
