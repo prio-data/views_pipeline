@@ -55,7 +55,7 @@ class ModelPath:
         visualization (Path): The directory for visualization scripts.
         _sys_paths (list): A list of system paths.
         common_querysets (Path): The directory for common querysets.
-        _queryset_path (Path): The path to the queryset script.
+        queryset_path (Path): The path to the queryset script.
         _queryset (module): The imported queryset module.
         scripts (list): A list of script paths.
         _ignore_attributes (list): A list of paths to ignore.
@@ -96,7 +96,7 @@ class ModelPath:
         "visualization",
         "_sys_paths",
         "common_querysets",
-        "_queryset_path",
+        "queryset_path",
         "scripts",
         "meta_tools",
     )
@@ -266,7 +266,7 @@ class ModelPath:
             "_validate",
             "models",
             "_sys_paths",
-            "_queryset_path",
+            "queryset_path",
             "_queryset",
             "_ignore_attributes",
             "target",
@@ -346,7 +346,6 @@ class ModelPath:
         """
         try:
             from global_cache import GlobalCache
-
             cached_instance = GlobalCache[self._instance_hash]
             if cached_instance and not self._force_cache_overwrite:
                 logger.info(
@@ -357,7 +356,7 @@ class ModelPath:
             logger.error(
                 f"Error adding model {self.model_name} to cache: {e}. Initializing new ModelPath instance."
             )
-
+            
     def _write_to_global_cache(self) -> None:
         """
         Writes the current model instance to the global cache if it doesn't exist.
@@ -407,7 +406,7 @@ class ModelPath:
         self._sys_paths = None
         if self.common_querysets not in sys.path:
             sys.path.insert(0, str(self.common_querysets))
-        self._queryset_path = self.common_querysets / f"queryset_{self.model_name}.py"
+        self.queryset_path = self.common_querysets / f"queryset_{self.model_name}.py"
         self._queryset = None
 
     def _initialize_scripts(self) -> None:
@@ -436,7 +435,8 @@ class ModelPath:
             self._build_absolute_directory(
                 Path("src/offline_evaluation/evaluate_model.py")
             ),
-            self._build_absolute_directory(Path("src/training/train_ensemble.py")),
+            self._build_absolute_directory(Path(f"src/training/train_{self.target}.py")),
+            self.common_querysets / f"queryset_{self.model_name}.py"
         ]
 
     def _is_path(self, path_input: Union[str, Path]) -> bool:
@@ -475,18 +475,18 @@ class ModelPath:
             error = f"Common queryset directory {self.common_querysets} does not exist. Please create it first using `make_new_scripts.py` or set validate to `False`."
             logger.error(error)
             raise FileNotFoundError(error)
-        elif self._validate and self._check_if_dir_exists(self._queryset_path):
+        elif self._validate and self._check_if_dir_exists(self.queryset_path):
             try:
-                self._queryset = importlib.import_module(self._queryset_path.stem)
+                self._queryset = importlib.import_module(self.queryset_path.stem)
             except Exception as e:
                 logger.error(f"Error importing queryset: {e}")
                 self._queryset = None
             else:
-                logger.info(f"Queryset {self._queryset_path} imported successfully.")
+                logger.info(f"Queryset {self.queryset_path} imported successfully.")
                 return self._queryset.generate() if self._queryset else None
         else:
             logger.warning(
-                f"Queryset {self._queryset_path} does not exist. Continuing..."
+                f"Queryset {self.queryset_path} does not exist. Continuing..."
             )
         return None
 
@@ -676,7 +676,7 @@ class ModelPath:
         #     "_validate",
         #     "models",
         #     "_sys_paths",
-        #     "_queryset_path",
+        #     "queryset_path",
         #     "_queryset",
         #     "_ignore_attributes",
         #     "target",
@@ -698,7 +698,7 @@ class ModelPath:
                 "templates",
                 "_sys_paths",
                 "_queryset",
-                "_queryset_path",
+                "queryset_path",
                 "_ignore_attributes",
                 "target",
                 "_force_cache_overwrite",
@@ -742,9 +742,7 @@ class ModelPath:
 
 # if __name__ == "__main__":
 #     model_path = ModelPath("taco_cat", validate=False)
-#     model_path.view_directories()
-#     model_path.view_scripts()
-#     model_path.get_directories()
-#     model_path.get_scripts()
+#     print(model_path.get_scripts())
+#     print(model_path.get_directories())
 #     print(model_path.get_queryset())
-#     print(ModelPath.get_common_configs())
+#     print(model_path.queryset_path)
