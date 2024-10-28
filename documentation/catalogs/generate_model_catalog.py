@@ -7,8 +7,11 @@ logger = logging.getLogger(__name__)
 
 import sys
 from pathlib import Path
-PATH = Path(__file__).resolve()
-PATH_ROOT = PATH.parent.parent.parent
+
+PATH = Path(__file__)
+print(sys.path, "1")
+PATH_ROOT = Path(
+    *[i for i in PATH.parts[:PATH.parts.index("views_pipeline") + 1]])
 
 sys.path.insert(0, str(PATH_ROOT))
 print(sys.path, "2")
