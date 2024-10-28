@@ -1,16 +1,15 @@
 import sys
 import wandb
-
 import logging
-logging.basicConfig(filename='../../run.log', encoding='utf-8', level=logging.INFO,
-                    format='%(asctime)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
+import time
 
 from pathlib import Path
+
 PATH = Path(__file__)
 sys.path.insert(0, str(Path(
     *[i for i in PATH.parts[:PATH.parts.index("views_pipeline") + 1]]) / "common_utils"))  # PATH_COMMON_UTILS
 from set_path import setup_project_paths
+
 setup_project_paths(PATH)
 
 from evaluate_model import evaluate_model_artifact
@@ -19,6 +18,8 @@ from generate_forecast import forecast_model_artifact
 from train_model import train_model_artifact
 from utils_run import get_model, split_hurdle_parameters
 from utils_wandb import add_wandb_monthly_metrics
+
+logger = logging.getLogger(__name__)
 
 
 def execute_model_tasks(config=None, project=None, train=None, eval=None, forecast=None, artifact_name=None):
@@ -37,6 +38,8 @@ def execute_model_tasks(config=None, project=None, train=None, eval=None, foreca
         forecast: Flag to indicate if forecasting should be performed.
         artifact_name (optional): Specific name of the model artifact to load for evaluation or forecasting.
     """
+
+    start_t = time.time()
 
     # Initialize WandB
     with wandb.init(project=project, entity="views_pipeline",
@@ -76,3 +79,7 @@ def execute_model_tasks(config=None, project=None, train=None, eval=None, foreca
         if forecast:
             logger.info(f"Forecasting model {config['name']}...")
             forecast_model_artifact(config, artifact_name)
+
+        end_t = time.time()
+        minutes = (end_t - start_t) / 60
+        logger.info(f'Done. Runtime: {minutes:.3f} minutes.\n')

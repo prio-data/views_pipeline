@@ -4,7 +4,7 @@ from pathlib import Path
 
 def generate(script_dir: Path, model_name: str) -> bool:
     """
-    Generates a Python script that defines the `get_input_data_config` function for configuring input data for model training
+    Generates a Python script that defines the `generate` function for configuring input data for model training
     using the viewser library.
 
     Args:
@@ -18,7 +18,7 @@ def generate(script_dir: Path, model_name: str) -> bool:
     """
     code = f"""from viewser import Queryset, Column
 
-def get_queryset_{model_name}():
+def generate():
     \"""
     Contains the configuration for the input data in the form of a viewser queryset. That is the data from viewser that is used to train the model.
     This configuration is "behavioral" so modifying it will affect the model's runtime behavior and integration into the deployment system.

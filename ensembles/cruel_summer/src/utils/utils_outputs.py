@@ -1,10 +1,9 @@
 import pickle
 from pathlib import Path
-
 import logging
-logging.basicConfig(filename='../../run.log', encoding='utf-8', level=logging.INFO,
-                    format='%(asctime)s - %(levelname)s - %(message)s')
+
 logger = logging.getLogger(__name__)
+
 
 def save_model_outputs(df_evaluation, df_output, PATH_GENERATED, config):
     Path(PATH_GENERATED).mkdir(parents=True, exist_ok=True)

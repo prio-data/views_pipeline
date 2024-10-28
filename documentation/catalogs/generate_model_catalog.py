@@ -8,14 +8,18 @@ logger = logging.getLogger(__name__)
 import sys
 from pathlib import Path
 PATH = Path(__file__)
-sys.path.insert(0, str(Path(
-    *[i for i in PATH.parts[:PATH.parts.index("views_pipeline") + 1]]) ))  # PATH_ROOT
-PATH_ROOT = sys.path[0]
+PATH_ROOT = Path(
+    *[i for i in PATH.parts[:PATH.parts.index("views_pipeline") + 1]])
+
+sys.path.insert(0, str(PATH_ROOT))
+
+sys.path.insert(1, str(PATH_ROOT/"common_utils"))
+
+# PATH_ROOT = sys.path[0]
 
 from common_utils.model_path import ModelPath
 
 GITHUB_URL = 'https://github.com/prio-data/views_pipeline/blob/main/' 
-
 
 
 
@@ -52,7 +56,7 @@ def extract_models(model_class):
             code = file.read()
             exec(code, {}, tmp_dict)
         model_dict.update(tmp_dict['get_meta_config']())
-        model_dict['queryset'] = create_link(model_dict['queryset'], model_class.get_scripts()[f"queryset_{model_class.model_name}.py"])
+        model_dict['queryset'] = create_link(model_dict['queryset'], model_class.queryset_path)
 
 
     if os.path.exists(config_deployment):
@@ -64,7 +68,7 @@ def extract_models(model_class):
 
     if os.path.exists(config_hyperparameters):
         logging.info(f"Found hyperparameters config: {config_hyperparameters}") 
-        model_dict['hyperparameters'] = create_link(f"hyperparameters {model_class.model_name}", model_class.get_scripts()['config_hyperparameters.py'])
+        model_dict['hyperparameters'] = create_link(f"hyperparameters {model_class.model_name}", Path(model_class.get_scripts()['config_hyperparameters.py']))
   
     model_dict['level'] = model_class.get_queryset().loa if model_class.get_queryset() else None
 
@@ -72,7 +76,7 @@ def extract_models(model_class):
 
 
 
-def create_link(marker, filepath):
+def create_link(marker, filepath: Path):
     """
     Generates a markdown-formatted link to a specific file in the repository's main branch. It creates the link by merging the path of the repository and the relative_path created from filepath.
 
@@ -83,8 +87,8 @@ def create_link(marker, filepath):
     Returns:
     str: A markdown link in the format `- [marker](GITHUB_URL/relative_filepath)`
     """
-
-    relative_path = filepath.split('views_pipeline/')[1]
+    print("HERRRRE", filepath.relative_to(ModelPath.get_root()), type(filepath), type(ModelPath.get_root()))
+    relative_path = filepath.relative_to(ModelPath.get_root())
     link_template = '- [{marker}]({url}{file})'
     return link_template.format(marker=marker, url=GITHUB_URL, file=relative_path)
 
@@ -132,13 +136,13 @@ if __name__ == "__main__":
     models_list_cm = []
     models_list_pgm = []
 
-    for model_name in os.listdir(PATH_ROOT + '/models'):
-        model_path = os.path.join(PATH_ROOT + '/models', model_name)
+    for model_name in os.listdir(PATH_ROOT / 'models'):
+        model_path = os.path.join(PATH_ROOT / 'models', model_name)
         
 
         if os.path.isdir(model_path): 
             model_class = ModelPath(model_name, validate=True)
-            model_class.add_paths_to_sys()
+            #model_class.add_paths_to_sys()
 
 
             model = extract_models(model_class)
@@ -150,7 +154,7 @@ if __name__ == "__main__":
 
             
 
-            model_class.remove_paths_from_sys()
+            #model_class.remove_paths_from_sys()
 
 
     markdown_table_pgm = generate_markdown_table(models_list_pgm)
