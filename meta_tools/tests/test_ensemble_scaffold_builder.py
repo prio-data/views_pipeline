@@ -257,26 +257,26 @@ def test_assess_ensemble_scripts(temp_dir, mock_ensemble_path):
 #         assert assessment["structure_errors"] == {temp_dir / "test_ensemble" / "subdir1"}
 
 
-# def test_assess_ensemble_scripts_with_missing_scripts(temp_dir, mock_ensemble_path):
-#     """
-#     Test the `assess_model_scripts` method with missing scripts.
+def test_assess_ensemble_scripts_with_missing_scripts(temp_dir, mock_ensemble_path):
+    """
+    Test the `assess_model_scripts` method with missing scripts.
 
-#     Args:
-#         temp_dir (Path): The path to the temporary directory.
-#         mock_ensemble_path (MagicMock): The mock object for `EnsemblePath`.
+    Args:
+        temp_dir (Path): The path to the temporary directory.
+        mock_ensemble_path (MagicMock): The mock object for `EnsemblePath`.
 
-#     Asserts:
-#         - The script assessment detects missing scripts.
-#     """
-#     mock_ensemble_instance = mock_ensemble_path.return_value
-#     mock_ensemble_instance.model_dir = temp_dir / "test_ensemble"
-#     mock_ensemble_instance.get_scripts.return_value = {
-#         "script1": temp_dir / "test_ensemble" / "script1.py"
-#     }
+    Asserts:
+        - The script assessment detects missing scripts.
+    """
+    mock_ensemble_instance = mock_ensemble_path.return_value
+    mock_ensemble_instance.model_dir = temp_dir / "test_ensemble"
+    mock_ensemble_instance.get_scripts.return_value = {
+        "script1": temp_dir / "test_ensemble" / "script1.py"
+    }
 
-#     builder = EnsembleScaffoldBuilder("test_ensemble")
-#     builder.build_model_directory()
+    builder = EnsembleScaffoldBuilder("test_ensemble")
+    builder.build_model_directory()
 
-#     with patch('ensemble_scaffold_builder.Path.exists', side_effect=[True, False, True, True]):
-#         assessment = builder.assess_model_scripts()
-#         assert assessment["missing_scripts"] == {temp_dir / "test_ensemble" / "script1.py"}
+    with patch('ensemble_scaffold_builder.Path.exists', side_effect=[True, False, True, True]):
+        assessment = builder.assess_model_scripts()
+        assert assessment["missing_scripts"] == {temp_dir / "test_ensemble" / "script1.py"}

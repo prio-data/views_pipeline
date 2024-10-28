@@ -239,3 +239,51 @@ def test_assess_model_scripts(mock_input, temp_dir, mock_model_path):
 
     assert "missing_scripts" in assessment
     assert assessment["missing_scripts"]
+
+# def test_assess_model_directory_with_missing_dirs(temp_dir, mock_model_path):
+#     """
+#     Test the `assess_model_directory` method with missing directories.
+
+#     Args:
+#         temp_dir (Path): The path to the temporary directory.
+#         mock_model_path (MagicMock): The mock object for `ModelPath`.
+
+#     Asserts:
+#         - The directory assessment detects missing directories.
+#     """
+#     mock_model_instance = mock_model_path.return_value
+#     mock_model_instance.model_dir = temp_dir / "test_model"
+#     mock_model_instance.get_directories.return_value = {
+#         "subdir1": temp_dir / "test_model" / "subdir1"
+#     }
+
+#     builder = ModelScaffoldBuilder("test_model")
+#     builder.build_model_directory()
+
+#     with patch('model_scaffold_builder.Path.exists', side_effect=[True, False, True]):
+#         assessment = builder.assess_model_directory()
+#         assert assessment["structure_errors"] == {temp_dir / "test_model" / "subdir1"}
+
+def test_assess_model_scripts_with_missing_scripts(temp_dir, mock_model_path):
+    """
+    Test the `assess_model_scripts` method with missing scripts.
+
+    Args:
+        temp_dir (Path): The path to the temporary directory.
+        mock_model_path (MagicMock): The mock object for `ModelPath`.
+
+    Asserts:
+        - The script assessment detects missing scripts.
+    """
+    mock_model_instance = mock_model_path.return_value
+    mock_model_instance.model_dir = temp_dir / "test_model"
+    mock_model_instance.get_scripts.return_value = {
+        "script1": temp_dir / "test_model" / "script1.py"
+    }
+
+    builder = ModelScaffoldBuilder("test_model")
+    builder.build_model_directory()
+
+    with patch('model_scaffold_builder.Path.exists', side_effect=[True, False, True, True]):
+        assessment = builder.assess_model_scripts()
+        assert assessment["missing_scripts"] == {temp_dir / "test_model" / "script1.py"}
