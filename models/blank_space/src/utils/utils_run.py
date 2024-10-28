@@ -102,6 +102,7 @@ def update_config(hp_config, meta_config, dp_config, args):
 def update_sweep_config(sweep_config, args, meta_config):
     sweep_config['parameters']['run_type'] = {'value': args.run_type}
     sweep_config['parameters']['sweep'] = {'value': True}
+    sweep_config['parameters']['name'] = {'value': meta_config['name']}
     sweep_config['parameters']['depvar'] = {'value': meta_config['depvar']}
     sweep_config['parameters']['algorithm'] = {'value': meta_config['algorithm']}
     if meta_config['algorithm'] == 'HurdleRegression':

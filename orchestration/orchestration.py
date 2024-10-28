@@ -20,6 +20,7 @@ ENSEMBLE_DIR = ensemble_path.models
 # logger = setup_logging(str(model.root / 'run.log'))
 
 
+
 def initialize():
     # Define paths to main.py files for each model and ensemble
     model_main_files = list(MODEL_DIR.rglob('main.py'))

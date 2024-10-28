@@ -4,11 +4,8 @@ from pathlib import Path
 from model_path import ModelPath
 from ensemble_path import EnsemblePath
 
-# sys.path.append(str(Path(__file__).parent.parent))
-
-logging.basicConfig(
-    level=logging.DEBUG, format="%(asctime)s %(name)s - %(levelname)s - %(message)s"
-)
+# Configure logging - don't know if this is necessary here
+# logging.basicConfig(level=logging.WARNING)
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
@@ -58,6 +55,7 @@ def get_model_path_instance(path) -> ModelPath:
             raise ValueError(error_message)
         logger.info(f"Returning cached ModelPath/EnsemblePath instance {model_path.model_name} for path: {path}")
         return model_path
+
 
 
 

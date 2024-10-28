@@ -4,6 +4,8 @@ import numpy as np
 import pandas as pd
 from pathlib import Path
 import sys
+import logging
+
 # from config_partitioner import get_partitioner_dict
 try:
     from set_partition import get_partitioner_dict
@@ -17,9 +19,7 @@ from viewser import Queryset, Column
 # sys.path.append(str(Path(__file__).parent))
 import logging
 from model_path import ModelPath
-logging.basicConfig(
-    level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s"
-)
+
 logger = logging.getLogger(__name__)
 
 # Super sus but works for now.
@@ -195,7 +195,7 @@ def get_views_df(partition, override_month=None, self_test=False):
 
     if partition == 'forecasting' and override_month is not None:
         month_last = override_month
-        print(f'\n ***Warning: overriding end month in forecasting partition to {month_last} ***\n')
+        logger.warning(f'Overriding end month in forecasting partition to {month_last} ***\n')
 
     df, alerts = fetch_data_from_viewser(month_first, month_last, drift_config_dict, self_test)
 
@@ -231,15 +231,15 @@ def fetch_or_load_views_df(partition, PATH_RAW, self_test=False, use_saved=False
         # Check if the VIEWSER data file exists
         try:
             df = pd.read_pickle(path_viewser_df)
-            print(f'Reading saved data from {path_viewser_df}')
+            logger.info(f'Reading saved data from {path_viewser_df}')
 
         except:
             raise RuntimeError(f'Use of saved data was specified but {path_viewser_df} not found')
 
     else:
-        print(f'Fetching file...')
+        logger.info(f'Fetching file...')
         df, alerts = get_views_df(partition, override_month, self_test)  # which is then used here
-        print(f'Saving file to {path_viewser_df}')
+        logger.info(f'Saving file to {path_viewser_df}')
         df.to_pickle(path_viewser_df)
 
     if validate_df_partition(df, partition, override_month):
@@ -277,17 +277,17 @@ def create_or_load_views_vol(partition, PATH_PROCESSED, PATH_RAW):
 
     # Check if the volume exists
     if os.path.isfile(path_vol):
-        print('Volume already created')
+        logger.info('Volume already created')
         vol = np.load(path_vol)
     else:
-        print('Creating volume...')
+        logger.info('Creating volume...')
         path_raw = os.path.join(str(PATH_RAW), f'{partition}_viewser_df.pkl')
         vol = df_to_vol(pd.read_pickle(path_raw))
-        print(f'shape of volume: {vol.shape}')
-        print(f'Saving volume to {path_vol}')
+        logger.info(f'shape of volume: {vol.shape}')
+        logger.info(f'Saving volume to {path_vol}')
         np.save(path_vol, vol)
 
-    print('Done')
+    logger.info('Done')
 
     return vol
 
@@ -365,8 +365,8 @@ def ensure_float64(df):
         df.select_dtypes(include=['number']).dtypes != np.float64]
 
     if len(non_float64_cols) > 0:
-        print(
-            f"Warning: DataFrame contains non-np.float64 numeric columns. Converting the following columns: {', '.join(non_float64_cols)}")
+        logger.warning(
+            f"DataFrame contains non-np.float64 numeric columns. Converting the following columns: {', '.join(non_float64_cols)}")
 
         for col in non_float64_cols:
             df[col] = df[col].astype(np.float64)

@@ -1,9 +1,7 @@
 import numpy as np
 from views_forecasts.extensions import *
-
 import logging
-logging.basicConfig(filename='../../run.log', encoding='utf-8', level=logging.INFO,
-                    format='%(asctime)s - %(levelname)s - %(message)s')
+
 logger = logging.getLogger(__name__)
 
 
