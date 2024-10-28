@@ -14,8 +14,8 @@ PATH_ROOT = Path(
 sys.path.insert(0, str(PATH_ROOT))
 
 sys.path.insert(0, str(PATH_ROOT/"common_utils"))
-
-from model_path import ModelPath
+print(sys.path)
+from common_utils.model_path import ModelPath
 
 GITHUB_URL = 'https://github.com/prio-data/views_pipeline/blob/main/' 
 
