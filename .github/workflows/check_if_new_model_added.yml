@@ -51,7 +51,7 @@ jobs:
           else
             echo "No new or removed folders detected."
           fi
-        working-directory: ./views_pipeline
+        
 
       - name: Configure Git
         run: |
