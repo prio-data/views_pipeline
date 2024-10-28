@@ -6,10 +6,18 @@ from pathlib import Path
 PATH = Path(__file__)
 sys.path.insert(0, str(Path(
     *[i for i in PATH.parts[:PATH.parts.index("views_pipeline") + 1]]) / "common_utils"))  # PATH_COMMON_UTILS
-from utils_cli_parser import parse_args, validate_arguments
 
-MODEL_DIR = PATH.parent.parent / "models"
-ENSEMBLE_DIR = PATH.parent.parent / "ensembles"
+from utils_cli_parser import parse_args, validate_arguments
+from model_path import ModelPath
+from ensemble_path import EnsemblePath
+# from utils_logger import setup_logging
+
+model_path = ModelPath('test_model', validate=False)
+ensemble_path = EnsemblePath('test_ensemble', validate=False)
+MODEL_DIR = model_path.models
+ENSEMBLE_DIR = ensemble_path.models
+
+# logger = setup_logging(str(model.root / 'run.log'))
 
 
 
@@ -95,4 +103,3 @@ if __name__ == "__main__":
                          ensemble=args.ensemble,
                          saved=args.saved,
                          override_month=args.override_month)
-

@@ -28,3 +28,7 @@ if __name__ == "__main__":
         execute_sweep_run(args)
     else:
         execute_single_run(args)
+
+    end_t = time.time()
+    minutes = (end_t - start_t) / 60
+    logger.info(f'Done. Runtime: {minutes:.3f} minutes.\n')

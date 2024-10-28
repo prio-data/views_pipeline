@@ -4,7 +4,15 @@ from utils_model_outputs import ModelOutputs, generate_output_dict
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "common_utils"))
+PATH = Path(__file__)
+if 'views_pipeline' in PATH.parts:
+    PATH_ROOT = Path(*PATH.parts[:PATH.parts.index('views_pipeline') + 1])
+    PATH_COMMON_UTILS = PATH_ROOT / 'common_utils'
+    if not PATH_COMMON_UTILS.exists():
+        raise ValueError("The 'common_utils' directory was not found in the provided path.")
+    sys.path.insert(0, str(PATH_COMMON_UTILS))
+else:
+    raise ValueError("The 'views_pipeline' directory was not found in the provided path.")
 
 
 @pytest.fixture
