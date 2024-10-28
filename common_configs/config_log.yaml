@@ -16,29 +16,29 @@ handlers:
     class: logging.handlers.TimedRotatingFileHandler
     level: INFO
     formatter: detailed
-    filename: 'logs/app_INFO_%Y-%m-%d.log'
-    when: 'midnight'
+    filename: "{LOG_PATH}/views_pipeline_INFO.log"
+    when: "midnight"
     backupCount: 30
-    encoding: 'utf8'
+    encoding: "utf8"
 
   debug_file_handler:
     class: logging.handlers.TimedRotatingFileHandler
     level: DEBUG
     formatter: detailed
-    filename: 'logs/app_DEBUG_%Y-%m-%d.log'
-    when: 'midnight'
-    backupCount: 30
-    encoding: 'utf8'
+    filename: "{LOG_PATH}/views_pipeline_DEBUG.log"
+    when: "midnight"
+    backupCount: 10
+    encoding: "utf8"
 
   error_file_handler:
     class: logging.handlers.TimedRotatingFileHandler
     level: ERROR
     formatter: detailed
-    filename: 'logs/app_ERROR_%Y-%m-%d.log'
-    when: 'midnight'
-    backupCount: 30
-    encoding: 'utf8'
+    filename: "{LOG_PATH}/views_pipeline_ERROR.log"
+    when: "midnight"
+    backupCount: 60
+    encoding: "utf8"
 
 root:
-  level: DEBUG
+  level: INFO
   handlers: [console, info_file_handler, debug_file_handler, error_file_handler]
