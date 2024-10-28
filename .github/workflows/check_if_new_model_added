@@ -1,0 +1,59 @@
+name: Check for new model directories in views_pipeline/models
+
+on:
+  push:
+    branches:
+      - create_pgm_catalog_01
+      - main
+  workflow_dispatch:
+
+jobs:
+  check-new-folder:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      
+      - name: Check for new directories
+        run: |
+          cd views_pipeline
+
+          # List all directories currently in the views_pipeline/models folder
+          current_dirs=$(find models -type d -maxdepth 1)
+
+          # Fetch the previous commit from the main branch to compare
+          parent_commit=$(git rev-parse create_pgm_catalog_01~1)
+          git checkout $parent_commit
+
+          # List directories from the previous commit
+          previous_dirs=$(find models -type d -maxdepth 1)
+
+          # Compare the directories
+          new_dirs=$(comm -13 <(echo "$previous_dirs" | sort) <(echo "$current_dirs" | sort))
+          echo "New folders detected in views_pipeline/models: $new_dirs"
+          removed_dirs=$(comm -23 <(echo "$previous_dirs" | sort) <(echo "$current_dirs" | sort))
+          echo "Removed folders detected in views_pipeline/models: $removed_dirs"
+
+      - name: Generate catalog if models directory has changed
+        run: |
+          cd views_pipeline
+
+          # run generate_model_catalog.py
+          if [ -n "$new_dirs" ] || [ -n "$removed_dirs" ]; then
+            python documentation/catalogs/generate_model_catalog.py             
+          else
+            echo "No new or removed folders detected."
+          fi
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+
+      - name: Commit and Push Changes
+        run: |
+          cd views_pipeline
+          git add documentation/catalogs/cm_model_catalog.md documentation/catalogs/pgm_model_catalog.md
+          git commit -m "Automated changes by GitHub Actions" || echo "Nothing to commit"
+          git push https://${{ secrets.VIEWS_PIPELINE_ACCESS_TOKEN }}:x-oauth-basic@github.com/prio-data/views_pipeline.git 
+      
