@@ -16,7 +16,7 @@ jobs:
         with:
           fetch-depth: 0
       
-      - name: Check for new directories
+      - name: Check for new directories and generate catalog if models directory has changed
         run: |
           git status
 
@@ -41,8 +41,7 @@ jobs:
           git checkout create_pgm_catalog_01
           git status
 
-      - name: Generate catalog if models directory has changed
-        run: |
+          # generate catalog if models directory has changed
           if [ -n "$new_dirs" ] || [ -n "$removed_dirs" ]; then
             python documentation/catalogs/generate_model_catalog.py  
             echo "Model catalog is updated."           
