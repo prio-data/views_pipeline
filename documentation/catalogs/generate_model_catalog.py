@@ -8,14 +8,17 @@ logger = logging.getLogger(__name__)
 import sys
 from pathlib import Path
 PATH = Path(__file__)
+print(sys.path, "1")
 PATH_ROOT = Path(
     *[i for i in PATH.parts[:PATH.parts.index("views_pipeline") + 1]])
 
 sys.path.insert(0, str(PATH_ROOT))
-
+print(sys.path, "2")
 sys.path.insert(0, str(PATH_ROOT/"common_utils"))
-print(sys.path)
-from common_utils.model_path import ModelPath
+
+
+print(sys.path, "3")
+from ...model_path import ModelPath
 
 GITHUB_URL = 'https://github.com/prio-data/views_pipeline/blob/main/' 
 
