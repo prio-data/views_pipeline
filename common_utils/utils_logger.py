@@ -82,7 +82,7 @@ def setup_logging(
     default_level (int): The default logging level if the configuration file is not found
                          or cannot be loaded. Default is logging.INFO.
                          
-    env_key (str): Environment variable key to override the default path to the logging
+    env_key (str): Environment variablei key to override the default path to the logging
                    configuration file. Default is 'LOG_CONFIG'.
 
     Returns:
