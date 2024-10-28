@@ -5,6 +5,7 @@ from statistics import mean, stdev, median
 
 import properscoring as ps
 from sklearn.metrics import mean_squared_error, mean_absolute_error, mean_squared_log_error, brier_score_loss, average_precision_score, roc_auc_score
+# WARNING: mean_squared_error and mean_squared_log_error are deprecated.
 from views_forecasts.extensions import *
 
 

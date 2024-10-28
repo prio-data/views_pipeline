@@ -146,6 +146,12 @@ venv.bak/
 # mkdocs documentation
 /site
 
+# Global cache
+.global_cache.pkl
+
+# Generated calibration logs
+*calibration_log.txt
+
 # mypy
 .mypy_cache/
 .dmypy.json

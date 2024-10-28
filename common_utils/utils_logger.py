@@ -9,7 +9,6 @@ def setup_logging(log_file: str, log_level=logging.INFO):
         log_file (str): The file where logs should be written.
         log_level (int): The logging level. Default is logging.INFO.
     """
-    # Create a logger object
 
     basic_logger = logging.getLogger()
     basic_logger.setLevel(log_level)

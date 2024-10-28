@@ -1,5 +1,13 @@
 import re
+from pathlib import Path
+import logging
 
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
+logger = logging.getLogger(__name__)
+import sys
+# sys.path.append(str(Path(__file__).parent))
 
 def validate_model_name(name: str) -> bool:
     """
