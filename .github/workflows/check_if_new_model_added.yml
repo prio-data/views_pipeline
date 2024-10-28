@@ -27,7 +27,7 @@ jobs:
           # Fetch the previous commit from the main branch to compare
           parent_commit=$(git rev-parse HEAD~1)
           echo $parent_commit
-          git checkout $parent_commit
+          git checkout 7fdf35d1e250f3270936a97502613c0b5d013f5a
 
           # List directories from the previous commit
           previous_dirs=$(find models -type d -maxdepth 1)
