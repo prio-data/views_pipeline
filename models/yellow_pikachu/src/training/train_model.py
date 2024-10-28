@@ -1,7 +1,6 @@
 from datetime import datetime
 import pandas as pd
-from pathlib import Path
-from set_path import setup_data_paths, setup_artifacts_paths
+from model_path import ModelPath
 from utils_log_files import create_log_file
 from set_partition import get_partitioner_dict
 from views_stepshift.run import ViewsRun
@@ -9,22 +8,22 @@ from stepshift.views import StepshiftedModels
 from views_forecasts.extensions import *
 from views_partitioning.data_partitioner import DataPartitioner
 
-PATH = Path(__file__) 
-
 
 def train_model_artifact(config, model):
     # print(config)
-    PATH_RAW, _, PATH_GENERATED = setup_data_paths(PATH)
-    PATH_ARTIFACTS = setup_artifacts_paths(PATH)
+    model_path = ModelPath(config["name"], validate=False)
+    path_raw  = model_path.data_raw
+    path_generated = model_path.data_generated
+    path_artifacts = model_path.artifacts
     run_type = config["run_type"]
-    df_viewser = pd.read_pickle(PATH_RAW / f"{run_type}_viewser_df.pkl")
+    df_viewser = pd.read_pickle(path_raw / f"{run_type}_viewser_df.pkl")
 
     stepshift_model = stepshift_training(config, run_type, model, df_viewser)
     if not config["sweep"]:
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         model_filename = f"{run_type}_model_{timestamp}.pkl"
-        stepshift_model.save(PATH_ARTIFACTS / model_filename)
-        create_log_file(PATH_GENERATED, config, timestamp)
+        stepshift_model.save(path_artifacts / model_filename)
+        create_log_file(path_generated, config, timestamp)
     return stepshift_model
 
 

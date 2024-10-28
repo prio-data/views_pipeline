@@ -42,11 +42,11 @@ def execute_model_tasks(config=None, project=None, train=None, eval=None, foreca
 
         # W&B does not directly support nested dictionaries for hyperparameters
         # This will make the sweep config super ugly, but we don't have to distinguish between sweep and single runs
-        if config['sweep'] and config['algorithm'] == "HurdleRegression":
-            config['parameters'] = {}
-            config['parameters']['clf'], config['parameters']['reg'] = split_hurdle_parameters(config)
+        if config["sweep"] and config["algorithm"] == "HurdleRegression":
+            config["parameters"] = {}
+            config["parameters"]["clf"], config["parameters"]["reg"] = split_hurdle_parameters(config)
 
-        if config['sweep']:
+        if config["sweep"]:
             logger.info(f"Sweeping model {config['name']}...")
             stepshift_model = train_model_artifact(config)
             logger.info(f"Evaluating model {config['name']}...")
@@ -68,4 +68,4 @@ def execute_model_tasks(config=None, project=None, train=None, eval=None, foreca
 
         end_t = time.time()
         minutes = (end_t - start_t) / 60
-        logger.info(f'Done. Runtime: {minutes:.3f} minutes.\n')
+        logger.info(f"Done. Runtime: {minutes:.3f} minutes.\n")

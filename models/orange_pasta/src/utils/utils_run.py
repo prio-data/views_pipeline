@@ -18,21 +18,6 @@ def get_model(config, partitioner_dict):
     return model
 
 
-def get_parameters(config):
-    """
-    Get the parameters from the config file.
-    If not sweep, then get directly from the config file, otherwise have to remove some parameters.
-    """
-
-    if config["sweep"]:
-        keys_to_remove = ["algorithm", "depvar", "steps", "sweep", "run_type", "model_cls", "model_reg"]
-        parameters = {k: v for k, v in config.items() if k not in keys_to_remove}
-    else:
-        parameters = config["parameters"]
-
-    return parameters
-
-
 def get_standardized_df(df, config):
     """
     Standardize the DataFrame based on the run type
