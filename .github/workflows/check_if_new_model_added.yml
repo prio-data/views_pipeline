@@ -35,7 +35,7 @@ jobs:
           echo "New folders detected in views_pipeline/models: $new_dirs"
           removed_dirs=$(comm -23 <(echo "$previous_dirs" | sort) <(echo "$current_dirs" | sort))
           echo "Removed folders detected in views_pipeline/models: $removed_dirs"
-          git checkout HEAD
+          git checkout create_pgm_catalog_01
           git status
 
       - name: Generate catalog if models directory has changed
