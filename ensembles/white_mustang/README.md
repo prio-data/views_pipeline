@@ -47,9 +47,12 @@ white_mustang/ # should follow the naming convention adjective_noun
     |-- offline_evaluation/ # aka offline quality assurance
     |   |-- evaluate_ensemble.py # script to evaluate an ensemble model
     |
+    |-- training/ 
+    |   |-- train_model.py # script to train an ensemble model
+    |
     |-- utils/ # functions and classes 
-    |   |-- utils.py # general util functions
-    |   |-- utils_check.py # util functions for check ensemble models
+    |   |-- utils_outputs.py # util functions to save outputs
+    |   |-- utils_run.py # util functions for running models
     | 
     |-- visualization/ # scripts to create visualizations
         |-- visual.py 
