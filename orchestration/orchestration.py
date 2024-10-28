@@ -1,6 +1,6 @@
 from pathlib import Path
 from prefect import flow, task
-# from prefect_shell import ShellOperation 
+from prefect_shell import ShellOperation 
 import subprocess
 import sys
 
@@ -12,13 +12,8 @@ from model_path import ModelPath
 from ensemble_path import EnsemblePath
 # from utils_logger import setup_logging
 
-model_path = ModelPath('test_model', validate=False)
-ensemble_path = EnsemblePath('test_ensemble', validate=False)
-MODEL_DIR = model_path.models
-ENSEMBLE_DIR = ensemble_path.models
-
-# logger = setup_logging(str(model.root / 'run.log'))
-
+MODEL_DIR = ModelPath.get_models()
+ENSEMBLE_DIR = EnsemblePath.get_models()
 
 
 def initialize():
@@ -48,14 +43,14 @@ def run_model_script(script_path, name, run_type, sweep, train, evaluate, foreca
     if override_month:
         cli_args.extend(["--override_month", int(override_month)])
 
-    command = ["python", script_path] + cli_args
-    # print(command)
-    result = subprocess.run(command, capture_output=True, text=True)
-    if result.returncode != 0:
-        raise Exception(f"Script {script_path} failed: {result.stderr}")
+    # command = ["python", script_path] + cli_args
+    # # print(command)
+    # result = subprocess.run(command, capture_output=True, text=True)
+    # if result.returncode != 0:
+    #     raise Exception(f"Script {script_path} failed: {result.stderr}")
 
-    # command = f"python {script_path} " + ' '.join(cli_args)
-    # ShellOperation(commands=[command]).run()
+    command = f"python {script_path} " + ' '.join(cli_args)
+    ShellOperation(commands=[command]).run()
 
 
 @task(task_run_name="{name}")
@@ -69,15 +64,14 @@ def run_ensemble_script(script_path, name, run_type, evaluate, forecast):
     if forecast:
         cli_args.append("--forecast")
 
-    command = ["python", script_path] + cli_args
-    # print(command)
-    result = subprocess.run(command, capture_output=True, text=True)
-    if result.returncode != 0:
-        raise Exception(f"Script {script_path} failed: {result.stderr}")
+    # command = ["python", script_path] + cli_args
+    # # print(command)
+    # result = subprocess.run(command, capture_output=True, text=True)
+    # if result.returncode != 0:
+    #     raise Exception(f"Script {script_path} failed: {result.stderr}")
 
-    # command = f"python {script_path} " + ' '.join(cli_args)
-    # print(f"Executing command: {command}")
-    # ShellOperation(commands=[command]).run()
+    command = f"python {script_path} " + ' '.join(cli_args)
+    ShellOperation(commands=[command]).run()
 
 
 @flow(log_prints=True)
