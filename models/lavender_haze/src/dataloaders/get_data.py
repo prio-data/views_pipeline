@@ -1,16 +1,15 @@
 import logging
-from pathlib import Path
-from set_path import setup_data_paths
+from model_path import ModelPath
 from utils_dataloaders import fetch_or_load_views_df
 
 logger = logging.getLogger(__name__)
-PATH = Path(__file__)
 
 
-def get_data(args):
-    PATH_RAW, _, _ = setup_data_paths(PATH)
+def get_data(args, model_name):
+    model_path = ModelPath(model_name, validate=False)
+    path_raw = model_path.data_raw
 
-    data, alerts = fetch_or_load_views_df(args.run_type, PATH_RAW, use_saved=args.saved)
+    data, alerts = fetch_or_load_views_df(model_name, args.run_type, path_raw, use_saved=args.saved)
     logger.debug(f"DataFrame shape: {data.shape if data is not None else 'None'}")
 
     for ialert, alert in enumerate(str(alerts).strip('[').strip(']').split('Input')):
