@@ -17,10 +17,18 @@ from utils_df_to_vol_conversion import df_to_vol
 from viewser import Queryset, Column
 
 # sys.path.append(str(Path(__file__).parent))
-import logging
+
 from model_path import ModelPath
 
+#from utils_logger import setup_logging
+
+#logging.basicConfig(
+#    level=logging.INFO, format="%(asctime)s %(name)s - %(levelname)s - %(message)s"
+#)
+
 logger = logging.getLogger(__name__)
+
+#logger = setup_logging('run.log')
 
 # Super sus but works for now.
 def find_model_name():
@@ -49,13 +57,19 @@ def fetch_data_from_viewser(month_first, month_last, drift_config_dict, self_tes
         raise RuntimeError(f'Could not find queryset for {model_path.model_name} in common_querysets')
     else:
         logger.info(f'Found queryset for {model_path.model_name} in common_querysets')
-    del model_path
+
     df, alerts = queryset_base.publish().fetch_with_drift_detection(start_date=month_first,
                                                                     end_date=month_last - 1,
                                                                     drift_config_dict=drift_config_dict,
                                                                     self_test=self_test)
 
     df = ensure_float64(df)  # The dataframe must contain only np.float64 floats
+
+    for ialert, alert in enumerate(str(alerts).strip('[').strip(']').split('Input')):
+        if 'offender' in alert:
+            logger.warning({f"{model_path.model_name} data alert {ialert}": str(alert)})
+
+    del model_path
 
     # Not required for stepshift model
     # df.reset_index(inplace=True)
@@ -162,7 +176,7 @@ def filter_dataframe_by_month_range(df, month_first, month_last):
     return df[df['month_id'].isin(month_range)].copy()
 
 
-def get_views_df(partition, override_month=None, self_test=False):
+def get_views_df(partition, self_test, override_month=None):
     """
     Fetches and processes a DataFrame containing spatial-temporal data for the specified partition type.
 
@@ -202,7 +216,7 @@ def get_views_df(partition, override_month=None, self_test=False):
     return df, alerts
 
 
-def fetch_or_load_views_df(partition, PATH_RAW, self_test=False, use_saved=False, override_month=None):
+def fetch_or_load_views_df(partition, PATH_RAW, self_test, use_saved=False, override_month=None):
     """
     Fetches or loads a DataFrame for a given partition from viewser.
 
@@ -238,7 +252,7 @@ def fetch_or_load_views_df(partition, PATH_RAW, self_test=False, use_saved=False
 
     else:
         logger.info(f'Fetching file...')
-        df, alerts = get_views_df(partition, override_month, self_test)  # which is then used here
+        df, alerts = get_views_df(partition, self_test, override_month)  # which is then used here
         logger.info(f'Saving file to {path_viewser_df}')
         df.to_pickle(path_viewser_df)
 

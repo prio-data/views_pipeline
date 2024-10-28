@@ -1,6 +1,7 @@
 import wandb
 import sys
 import warnings
+import time
 
 from pathlib import Path
 PATH = Path(__file__)
@@ -19,6 +20,7 @@ logger = setup_logging('run.log')
 
 
 if __name__ == "__main__":
+    start_t = time.time()
     wandb.login()
 
     args = parse_args()

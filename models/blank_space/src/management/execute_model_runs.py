@@ -30,7 +30,6 @@ def execute_sweep_run(args):
 
 
 def execute_single_run(args):
-    get_data(args)
 
     hp_config = get_hp_config()
     meta_config = get_meta_config()
@@ -38,6 +37,10 @@ def execute_single_run(args):
     config = update_config(hp_config, meta_config, dp_config, args)
     
     project = f"{config['name']}_{args.run_type}"
+
+    self_test = True
+
+    get_data(args, project, self_test)
 
     if args.run_type == 'calibration' or args.run_type == 'testing':
         execute_model_tasks(config=config, project=project, train=args.train, eval=args.evaluate,
