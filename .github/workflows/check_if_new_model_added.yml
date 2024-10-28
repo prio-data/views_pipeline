@@ -24,7 +24,7 @@ jobs:
           current_dirs=$(find models -type d -maxdepth 1)
 
           # Fetch the previous commit from the main branch to compare
-          parent_commit=$(git rev-parse create_pgm_catalog_01~1)
+          parent_commit=$(git rev-parse HEAD~1)
           git checkout $parent_commit
 
           # List directories from the previous commit
@@ -35,7 +35,7 @@ jobs:
           echo "New folders detected in views_pipeline/models: $new_dirs"
           removed_dirs=$(comm -23 <(echo "$previous_dirs" | sort) <(echo "$current_dirs" | sort))
           echo "Removed folders detected in views_pipeline/models: $removed_dirs"
-          git checkout create_pgm_catalog_01
+          git checkout HEAD
           git status
 
       - name: Generate catalog if models directory has changed
