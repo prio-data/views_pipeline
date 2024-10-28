@@ -3,7 +3,9 @@ import sys
 import logging
 import importlib
 import hashlib
-from typing import Union, Optional, List, Dict
+from typing import Union, Optional, List, Dict, Any
+import yaml
+from string import Template
 
 PATH = Path(__file__)
 if 'views_pipeline' in PATH.parts:
@@ -61,45 +63,45 @@ class ModelPath:
         _ignore_attributes (list): A list of paths to ignore.
     """
 
-    __slots__ = (
-        "_validate",
-        "target",
-        "use_global_cache",
-        "_force_cache_overwrite",
-        "root",
-        "models",
-        "common_utils",
-        "common_configs",
-        "_ignore_attributes",
-        "model_name",
-        "_instance_hash",
-        "_queryset",
-        "model_dir",
-        "architectures",
-        "artifacts",
-        "configs",
-        "data",
-        "data_generated",
-        "data_processed",
-        "data_raw",
-        "dataloaders",
-        "forecasting",
-        "management",
-        "notebooks",
-        "offline_evaluation",
-        "online_evaluation",
-        "reports",
-        "src",
-        "_templates",
-        "training",
-        "utils",
-        "visualization",
-        "_sys_paths",
-        "common_querysets",
-        "queryset_path",
-        "scripts",
-        "meta_tools",
-    )
+    # __slots__ = (
+    #     "_validate",
+    #     "target",
+    #     "use_global_cache",
+    #     "_force_cache_overwrite",
+    #     "root",
+    #     "models",
+    #     "common_utils",
+    #     "common_configs",
+    #     "_ignore_attributes",
+    #     "model_name",
+    #     "_instance_hash",
+    #     "_queryset",
+    #     "model_dir",
+    #     "architectures",
+    #     "artifacts",
+    #     "configs",
+    #     "data",
+    #     "data_generated",
+    #     "data_processed",
+    #     "data_raw",
+    #     "dataloaders",
+    #     "forecasting",
+    #     "management",
+    #     "notebooks",
+    #     "offline_evaluation",
+    #     "online_evaluation",
+    #     "reports",
+    #     "src",
+    #     "_templates",
+    #     "training",
+    #     "utils",
+    #     "visualization",
+    #     "_sys_paths",
+    #     "common_querysets",
+    #     "queryset_path",
+    #     "scripts",
+    #     "meta_tools",
+    # )
 
     _target = "model"
     _use_global_cache = True
@@ -260,8 +262,7 @@ class ModelPath:
         self._config_yaml_path = self.common_configs / config_file
         if not self._config_yaml_path.exists():
             raise RuntimeError(f"{self.target.title()} YAML configuration file not found at {self._config_yaml_path}")
-        self._config_yaml = ModelPath.
-
+        # self._read_config_yaml()
         # Ignore attributes while processing
         self._ignore_attributes = [
             "model_name",
@@ -284,10 +285,11 @@ class ModelPath:
         self._instance_hash = self.generate_hash(
             self.model_name, self._validate, self.target
         )
+        self.model_dir = self._get_model_dir()
 
         if self.use_global_cache:
             self._handle_global_cache()
-
+        
         self._initialize_directories()
         self._initialize_scripts()
         logger.debug(
@@ -297,11 +299,92 @@ class ModelPath:
         if self.use_global_cache:
             self._write_to_global_cache()
 
-    def _read_yaml(yaml_file_path: Union[str, Path]):
-        pass
+    def _read_config_yaml(self):
+        try:
+            with open(self._config_yaml_path, "r") as file:
+                self._config_data = yaml.safe_load(file)
+                self._path_templates = self._config_data.get('paths', {})
+                logger.debug(f"Loaded configuration from {self._config_yaml_path}")
+        except Exception as e:
+            logger.error(f"Error reading {self.target} configuration file: {e}")
 
-    def _process_yaml(self):
-        pass
+    def _build_paths(self):
+        """
+        Build the paths by replacing placeholders in the configuration with actual values
+        and set them as attributes of the class, handling nested dictionaries.
+        """
+        # Initialize placeholders
+        self.variables = {
+            'root': str(self.root),
+            'model_name': str(self.model_name),
+            'models': str(self.models),
+        }
+        self.paths = {}
+        self._assign_paths(self._path_templates)
+
+    def _assign_paths(self, path_templates: Dict[str, Any], parent_key: str = ''):
+        """
+        Recursively replace placeholders and set paths as attributes.
+        """
+        for key, template in path_templates.items():
+            attr_name = f"{parent_key}_{key}" if parent_key else key
+
+            if isinstance(template, dict):
+                # Recursively handle nested dictionaries
+                self._assign_paths(template, attr_name)
+            elif template is None:
+                setattr(self, attr_name, None)
+                self.paths[attr_name] = None
+                logger.debug(f"Set attribute '{attr_name}' to None")
+            elif isinstance(template, str):
+                try:
+                    # Substitute placeholders
+                    substituted_path_str = self._substitute_placeholders(template)
+                    path_obj = Path(substituted_path_str)
+
+                    # Resolve relative paths
+                    if not path_obj.is_absolute():
+                        # absolute_path = (self.model_dir / path_obj).resolve()
+                        print(path_obj)
+                        logger.info(f"Path is not absolute: {path_obj}")
+                        absolute_path = self._build_absolute_directory(str(path_obj))
+                    else:
+                        absolute_path = path_obj.resolve()
+                        # absolute_path = self._build_absolute_directory(path_obj)
+
+                    # Assign the attribute
+                    setattr(self, attr_name, absolute_path)
+                    self.paths[attr_name] = absolute_path
+                    logger.debug(f"Set attribute '{attr_name}' to {absolute_path}")
+
+                    # Update variables for future substitutions
+                    self.variables[attr_name] = str(absolute_path)
+
+                except KeyError as e:
+                    logger.error(f"Missing placeholder for '{attr_name}': {e}")
+                    raise
+                except Exception as e:
+                    logger.error(f"Error assigning path for '{attr_name}': {e}")
+                    raise
+            else:
+                logger.warning(f"Unsupported template type for '{attr_name}': {type(template)}")
+
+    def _substitute_placeholders(self, template_str: str) -> str:
+        """
+        Substitute placeholders in a template string using current variables.
+
+        Args:
+            template_str (str): The template string with placeholders.
+
+        Returns:
+            str: The string with placeholders substituted.
+
+        Raises:
+            KeyError: If a placeholder is missing in variables.
+        """
+        template = Template(template_str)
+        substituted_str = template.safe_substitute(self.variables)
+        return substituted_str
 
     def _process_model_name(self, model_name_or_path: Union[str, Path]) -> str:
         """
@@ -419,6 +502,8 @@ class ModelPath:
             sys.path.insert(0, str(self.common_querysets))
         self.queryset_path = self.common_querysets / f"queryset_{self.model_name}.py"
         self._queryset = None
+        # self._read_config_yaml()
+        # self._build_paths()
 
     def _initialize_scripts(self) -> None:
         """
@@ -587,8 +672,8 @@ class ModelPath:
                     )
         if self._sys_paths is None:
             self._sys_paths = []
-        for attr in self.__slots__:
-            value = getattr(self, attr)
+        for attr, value in self.__dict__.items():
+            # value = getattr(self, attr)
             if str(attr) not in self._ignore_attributes:
                 if (
                     isinstance(value, Path)
@@ -653,8 +738,8 @@ class ModelPath:
         """
         print("\n{:<20}\t{:<50}".format("Name", "Path"))
         print("=" * 72)
-        for attr in self.__slots__:
-            value = getattr(self, attr)
+        for attr, value in self.__dict__.items():
+            # value = getattr(self, attr)
             if attr not in self._ignore_attributes and isinstance(value, Path):
                 print("{:<20}\t{:<50}".format(str(attr), str(value)))
 
@@ -699,8 +784,8 @@ class ModelPath:
         # ]
         directories = {}
         relative = False
-        for attr in self.__slots__:
-            value = getattr(self, attr)
+        for attr, value in self.__dict__.items():
+            # value = getattr(self, attr)
             if str(attr) not in [
                 "model_name",
                 "root",
@@ -755,7 +840,7 @@ class ModelPath:
 
 # if __name__ == "__main__":
 #     model_path = ModelPath("taco_cat", validate=False)
-#     print(model_path.get_scripts())
-#     print(model_path.get_directories())
-#     print(model_path.get_queryset())
-#     print(model_path.queryset_path)
+#     # print(model_path.get_scripts())
+#     # print(model_path.get_directories())
+#     print(model_path._config_data)
+#     print(model_path.dataloaders)

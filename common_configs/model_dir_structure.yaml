@@ -1,27 +1,27 @@
 paths:
   # The root directory of the pipeline, determined at runtime
-  pipeline_root: "${pipeline_root}"
+  root: "${root}"
   
   # Path to the models directory within the pipeline
-  models: "${pipeline_root}/models"
+  models: "${root}/models"
   
   # Path to common utilities shared across models
-  common_utils: "${pipeline_root}/common_utils"
+  common_utils: "${root}/common_utils"
   
   # Path to common configurations shared across models
-  common_configs: "${pipeline_root}/common_configs"
+  common_configs: "${root}/common_configs"
   
   # Path to common querysets shared across models
-  common_querysets: "${pipeline_root}/common_querysets"
+  common_querysets: "${root}/common_querysets"
 
   # Path to common cache shared across models
-  common_cache: "${pipeline_root}/common_cache"
+  common_cache: "${root}/common_cache"
 
   # Path to the specific model directory, based on the model name
   model_dir: "${models}/${model_name}"
   
   # Path to the templates directory within meta_tools
-  templates: "${pipeline_root}/meta_tools/templates"
+  templates: "${root}/meta_tools/templates"
   
   # Placeholder for system paths (set to null if not used)
   _sys_paths: null
