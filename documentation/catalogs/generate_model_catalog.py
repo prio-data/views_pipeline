@@ -13,9 +13,7 @@ PATH_ROOT = Path(
 
 sys.path.insert(0, str(PATH_ROOT))
 
-sys.path.insert(1, str(PATH_ROOT/"common_utils"))
-
-# PATH_ROOT = sys.path[0]
+sys.path.insert(0, str(PATH_ROOT/"common_utils"))
 
 from common_utils.model_path import ModelPath
 

@@ -11,12 +11,14 @@ if 'views_pipeline' in PATH.parts:
 else:
     raise ValueError("The 'views_pipeline' directory was not found in the provided path.")
 
+print(sys.path)
+
 import os
 import pytest
 from unittest.mock import patch, MagicMock
 import tempfile
 import shutil
-from meta_tools.model_scaffold_builder import ModelScaffoldBuilder
+from model_scaffold_builder import ModelScaffoldBuilder
 
 
 @pytest.fixture

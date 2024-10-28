@@ -346,7 +346,6 @@ class ModelPath:
         """
         try:
             from global_cache import GlobalCache
-
             cached_instance = GlobalCache[self._instance_hash]
             if cached_instance and not self._force_cache_overwrite:
                 logger.info(
@@ -357,7 +356,7 @@ class ModelPath:
             logger.error(
                 f"Error adding model {self.model_name} to cache: {e}. Initializing new ModelPath instance."
             )
-
+            
     def _write_to_global_cache(self) -> None:
         """
         Writes the current model instance to the global cache if it doesn't exist.
@@ -741,12 +740,10 @@ class ModelPath:
                 scripts[str(path)] = None
         return scripts
 
-"""
-if __name__ == "__main__":
-    model_path = ModelPath("taco_cat", validate=False)
-    print(model_path.get_scripts())
-    print(model_path.get_directories())
-    print(model_path.get_queryset())
-    print(model_path.queryset_path)
 
-"""
+# if __name__ == "__main__":
+#     model_path = ModelPath("taco_cat", validate=False)
+#     print(model_path.get_scripts())
+#     print(model_path.get_directories())
+#     print(model_path.get_queryset())
+#     print(model_path.queryset_path)
