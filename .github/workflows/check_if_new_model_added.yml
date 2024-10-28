@@ -35,11 +35,12 @@ jobs:
           echo "New folders detected in views_pipeline/models: $new_dirs"
           removed_dirs=$(comm -23 <(echo "$previous_dirs" | sort) <(echo "$current_dirs" | sort))
           echo "Removed folders detected in views_pipeline/models: $removed_dirs"
+          git checkout create_pgm_catalog_01
+          git status
 
       - name: Generate catalog if models directory has changed
         run: |
           if [ -n "$new_dirs" ] || [ -n "$removed_dirs" ]; then
-            git checkout create_pgm_catalog_01
             python documentation/catalogs/generate_model_catalog.py  
             echo "Model catalog is updated."           
           else
