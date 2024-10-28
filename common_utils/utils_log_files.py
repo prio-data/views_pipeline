@@ -1,8 +1,8 @@
 import logging
 from pathlib import Path
-from set_path import setup_data_paths, setup_root_paths
+from set_path import setup_data_paths
+from model_path import ModelPath
 
-PATH = Path(__file__)
 logger = logging.getLogger(__name__)
 
 
@@ -31,7 +31,7 @@ def read_log_file(log_file_path):
     return log_data
 
 
-def create_specific_log_file(PATH_GENERATED,
+def create_specific_log_file(path_generated,
                     run_type,
                     model_name,
                     deployment_status,
@@ -44,7 +44,7 @@ def create_specific_log_file(PATH_GENERATED,
     Creates a log file in the specified model-specific folder with details about the generated data.
 
     Args:
-    - PATH_GENERATED (Path): The path to the folder where the log file will be created.
+    - path_generated (Path): The path to the folder where the log file will be created.
     - run_type (str): The type of run
     - model_name (str): The name of the model.
     - deployment_status (str): The status of the deployment.
@@ -55,8 +55,8 @@ def create_specific_log_file(PATH_GENERATED,
     - mode (str, optional): The mode in which the file will be opened. Default is "w".
     """
 
-    Path(PATH_GENERATED).mkdir(parents=True, exist_ok=True)
-    log_file_path = f"{PATH_GENERATED}/{run_type}_log.txt"
+    Path(path_generated).mkdir(parents=True, exist_ok=True)
+    log_file_path = f"{path_generated}/{run_type}_log.txt"
 
     # Capitalize the first letter of the model type
     model_type = model_type[0].upper() + model_type[1:]
@@ -69,7 +69,7 @@ def create_specific_log_file(PATH_GENERATED,
         log_file.write(f"Deployment Status: {deployment_status}\n\n")
 
 
-def create_log_file(PATH_GENERATED,
+def create_log_file(path_generated,
                     model_config,
                     model_timestamp,
                     data_generation_timestamp=None,
@@ -81,15 +81,15 @@ def create_log_file(PATH_GENERATED,
     model_name = model_config["name"]
     deployment_status = model_config["deployment_status"]
     
-    create_specific_log_file(PATH_GENERATED, run_type, model_name, deployment_status,
+    create_specific_log_file(path_generated, run_type, model_name, deployment_status,
                     model_timestamp, data_generation_timestamp, data_fetch_timestamp, model_type)
     if models:
         for m_name in models:
-            model_path = setup_root_paths(PATH) / "models" / m_name
+            model_path = ModelPath(m_name, validate=False).model_dir
             _, _, model_path_generated = setup_data_paths(model_path)
             log_data = read_log_file(model_path_generated / f"{run_type}_log.txt")
-            create_specific_log_file(PATH_GENERATED, run_type, m_name, log_data["Deployment Status"], 
+            create_specific_log_file(path_generated, run_type, m_name, log_data["Deployment Status"], 
                                      log_data["Single Model Timestamp"], log_data["Data Generation Timestamp"], log_data["Data Fetch Timestamp"], mode="a")
     
-    logger.info(f"Log file created at {PATH_GENERATED}/{run_type}_log.txt")
+    logger.info(f"Log file created at {path_generated}/{run_type}_log.txt")
         
