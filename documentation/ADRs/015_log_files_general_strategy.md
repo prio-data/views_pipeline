@@ -35,7 +35,7 @@ To implement a robust and unified logging strategy, we have decided on the follo
 
 2. **Daily Rotation and Retention Policy**: Logs will rotate daily, keeping the last 30 days of logs by default. This policy provides sufficient historical data for troubleshooting and auditing without excessive storage usage. Rotation is achieved using a `TimedRotatingFileHandler`, with daily timestamped log filenames for easy access.
 
-3. **Log Separation by Level**: Logs are separated into `INFO`, `DEBUG`, and `ERROR` files. This separation improves monitoring and helps maintain focus on the desired logging level when troubleshooting (e.g., reviewing only errors or detailed debugging information). Each log file will capture messages specific to its level, ensuring modularity and readability in logs.
+3. **Log Separation by Level**: Logs are separated into `INFO`, `DEBUG`, and `ERROR` files and stored under `views_pipeline/common_logs`. This separation improves monitoring and helps maintain focus on the desired logging level when troubleshooting (e.g., reviewing only errors or detailed debugging information). Each log file will capture messages specific to its level, ensuring modularity and readability in logs.
 
 4. **Inclusion of Path and Process Details**: Log messages include additional context such as script path (`%(pathname)s`), filename (`%(filename)s`), line number (`%(lineno)d`), process ID (`%(process)d`), and thread name (`%(threadName)s`). This information aids in tracing logs back to their source, supporting traceability and aiding debugging.
 
