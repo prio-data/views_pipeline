@@ -1,0 +1,44 @@
+version: 1
+disable_existing_loggers: False
+
+formatters:
+  detailed:
+    format: '%(asctime)s %(pathname)s [%(filename)s:%(lineno)d] [%(process)d] [%(threadName)s] - %(levelname)s - %(message)s'
+
+handlers:
+  console:
+    class: logging.StreamHandler
+    level: DEBUG
+    formatter: detailed
+    stream: ext://sys.stdout
+
+  info_file_handler:
+    class: logging.handlers.TimedRotatingFileHandler
+    level: INFO
+    formatter: detailed
+    filename: 'logs/app_INFO_%Y-%m-%d.log'
+    when: 'midnight'
+    backupCount: 30
+    encoding: 'utf8'
+
+  debug_file_handler:
+    class: logging.handlers.TimedRotatingFileHandler
+    level: DEBUG
+    formatter: detailed
+    filename: 'logs/app_DEBUG_%Y-%m-%d.log'
+    when: 'midnight'
+    backupCount: 30
+    encoding: 'utf8'
+
+  error_file_handler:
+    class: logging.handlers.TimedRotatingFileHandler
+    level: ERROR
+    formatter: detailed
+    filename: 'logs/app_ERROR_%Y-%m-%d.log'
+    when: 'midnight'
+    backupCount: 30
+    encoding: 'utf8'
+
+root:
+  level: DEBUG
+  handlers: [console, info_file_handler, debug_file_handler, error_file_handler]
