@@ -230,7 +230,7 @@ class ModelPath:
         return None
 
     def __init__(
-        self, model_name_or_path: Union[str, Path], validate: bool = True
+        self, model_name_or_path: Union[str, Path], validate: bool = True, config_file: Union[str, Path] = "model_dir_structure.yaml"
     ) -> None:
         """
         Initializes a ModelPath instance.
@@ -240,12 +240,6 @@ class ModelPath:
             validate (bool, optional): Whether to validate paths and names. Defaults to True.
             target (str, optional): The target type (e.g., 'model'). Defaults to 'model'.
         """
-
-        # Configs
-        self.__class__.__instances__ += 1
-
-        self._validate = validate
-        self.target = self.__class__._target
 
         # DO NOT USE GLOBAL CACHE FOR NOW
         self.use_global_cache = self.__class__._use_global_cache
@@ -258,6 +252,16 @@ class ModelPath:
         self.common_configs = self.__class__.get_common_configs()
         self.common_querysets = self.__class__.get_common_querysets()
         self.meta_tools = self.__class__.get_meta_tools()
+
+        # Configs
+        self.__class__.__instances__ += 1
+        self._validate = validate
+        self.target = self.__class__._target
+        self._config_yaml_path = self.common_configs / config_file
+        if not self._config_yaml_path.exists():
+            raise RuntimeError(f"{self.target.title()} YAML configuration file not found at {self._config_yaml_path}")
+        self._config_yaml = ModelPath.
+
         # Ignore attributes while processing
         self._ignore_attributes = [
             "model_name",
@@ -273,6 +277,7 @@ class ModelPath:
             "_force_cache_overwrite",
             "_instance_hash",
             "use_global_cache",
+            "_config_yaml"
         ]
 
         self.model_name = self._process_model_name(model_name_or_path)
@@ -291,6 +296,12 @@ class ModelPath:
 
         if self.use_global_cache:
             self._write_to_global_cache()
+
+    def _read_yaml(yaml_file_path: Union[str, Path]):
+        pass
+
+    def _process_yaml(self):
+        pass
 
     def _process_model_name(self, model_name_or_path: Union[str, Path]) -> str:
         """
@@ -705,6 +716,7 @@ class ModelPath:
                 "_force_cache_overwrite",
                 "initialized",
                 "_instance_hash",
+                "_config_yaml"
             ] and isinstance(value, Path):
                 if not relative:
                     directories[str(attr)] = str(value)
