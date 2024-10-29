@@ -18,7 +18,7 @@ else:
 # print(str(Path(__file__).parent.parent))
 from common_utils import model_path, ensemble_path
 
-from templates import (
+from templates.model import (
     template_config_deployment,
     template_config_hyperparameters,
     template_config_input_data,

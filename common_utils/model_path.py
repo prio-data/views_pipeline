@@ -418,7 +418,6 @@ class ModelPath:
         self.scripts = [
             self._build_absolute_directory(Path("configs/config_deployment.py")),
             self._build_absolute_directory(Path("configs/config_hyperparameters.py")),
-            self._build_absolute_directory(Path("configs/config_input_data.py")),
             self._build_absolute_directory(Path("configs/config_meta.py")),
             self._build_absolute_directory(Path("configs/config_sweep.py")),
             self._build_absolute_directory(Path("main.py")),
