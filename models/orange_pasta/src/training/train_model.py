@@ -6,9 +6,9 @@ from set_path import setup_project_paths, setup_data_paths, setup_artifacts_path
 setup_project_paths(PATH)
 
 from utils_log_files import create_log_file
+from utils_run import get_model
 from set_partition import get_partitioner_dict
 from views_forecasts.extensions import *
-from views_stepshifter_darts.stepshifter_darts import StepshifterModel
 
 
 def train_model_artifact(config):
@@ -29,6 +29,6 @@ def train_model_artifact(config):
 
 def stepshift_training(config, partition_name, dataset):
     partitioner_dict = get_partitioner_dict(partition_name)
-    stepshift_model = StepshifterModel(config, partitioner_dict)
+    stepshift_model = get_model(config, partitioner_dict)
     stepshift_model.fit(dataset)
     return stepshift_model
