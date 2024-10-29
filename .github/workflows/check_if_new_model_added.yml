@@ -49,7 +49,7 @@ jobs:
           else
             echo "No new or removed folders detected."
           fi
-        
+          git status
 
       - name: Configure Git
         run: |

@@ -9,7 +9,8 @@ import sys
 from pathlib import Path
 
 PATH = Path(__file__).resolve()
-PATH_ROOT = PATH.parent.parent.parent
+indices = [i for i, x in enumerate(PATH.parts) if x == "views_pipeline"]
+PATH_ROOT = Path(*PATH.parts[:indices[-1] + 1])
 
 sys.path.insert(0, str(PATH_ROOT))
 sys.path.insert(0, str(PATH_ROOT/"common_utils"))
