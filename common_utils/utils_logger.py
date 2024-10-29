@@ -1,7 +1,7 @@
 import logging
 
 
-def setup_logging(log_file: str, log_level=logging.INFO):
+def setup_logging(log_file: str, log_level=logging.INFO) -> logging.Logger:
     """
     Sets up logging to both a specified file and the terminal (console).
 
