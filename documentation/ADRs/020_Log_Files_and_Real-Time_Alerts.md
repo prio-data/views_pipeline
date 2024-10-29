@@ -10,55 +10,88 @@
 
 
 ## Context
-In order to have a more effective overview of the orchestration in the pipeline, there is a need for better handling of log files and implementing real-time alerts which would allow for timely and relevant error handling for critical issues. 
+In the previous iterations of the VIEWS data processing pipeline, there were several occurences of errors (at different stages) being unnoticed for extended period of time. As these oversights primarily originated from inadequate monitoring and alerting mechanisms, or lack thereof. In order to avoid such oversights, as well as enhance visibility and responsiveness, there is a necesity to implement more comprehensive log handling throughout the pipeline. This ensures timely detection and relevant handling of critical issues, in turn improving the overall reliability, transparency and operational efficiency of the entire pipeline.
+
+For related ADRs on the generation of different log files, please see the ADRs below:
+[ADR 009 - Log Files for Generated Data](https://github.com/prio-data/views_pipeline/blob/main/documentation/ADRs/009_log_file_for_generated_data.md)
+[ADR 016 - Logging and Alerting for Input Drift Detection]()
+[ADR 019 - Error Logging and Alerts for Model Training]() 
 
 
 ## Decision
-To implement a real-time alert and notification system which will distribute alerts through specific channels (eg. Slack, email, W&B, Prefect), targeted at particular audiences (eg. Infrastructure, MD&D, individual) depending on the type of alert being handled. 
+We will implement a real-time alert and notification system that distributes alerts through designated channels — Slack, Email, Prefect, and Weights & Biases (W&B). Alerts will be targeted to specific audiences such as Infrastructure teams, Model Development & Deployment (MD&D) teams, Outreach teams, and individuals responsible for monthly runs. This targeted approach ensures that each alert reaches the appropriate stakeholders promptly, in turn facilitating efficient and effective issue resolution.
 
 
-### Overview
+## Overview
+Alert channels: 
+- Slack 
+- Email 
+- Prefect
+- Weights&Biases (W&B)
 
-Alert channels: Slack, email, Prefect and Weights&Biases
+Logging levels: 
+- INFO 
+- WARNING 
+- ERROR 
+- CRITICAL
 
-Logging levels: INFO, WARNING, ERROR, CRITICAL
+Audiences: 
+- Model Development & Deployment (MD&D): Team responsible for maintaining and deploying systems.
+- Infrastructure: Team managing the underlying infrastructure.
+- Outreach: Team handling communication and external interactions.
+- Monthly-Run Responsible: Individuals overseeing monthly pipeline executions.
 
-Audience: MD&D, Infrastructure, Outreach, monthly-run responsible 
+
+Below is a summary of which channels are designated for distributions of specific alerts to the assigned audiences. For alert prioritization, "critical" and "non-critical" alerts are separated, with critical alerts stemming from logging levels ERROR and CRITICAL. 
+
 
 | Channel | Threshold        | Alert Type                         | Audience                  |
 |---------|-------------------|------------------------------------|---------------------------|
-| Slack   | ERROR, CRITICAL   | Real-Time, Short Summary + Link to Full Log | MD&D, Infrastructure      |
+| Slack   | ERROR, CRITICAL   | Real-Time, Short Summary + Link to Full Log | MD&D, Infrastructure, Outreach|
 | Email   | ERROR, CRITICAL   | Real-Time, Expanded Summary       | MD&D, Infrastructure      |
 | Prefect | ALL               | Real-Time, Workflow Status        | MD&D, Infrastructure, Outreach |
 | W&B     | ALL               | Performance Metrics               | MD&D, Infrastructure, Outreach |
 
 
-For alert prioritization, "critical" and "non-critical" alerts are separated, with critical alerts stemming from logging levels ERROR and CRITICAL. 
-
-
 ## Consequences
 
 **Positive Effects:**
-- Real-time alerts allow for timely handling of errors which may be critical 
-- Alerts can reach their target audiences immediately which limits time and makes information flows more direct and effective 
-- Having real-time alerts is useful in generating a record of (reoccuring) issues in the pipeline 
-- Increased transparency
-
+- **Timely Issue Resolution:** Real-time alerts enable prompt handling of critical errors, reducing downtime and minimizing impact.
+- **Targeted Communication:** Alerts reaching specific audiences ensure that relevant teams are immediately informed, enhancing the efficiency of response efforts.
+- **Historical Insights:** Real-time alerts contribute to a log of recurring issues, facilitating trend analysis and proactive problem-solving.
+- **Enhanced Transparency:** Improved logging and alerting mechanisms provide greater visibility into pipeline operations, fostering accountability and informed decision-making.
 
 **Negative Effects:**
-- Alerts must be set up in a way to be concise and informative in order to be useful, with carefully chosen levels of detail to avoid "alert fatigue"
-- The audience for each type of alert must be carefully selected in order for alerts to stay relevant 
-- Potential increase in maintanence work 
+- **Alert Fatigue:** Without careful configuration, the volume of alerts may overwhelm recipients, leading to important alerts being overlooked.
+- **Relevance of Alerts:** Incorrectly targeted alerts can result in irrelevant notifications, causing confusion and reducing trust in the alerting system.
+- **Increased Maintenance:** Setting up and maintaining the alerting infrastructure requires additional resources and ongoing adjustments to thresholds and channels.
 
 ## Rationale
-Easier, quicker and more efficient handling of potential issues, errors or obstacles in the pipeline. Additionally, a better overview of the pipeline orchestration process. 
+
+Implementing a real-time alert and logging system will establish high standards for pipeline reliability by enabling the swift detection and resolution of issues. By categorizing and targeting alerts to the appropriate audiences, we create a robust MLOps infrastructure that supports continuous quality assurance and proactive issue management. This approach minimizes the impact of errors, enhances overall productivity, and ensures high system availability. Comprehensive logging offers valuable insights into pipeline performance, behavior, and potential problems, facilitating continuous improvement and effective orchestration management. Additionally, real-time monitoring and targeted alerts promote transparency and enable teams to adapt quickly to changing conditions. This decision aligns with our organizational goals of maintaining high availability, ensuring robust operational processes, and fostering a culture of proactive and continuous improvement in our MLOps practices.
+
 
 ### Considerations
 
 Implementation: 
-- how the channels are integrated with the logger
-- what types of events or errors trigger alerts at each logging level 
-- testing accuracy and reliability of the alerts
+
+- Logger Integration:
+    - Choose a compatible logging framework: we'll use Python’s logging.
+    - Connect the logger to alert channels using middleware (i.e. Slack API, Mail).
+    - Integrate with Prefect and Weights & Biases (W&B) for workflow and performance metrics.
+   
+- Event and Error Triggers
+    - Define criteria and examples for each logging level (INFO, WARNING, ERROR, CRITICAL).
+    - Use structured logging (e.g., JSON) for easy log parsing and filtering.
+    - Set rules for triggering alerts based on event severity.
+
+- Testing and Reliability:
+    - Implement a testing strategy with unit, integration, and end-to-end tests for alert verification.
+    - Simulate error conditions to validate alert accuracy and reliability.
+    - Monitor the alerting system to detect and resolve delivery issues.
+
+
+
 
 Maintaining: 
 - Should logs be archived or deleted? If so, which ones and when? Log rotation system? 
@@ -68,8 +101,8 @@ Maintaining:
 - Alert noise reduction: introduce possible ways of grouping similar or related alerts in order to avoid alert channel overflows 
 
 ## Additional Notes
-This ADR relates to *insert all other log and alert ADRs* 
+
 
 ## Feedback and Suggestions
-
+Feedback is welcome!
 
