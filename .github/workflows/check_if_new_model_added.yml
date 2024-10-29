@@ -6,6 +6,10 @@ on:
       - create_pgm_catalog_01 # for testing on this branch
       - production
       - development
+    paths:
+      - models/*/configs/config_deployment.py
+      - models/*/configs/config_meta.py
+      - common_querysets/
   workflow_dispatch: # for triggering manually
 
 jobs:

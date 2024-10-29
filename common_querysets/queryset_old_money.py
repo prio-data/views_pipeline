@@ -1,15 +1,14 @@
 from viewser import Queryset, Column
 
-
 def generate():
-    qs_escwa_drought = (Queryset("fatalities002_pgm_escwa_drought", "priogrid_month")
+    
+    qs_escwa_drought = (Queryset("fatalities003_pgm_escwa_drought", "priogrid_month")
 
                         # target variable
-                        .with_column(
-        Column("ln_ged_sb_dep", from_loa="priogrid_month", from_column="ged_sb_best_sum_nokgi")
-        .transform.missing.replace_na()
-        .transform.ops.ln()
-        )
+                        .with_column(Column("ln_ged_sb_dep", from_loa="priogrid_month", from_column="ged_sb_best_sum_nokgi")
+                                     .transform.missing.replace_na()
+                                     .transform.ops.ln()
+                                     )
 
                         # timelag 0 of target variable
                         .with_column(Column("ln_ged_sb", from_loa="priogrid_month", from_column="ged_sb_best_sum_nokgi")
@@ -54,12 +53,11 @@ def generate():
                                      .transform.missing.replace_na(0)
                                      )
 
-                        .with_column(
-        Column("wdi_nv_agr_totl_kd", from_loa="country_year", from_column="wdi_nv_agr_totl_kd")
-        .transform.missing.replace_na(0)
-        .transform.temporal.tlag(12)
-        .transform.missing.replace_na(0)
-        )
+                        .with_column(Column("wdi_nv_agr_totl_kd", from_loa="country_year", from_column="wdi_nv_agr_totl_kd")
+                                     .transform.missing.replace_na(0)
+                                     .transform.temporal.tlag(12)
+                                     .transform.missing.replace_na(0)
+                                     )
 
                         .with_column(Column("pgd_imr_mean", from_loa="priogrid_year", from_column="imr_mean")
                                      .transform.missing.replace_na(0)
@@ -165,11 +163,11 @@ def generate():
 
                         .with_theme("fatalities")
                         .describe("""Fatalities, escwa drought and vulnerability, pgm level
-
-                                   Predicting number of fatalities with features from the escwa drought and 
-                                   vulnerability themes
-
-                                   """)
+    
+                                  Predicting number of fatalities with features from the escwa drought and 
+                                  vulnerability themes
+                                  
+                                  """)
                         )
-
+                    
     return qs_escwa_drought
