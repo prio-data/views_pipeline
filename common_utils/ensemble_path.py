@@ -123,7 +123,6 @@ class EnsemblePath(ModelPath):
             self._build_absolute_directory(Path("README.md")),
             self._build_absolute_directory(Path("requirements.txt")),
             self._build_absolute_directory(Path("artifacts/model_metadata_dict.py")),
-            self._build_absolute_directory(Path("src/dataloaders/get_data.py")),
             self._build_absolute_directory(
                 Path("src/forecasting/generate_forecast.py")
             ),
@@ -138,6 +137,7 @@ class EnsemblePath(ModelPath):
             ),
             self._build_absolute_directory(Path("src/training/train_ensemble.py")),
             self._build_absolute_directory(Path("src/utils/utils_outputs.py")),
+            self._build_absolute_directory(Path("src/utils/utils_check.py")),
             self._build_absolute_directory(Path("src/utils/utils_run.py")),
             self._build_absolute_directory(Path("src/visualization/visual.py")),
             # self.common_querysets / f"queryset_{self.model_name}.py",
