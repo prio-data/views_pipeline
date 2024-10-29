@@ -1,5 +1,6 @@
 import wandb
 import logging
+import time
 from evaluate_ensemble import evaluate_ensemble
 from generate_forecast import forecast_ensemble
 from train_ensemble import train_ensemble
@@ -25,6 +26,8 @@ def execute_model_tasks(config=None, project=None, train=None, eval=None, foreca
         artifact_name (optional): Specific names of the model artifact to load for evaluation or forecasting.
     """
 
+    start_t = time.time()
+
     # Initialize WandB
     with wandb.init(project=project, entity="views_pipeline",
                     config=config):  # project and config ignored when running a sweep
@@ -46,4 +49,8 @@ def execute_model_tasks(config=None, project=None, train=None, eval=None, foreca
         if forecast:
             logger.info(f"Forecasting ensemble model {config['name']}...")
             forecast_ensemble(config)
+
+        end_t = time.time()
+        minutes = (end_t - start_t) / 60
+        logger.info(f"Done. Runtime: {minutes:.3f} minutes.\n")
             
