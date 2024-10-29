@@ -14,8 +14,6 @@
 ## Context
 *We wanted to have a catalog about all of the models in the pipeline. We needed to do that both for the old and the new pipeline because the structure of the two pipelines and the way how the querysets are organised are different. We also had to be sure that the catalogs update whenever a model is modified or added.*
 
-*Describe the issue that necessitated the decision, including any factors considered during the decision-making process. This should provide a clear understanding of the challenges or opportunities addressed by the ADR.*
-
 ## Decision
 ### New pipeline
 *In the new pipeline there are two spearate catalogs for 'country level' and 'priogrid level' models with the following structure:*
@@ -63,19 +61,15 @@ Columns:
 - **Author**: TBD
 
 ### GitHub actions
-The catalogs are updated via GitHub actions. Action for the new pipeline: [update_views_pipeline_cm_catalog.yml](https://github.com/prio-data/viewsforecasting/blob/github_workflows/.github/workflows/update_views_pipeline_cm_catalog.yml), action for the old pipeline: [check_if_new_model_added.yml](https://github.com/prio-data/views_pipeline/blob/production/.github/workflows/check_if_new_model_added.yml). They trigger when the config files are modified on the `production` and `development` branch. These GitHub actions can also be triggered manually for testing reason.
+The catalogs are updated via GitHub actions. Action for the new pipeline: [update_views_pipeline_cm_catalog.yml](https://github.com/prio-data/viewsforecasting/blob/github_workflows/.github/workflows/update_views_pipeline_cm_catalog.yml), action for the old pipeline: [check_if_new_model_added.yml](https://github.com/prio-data/views_pipeline/blob/production/.github/workflows/check_if_new_model_added.yml). They trigger when the config files are modified on the `production` and `development` branch. These GitHub actions can also be triggered manually for testing reason. The GitHub actions can only push to non-protected branches.
 
-*Detail the decision that was made, including any alternatives that were considered and the reasons for choosing the implemented solution. Provide enough technical specifics to justify the approach.*
 
 ### Overview
 *Creating catalogs for 'country level' and 'priogrid level' that update automatically when a model is modified. Separate implementation for the old and the new pipeline.*
 
-*Overview of the decision in a clear and concise manner.*
 
 ## Consequences
 *Clear overview about our existing models in the `views_pipeline/documentation/catalogs/` directory.*
-
-*Discuss the positive and negative effects of the decision. Include both immediate outcomes and long-term implications for the project's architecture. Highlight how the decision aligns with the challenges outlined in the context.*
 
 **Positive Effects:**
 - Our models become trackable and presentable.
@@ -86,14 +80,15 @@ The catalogs are updated via GitHub actions. Action for the new pipeline: [updat
 - If the catalogs fail to update, it might remain unnoticed for a while.
 
 ## Rationale
-*Every information about the models are found at one place*
+*Every information about the models are found at one place. Models can be tracked and presented, even for people not involved in the development. It is easier to involve new people to the model development. GitHub actions provide a convenient way to keep the catalogs up-to-date.*
 
-*Explain the reasoning behind the decision, including any specific advantages that influenced the choice. This section should reflect the factors mentioned in the context.*
 
 ### Considerations
-*We decided to separate 'country level' and 'priogrid level' models into different catalogs. GitHub actions *
+- We decided to separate 'country level' and 'priogrid level' models into different catalogs. 
+- We needed a separate catalog for the old pipeline as well, which will be depreciated. 
+- GitHub actions push to `development` branch, but they cannot push to `production` branch, since it is protected.
 
-*List any considerations that were part of the decision-making process, such as potential risks, dependency issues, or impacts on existing systems.*
+
 
 ## Additional Notes
 Involving GitHub actions led to the separation of `production` and `development`branch, since they cannot push to a protected branch (`production`). More detailed information is found in ADR #023.
