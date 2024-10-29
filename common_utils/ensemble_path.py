@@ -144,7 +144,7 @@ class EnsemblePath(ModelPath):
         ]
 
 
-if __name__ == "__main__":
-    ensemble_path = EnsemblePath("white_mustang", validate=True)
-    print(ensemble_path.get_directories())
-    del ensemble_path
+# if __name__ == "__main__":
+#     ensemble_path = EnsemblePath("white_mustang", validate=True)
+#     print(ensemble_path.get_directories())
+#     del ensemble_path
