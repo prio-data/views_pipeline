@@ -3,9 +3,10 @@ name: Check for new model directories in views_pipeline/models
 on:
   push:
     branches:
-      - create_pgm_catalog_01
-      - main
-  workflow_dispatch:
+      - create_pgm_catalog_01 # for testing on this branch
+      - production
+      - development
+  workflow_dispatch: # for triggering manually
 
 jobs:
   check-new-folder:
@@ -14,16 +15,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
-          path: work
           fetch-depth: 0
       
       - name: Check for new directories and generate catalog if models directory has changed
         run: |
-          ls -la
-          cd work
-          ls -la
-          git status
-
           # List all directories currently in the views_pipeline/models folder
           current_dirs=$(find models -type d -maxdepth 1)
           echo $current_dirs
@@ -31,7 +26,7 @@ jobs:
           # Fetch the previous commit from the main branch to compare
           parent_commit=$(git rev-parse HEAD~1)
           echo $parent_commit
-          git checkout 7fdf35d1e250f3270936a97502613c0b5d013f5a
+          git checkout $parent_commit
 
           # List directories from the previous commit
           previous_dirs=$(find models -type d -maxdepth 1)
@@ -43,7 +38,6 @@ jobs:
           removed_dirs=$(comm -23 <(echo "$previous_dirs" | sort) <(echo "$current_dirs" | sort))
           echo "Removed folders detected in views_pipeline/models: $removed_dirs"
           git checkout create_pgm_catalog_01
-          git status
 
           # generate catalog if models directory has changed
           ls -la
