@@ -4,10 +4,12 @@ import numpy as np
 import pandas as pd
 import sys
 import logging
+from datetime import datetime
 
 from set_partition import get_partitioner_dict
 from common_configs import config_drift_detection
 from utils_df_to_vol_conversion import df_to_vol
+from utils_log_files import create_data_fetch_log_file
 from viewser import Queryset, Column
 
 import logging
@@ -26,7 +28,7 @@ def fetch_data_from_viewser(model_name, month_first, month_last, drift_config_di
         pd.DataFrame: The prepared DataFrame with initial processing done.
     """
     logger.info(f'Beginning file download through viewser with month range {month_first},{month_last}')
-    model_path = ModelPath(model_name, validate=True)
+    model_path = ModelPath(model_name)
     queryset_base = model_path.get_queryset()  # just used here..
     if queryset_base is None:
         raise RuntimeError(f'Could not find queryset for {model_path.model_name} in common_querysets')
@@ -224,6 +226,10 @@ def fetch_or_load_views_df(model_name, partition, PATH_RAW, self_test=False, use
     else:
         logger.info(f'Fetching data...')
         df, alerts = get_views_df(model_name, partition, override_month, self_test)  # which is then used here
+
+        data_fetch_timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        create_data_fetch_log_file(PATH_RAW, partition, model_name, data_fetch_timestamp)
+
         logger.info(f'Saving data to {path_viewser_df}')
         df.to_pickle(path_viewser_df)
 
