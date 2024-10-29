@@ -21,42 +21,14 @@ jobs:
         with:
           fetch-depth: 0
       
-      - name: Check for new directories and generate catalog if models directory has changed
+      - name: Generate catalog if models directory has changed
         run: |
-          # List all directories currently in the views_pipeline/models folder
-          current_dirs=$(find models -type d -maxdepth 1)
-          echo $current_dirs
-
-          # Fetch the previous commit from the main branch to compare
-          parent_commit=$(git rev-parse HEAD~1)
-          echo $parent_commit
-          git checkout $parent_commit
-
-          # List directories from the previous commit
-          previous_dirs=$(find models -type d -maxdepth 1)
-          echo $previous_dirs
-
-          # Compare the directories
-          new_dirs=$(comm -13 <(echo "$previous_dirs" | sort) <(echo "$current_dirs" | sort))
-          echo "New folders detected in views_pipeline/models: $new_dirs"
-          removed_dirs=$(comm -23 <(echo "$previous_dirs" | sort) <(echo "$current_dirs" | sort))
-          echo "Removed folders detected in views_pipeline/models: $removed_dirs"
-          git checkout create_pgm_catalog_01
-
-          # generate catalog if models directory has changed
-          ls -la
-          echo $new_dirs
-          echo $removed_dirs
-          if [ -n "$new_dirs" ] || [ -n "$removed_dirs" ]; then
-            python documentation/catalogs/generate_model_catalog.py  
-            if [ $? -ne 0 ]; then
-              echo "Generating catalogs failed."
-              exit 1
-            fi
-            echo "Model catalog is updated."           
-          else
-            echo "No new or removed folders detected."
+          python documentation/catalogs/generate_model_catalog.py  
+          if [ $? -ne 0 ]; then
+            echo "Generating catalogs failed."
+            exit 1
           fi
+          "Model catalog is updated."           
           git status
 
       - name: Configure Git
