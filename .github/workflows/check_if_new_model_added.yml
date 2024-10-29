@@ -28,7 +28,7 @@ jobs:
             echo "Generating catalogs failed."
             exit 1
           fi
-          "Model catalog is updated."           
+          echo "Model catalog is updated."           
           git status
 
       - name: Configure Git
