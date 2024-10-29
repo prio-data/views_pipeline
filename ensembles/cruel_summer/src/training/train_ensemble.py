@@ -17,9 +17,9 @@ def train_ensemble(config):
     run_type = config["run_type"]
 
     for model_name in config["models"]:
-        logger.info(f"Running single model {model_name}...")
+        logger.info(f"Training single model {model_name}...")
         
-        model_path = ModelPath(config["name"], validate=False)
+        model_path = ModelPath(model_name, validate=False)
         path_raw  = model_path.data_raw
         path_generated = model_path.data_generated
         path_artifacts = model_path.artifacts

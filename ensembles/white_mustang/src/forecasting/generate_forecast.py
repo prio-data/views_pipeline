@@ -23,7 +23,7 @@ def forecast_ensemble(config):
     timestamp = ""
 
     for model_name in config["models"]:
-        logger.info(f"Running single model {model_name}...")
+        logger.info(f"Forecasting single model {model_name}...")
 
         model_path = ModelPath(model_name, validate=False)    
         path_raw = model_path.data_raw
