@@ -45,6 +45,10 @@ jobs:
           echo $removed_dirs
           if [ -n "$new_dirs" ] || [ -n "$removed_dirs" ]; then
             python documentation/catalogs/generate_model_catalog.py  
+            if [ $? -ne 0 ]; then
+              echo "Generating catalogs failed."
+              exit 1
+            fi
             echo "Model catalog is updated."           
           else
             echo "No new or removed folders detected."

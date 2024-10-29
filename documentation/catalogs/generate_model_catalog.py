@@ -55,7 +55,7 @@ def extract_models(model_class):
             code = file.read()
             exec(code, {}, tmp_dict)
         model_dict.update(tmp_dict['get_meta_config']())
-        model_dict['queryset'] = create_link(model_dict['queryset'], model_class.queryset_path)
+        model_dict['queryset'] = create_link(model_dict['queryset'], model_class.queryset_path) if 'queryset' in model_dict else 'None'
 
 
     if os.path.exists(config_deployment):
@@ -68,9 +68,7 @@ def extract_models(model_class):
     if os.path.exists(config_hyperparameters):
         logging.info(f"Found hyperparameters config: {config_hyperparameters}") 
         model_dict['hyperparameters'] = create_link(f"hyperparameters {model_class.model_name}", Path(model_class.get_scripts()['config_hyperparameters.py']))
-  
-    model_dict['level'] = model_class.get_queryset().loa if model_class.get_queryset() else None
-
+    
     return model_dict
 
 
@@ -143,19 +141,19 @@ if __name__ == "__main__":
 
         if os.path.isdir(model_path): 
             model_class = ModelPath(model_name, validate=True)
-            #model_class.add_paths_to_sys()
+            
 
 
             model = extract_models(model_class)
             
-            if model['level'] == 'priogrid_month':
+            if 'level' in model and model['level'] == 'pgm':
                 models_list_pgm.append(model)
-            if model['level'] == 'country_month':
+            if 'level' in model and model['level'] == 'cm':
                 models_list_cm.append(model)
 
             
 
-            #model_class.remove_paths_from_sys()
+            
 
 
     markdown_table_pgm = generate_markdown_table(models_list_pgm)
