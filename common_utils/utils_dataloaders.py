@@ -2,38 +2,21 @@ import argparse
 import os
 import numpy as np
 import pandas as pd
-from pathlib import Path
 import sys
 import logging
 
-# from config_partitioner import get_partitioner_dict
-try:
-    from set_partition import get_partitioner_dict
-except:
-    pass
-# from config_input_data import get_input_data_config  # this is model specific
+from set_partition import get_partitioner_dict
 from common_configs import config_drift_detection
 from utils_df_to_vol_conversion import df_to_vol
 from viewser import Queryset, Column
 
-# sys.path.append(str(Path(__file__).parent))
 import logging
 from model_path import ModelPath
 
 logger = logging.getLogger(__name__)
 
-# Super sus but works for now.
-def find_model_name():
-    for path in sys.path:
-        try:
-            model_name = ModelPath.get_model_name_from_path(path)
-            if model_name:
-                return model_name
-        except:
-            continue
-    raise RuntimeError('Could not find model name')
 
-def fetch_data_from_viewser(month_first, month_last, drift_config_dict, self_test):
+def fetch_data_from_viewser(model_name, month_first, month_last, drift_config_dict, self_test):
     """
     Fetches and prepares the initial DataFrame from viewser.
 
@@ -43,7 +26,7 @@ def fetch_data_from_viewser(month_first, month_last, drift_config_dict, self_tes
         pd.DataFrame: The prepared DataFrame with initial processing done.
     """
     logger.info(f'Beginning file download through viewser with month range {month_first},{month_last}')
-    model_path = ModelPath(model_name_or_path=find_model_name(), validate=True)
+    model_path = ModelPath(model_name, validate=True)
     queryset_base = model_path.get_queryset()  # just used here..
     if queryset_base is None:
         raise RuntimeError(f'Could not find queryset for {model_path.model_name} in common_querysets')
@@ -162,7 +145,7 @@ def filter_dataframe_by_month_range(df, month_first, month_last):
     return df[df['month_id'].isin(month_range)].copy()
 
 
-def get_views_df(partition, override_month=None, self_test=False):
+def get_views_df(model_name, partition, override_month=None, self_test=False):
     """
     Fetches and processes a DataFrame containing spatial-temporal data for the specified partition type.
 
@@ -170,6 +153,7 @@ def get_views_df(partition, override_month=None, self_test=False):
     and calculating absolute indices based on the provided partition type ('calibration', 'testing', or 'forecasting').
 
     Args:
+        model_name (str): The name of the model.
         partition (str): Specifies the type of partition to retrieve. Must be one of 'calibration', 'testing',
                          or 'forecasting'.
                          - 'calibration': Use months specified for calibration.
@@ -197,12 +181,12 @@ def get_views_df(partition, override_month=None, self_test=False):
         month_last = override_month
         logger.warning(f'Overriding end month in forecasting partition to {month_last} ***\n')
 
-    df, alerts = fetch_data_from_viewser(month_first, month_last, drift_config_dict, self_test)
+    df, alerts = fetch_data_from_viewser(model_name, month_first, month_last, drift_config_dict, self_test)
 
     return df, alerts
 
 
-def fetch_or_load_views_df(partition, PATH_RAW, self_test=False, use_saved=False, override_month=None):
+def fetch_or_load_views_df(model_name, partition, PATH_RAW, self_test=False, use_saved=False, override_month=None):
     """
     Fetches or loads a DataFrame for a given partition from viewser.
 
@@ -212,6 +196,7 @@ def fetch_or_load_views_df(partition, PATH_RAW, self_test=False, use_saved=False
     used_saved flag to True, in which case saved data is returned, if it can be found.
 
     Args:
+        model_name (str): The name of the model.
         partition (str): The partition to process. Valid options are 'calibration', 'forecasting', 'testing'.
         PATH_RAW (str or Path): The path to the model-specific directory where raw data should be stored.
 
@@ -237,9 +222,9 @@ def fetch_or_load_views_df(partition, PATH_RAW, self_test=False, use_saved=False
             raise RuntimeError(f'Use of saved data was specified but {path_viewser_df} not found')
 
     else:
-        logger.info(f'Fetching file...')
-        df, alerts = get_views_df(partition, override_month, self_test)  # which is then used here
-        logger.info(f'Saving file to {path_viewser_df}')
+        logger.info(f'Fetching data...')
+        df, alerts = get_views_df(model_name, partition, override_month, self_test)  # which is then used here
+        logger.info(f'Saving data to {path_viewser_df}')
         df.to_pickle(path_viewser_df)
 
     if validate_df_partition(df, partition, override_month):

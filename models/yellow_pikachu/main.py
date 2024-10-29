@@ -15,7 +15,7 @@ from execute_model_runs import execute_sweep_run, execute_single_run
 
 warnings.filterwarnings("ignore")
 
-logger = setup_logging('run.log')
+logger = setup_logging("run.log")
 
 
 if __name__ == "__main__":
