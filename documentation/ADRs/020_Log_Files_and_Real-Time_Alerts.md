@@ -12,7 +12,7 @@
 ## Context
 In the previous iterations of the VIEWS data processing pipeline, there were several occurences of errors (at different stages) being unnoticed for extended period of time. As these oversights primarily originated from inadequate monitoring and alerting mechanisms, or lack thereof. In order to avoid such oversights, as well as enhance visibility and responsiveness, there is a necesity to implement more comprehensive log handling throughout the pipeline. This ensures timely detection and relevant handling of critical issues, in turn improving the overall reliability, transparency and operational efficiency of the entire pipeline.
 
-For related ADRs on the generation of different log files, please see the ADRs below:
+For related ADRs on the generation of different log files, please see the ADRs below:  [NOTE: once all relevant ADRs are on github, links must be added]
 [ADR 009 - Log Files for Generated Data](https://github.com/prio-data/views_pipeline/blob/main/documentation/ADRs/009_log_file_for_generated_data.md)
 [ADR 016 - Logging and Alerting for Input Drift Detection]()
 [ADR 019 - Error Logging and Alerts for Model Training]() 
@@ -27,7 +27,7 @@ Alert channels:
 - Slack 
 - Email 
 - Prefect
-- Weights&Biases (W&B)
+- Weights & Biases (W&B)
 
 Logging levels: 
 - INFO 
@@ -71,17 +71,17 @@ Below is a summary of which channels are designated for distributions of specifi
 Implementing a real-time alert and logging system will establish high standards for pipeline reliability by enabling the swift detection and resolution of issues. By categorizing and targeting alerts to the appropriate audiences, we create a robust MLOps infrastructure that supports continuous quality assurance and proactive issue management. This approach minimizes the impact of errors, enhances overall productivity, and ensures high system availability. Comprehensive logging offers valuable insights into pipeline performance, behavior, and potential problems, facilitating continuous improvement and effective orchestration management. Additionally, real-time monitoring and targeted alerts promote transparency and enable teams to adapt quickly to changing conditions. This decision aligns with our organizational goals of maintaining high availability, ensuring robust operational processes, and fostering a culture of proactive and continuous improvement in our MLOps practices.
 
 
-### Considerations
+## Considerations
 
 Implementation: 
 
 - Logger Integration:
-    - Choose a compatible logging framework: we'll use Python’s logging.
+    - Choosing a compatible logging framework: we will use Python’s logging.
     - Connect the logger to alert channels using middleware (i.e. Slack API, Mail).
     - Integrate with Prefect and Weights & Biases (W&B) for workflow and performance metrics.
    
 - Event and Error Triggers
-    - Define criteria and examples for each logging level (INFO, WARNING, ERROR, CRITICAL).
+    - Define clear criteria and examples for each logging level (INFO, WARNING, ERROR, CRITICAL).
     - Use structured logging (e.g., JSON) for easy log parsing and filtering.
     - Set rules for triggering alerts based on event severity.
 
