@@ -25,6 +25,14 @@ from templates.model import (
     template_config_meta,
     template_config_sweep,
     template_main,
+    template_get_data,
+    template_execute_model_runs,
+    template_execute_model_tasks,
+    template_evaluate_model,
+    template_evaluate_sweep,
+    template_train_model,
+    template_utils_run,
+    template_generate_forecast
 )
 
 logging.basicConfig(level=logging.INFO)
@@ -152,7 +160,7 @@ class ModelScaffoldBuilder:
                 f"Model directory {self._model.model_dir} does not exist. Please call build_model_directory() first. Aborting script generation."
             )
         template_config_deployment.generate(
-            script_dir=self._model.model_dir / "configs/config_deployment.py"
+            script_dir=self._model.configs / "config_deployment.py"
         )
         self._model_algorithm = str(
             input(
@@ -160,7 +168,7 @@ class ModelScaffoldBuilder:
             )
         )
         template_config_hyperparameters.generate(
-            script_dir=self._model.model_dir / "configs/config_hyperparameters.py",
+            script_dir=self._model.configs / "config_hyperparameters.py",
             model_algorithm=self._model_algorithm,
         )
         template_config_input_data.generate(
@@ -169,15 +177,39 @@ class ModelScaffoldBuilder:
             model_name=self._model.model_name,
         )
         template_config_meta.generate(
-            script_dir=self._model.model_dir / "configs/config_meta.py",
+            script_dir=self._model.configs / "config_meta.py",
             model_name=self._model.model_name,
             model_algorithm=self._model_algorithm,
         )
         template_config_sweep.generate(
-            script_dir=self._model.model_dir / "configs/config_sweep.py",
+            script_dir=self._model.configs / "config_sweep.py",
             model_algorithm=self._model_algorithm,
         )
         template_main.generate(script_dir=self._model.model_dir / "main.py")
+        template_get_data.generate(script_dir=self._model.dataloaders / "get_data.py")
+        template_generate_forecast.generate(
+            script_dir=self._model.forecasting / "generate_forecast.py"
+        )
+        template_execute_model_runs.generate(
+            script_dir=self._model.management / "execute_model_runs.py")
+        template_execute_model_tasks.generate(
+            script_dir=self._model.management / "execute_model_tasks.py"
+        )
+        template_evaluate_model.generate(
+            script_dir=self._model.offline_evaluation / "evaluate_model.py"
+        )
+        template_evaluate_sweep.generate(
+            script_dir=self._model.offline_evaluation / "evaluate_sweep.py"
+        )
+        template_train_model.generate(
+            script_dir=self._model.training / "train_model.py"
+        )
+        template_utils_run.generate(
+            script_dir=self._model.utils / "utils_run.py"
+        )
+        # INFO: utils_outputs.py was not templated because it will probably be moved to common_utils in the future.
+        logging.info(f"Remember to update the queryset file at {self._model.queryset_path}!")
+
 
     def assess_model_directory(self) -> dict:
         """
