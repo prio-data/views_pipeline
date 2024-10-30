@@ -1,4 +1,4 @@
-name: Require Branch to Be Up-to-Date with Production
+name: Require Branch to Be Up-to-Date
 
 # Trigger this workflow on pull request events targeting a specific branch.
 on:
@@ -6,31 +6,37 @@ on:
     branches:
       - production
       - development
-      - test-protect-main-merge # for testing
+      - fix_prevent_merge_when_branch_behind
   workflow_dispatch: # enables manual triggering
 
 jobs:
   check-branch:
     runs-on: ubuntu-latest
     steps:
+      - name: Determine Comparison Branch
+        id: comparison
+        run: |
+          if [[ "${{ github.event.pull_request.base.ref }}" == "production" && "${{ github.event.pull_request.head.ref }}" == "development" ]]; then
+            echo "branch=production" >> $GITHUB_ENV
+          else
+            echo "branch=development" >> $GITHUB_ENV
+          fi
+
       - name: Checkout pull request branch
         uses: actions/checkout@v3
         with:
           ref: ${{ github.event.pull_request.head.ref }}
     
-      - name: Fetch production branch
+      - name: Fetch comparison branch
         run: |
           git fetch --unshallow
-          git fetch origin production
+          git fetch origin ${{ env.branch }}
 
-      - name: Compare branch with production
+      - name: Compare branch with ${{ env.branch }}
         run: |
-          if git merge-base --is-ancestor origin/production HEAD; then
-            echo "::notice ::Branch is up-to-date with production."
+          if git merge-base --is-ancestor origin/${{ env.branch }} HEAD; then
+            echo "::notice ::Branch is up-to-date with ${{ env.branch }}."
           else
-            echo "::error ::Merge Blocked: Your branch is behind the latest commits on production. Please update your branch with the latest changes from production before attempting to merge."
-            echo "Merge base: $(git merge-base HEAD origin/production)"
+            echo "::error ::Merge Blocked: Your branch is behind the latest commits on ${{ env.branch }}. Please update your branch before attempting to merge."
             exit 1
           fi
-
- 
