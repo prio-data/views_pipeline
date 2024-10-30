@@ -111,7 +111,7 @@ def ensemble_model_check(config):
     """
 
     for model_name in config["models"]:
-        model_path = ModelPath(model_name, validate=False)
+        model_path = ModelPath(model_name)
         path_generated = model_path.data_generated
 
         if (
