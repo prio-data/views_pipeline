@@ -1,3 +1,4 @@
+import pandas as pd
 import pickle
 from pathlib import Path
 import logging
@@ -5,7 +6,10 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def save_model_outputs(df_evaluation, df_output, path_generated, config):
+def save_model_outputs(df_evaluation: pd.DataFrame, df_output: pd.DataFrame, path_generated: str | Path, config: dict):
+    '''
+    Save the model outputs and evaluation metrics to the specified path
+    '''
     Path(path_generated).mkdir(parents=True, exist_ok=True)
 
     # Save the DataFrame of model outputs
@@ -21,7 +25,11 @@ def save_model_outputs(df_evaluation, df_output, path_generated, config):
     logger.info(f"Evaluation metrics saved at: {evaluation_path}")
 
 
-def save_predictions(df_predictions, path_generated, config):
+def save_predictions(df_predictions: pd.DataFrame, path_generated: str | Path, config: dict):
+    '''
+    Save the model predictions to the specified path
+    '''
+    
     Path(path_generated).mkdir(parents=True, exist_ok=True)
 
     predictions_path = f'{path_generated}/predictions_{config["steps"][-1]}_{config["run_type"]}_{config["timestamp"]}.pkl'

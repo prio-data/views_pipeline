@@ -7,7 +7,7 @@ from model_path import ModelPath
 from ensemble_path import EnsemblePath
 from set_partition import get_partitioner_dict
 from utils_log_files import create_log_file, read_log_file
-from utils_outputs import save_predictions
+from utils_save_outputs import save_predictions
 from utils_run import get_standardized_df, get_aggregated_df, get_single_model_config
 from utils_artifacts import get_latest_model_artifact
 
