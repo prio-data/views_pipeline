@@ -128,3 +128,11 @@ def validate_arguments(args):
             "Error: --aggregation flag cannot be used with --sweep. Exiting."
         )
         sys.exit(1)
+
+    if not args.train and not args.saved:
+        # if not training, then we need to use saved data
+        print(
+            "Error: if --train is not set, you should only use --saved flag. Exiting."
+        )
+        print("To fix: Add --train or --saved flag.")
+        sys.exit(1)
