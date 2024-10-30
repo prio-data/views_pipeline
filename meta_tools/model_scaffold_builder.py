@@ -208,6 +208,7 @@ class ModelScaffoldBuilder:
             script_dir=self._model.utils / "utils_run.py"
         )
         # INFO: utils_outputs.py was not templated because it will probably be moved to common_utils in the future.
+        logging.info(f"Remember to update the queryset file at {self._model.queryset_path}!")
 
 
     def assess_model_directory(self) -> dict:
