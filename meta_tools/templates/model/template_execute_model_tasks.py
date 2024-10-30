@@ -17,8 +17,7 @@ def generate(script_dir: Path) -> bool:
         bool: True if the script was successfully saved, False otherwise.
     """
 
-    code = f"""
-import wandb
+    code = f"""import wandb
 import logging
 import time
 from evaluate_model import evaluate_model_artifact

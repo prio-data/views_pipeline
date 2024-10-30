@@ -16,8 +16,7 @@ def generate(script_dir: Path) -> bool:
         bool: True if the script was successfully saved, False otherwise.
     """
 
-    code = f"""
-import wandb
+    code = f"""import wandb
 from config_deployment import get_deployment_config
 from config_hyperparameters import get_hp_config
 from config_meta import get_meta_config

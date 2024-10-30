@@ -13,8 +13,7 @@ def generate(script_dir: Path) -> bool:
         bool: True if the script was successfully saved, False otherwise.
     """
 
-    code = f"""
-import logging
+    code = f"""import logging
 from model_path import ModelPath
 from utils_dataloaders import fetch_or_load_views_df
 

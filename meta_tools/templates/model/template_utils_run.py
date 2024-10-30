@@ -16,8 +16,7 @@ def generate(script_dir: Path) -> bool:
         bool: True if the script was successfully saved, False otherwise.
     """
 
-    code = f"""
-import numpy as np
+    code = f"""import numpy as np
 from views_stepshifter_darts.stepshifter import StepshifterModel
 from views_stepshifter_darts.hurdle_model import HurdleModel
 from views_forecasts.extensions import *

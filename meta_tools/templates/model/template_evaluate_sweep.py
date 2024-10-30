@@ -17,8 +17,7 @@ def generate(script_dir: Path) -> bool:
         bool: True if the script was successfully saved, False otherwise.
     """
 
-    code = f"""
-import pandas as pd
+    code = f"""import pandas as pd
 import wandb
 from sklearn.metrics import mean_squared_error
 from model_path import ModelPath

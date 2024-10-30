@@ -17,8 +17,7 @@ def generate(script_dir: Path) -> bool:
         bool: True if the script was successfully saved, False otherwise.
     """
 
-    code = f"""
-from datetime import datetime
+    code = f"""from datetime import datetime
 import pandas as pd
 import logging
 from model_path import ModelPath
