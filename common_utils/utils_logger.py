@@ -3,62 +3,63 @@ import logging.config
 import yaml
 import os
 from pathlib import Path
-
-
+from model_path import ModelPath
+from global_cache import GlobalCache
 # SINCE WE ARE IN COMMON_UTILS, WE CAN JUST USE THE MODEL_PATH OBJECT HERE...------------------------------
-def get_config_log_path() -> Path:
-    """
-    Retrieves the path to the 'config_log.yaml' file within the 'views_pipeline' directory.
+# def get_config_log_path() -> Path:
+#     """
+#     Retrieves the path to the 'config_log.yaml' file within the 'views_pipeline' directory.
 
-    This function identifies the 'views_pipeline' directory within the path of the current file,
-    constructs a new path up to and including this directory, and then appends the relative path
-    to the 'config_log.yaml' file. If the 'views_pipeline' directory or the 'config_log.yaml' file
-    is not found, it raises a ValueError.
+#     This function identifies the 'views_pipeline' directory within the path of the current file,
+#     constructs a new path up to and including this directory, and then appends the relative path
+#     to the 'config_log.yaml' file. If the 'views_pipeline' directory or the 'config_log.yaml' file
+#     is not found, it raises a ValueError.
 
-    Returns:
-        pathlib.Path: The path to the 'config_log.yaml' file.
+#     Returns:
+#         pathlib.Path: The path to the 'config_log.yaml' file.
 
-    Raises:
-        ValueError: If the 'views_pipeline' directory or the 'config_log.yaml' file is not found in the provided path.
-    """
-    PATH = Path(__file__)
-    if 'views_pipeline' in PATH.parts:
-        PATH_ROOT = Path(*PATH.parts[:PATH.parts.index('views_pipeline') + 1])
-        PATH_CONFIG_LOG = PATH_ROOT / 'common_configs/config_log.yaml'
-        if not PATH_CONFIG_LOG.exists():
-            raise ValueError("The 'config_log.yaml' file was not found in the provided path.")
-    else:
-        raise ValueError("The 'views_pipeline' directory was not found in the provided path.")
-    return PATH_CONFIG_LOG
-# --------------------------------------------------------------------------------------------------------------
+#     Raises:
+#         ValueError: If the 'views_pipeline' directory or the 'config_log.yaml' file is not found in the provided path.
+#     """
+#     PATH = Path(__file__)
+#     if 'views_pipeline' in PATH.parts:
+#         PATH_ROOT = Path(*PATH.parts[:PATH.parts.index('views_pipeline') + 1])
+#         PATH_CONFIG_LOG = PATH_ROOT / 'common_configs/config_log.yaml'
+#         if not PATH_CONFIG_LOG.exists():
+#             raise ValueError("The 'config_log.yaml' file was not found in the provided path.")
+#     else:
+#         raise ValueError("The 'views_pipeline' directory was not found in the provided path.")
+#     return PATH_CONFIG_LOG
+# # --------------------------------------------------------------------------------------------------------------
 
 
-# SINCE WE ARE IN COMMON_UTILS, WE CAN JUST USE THE MODEL_PATH OBJECT HERE...-----------------------------------
-def get_common_logs_path() -> Path:
-    """
-    Retrieve the absolute path to the 'common_logs' directory within the 'views_pipeline' structure.
+# # SINCE WE ARE IN COMMON_UTILS, WE CAN JUST USE THE MODEL_PATH OBJECT HERE...-----------------------------------
+# def get_common_logs_path() -> Path:
+#     """
+#     Retrieve the absolute path to the 'common_logs' directory within the 'views_pipeline' structure.
 
-    This function locates the 'views_pipeline' directory in the current file's path, then constructs
-    a new path to the 'common_logs' directory. If 'common_logs' or 'views_pipeline' directories are not found,
-    it raises a ValueError.
+#     This function locates the 'views_pipeline' directory in the current file's path, then constructs
+#     a new path to the 'common_logs' directory. If 'common_logs' or 'views_pipeline' directories are not found,
+#     it raises a ValueError.
 
-    Returns:
-        pathlib.Path: Absolute path to the 'common_logs' directory.
+#     Returns:
+#         pathlib.Path: Absolute path to the 'common_logs' directory.
 
-    Raises:
-        ValueError: If the 'views_pipeline' or 'common_logs' directory is not found.
-    """
-    PATH = Path(__file__)
-    if 'views_pipeline' in PATH.parts:
-        PATH_ROOT = Path(*PATH.parts[:PATH.parts.index('views_pipeline') + 1])
-        PATH_COMMON_LOGS = PATH_ROOT / 'common_logs'
-        if not PATH_COMMON_LOGS.exists():
-            raise ValueError("The 'common_logs' directory was not found in the provided path.")
-    else:
-        raise ValueError("The 'views_pipeline' directory was not found in the provided path.")
-    return PATH_COMMON_LOGS
-# ------------------------------------------------------------------------------------------------------------
+#     Raises:
+#         ValueError: If the 'views_pipeline' or 'common_logs' directory is not found.
+#     """
+#     PATH = Path(__file__)
+#     if 'views_pipeline' in PATH.parts:
+#         PATH_ROOT = Path(*PATH.parts[:PATH.parts.index('views_pipeline') + 1])
+#         PATH_COMMON_LOGS = PATH_ROOT / 'common_logs'
+#         if not PATH_COMMON_LOGS.exists():
+#             raise ValueError("The 'common_logs' directory was not found in the provided path.")
+#     else:
+#         raise ValueError("The 'views_pipeline' directory was not found in the provided path.")
+#     return PATH_COMMON_LOGS
+# # ------------------------------------------------------------------------------------------------------------
 
+_split_by_model = True # Only works for lavender_haze
 
 def ensure_log_directory(log_path: str) -> None:
     """
@@ -93,8 +94,11 @@ def setup_logging(
     >>> logger.info("Logging setup complete.")
     """
 
-    CONFIG_LOGS_PATH = get_config_log_path()
-    COMMON_LOGS_PATH = get_common_logs_path()    
+    CONFIG_LOGS_PATH = ModelPath.get_common_configs() / 'config_log.yaml'
+    if _split_by_model:
+        COMMON_LOGS_PATH = ModelPath.get_common_logs() / GlobalCache["current_model"]
+    else:
+        COMMON_LOGS_PATH = ModelPath.get_common_logs()
 
     # Load YAML configuration
     path = os.getenv(env_key, CONFIG_LOGS_PATH)
