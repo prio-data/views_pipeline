@@ -3,6 +3,7 @@ import pandas as pd
 import properscoring as ps
 from sklearn.metrics import mean_squared_error, mean_absolute_error
 # WARNING: mean_squared_error is deprecated!
+import wandb
 import sys
 from pathlib import Path
 PATH = Path(__file__)
@@ -43,11 +44,11 @@ def mock_config():
         Config: A mock configuration object with attributes 'steps' and 'depvar'.
     """
 
-    class Config:
-        steps = [1, 2]
-        depvar = "depvar"
+    config = wandb.Config()
+    config.steps = [1, 2]
+    config.depvar = "depvar"
 
-    return Config()
+    return config
 
 
 def test_evaluation_metrics_default_values():
