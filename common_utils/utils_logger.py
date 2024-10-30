@@ -96,7 +96,11 @@ def setup_logging(
 
     CONFIG_LOGS_PATH = ModelPath.get_common_configs() / 'config_log.yaml'
     if _split_by_model:
-        COMMON_LOGS_PATH = ModelPath.get_common_logs() / GlobalCache["current_model"]
+        try:
+            COMMON_LOGS_PATH = ModelPath.get_common_logs() / GlobalCache["current_model"]
+        except:
+            # Pretection in case model name is not available or GlobalCache fails.
+            COMMON_LOGS_PATH = ModelPath.get_common_logs()
     else:
         COMMON_LOGS_PATH = ModelPath.get_common_logs()
 

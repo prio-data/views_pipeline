@@ -17,8 +17,10 @@ from common_utils.model_path import ModelPath
 from common_utils.global_cache import GlobalCache
 
 warnings.filterwarnings("ignore")
-
-GlobalCache["current_model"] = ModelPath.get_model_name_from_path(Path(__file__))
+try:
+    GlobalCache["current_model"] = ModelPath.get_model_name_from_path(Path(__file__))
+except Exception:
+    pass
 logger = setup_logging("run.log")
 
 
