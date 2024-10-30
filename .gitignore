@@ -146,6 +146,9 @@ venv.bak/
 # mkdocs documentation
 /site
 
+# Global cache
+.global_cache.pkl
+
 # mypy
 .mypy_cache/
 .dmypy.json
@@ -195,6 +198,7 @@ cython_debug/
 
 # folders
 **/wandb/
+**/notebooks/
 
 # mac specific 
 .DS_Store
@@ -205,3 +209,6 @@ cython_debug/
 
 # backup files
 *.bak
+
+# txt logs
+*.txt
