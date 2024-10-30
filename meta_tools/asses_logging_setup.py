@@ -16,9 +16,6 @@ def set_path_common_utils():
     
     If the 'common_utils' path is not already in sys.path, it appends it.
 
-    Returns:
-        pathlib.Path: Absolute path to the 'common_utils' directory.
-
     Raises:
         ValueError: If the 'views_pipeline' or 'common_utils' directory is not found.
     """
