@@ -12,7 +12,7 @@
 | Date                | 29.10.2024.     |
 
 ## Context
-*We wanted to have a catalog about all of the models in the pipeline. We needed to do that both for the old and the new pipeline because the structure of the two pipelines and the way how the querysets are organised are different. We also had to be sure that the catalogs update whenever a model is modified or added.*
+We wanted to have a catalog about all of the models in the pipeline. We needed to do that both for the old and the new pipeline because the structure of the two pipelines and the way how the querysets are organised are different. We also had to be sure that the catalogs update whenever a model is modified or added.
 
 ## Decision
 ### New pipeline
@@ -65,11 +65,11 @@ The catalogs are updated via GitHub actions. Action for the new pipeline: [updat
 
 
 ### Overview
-*Creating catalogs for 'country level' and 'priogrid level' that update automatically when a model is modified. Separate implementation for the old and the new pipeline.*
+Creating catalogs for 'country level' and 'priogrid level' that update automatically when a model is modified. Separate implementation for the old and the new pipeline.
 
 
 ## Consequences
-*Clear overview about our existing models in the `views_pipeline/documentation/catalogs/` directory.*
+Clear overview about our existing models in the `views_pipeline/documentation/catalogs/` directory.
 
 **Positive Effects:**
 - Our models become trackable and presentable.
@@ -80,7 +80,7 @@ The catalogs are updated via GitHub actions. Action for the new pipeline: [updat
 - If the catalogs fail to update, it might remain unnoticed for a while.
 
 ## Rationale
-*Every information about the models are found at one place. Models can be tracked and presented, even for people not involved in the development. It is easier to involve new people to the model development. GitHub actions provide a convenient way to keep the catalogs up-to-date.*
+Every information about the models are found at one place. Models can be tracked and presented, even for people not involved in the development. It is easier to involve new people to the model development. GitHub actions provide a convenient way to keep the catalogs up-to-date.
 
 
 ### Considerations
@@ -91,7 +91,9 @@ The catalogs are updated via GitHub actions. Action for the new pipeline: [updat
 
 
 ## Additional Notes
-Involving GitHub actions led to the separation of `production` and `development`branch, since they cannot push to a protected branch (`production`). More detailed information is found in ADR #023.
+- Involving GitHub actions led to the separation of `production` and `development`branch, since they cannot push to a protected branch (`production`). More detailed information is found in **ADR #023**.
+
+- Implementation of an alerting system, if GitHub actions fail.
 
 ## Feedback and Suggestions
 *Feedbacks are awaited.*
