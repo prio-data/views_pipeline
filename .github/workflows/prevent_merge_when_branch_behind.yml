@@ -1,10 +1,11 @@
-name: Require Branch to Be Up-to-Date with Main
+name: Require Branch to Be Up-to-Date with Production
 
 # Trigger this workflow on pull request events targeting a specific branch.
 on:
   pull_request:
     branches:
-      - main
+      - production
+      - development
       - test-protect-main-merge # for testing
   workflow_dispatch: # enables manual triggering
 
@@ -17,18 +18,18 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.ref }}
     
-      - name: Fetch main branch
+      - name: Fetch production branch
         run: |
           git fetch --unshallow
-          git fetch origin main
+          git fetch origin production
 
-      - name: Compare branch with main
+      - name: Compare branch with production
         run: |
-          if git merge-base --is-ancestor origin/main HEAD; then
-            echo "::notice ::Branch is up-to-date with main."
+          if git merge-base --is-ancestor origin/production HEAD; then
+            echo "::notice ::Branch is up-to-date with production."
           else
-            echo "::error ::Merge Blocked: Your branch is behind the latest commits on main. Please update your branch with the latest changes from main before attempting to merge."
-            echo "Merge base: $(git merge-base HEAD origin/main)"
+            echo "::error ::Merge Blocked: Your branch is behind the latest commits on production. Please update your branch with the latest changes from production before attempting to merge."
+            echo "Merge base: $(git merge-base HEAD origin/production)"
             exit 1
           fi
 

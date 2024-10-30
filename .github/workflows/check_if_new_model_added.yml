@@ -1,0 +1,44 @@
+name: Check for new model directories in views_pipeline/models
+
+on:
+  push:
+    branches:
+      - create_pgm_catalog_01 # for testing on this branch
+      - production
+      - development
+    paths:
+      - models/*/configs/config_deployment.py
+      - models/*/configs/config_meta.py
+      - common_querysets/
+  workflow_dispatch: # for triggering manually
+
+jobs:
+  check-new-folder:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      
+      - name: Generate catalog if models directory has changed
+        run: |
+          python documentation/catalogs/generate_model_catalog.py  
+          if [ $? -ne 0 ]; then
+            echo "Generating catalogs failed."
+            exit 1
+          fi
+          echo "Model catalog is updated."           
+          git status
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+
+      - name: Commit and Push Changes
+        run: |
+          git add documentation/catalogs/cm_model_catalog.md documentation/catalogs/pgm_model_catalog.md
+          git commit -m "Automated changes by GitHub Actions" || echo "Nothing to commit"
+          git push https://${{ secrets.VIEWS_PIPELINE_ACCESS_TOKEN }}:x-oauth-basic@github.com/prio-data/views_pipeline.git 
+      
