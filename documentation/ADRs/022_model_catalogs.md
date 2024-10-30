@@ -7,7 +7,7 @@
 |---------------------|-------------------|
 | Subject             | Create Model Catalog  |
 | ADR Number          | 022  |
-| Status              | proposed   |
+| Status              | Accepted   |
 | Author              | Borbála   |
 | Date                | 29.10.2024.     |
 
