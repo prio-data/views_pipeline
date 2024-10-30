@@ -3,7 +3,7 @@ import pandas as pd
 from utils_model_outputs import ModelOutputs, generate_output_dict
 import sys
 from pathlib import Path
-
+import wandb
 PATH = Path(__file__)
 if 'views_pipeline' in PATH.parts:
     PATH_ROOT = Path(*PATH.parts[:PATH.parts.index('views_pipeline') + 1])
@@ -53,11 +53,11 @@ def mock_config():
         Config: A mock configuration object with predefined attributes.
     """
 
-    class Config:
-        steps = [1, 2]
-        depvar = "depvar"
+    config = wandb.Config()
+    config.steps = [1, 2]
+    config.depvar = "depvar"
 
-    return Config()
+    return config
 
 
 def test_model_outputs_default_values():

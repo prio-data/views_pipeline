@@ -149,9 +149,6 @@ venv.bak/
 # Global cache
 .global_cache.pkl
 
-# Generated calibration logs
-*calibration_log.txt
-
 # mypy
 .mypy_cache/
 .dmypy.json
@@ -214,6 +211,4 @@ cython_debug/
 *.bak
 
 # txt logs
-calibration_log.txt
-testing_log.txt
-forecasting_log.txt
+*.txt
