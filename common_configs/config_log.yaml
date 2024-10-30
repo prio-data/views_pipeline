@@ -30,6 +30,15 @@ handlers:
     backupCount: 10
     encoding: "utf8"
 
+  warning_file_handler:
+    class: logging.handlers.TimedRotatingFileHandler
+    level: WARNING
+    formatter: detailed
+    filename: "{LOG_PATH}/views_pipeline_WARNING.log"
+    when: "midnight"
+    backupCount: 20
+    encoding: "utf8"
+
   error_file_handler:
     class: logging.handlers.TimedRotatingFileHandler
     level: ERROR
@@ -39,6 +48,15 @@ handlers:
     backupCount: 60
     encoding: "utf8"
 
+  critical_file_handler:
+    class: logging.handlers.TimedRotatingFileHandler
+    level: CRITICAL
+    formatter: detailed
+    filename: "{LOG_PATH}/views_pipeline_CRITICAL.log"
+    when: "midnight"
+    backupCount: 90
+    encoding: "utf8"
+
 root:
   level: DEBUG
-  handlers: [console, info_file_handler, debug_file_handler, error_file_handler]
+  handlers: [console, info_file_handler, debug_file_handler, warning_file_handler, error_file_handler, critical_file_handler]
