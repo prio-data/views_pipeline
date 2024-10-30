@@ -16,7 +16,7 @@ from execute_model_runs import execute_sweep_run, execute_single_run
 
 warnings.filterwarnings("ignore")
 
-logger = setup_logging('run.log')
+logger = setup_logging("run.log")
 
 
 if __name__ == "__main__":
@@ -30,7 +30,3 @@ if __name__ == "__main__":
         execute_sweep_run(args)
     else:
         execute_single_run(args)
-
-    end_t = time.time()
-    minutes = (end_t - start_t) / 60
-    logger.info(f'Done. Runtime: {minutes:.3f} minutes.\n')

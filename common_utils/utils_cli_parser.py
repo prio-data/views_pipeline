@@ -81,6 +81,11 @@ def parse_args():
         "-o", "--override_month", help="Over-ride use of current month", type=int
     )
 
+    parser.add_argument(
+        "-dd", "--drift_self_test", action="store_true", default=False,
+        help="Enable drift-detection self_test at data-fetch"
+    )
+
     return parser.parse_args()
 
 
@@ -122,10 +127,9 @@ def validate_arguments(args):
         print("To fix: Set --run_type to forecasting if --forecast is flagged.")
         sys.exit(1)
 
-    if args.ensemble:
+    if args.ensemble and args.sweep:
         # This is a temporary solution. In the future we might need to train and sweep the ensemble models.
-        if args.sweep or args.train:
-            print(
-                "Error: --aggregation flag cannot be used with --sweep or --train. Exiting."
-            )
-            sys.exit(1)
+        print(
+            "Error: --aggregation flag cannot be used with --sweep. Exiting."
+        )
+        sys.exit(1)

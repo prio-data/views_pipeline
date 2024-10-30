@@ -125,10 +125,10 @@ def generate_output_dict(df, config):
     Note:
         ! This is temporary for stepshifter model
     """
-    output_dict = ModelOutputs.make_output_dict(steps=config.steps[-1])
-    for step in config.steps:
-        df_step = df[[config.depvar, f"step_pred_{step}"]]
-        output_dict[f"step{str(step).zfill(2)}"].y_true = df_step[config.depvar].to_list()
+    output_dict = ModelOutputs.make_output_dict(steps=config["steps"][-1])
+    for step in config["steps"]:
+        df_step = df[[config["depvar"], f"step_pred_{step}"]]
+        output_dict[f"step{str(step).zfill(2)}"].y_true = df_step[config["depvar"]].to_list()
         output_dict[f"step{str(step).zfill(2)}"].y_score = df_step[f"step_pred_{step}"].to_list()
         output_dict[f"step{str(step).zfill(2)}"].month_id = df_step.index.get_level_values("month_id").to_list()
         if df.index.names[1] == "priogrid_gid":
