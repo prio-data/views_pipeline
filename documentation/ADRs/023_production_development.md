@@ -19,7 +19,7 @@ Therefore, we decided to establish a dedicated `production`(renamed from `main`)
 
 ### Overview
 
-We renamed the `main` branch to `production` and established a new `development` branch as the main source for feature branches. Development work will now occur in feature branches off `development`, which will be synced periodically with `production`. The exact synchronization procedure is To Be Discussed... The `production` branch remains protected with the condition that two reviewers should accept the Pull Request in order to be merged. There GitHub action that prevents merging if branch is behind still applies to `production` branch (although this workflow ensures that the `development` branch is never behind `production` branch) and a new action is created for the same reason targeting `development` branch.
+We renamed the `main` branch to `production` and established a new `development` branch as the main source for feature branches. Development work will now occur in feature branches off `development`, which will be synced periodically with `production`. The exact synchronization procedure is to be discussed, decided, and documented in [024_development_and_production_sync.md](/documentation/ADRs/024_development_and_production_sync.md). The `production` branch remains protected with the condition that two reviewers should accept the Pull Request in order to be merged. There GitHub action that prevents merging if branch is behind still applies to `production` branch (although this workflow ensures that the `development` branch is never behind `production` branch) and a new action is created for the same reason targeting `development` branch.
 
 ## Consequences
 
