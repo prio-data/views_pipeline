@@ -81,7 +81,13 @@ def test_logging_setup():
 
 if __name__ == "__main__":
 
+<<<<<<< HEAD
     set_path_common_utils()
+=======
+    PATH_COMMON_UTILS = get_path_common_utils()
+
+    sys.path.append(str(PATH_COMMON_UTILS))
+>>>>>>> 8cc961f (Use this to see how the logs look now)
 
     from utils_logger import setup_logging, get_common_logs_path
 
