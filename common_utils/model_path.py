@@ -380,13 +380,14 @@ class ModelPath:
         Creates and sets up various directories required for the model, such as architectures, artifacts, configs, data, etc.
         """
         self.model_dir = self._get_model_dir()
-        self.architectures = self._build_absolute_directory(Path("src/architectures"))
         self.artifacts = self._build_absolute_directory(Path("artifacts"))
         self.configs = self._build_absolute_directory(Path("configs"))
         self.data = self._build_absolute_directory(Path("data"))
         self.data_generated = self._build_absolute_directory(Path("data/generated"))
         self.data_processed = self._build_absolute_directory(Path("data/processed"))
         self.data_raw = self._build_absolute_directory(Path("data/raw"))
+        self.src = self._build_absolute_directory(Path("src")) 
+        self.architectures = self._build_absolute_directory(Path("src/architectures"))
         self.dataloaders = self._build_absolute_directory(Path("src/dataloaders"))
         self.forecasting = self._build_absolute_directory(Path("src/forecasting"))
         self.management = self._build_absolute_directory(Path("src/management"))
@@ -398,7 +399,6 @@ class ModelPath:
             Path("src/online_evaluation")
         )
         self.reports = self._build_absolute_directory(Path("reports"))
-        self.src = self._build_absolute_directory(Path("src"))
         self._templates = self.meta_tools / "templates"
         self.training = self._build_absolute_directory(Path("src/training"))
         self.utils = self._build_absolute_directory(Path("src/utils"))

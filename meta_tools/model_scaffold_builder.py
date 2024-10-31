@@ -164,12 +164,11 @@ class ModelScaffoldBuilder:
         )
         self._model_algorithm = str(
             input(
-                "Enter the algorithm of the model (e.g. XGBoost, LightBGM, HydraNet): "
+                "Enter the algorithm of the model (e.g. XGBModel, LightGBMModel, HurdleModel, HydraNet): "
             )
         )
         template_config_hyperparameters.generate(
             script_dir=self._model.configs / "config_hyperparameters.py",
-            model_algorithm=self._model_algorithm,
         )
         template_config_input_data.generate(
             script_dir=self._model.common_querysets
@@ -183,8 +182,8 @@ class ModelScaffoldBuilder:
         )
         template_config_sweep.generate(
             script_dir=self._model.configs / "config_sweep.py",
-            model_algorithm=self._model_algorithm,
             model_name=self._model.model_name,
+            model_algorithm=self._model_algorithm,
         )
         template_main.generate(script_dir=self._model.model_dir / "main.py")
         template_get_data.generate(script_dir=self._model.dataloaders / "get_data.py")
