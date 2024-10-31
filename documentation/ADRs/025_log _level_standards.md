@@ -30,18 +30,26 @@ The system’s log levels are structured as follows:
 
 - **DEBUG**:
   - Example: Logging input data shapes, intermediate transformations, or model hyperparameters during experimentation phases.
+  - Example: get_data.py provides the shape of data if exists when loading the data.
+    - ` logger.debug(f"DataFrame shape: {data.shape if data is not None else 'None'}") `
   - Use: Essential for development and debugging stages, enabling the team to trace and diagnose precise pipeline states.
 
 - **INFO**:
   - Example: Model training and evaluation start/completion times or successful data fetching messages.
+  - Example: Information about which model is trained when training an ensemble model.
+    - ` logger.info(f"Training single model {model_name}...") `
   - Use: Provides a clear history of system operations without overwhelming detail, facilitating audits and general status tracking.
 
 - **WARNING**:
   - Example: Detection of minor schema mismatches in input data or slower-than-expected execution times.
+  - Example: Warning arises when a queryset does not exist using the ModelPath class.
+    - ` f"Queryset {self.queryset_path} does not exist. Continuing..." `
   - Use: Highlights potentially impactful issues that may worsen if not addressed, useful for preventive monitoring.
 
 - **ERROR**:
-  - Example: Failure in data loading or model checkpoint saving.
+  - Example: Failure in data loading or model saving or model artifact.
+  - Example: Error arises when a model is run without specifying the run type.
+    - ` f"Error: Run type is {args.run_type} but neither --train, --evaluate, nor --sweep flag is set. Nothing to do... Exiting." ` 
   - Use: Captures failures within components, supporting root cause analysis without interrupting the entire pipeline’s execution.
 
 - **CRITICAL**:
