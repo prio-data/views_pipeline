@@ -1,7 +1,7 @@
 def get_sweep_config():
     sweep_config = {
         "name": "yellow_pikachu",
-        "method": "bayes"
+        "method": "grid"
     }
 
     metric = {
@@ -13,9 +13,10 @@ def get_sweep_config():
 
     parameters_dict = {
         "steps": {"values": [[*range(1, 36 + 1, 1)]]},
-        "n_estimators": {"values": [100, 150, 200]},
-        "learning_rate": {"min": 0.01, "max": 0.1},
-        "n_jobs": {"values": [12]}
+        "cls_n_estimators": {"values": [100, 200]},
+        "cls_n_jobs": {"values": [12]},
+        "reg_n_estimators": {"values": [100, 200]},
+        "reg_n_jobs": {"values": [12]}
     }
 
     sweep_config["parameters"] = parameters_dict
