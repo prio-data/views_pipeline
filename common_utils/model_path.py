@@ -61,46 +61,6 @@ class ModelPath:
         _ignore_attributes (list): A list of paths to ignore.
     """
 
-    # __slots__ = (
-    #     "_validate",
-    #     "target",
-    #     "use_global_cache",
-    #     "_force_cache_overwrite",
-    #     "root",
-    #     "models",
-    #     "common_utils",
-    #     "common_configs",
-    #     "_ignore_attributes",
-    #     "model_name",
-    #     "_instance_hash",
-    #     "_queryset",
-    #     "model_dir",
-    #     "architectures",
-    #     "artifacts",
-    #     "configs",
-    #     "data",
-    #     "data_generated",
-    #     "data_processed",
-    #     "data_raw",
-    #     "dataloaders",
-    #     "forecasting",
-    #     "management",
-    #     "notebooks",
-    #     "offline_evaluation",
-    #     "online_evaluation",
-    #     "reports",
-    #     "src",
-    #     "_templates",
-    #     "training",
-    #     "utils",
-    #     "visualization",
-    #     "_sys_paths",
-    #     "common_querysets",
-    #     "queryset_path",
-    #     "scripts",
-    #     "meta_tools",
-    # )
-
     _target = "model"
     _use_global_cache = True
     __instances__ = 0
