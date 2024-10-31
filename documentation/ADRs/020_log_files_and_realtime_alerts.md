@@ -6,17 +6,25 @@
 | ADR Number          | 020                       |
 | Status              | Proposed                  |
 | Author              | Marina                    |
-| Date                | 28.10.2024                |
+| Date                | 01.11.2024                |
 
 
 ## Context
-In the previous iterations of the VIEWS data processing pipeline, there were several occurences of errors (at different stages) being unnoticed for extended period of time. As these oversights primarily originated from inadequate monitoring and alerting mechanisms, or lack thereof. In order to avoid such oversights, as well as enhance visibility and responsiveness, there is a necesity to implement more comprehensive log handling throughout the pipeline. This ensures timely detection and relevant handling of critical issues, in turn improving the overall reliability, transparency and operational efficiency of the entire pipeline.
+Previous iterations of the VIEWS data processing pipeline encountered errors that went unnoticed at various stages due to inadequate or missing monitoring and alerting mechanisms. To address this, we are developing a robust MLOps infrastructure with comprehensive logging to enhance visibility, responsiveness, and operational efficiency across the pipeline.
 
-For related ADRs on the generation of different log files, please see the ADRs below:  [NOTE: once all relevant ADRs are on github, links must be added]
-[ADR 009 - Log Files for Generated Data](https://github.com/prio-data/views_pipeline/blob/main/documentation/ADRs/009_log_file_for_generated_data.md)
-[ADR 016 - Logging and Alerting for Input Drift Detection]()
-[ADR 019 - Error Logging and Alerts for Model Training]() 
+This logging framework will improve the timely detection and handling of critical issues, directly supporting reliability and transparency. By enabling proactive monitoring and faster resolution of issues, the pipeline will maintain high performance standards and be better equipped to adapt to changing conditions.
 
+Our goal is to set new MLOps standards in early warning systems, establishing a benchmark for reliable, data-driven decision-making in high-stakes social science applications.
+
+For related ADRs on the generation of different log files and other general logging standards/routines, please see the ADRs below:  [NOTE: new relevant ADRs links should be added]
+
+[009_log_file_for_generated_data](/documentation/ADRs/009_log_file_for_generated_data.md)
+[016_input_drift_detection_logging](/documentation/ADRs/016_input_drift_detection_logging.md)
+[017_log_files_for_offline_evaluation](/documentation/ADRs/017_log_files_for_offline_evaluation.md)
+[018_log_files_for_online_evaluation](/documentation/ADRs/018_log_files_for_online_evaluation.md)
+[019_log_files_for_model_training](/documentation/ADRs/019_log_files_for_model_training.md)
+[025_log_level_standards](/documentation/ADRs/025_log _level_standards.md)
+[026_log_files_for_input_data](/documentation/ADRs/026_log_files_for_input_data.md)
 
 ## Decision
 We will implement a real-time alert and notification system that distributes alerts through designated channels — Slack, Email, Prefect, and Weights & Biases (W&B). Alerts will be targeted to specific audiences such as Infrastructure teams, Model Development & Deployment (MD&D) teams, Outreach teams, and individuals responsible for monthly runs. This targeted approach ensures that each alert reaches the appropriate stakeholders promptly, in turn facilitating efficient and effective issue resolution.
