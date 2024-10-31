@@ -22,7 +22,8 @@ def generate(script_dir: Path, model_name: str, model_algorithm: str) -> bool:
         bool:
             True if the script was written and compiled successfully, False otherwise.
     """
-    code = f"""def get_sweep_config():
+    code = f"""
+def get_sweep_config():
     \"""
     Contains the configuration for hyperparameter sweeps using WandB.
     This configuration is "operational" so modifying it will change the search strategy, parameter ranges, and other settings for hyperparameter tuning aimed at optimizing model performance.
@@ -33,7 +34,7 @@ def generate(script_dir: Path, model_name: str, model_algorithm: str) -> bool:
 
     sweep_config = {{
         'method': 'grid',
-        'name': {model_name}
+        'name': '{model_name}'
     }}
 
     # Example metric setup:
@@ -45,7 +46,7 @@ def generate(script_dir: Path, model_name: str, model_algorithm: str) -> bool:
 
     # Example parameters setup:
     parameters_dict = {{
-        'steps': {'values': [[*range(1, 36 + 1, 1)]]},
+        'steps': {{'values': [[*range(1, 36 + 1, 1)]]}},
     }}
     sweep_config['parameters'] = parameters_dict
 

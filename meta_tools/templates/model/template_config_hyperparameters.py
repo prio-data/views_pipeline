@@ -20,7 +20,8 @@ def generate(script_dir: Path, model_algorithm: str) -> bool:
         bool:
             True if the script was written and compiled successfully, False otherwise.
     """
-    code = f"""def get_hp_config():
+    code = f"""
+def get_hp_config():
     \"""
     Contains the hyperparameter configurations for model training.
     This configuration is "operational" so modifying these settings will impact the model's behavior during the training.

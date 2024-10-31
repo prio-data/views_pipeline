@@ -184,6 +184,7 @@ class ModelScaffoldBuilder:
         template_config_sweep.generate(
             script_dir=self._model.configs / "config_sweep.py",
             model_algorithm=self._model_algorithm,
+            model_name=self._model.model_name,
         )
         template_main.generate(script_dir=self._model.model_dir / "main.py")
         template_get_data.generate(script_dir=self._model.dataloaders / "get_data.py")
