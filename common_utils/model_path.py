@@ -6,11 +6,13 @@ import hashlib
 from typing import Union, Optional, List, Dict
 
 PATH = Path(__file__)
-if 'views_pipeline' in PATH.parts:
-    PATH_ROOT = Path(*PATH.parts[:PATH.parts.index('views_pipeline') + 1])
+if "views_pipeline" in PATH.parts:
+    PATH_ROOT = Path(*PATH.parts[: PATH.parts.index("views_pipeline") + 1])
     sys.path.insert(0, str(PATH_ROOT))
 else:
-    raise ValueError("The 'views_pipeline' directory was not found in the provided path.")
+    raise ValueError(
+        "The 'views_pipeline' directory was not found in the provided path."
+    )
 from meta_tools.utils import utils_model_naming, utils_model_paths
 
 logging.basicConfig(
@@ -55,51 +57,11 @@ class ModelPath:
         visualization (Path): The directory for visualization scripts.
         _sys_paths (list): A list of system paths.
         common_querysets (Path): The directory for common querysets.
-        _queryset_path (Path): The path to the queryset script.
+        queryset_path (Path): The path to the queryset script.
         _queryset (module): The imported queryset module.
         scripts (list): A list of script paths.
         _ignore_attributes (list): A list of paths to ignore.
     """
-
-    __slots__ = (
-        "_validate",
-        "target",
-        "use_global_cache",
-        "_force_cache_overwrite",
-        "root",
-        "models",
-        "common_utils",
-        "common_configs",
-        "_ignore_attributes",
-        "model_name",
-        "_instance_hash",
-        "_queryset",
-        "model_dir",
-        "architectures",
-        "artifacts",
-        "configs",
-        "data",
-        "data_generated",
-        "data_processed",
-        "data_raw",
-        "dataloaders",
-        "forecasting",
-        "management",
-        "notebooks",
-        "offline_evaluation",
-        "online_evaluation",
-        "reports",
-        "src",
-        "_templates",
-        "training",
-        "utils",
-        "visualization",
-        "_sys_paths",
-        "common_querysets",
-        "_queryset_path",
-        "scripts",
-        "meta_tools",
-    )
 
     _target = "model"
     _use_global_cache = True
@@ -120,6 +82,7 @@ class ModelPath:
         cls._common_configs = cls._root / "common_configs"
         cls._common_querysets = cls._root / "common_querysets"
         cls._meta_tools = cls._root / "meta_tools"
+        cls._common_logs = cls._root / "common_logs"
 
     @classmethod
     def get_root(cls) -> Path:
@@ -162,7 +125,14 @@ class ModelPath:
         if cls._meta_tools is None:
             cls._initialize_class_paths()
         return cls._meta_tools
-    
+
+    @classmethod
+    def get_common_logs(cls) -> Path:
+        """Get the common logs path."""
+        if cls._common_logs is None:
+            cls._initialize_class_paths()
+        return cls._common_logs
+
     @classmethod
     def check_if_model_dir_exists(cls, model_name: str) -> bool:
         """
@@ -266,7 +236,7 @@ class ModelPath:
             "_validate",
             "models",
             "_sys_paths",
-            "_queryset_path",
+            "queryset_path",
             "_queryset",
             "_ignore_attributes",
             "target",
@@ -365,13 +335,17 @@ class ModelPath:
         Adds the model instance to the global cache using the instance hash as the key.
         """
         from global_cache import GlobalCache
-        
+
         if GlobalCache[self._instance_hash] is None:
-            logger.info(f"Writing {self.target.title}Path object to cache for model {self.model_name}.")
+            logger.info(
+                f"Writing {self.target.title}Path object to cache for model {self.model_name}."
+            )
             GlobalCache[self._instance_hash] = self
         else:
             if self._force_cache_overwrite:
-                logger.info(f"Overwriting {self.target.title}Path object in cache for model {self.model_name}. (_force_cache_overwrite is set to True)")
+                logger.info(
+                    f"Overwriting {self.target.title}Path object in cache for model {self.model_name}. (_force_cache_overwrite is set to True)"
+                )
                 GlobalCache[self._instance_hash] = self
 
     def _initialize_directories(self) -> None:
@@ -381,22 +355,18 @@ class ModelPath:
         Creates and sets up various directories required for the model, such as architectures, artifacts, configs, data, etc.
         """
         self.model_dir = self._get_model_dir()
-        self.architectures = self._build_absolute_directory(Path("src/architectures"))
+
         self.artifacts = self._build_absolute_directory(Path("artifacts"))
         self.configs = self._build_absolute_directory(Path("configs"))
         self.data = self._build_absolute_directory(Path("data"))
         self.data_generated = self._build_absolute_directory(Path("data/generated"))
         self.data_processed = self._build_absolute_directory(Path("data/processed"))
-        self.data_raw = self._build_absolute_directory(Path("data/raw"))
+
         self.dataloaders = self._build_absolute_directory(Path("src/dataloaders"))
         self.forecasting = self._build_absolute_directory(Path("src/forecasting"))
         self.management = self._build_absolute_directory(Path("src/management"))
-        self.notebooks = self._build_absolute_directory(Path("notebooks"))
         self.offline_evaluation = self._build_absolute_directory(
             Path("src/offline_evaluation")
-        )
-        self.online_evaluation = self._build_absolute_directory(
-            Path("src/online_evaluation")
         )
         self.reports = self._build_absolute_directory(Path("reports"))
         self.src = self._build_absolute_directory(Path("src"))
@@ -407,8 +377,20 @@ class ModelPath:
         self._sys_paths = None
         if self.common_querysets not in sys.path:
             sys.path.insert(0, str(self.common_querysets))
-        self._queryset_path = self.common_querysets / f"queryset_{self.model_name}.py"
+        self.queryset_path = self.common_querysets / f"queryset_{self.model_name}.py"
         self._queryset = None
+
+        # Initialize model-specific directories only if the class is ModelPath
+        if self.__class__.__name__ == "ModelPath":
+            self._initialize_model_specific_directories()
+
+    def _initialize_model_specific_directories(self) -> None:
+        self.architectures = self._build_absolute_directory(Path("src/architectures"))
+        self.data_raw = self._build_absolute_directory(Path("data/raw"))
+        self.notebooks = self._build_absolute_directory(Path("notebooks"))
+        self.online_evaluation = self._build_absolute_directory(
+            Path("src/online_evaluation")
+        )
 
     def _initialize_scripts(self) -> None:
         """
@@ -419,12 +401,9 @@ class ModelPath:
         self.scripts = [
             self._build_absolute_directory(Path("configs/config_deployment.py")),
             self._build_absolute_directory(Path("configs/config_hyperparameters.py")),
-            self._build_absolute_directory(Path("configs/config_input_data.py")),
             self._build_absolute_directory(Path("configs/config_meta.py")),
-            self._build_absolute_directory(Path("configs/config_sweep.py")),
             self._build_absolute_directory(Path("main.py")),
             self._build_absolute_directory(Path("README.md")),
-            self._build_absolute_directory(Path("src/dataloaders/get_data.py")),
             self._build_absolute_directory(
                 Path("src/forecasting/generate_forecast.py")
             ),
@@ -434,10 +413,29 @@ class ModelPath:
             self._build_absolute_directory(
                 Path("src/management/execute_model_tasks.py")
             ),
+        ]
+        # Initialize model-specific directories only if the class is ModelPath
+        if self.__class__.__name__ == "ModelPath":
+            self._initialize_model_specific_directories()
+
+    def _initialize_model_specific_scripts(self) -> None:
+        """
+        Initializes and appends model-specific script paths to the `scripts` attribute.
+
+        The paths are built using the `_build_absolute_directory` method.
+        Returns:
+            None
+        """
+        self.scripts += [
+            self._build_absolute_directory(Path("configs/config_sweep.py")),
+            self._build_absolute_directory(Path("src/dataloaders/get_data.py")),
             self._build_absolute_directory(
                 Path("src/offline_evaluation/evaluate_model.py")
             ),
-            self._build_absolute_directory(Path("src/training/train_ensemble.py")),
+            self._build_absolute_directory(
+                Path(f"src/training/train_{self.target}.py")
+            ),
+            self.common_querysets / f"queryset_{self.model_name}.py",
         ]
 
     def _is_path(self, path_input: Union[str, Path]) -> bool:
@@ -476,18 +474,18 @@ class ModelPath:
             error = f"Common queryset directory {self.common_querysets} does not exist. Please create it first using `make_new_scripts.py` or set validate to `False`."
             logger.error(error)
             raise FileNotFoundError(error)
-        elif self._validate and self._check_if_dir_exists(self._queryset_path):
+        elif self._validate and self._check_if_dir_exists(self.queryset_path):
             try:
-                self._queryset = importlib.import_module(self._queryset_path.stem)
+                self._queryset = importlib.import_module(self.queryset_path.stem)
             except Exception as e:
                 logger.error(f"Error importing queryset: {e}")
                 self._queryset = None
             else:
-                logger.info(f"Queryset {self._queryset_path} imported successfully.")
+                logger.info(f"Queryset {self.queryset_path} imported successfully.")
                 return self._queryset.generate() if self._queryset else None
         else:
             logger.warning(
-                f"Queryset {self._queryset_path} does not exist. Continuing..."
+                f"Queryset {self.queryset_path} does not exist. Continuing..."
             )
         return None
 
@@ -576,8 +574,8 @@ class ModelPath:
                     )
         if self._sys_paths is None:
             self._sys_paths = []
-        for attr in self.__slots__:
-            value = getattr(self, attr)
+        for attr, value in self.__dict__.items():
+            # value = getattr(self, attr)
             if str(attr) not in self._ignore_attributes:
                 if (
                     isinstance(value, Path)
@@ -642,8 +640,8 @@ class ModelPath:
         """
         print("\n{:<20}\t{:<50}".format("Name", "Path"))
         print("=" * 72)
-        for attr in self.__slots__:
-            value = getattr(self, attr)
+        for attr, value in self.__dict__.items():
+            # value = getattr(self, attr)
             if attr not in self._ignore_attributes and isinstance(value, Path):
                 print("{:<20}\t{:<50}".format(str(attr), str(value)))
 
@@ -677,7 +675,7 @@ class ModelPath:
         #     "_validate",
         #     "models",
         #     "_sys_paths",
-        #     "_queryset_path",
+        #     "queryset_path",
         #     "_queryset",
         #     "_ignore_attributes",
         #     "target",
@@ -688,8 +686,8 @@ class ModelPath:
         # ]
         directories = {}
         relative = False
-        for attr in self.__slots__:
-            value = getattr(self, attr)
+        for attr, value in self.__dict__.items():
+
             if str(attr) not in [
                 "model_name",
                 "root",
@@ -699,7 +697,7 @@ class ModelPath:
                 "templates",
                 "_sys_paths",
                 "_queryset",
-                "_queryset_path",
+                "queryset_path",
                 "_ignore_attributes",
                 "target",
                 "_force_cache_overwrite",
@@ -743,9 +741,7 @@ class ModelPath:
 
 # if __name__ == "__main__":
 #     model_path = ModelPath("taco_cat", validate=False)
-#     model_path.view_directories()
-#     model_path.view_scripts()
-#     model_path.get_directories()
-#     model_path.get_scripts()
+#     print(model_path.get_scripts())
+#     print(model_path.get_directories())
 #     print(model_path.get_queryset())
-#     print(ModelPath.get_common_configs())
+#     print(model_path.queryset_path)

@@ -1,15 +1,6 @@
-import sys
 import wandb
 import logging
 import time
-
-from pathlib import Path
-PATH = Path(__file__)
-sys.path.insert(0, str(Path(
-    *[i for i in PATH.parts[:PATH.parts.index("views_pipeline") + 1]]) / "common_utils"))  # PATH_COMMON_UTILS
-from set_path import setup_project_paths
-setup_project_paths(PATH)
-
 from evaluate_model import evaluate_model_artifact
 from evaluate_sweep import evaluate_sweep
 from generate_forecast import forecast_model_artifact
@@ -51,14 +42,14 @@ def execute_model_tasks(config=None, project=None, train=None, eval=None, foreca
 
         # W&B does not directly support nested dictionaries for hyperparameters
         # This will make the sweep config super ugly, but we don't have to distinguish between sweep and single runs
-        if config['sweep'] and config['algorithm'] == "HurdleRegression":
-            config['parameters'] = {}
-            config['parameters']['clf'], config['parameters']['reg'] = split_hurdle_parameters(config)
+        if config["sweep"] and config["algorithm"] == "HurdleRegression":
+            config["parameters"] = {}
+            config["parameters"]["clf"], config["parameters"]["reg"] = split_hurdle_parameters(config)
 
         model = get_model(config)
         # logger.info(model)
 
-        if config['sweep']:
+        if config["sweep"]:
             logger.info(f"Sweeping model {config['name']}...")
             stepshift_model = train_model_artifact(config, model)
             logger.info(f"Evaluating model {config['name']}...")
@@ -80,4 +71,4 @@ def execute_model_tasks(config=None, project=None, train=None, eval=None, foreca
 
         end_t = time.time()
         minutes = (end_t - start_t) / 60
-        logger.info(f'Done. Runtime: {minutes:.3f} minutes.\n')
+        logger.info(f"Done. Runtime: {minutes:.3f} minutes.\n")
