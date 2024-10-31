@@ -31,8 +31,8 @@ def generate(script_dir: Path, model_name: str, model_algorithm: str) -> bool:
     \"""
     
     meta_config = {{
-        "name": "{model_name}", # Eg. happy_kitten
-        "algorithm": "{model_algorithm}", # Eg. "LSTM", "CNN", "Transformer"
+        "name": "{model_name}", 
+        "algorithm": "{model_algorithm}",
         # Uncomment and modify the following lines as needed for additional metadata:
         # "depvar": "ln_ged_sb_dep",
         # "queryset": "escwa001_cflong",
