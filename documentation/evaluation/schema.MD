@@ -8,7 +8,7 @@ The machine learning models generating these predictions are trained, at the ver
 
 A diagram of how this all works for a simple toy example with three observations and five temporal points is described in the figure below:
 
-![path](img/pipeline.png)
+![path](img/conceptual.png)
 
 There is a plethora of models that are able to take in inputs and produce outputs that conform to the approach above. Some, such as *step-shifter* (or *direct-multistep forecasting* in econometric literature) are manipulating both the co-variate and target timeseries by repeatidly realigning predictors and outcomes in such a way as to extract relationships that exist between predictors and targets across multiple timespans. Others, such as *dynasim* are recursively predicting the next time step and using the value from that time step as predictors for the next time step in the predictions temporal sequence. Others such as *decomposition models* dissect the time-series into components that can be parametrized and apply the parametrized component ensemble to predict future time steps. Irrespective of the approach, a core paradigm of the VIEWS system is that, while VIEWS provides helper tools and utilities, **the modelling approach is left to the latitude of each model and modeller**, both in terms of fundamental paradigm and implementation. For our purpose, this has an essential consequence: **all evaluation routines and metrics are model- and paradigm- agnostic**. This means that they cannot depend on how a model is architected and trained, but only on the general panel prediction architecture described above.
 
@@ -69,7 +69,7 @@ Since we are handling time series data, aggregating metrics must be done in term
 
 3. The third and final approach entails collecting all predictions for a given calendar month in their own respective sequences, and computing predictions against actuals from that respective month. This will always result in some months having far fewer predictions and some having more due to the parallelogram nature of the process. This is useful for accounting for for the effects of very rare events happening in only very few months on the predictions (e.g. 9/11).
 
-![path](img/ts_eval.png)
+![path](img/months.png)
 
 
 ## Implementation:
