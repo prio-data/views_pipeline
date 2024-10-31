@@ -13,8 +13,6 @@ def execute_sweep_run(args):
     meta_config = get_meta_config()
     update_sweep_config(sweep_config, args, meta_config)
 
-    get_data(args, sweep_config["name"])
-
     project = f"{sweep_config['name']}_sweep"  # we can name the sweep in the config file
 
     with wandb.init(project=f'{project}_fetch', entity="views_pipeline"):
@@ -32,8 +30,6 @@ def execute_single_run(args):
     meta_config = get_meta_config()
     dp_config = get_deployment_config()
     config = update_config(hp_config, meta_config, dp_config, args)
-
-    get_data(args, config["name"])
 
     project = f"{config['name']}_{args.run_type}"
 
