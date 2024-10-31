@@ -33,7 +33,7 @@ def execute_sweep_run(args):
 
     get_data(args, sweep_config["name"])
 
-    project = f"{{sweep_config['name']}}_sweep"  # we can name the sweep in the config file
+    project = f"{{sweep_config['name']}}_sweep" 
     sweep_id = wandb.sweep(sweep_config, project=project, entity="views_pipeline")
     wandb.agent(sweep_id, execute_model_tasks, entity="views_pipeline")
 
