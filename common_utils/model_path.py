@@ -656,7 +656,7 @@ class ModelPath:
         directories = {}
         relative = False
         for attr, value in self.__dict__.items():
-            # value = getattr(self, attr)
+
             if str(attr) not in [
                 "model_name",
                 "root",
