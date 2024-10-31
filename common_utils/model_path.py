@@ -422,6 +422,7 @@ class ModelPath:
         """
         Initializes and appends model-specific script paths to the `scripts` attribute.
 
+        The paths are built using the `_build_absolute_directory` method.
         Returns:
             None
         """
