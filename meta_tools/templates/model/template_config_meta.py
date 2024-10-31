@@ -32,9 +32,9 @@ def generate(script_dir: Path, model_name: str, model_algorithm: str) -> bool:
     
     meta_config = {{
         "name": "{model_name}", # Eg. happy_kitten
-        "algorithm": "{model_algorithm}," # Eg. "LSTM", "CNN", "Transformer"
+        "algorithm": "{model_algorithm}", # Eg. "LSTM", "CNN", "Transformer"
         # Uncomment and modify the following lines as needed for additional metadata:
-        # "target(S)": ["ln_sb_best", "ln_ns_best", "ln_os_best", "ln_sb_best_binarized", "ln_ns_best_binarized", "ln_os_best_binarized"],
+        # "depvar": "ln_ged_sb_dep",
         # "queryset": "escwa001_cflong",
         # "level": "pgm",
         # "creator": "Your name here"

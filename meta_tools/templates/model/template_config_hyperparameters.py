@@ -30,7 +30,7 @@ def generate(script_dir: Path, model_algorithm: str) -> bool:
     \"""
     
     hyperparameters = {{
-        'model': '{model_algorithm}',  # The model algorithm used. Eg. "LSTM", "CNN", "Transformer"
+        'steps': [*range(1, 36 + 1, 1)],
         # Add more hyperparameters as needed
     }}
     return hyperparameters
