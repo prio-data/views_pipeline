@@ -1,5 +1,4 @@
 import logging
-
 from model_path import ModelPath
 from utils_dataloaders import fetch_or_load_views_df
 

@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 import runpy
 import logging
 from model_path import ModelPath
@@ -65,7 +66,7 @@ def update_config(hp_config, meta_config, dp_config, args):
 
 
 def get_single_model_config(model_name):
-    model_path = ModelPath(model_name, validate=False)
+    model_path = ModelPath(model_name)
     hp_config = runpy.run_path(model_path.configs / "config_hyperparameters.py")["get_hp_config"]()
     meta_config = runpy.run_path(model_path.configs / "config_meta.py")["get_meta_config"]()
     dp_config = runpy.run_path(model_path.configs / "config_deployment.py")["get_deployment_config"]()

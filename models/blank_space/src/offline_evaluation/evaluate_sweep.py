@@ -8,7 +8,8 @@ from utils_evaluation_metrics import generate_metric_dict
 
 
 def evaluate_sweep(config, stepshift_model):
-    model_path = ModelPath(config["name"], validate=False)
+
+    model_path = ModelPath(config["name"])
     path_raw = model_path.data_raw
     run_type = config["run_type"]
     steps = config["steps"]

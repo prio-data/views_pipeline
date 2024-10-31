@@ -5,7 +5,9 @@ from model_path import ModelPath
 from ensemble_path import EnsemblePath
 
 # Configure logging - don't know if this is necessary here
-# logging.basicConfig(level=logging.WARNING)
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 

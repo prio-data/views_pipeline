@@ -1,8 +1,9 @@
 import logging
+import pandas as pd
 from datetime import datetime
 from model_path import ModelPath
 from set_partition import get_partitioner_dict
-from utils_log_files import create_log_file
+from utils_log_files import create_log_file, read_log_file
 from utils_run import get_model, get_single_model_config
 from views_stepshift.run import ViewsRun
 from stepshift.views import StepshiftedModels
@@ -18,8 +19,7 @@ def train_ensemble(config):
 
     for model_name in config["models"]:
         logger.info(f"Training single model {model_name}...")
-        
-        model_path = ModelPath(model_name, validate=False)
+        model_path = ModelPath(model_name)
         path_raw  = model_path.data_raw
         path_generated = model_path.data_generated
         path_artifacts = model_path.artifacts
@@ -32,7 +32,8 @@ def train_ensemble(config):
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         model_filename = f"{run_type}_model_{timestamp}.pkl"
         stepshift_model.save(path_artifacts / model_filename)
-        create_log_file(path_generated, model_config, timestamp)
+        date_fetch_timestamp = read_log_file(path_raw / f"{run_type}_data_fetch_log.txt").get("Data Fetch Timestamp", None)
+        create_log_file(path_generated, config, timestamp, None, date_fetch_timestamp)
 
 
 def stepshift_training(config, partition_name, model, dataset):
