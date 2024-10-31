@@ -32,12 +32,12 @@ def evaluate_sweep(config, stepshift_model):
     run_type = config["run_type"]
     steps = config["steps"]
 
-    df_viewser = pd.read_pickle(path_raw / f"{{{{run_type}}}}_viewser_df.pkl")
+    df_viewser = pd.read_pickle(path_raw / f"{{run_type}}_viewser_df.pkl")
     df = stepshift_model.predict(run_type, df_viewser)
     df = get_standardized_df(df, config)
 
     # Temporarily keep this because the metric to minimize is MSE
-    pred_cols = [f"step_pred_{{{{str(i)}}}}" for i in steps]
+    pred_cols = [f"step_pred_{{str(i)}}" for i in steps]
     df["mse"] = df.apply(lambda row: mean_squared_error([row[config["depvar"]]] * 36,
                                                         [row[col] for col in pred_cols]), axis=1)
 
