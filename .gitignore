@@ -149,9 +149,6 @@ venv.bak/
 # Global cache
 .global_cache.pkl
 
-# Generated calibration logs
-*calibration_log.txt
-
 # mypy
 .mypy_cache/
 .dmypy.json
@@ -201,6 +198,7 @@ cython_debug/
 
 # folders
 **/wandb/
+**/notebooks/
 
 # mac specific 
 .DS_Store
@@ -211,3 +209,6 @@ cython_debug/
 
 # backup files
 *.bak
+
+# txt logs
+*.txt
