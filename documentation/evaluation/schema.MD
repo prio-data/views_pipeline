@@ -60,12 +60,12 @@ Since we are handling time series data, aggregating metrics must be done in term
 
 1. The first is evaluating *along the sequence*. For each 36-month time-series, predictions are computed, and a metric (MSE) is compared against the actuals over the entire time-series (i.e. for the 36 months). This shows *how good the predictive power of the time-series is on average against the actuals*. This will result in 12 computed values for the *live* and *standard* offline evaluation, 36 for the *long* and a variable number, currently *342* for the complete evaluation. These can be averaged, CIs computed etc. This is the standard approach done in most machine learning for time-series methods, and is what packages like _darts_ or _prophet_ normally provide. This method also allows for some extra metrics that cannot be implemented in other evaluation approaches -- such as tests for Granger causality or Sinkhorn distances to evaluate whether we overshoot or undeshoot temporally the dynamics of conflict.
 
-![path](img/months.png)
+![path](img/ts_eval.png)
 
 
 2. The second is the standard approach computed in VIEWS, VIEWS2020 and FCDO, and the standard employed for ALL the existing systems. This approach entails taking the predictions and actuals from each step from each model output. These are then assembled and aligned to create, for each step, a sequence. This sequence is then used to compute a metric valid for that respective step. The purpose of this is to verify which models predict best closest to the training horizon (thus have short-term predictive power), and which do best further along the prediction axis (thus have long-term predictive power). Therefore, irrespective of approach used, this will result in 36 such stepwise metrics (one for step 1, one for step 2, one for step 3).
 
-![path](img/ts_eval.png)
+![path](img/steps.png)
 
 3. The third and final approach entails collecting all predictions for a given calendar month in their own respective sequences, and computing predictions against actuals from that respective month. This will always result in some months having far fewer predictions and some having more due to the parallelogram nature of the process. This is useful for accounting for for the effects of very rare events happening in only very few months on the predictions (e.g. 9/11).
 
