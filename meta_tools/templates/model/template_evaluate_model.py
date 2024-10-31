@@ -22,7 +22,7 @@ import pandas as pd
 import logging
 from model_path import ModelPath
 from utils_log_files import create_log_file, read_log_file
-from utils_outputs import save_model_outputs, save_predictions
+from utils_save_outputs import save_model_outputs, save_predictions
 from utils_run import get_standardized_df
 from utils_artifacts import get_latest_model_artifact
 from utils_evaluation_metrics import generate_metric_dict

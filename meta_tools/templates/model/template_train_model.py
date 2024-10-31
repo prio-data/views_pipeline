@@ -32,14 +32,14 @@ def train_model_artifact(config):
     path_generated = model_path.data_generated
     path_artifacts = model_path.artifacts
     run_type = config["run_type"]
-    df_viewser = pd.read_pickle(path_raw / f"{{{{run_type}}}}_viewser_df.pkl")
+    df_viewser = pd.read_pickle(path_raw / f"{{run_type}}_viewser_df.pkl")
 
     stepshift_model = stepshift_training(config, run_type, df_viewser)
     if not config["sweep"]:
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        model_filename = f"{{{{run_type}}}}_model_{{{{timestamp}}}}.pkl"
+        model_filename = f"{{run_type}}_model_{{timestamp}}.pkl"
         stepshift_model.save(path_artifacts / model_filename)
-        date_fetch_timestamp = read_log_file(path_raw / f"{{{{run_type}}}}_data_fetch_log.txt").get("Data Fetch Timestamp", None)
+        date_fetch_timestamp = read_log_file(path_raw / f"{{run_type}}_data_fetch_log.txt").get("Data Fetch Timestamp", None)
         create_log_file(path_generated, config, timestamp, None, date_fetch_timestamp)
     return stepshift_model
 
