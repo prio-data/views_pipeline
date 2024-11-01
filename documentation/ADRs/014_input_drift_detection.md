@@ -4,7 +4,7 @@
 |-------------------|-----------------------|
 | Subject           | Input drift detection |
 | ADR Number        | 014                   |
-| Status            | proposed              |
+| Status            | Accepted              |
 | Author            | Jim Dale              |
 | Date              | 02/10/2024            |
 
