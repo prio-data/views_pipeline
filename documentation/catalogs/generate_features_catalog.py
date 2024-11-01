@@ -88,8 +88,8 @@ def generate_markdown_table(columns_info):
     for _, row in columns_info.iterrows():
         table_data.append([
             row['column_name'],
-            '',  # Placeholder for Human-readable name
-            '',  # Placeholder for Data source
+            'needs manual update',  # Placeholder for Human-readable name
+            'needs manual update',  # Placeholder for Data source
             'needs manual update (as of now)',  # Placeholder for Last updated
             row['queryset'],
             '',  #Placeholder for notes
