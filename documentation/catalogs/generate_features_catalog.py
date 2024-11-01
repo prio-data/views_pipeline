@@ -11,17 +11,6 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-
-
-# Path to the root and querysets
-PATH = Path(__file__).resolve()
-indices = [i for i, x in enumerate(PATH.parts) if x == "views_pipeline"]
-PATH_ROOT = Path(*PATH.parts[:indices[-1] + 1])
-
-querysets_path = PATH_ROOT / 'common_querysets'
-
-
-
 def get_path_common_querysets():
     """
     Retrieves the path to the 'common_querysets' directory within the 'views_pipeline' directory.
