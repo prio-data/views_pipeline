@@ -5,7 +5,7 @@
 |---------------------|-------------------|
 | Subject             | Logging Levels Configuration  |
 | ADR Number          | 025   |
-| Status              | Proposed  |
+| Status              | Accepted  |
 | Author              | Simon   |
 | Date                | 30.10.2024     |
 
@@ -17,19 +17,19 @@ The following log levels—DEBUG, INFO, WARNING, ERROR, and CRITICAL—are confi
 
 For related ADRs on the generation of different log files and other general logging standards/routines, please see the ADRs below:  [NOTE: new relevant ADRs links should be added]
 
-[009_log_file_for_generated_data](/documentation/ADRs/009_log_file_for_generated_data.md)
+- [009_log_file_for_generated_data](/documentation/ADRs/009_log_file_for_generated_data.md)
 
-[016_input_drift_detection_logging](/documentation/ADRs/016_input_drift_detection_logging.md)
+- [016_input_drift_detection_logging](/documentation/ADRs/016_input_drift_detection_logging.md)
 
-[017_log_files_for_offline_evaluation](/documentation/ADRs/017_log_files_for_offline_evaluation.md)
+- [017_log_files_for_offline_evaluation](/documentation/ADRs/017_log_files_for_offline_evaluation.md)
 
-[018_log_files_for_online_evaluation](/documentation/ADRs/018_log_files_for_online_evaluation.md)
+- [018_log_files_for_online_evaluation](/documentation/ADRs/018_log_files_for_online_evaluation.md)
 
-[019_log_files_for_model_training](/documentation/ADRs/019_log_files_for_model_training.md)
+- [019_log_files_for_model_training](/documentation/ADRs/019_log_files_for_model_training.md)
 
-[020_log_files_and_realtime_alerts](/documentation/ADRs/020_log_files_and_realtime_alerts.md)
+- [020_log_files_and_realtime_alerts](/documentation/ADRs/020_log_files_and_realtime_alerts.md)
 
-[026_log_files_for_input_data](/documentation/ADRs/026_log_files_for_input_data.md)
+- [026_log_files_for_input_data](/documentation/ADRs/026_log_files_for_input_data.md)
 
 
 ## Decision
