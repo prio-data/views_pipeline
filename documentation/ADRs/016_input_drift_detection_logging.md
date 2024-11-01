@@ -1,5 +1,5 @@
-## Title
-*Refinement of Model Configuration Files Structure*
+## Input Drift Detection Logging
+
 
 | ADR Info            | Details                       |
 |---------------------|-------------------------------|
@@ -11,6 +11,23 @@
 
 ## Context
 An input drift detection system has been implemented as part of the viewser data-fetching package. Its purpose is to check the integrity of input data presented to the models to guard against undetected problems when the data was ingested into the VIEWS database. The drift detector splits a dataset up into a test portion consisting of the latest n months of data, and a standard portion consisting of the m months of data before the first month in the test portion. Usually, n would be 1 and m might be 30. Users may then specify a range of tests which compare the data in the test and standard portions, e.g. does the fraction of missingness or zeros change by more than some threshold, is the probability that the data in the portions is drawn from different distributions greater than some threshold? Thresholds for each test are defined in a configuration dictionary and an alert is issued for features or whole datasets that fail a test. The issue is, how should the pipeline deal with the alerts?
+
+For related ADRs on the generation of different log files and other general logging standards/routines, please see the ADRs below:  [NOTE: new relevant ADRs links should be added]
+
+[009_log_file_for_generated_data](/documentation/ADRs/009_log_file_for_generated_data.md)
+
+[017_log_files_for_offline_evaluation](/documentation/ADRs/017_log_files_for_offline_evaluation.md)
+
+[018_log_files_for_online_evaluation](/documentation/ADRs/018_log_files_for_online_evaluation.md)
+
+[019_log_files_for_model_training](/documentation/ADRs/019_log_files_for_model_training.md)
+
+[020_log_files_and_realtime_alerts](/documentation/ADRs/020_log_files_and_realtime_alerts.md)
+
+[025_log_level_standards](/documentation/ADRs/025_log_level_standards.md)
+
+[026_log_files_for_input_data](/documentation/ADRs/026_log_files_for_input_data.md)
+
 
 ## Decision
 - For every queryset fetched, drift detection will be enabled. 
