@@ -1,11 +1,10 @@
-## Production and Development Branches
-*Using production and development branches instead of main*
+# Production and Development Branches
 
 | ADR Info            | Details           |
 |---------------------|-------------------|
 | Subject             | Production and Development Branches  |
 | ADR Number          | 023   |
-| Status              | proposed   |
+| Status              | Accepted   |
 | Author              | Borbála   |
 | Date                | 29.10.2024.     |
 
