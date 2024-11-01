@@ -1,6 +1,5 @@
 # Local Data Storage
 
-
 | ADR Info            | Details           |
 |---------------------|-------------------|
 | Subject             | Local Data Storage  |
