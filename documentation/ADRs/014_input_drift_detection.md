@@ -2,11 +2,11 @@
 
 | ADR Info          | Details               |
 |-------------------|-----------------------|
-| Subject           | Input drift detection |
+| Subject           | Input Drift Detection |
 | ADR Number        | 014                   |
 | Status            | Accepted              |
 | Author            | Jim Dale              |
-| Date              | 02/10/2024            |
+| Date              | 02.10.2024            |
 
 ## Context
 The pipeline needs machinery for checking that the input data entering it has not been compromised by problems or errors in the monthly data ingestion. This machinery also needs the ability to test itself.

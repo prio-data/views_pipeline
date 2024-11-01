@@ -3,7 +3,7 @@
 
 | ADR Info            | Details                     |
 |---------------------|-----------------------------|
-| Subject             | Log file for generated data |
+| Subject             | Log File for Generated Data |
 | ADR Number          | 009                         |
 | Status              | Accepted                    |
 | Author              | Xiaolong                    |
@@ -16,19 +16,19 @@ This is critical to ensure the reliability and reproducibility of model outputs 
 
 For related ADRs on the generation of different log files and other general logging standards/routines, please see the ADRs below:  [NOTE: new relevant ADRs links should be added]
 
-[016_input_drift_detection_logging](/documentation/ADRs/016_input_drift_detection_logging.md)
+- [016_input_drift_detection_logging](/documentation/ADRs/016_input_drift_detection_logging.md)
 
-[017_log_files_for_offline_evaluation](/documentation/ADRs/017_log_files_for_offline_evaluation.md)
+- [017_log_files_for_offline_evaluation](/documentation/ADRs/017_log_files_for_offline_evaluation.md)
 
-[018_log_files_for_online_evaluation](/documentation/ADRs/018_log_files_for_online_evaluation.md)
+- [018_log_files_for_online_evaluation](/documentation/ADRs/018_log_files_for_online_evaluation.md)
 
-[019_log_files_for_model_training](/documentation/ADRs/019_log_files_for_model_training.md)
+- [019_log_files_for_model_training](/documentation/ADRs/019_log_files_for_model_training.md)
 
-[020_log_files_and_realtime_alerts](/documentation/ADRs/020_log_files_and_realtime_alerts.md)
+- [020_log_files_and_realtime_alerts](/documentation/ADRs/020_log_files_and_realtime_alerts.md)
 
-[025_log_level_standards](/documentation/ADRs/025_log_level_standards.md)
+- [025_log_level_standards](/documentation/ADRs/025_log_level_standards.md)
 
-[026_log_files_for_input_data](/documentation/ADRs/026_log_files_for_input_data.md)
+- [026_log_files_for_input_data](/documentation/ADRs/026_log_files_for_input_data.md)
 
 
 ## Decision

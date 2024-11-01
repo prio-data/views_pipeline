@@ -3,7 +3,7 @@
 
 | ADR Info            | Details                    |
 |---------------------|----------------------------|
-| Subject             | Artifact naming convention |
+| Subject             | Artifact Naming Convention |
 | ADR Number          | 012                        |
 | Status              | Accepted                   |
 | Author              | Xiaolong                   |
