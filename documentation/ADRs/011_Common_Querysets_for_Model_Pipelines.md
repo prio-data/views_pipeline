@@ -1,4 +1,4 @@
-# ADR 011 - Common Querysets for Model Pipelines
+#Common Querysets for Model Pipelines
 
 
 | ADR Info            | Details                           |
