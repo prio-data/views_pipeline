@@ -1,6 +1,6 @@
 
 ## Development and Production Sync
-*Refinement of Model Configuration Files Structure*
+
 
 | ADR Info            | Details           |
 |---------------------|-------------------|
@@ -24,7 +24,7 @@ This ADR defines the branching and synchronization structure necessary to suppor
 
 ## Decision
 
-To achieve the requirements described in the Context section, we will implement the following strategy for branching and synchronization strategy, optimized for the EWS pipeline. 
+To achieve the requirements described in the Context section, we will implement the following strategy for branching and synchronization strategy, optimized for the EWS pipeline:
 
 ### Overview
 
