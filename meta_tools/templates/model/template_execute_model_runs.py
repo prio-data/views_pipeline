@@ -31,29 +31,41 @@ def execute_sweep_run(args):
     meta_config = get_meta_config()
     update_sweep_config(sweep_config, args, meta_config)
 
-    get_data(args, sweep_config["name"])
+    project = f"{{sweep_config['name']}}_sweep"  # we can name the sweep in the config file
 
-    project = f"{{sweep_config['name']}}_sweep" 
+    with wandb.init(project=f'{{project}}_fetch', entity="views_pipeline"):
+
+        get_data(args, sweep_config["name"], args.drift_self_test)
+
+    wandb.finish()
+
     sweep_id = wandb.sweep(sweep_config, project=project, entity="views_pipeline")
     wandb.agent(sweep_id, execute_model_tasks, entity="views_pipeline")
 
 
 def execute_single_run(args):
+
     hp_config = get_hp_config()
     meta_config = get_meta_config()
     dp_config = get_deployment_config()
     config = update_config(hp_config, meta_config, dp_config, args)
 
-    get_data(args, config["name"])
-
     project = f"{{config['name']}}_{{args.run_type}}"
 
-    if args.run_type == "calibration" or args.run_type == "testing":
+    with wandb.init(project=f'{{project}}_fetch', entity="views_pipeline"):
+
+        get_data(args, config["name"], args.drift_self_test)
+
+    wandb.finish()
+
+    if args.run_type == 'calibration' or args.run_type == 'testing':
+
         execute_model_tasks(config=config, project=project, train=args.train, eval=args.evaluate,
                             forecast=False, artifact_name=args.artifact_name)
 
     elif args.run_type == "forecasting":
         execute_model_tasks(config=config, project=project, train=args.train, eval=False,
                             forecast=args.forecast, artifact_name=args.artifact_name)
+    
 """
     return utils_script_gen.save_script(script_dir, code)
