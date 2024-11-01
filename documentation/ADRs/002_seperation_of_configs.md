@@ -2,7 +2,7 @@
 
 |ADR Info| Details|
 |--------------|-----------|
-| Subject      | Config file structure|
+| Subject      | Config File Structure|
 | ADR Number   | 002       |
 | Status       | Accepted  |
 | Author       | Simon     |

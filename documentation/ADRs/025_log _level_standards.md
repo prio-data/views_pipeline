@@ -1,5 +1,4 @@
-## Title
-*Log Level Standards*
+# Log Level Standards
 
 | ADR Info            | Details           |
 |---------------------|-------------------|
@@ -7,7 +6,7 @@
 | ADR Number          | 025   |
 | Status              | Accepted  |
 | Author              | Simon   |
-| Date                | 30.10.2024     |
+| Date                | 30.10.2024.     |
 
 ## Context
 We aim to establish a new benchmark in MLOps for early warning systems (EWS), emphasizing robust and transparent logging practices. The conflict forecasting pipeline must have a comprehensive logging strategy to support the continuous quality assurance, real-time monitoring, and rapid model updates critical for high-stakes decision-making and early action. This ADR specifically addresses the standardized use of log levels within the pipeline, which helps the team capture relevant system states and provides clear visibility into operations, potential issues, and crucial decision points across the pipeline.

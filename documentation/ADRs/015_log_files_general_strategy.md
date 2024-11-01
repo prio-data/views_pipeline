@@ -1,8 +1,8 @@
-# log files general strategy
+# Log Files General Strategy 
 
 | ADR Info            | Details                      |
 |---------------------|------------------------------|
-| Subject             | log files general strategy   |
+| Subject             | Log Files General Strategy   |
 | ADR Number          | 015                          |
 | Status              | Accepted                     |
 | Author              | Simon                        |

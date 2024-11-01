@@ -1,5 +1,5 @@
 
-## Development and Production Sync
+# Production and Development Sync
 
 
 | ADR Info            | Details           |
@@ -12,7 +12,7 @@
 
 ## Context
 
-We aim to establish a new benchmark in MLOps for early warning systems (EWS), specifically for conflict forecasting, which demands high standards of reliability, transparency, and seamless update processes. Given the high stakes of forecasting in EWS, the branching strategy must support robust, transparent, and consistent updates, with a focus on ensuring production stability while accommodating active, iterative development.
+We aim to establish a new benchmark in MLOps for early warning systems (EWS), specifically for conflict forecasting, which demands high standards of reliability, transparency, and seamless update processes. Given the high stakes of forecasting in EWS, the branching strategy must support robust, transparent, and consistent updates, with a focus on ensuring production stability while accommodating active, iterative development. See [023_production_development.md](documentation/ADRs/023_production_development.md) for more information.
 
 To support continuous quality assurance, real-time monitoring, and rapid model updates, the synchronization between development and production branches must be structured to maintain reliability and performance while addressing the following critical needs:
 - Irregular Deployment Frequency: The project requires deployments ranging from weekly to monthly, demanding a workflow that can handle periodic updates without disrupting production stability.
@@ -20,8 +20,7 @@ To support continuous quality assurance, real-time monitoring, and rapid model u
 - Coupled ML and Non-ML Components: Some non-ML components are tightly integrated with ML workflows, requiring synchronized updates to avoid dependency issues in production.
 - Versioning and Traceability: Maintaining version control and artifact management is crucial for reproducibility, rollback, and historical comparison, particularly in a pipeline that supports high-stakes decision-making and early action.
 
-This ADR defines the branching and synchronization structure necessary to support these requirements while adhering to MLOps best practices, ensuring the production branch remains stable and reliable for operational forecasting while allowing iterative improvements in development.
-
+This ADR defines the branching and synchronization structure necessary to support these requirements while adhering to MLOps best practices, ensuring the production branch remains stable and reliable for operational forecasting while allowing iterative improvements in development. 
 ## Decision
 
 To achieve the requirements described in the Context section, we will implement the following strategy for branching and synchronization strategy, optimized for the EWS pipeline:

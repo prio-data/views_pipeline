@@ -3,7 +3,7 @@
 
 | ADR Info            | Details            |
 |---------------------|--------------------|
-| Subject             | Evaluation metrics |
+| Subject             | Evaluation Metrics |
 | ADR Number          | 010                |
 | Status              | Proposed           |
 | Author              | Xiaolong           |

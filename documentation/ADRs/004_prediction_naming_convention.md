@@ -3,7 +3,7 @@
 
 | ADR Info            | Details                      |
 |---------------------|------------------------------|
-| Subject             | Prediction naming convention |
+| Subject             | Prediction Naming Convention |
 | ADR Number          | 004                          |
 | Status              | Accepted                     |
 | Author              | Xiaolong                     |
