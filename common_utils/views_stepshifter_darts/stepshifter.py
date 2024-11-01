@@ -20,6 +20,7 @@ class StepshifterModel:
 
     @views_validate
     def fit(self, df: pd.DataFrame):
+        df = self._process_data(df)
         self._prepare_time_series(df)
         for step in self._steps:
             model = self._reg(lags_past_covariates=[-step], **self._params)
@@ -29,6 +30,7 @@ class StepshifterModel:
 
     @views_validate
     def predict(self, run_type, df: pd.DataFrame) -> pd.DataFrame:
+        df = self._process_data(df)
         check_is_fitted(self, 'is_fitted_')
         pred_by_step = [self._predict_by_step(self._models[step], step, self._target_train, run_type) for step in self._steps]
         pred = pd.concat(pred_by_step, axis=1)
@@ -73,12 +75,31 @@ class StepshifterModel:
 
         return parameters
 
-    def _prepare_time_series(self, df: pd.DataFrame):
+    def _process_data(self, df: pd.DataFrame):
+        '''
+        Countries appear and disappear, so we are predicting countries that exist in the last month of the training data.
+        If the country appeared earlier but don't have data previously, we will fill the missing data with 0.
+        '''
+
         # set up
         self._time = df.index.names[0]
         self._level = df.index.names[1]
         self._independent_variables = [c for c in df.columns if c != self._depvar]
 
+        last_month_id = df.index.get_level_values(self._time).max()
+        existing_country_ids = df.loc[last_month_id].index.unique()
+        df = df[df.index.get_level_values(self._level).isin(existing_country_ids)]
+
+        all_months = df.index.get_level_values(self._time).unique()
+        all_combinations = pd.MultiIndex.from_product([all_months, existing_country_ids], names=[self._time, self._level])
+        missing_combinations = all_combinations.difference(df.index)
+
+        missing_df = pd.DataFrame(0, index=missing_combinations, columns=df.columns)
+        df = pd.concat([df, missing_df]).sort_index()
+
+        return df
+
+    def _prepare_time_series(self, df: pd.DataFrame):
         # prepare time series
         df_reset = df.reset_index(level=[1])
         self._series = TimeSeries.from_group_dataframe(df_reset, group_cols=self._level,
