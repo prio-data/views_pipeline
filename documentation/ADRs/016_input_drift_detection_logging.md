@@ -1,4 +1,4 @@
-## Input Drift Detection Logging
+# Input Drift Detection Logging
 
 
 | ADR Info            | Details                       |

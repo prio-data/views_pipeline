@@ -1,4 +1,4 @@
-# log files general strategy
+# Log Files General Strategy 
 
 | ADR Info            | Details                      |
 |---------------------|------------------------------|

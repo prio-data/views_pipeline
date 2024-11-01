@@ -2,7 +2,7 @@
 
 | ADR Info          | Details               |
 |-------------------|-----------------------|
-| Subject           | Input Drift Detection |
+| Subject           | Input Drift-Detection |
 | ADR Number        | 014                   |
 | Status            | Accepted              |
 | Author            | Jim Dale              |
