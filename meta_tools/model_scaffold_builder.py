@@ -251,7 +251,22 @@ class ModelScaffoldBuilder:
             if not script_path.exists():
                 assessment["missing_scripts"].add(script_path)
         return assessment
-
+    
+    # Add a .gitkeep file to empty directories and remove it from non-empty directories
+    def update_gitkeep_empty_directories(self, delete_gitkeep=True):
+        for subdir in self._subdirs:
+            subdir = Path(subdir)
+            if not list(subdir.glob("*")):
+                gitkeep_path = subdir / ".gitkeep"
+                if not gitkeep_path.exists():
+                    gitkeep_path.touch()
+                    logging.info(f"Created .gitkeep file in empty directory: {subdir}")
+            else:
+                if delete_gitkeep:
+                    gitkeep_path = subdir / ".gitkeep"
+                    if gitkeep_path.exists():
+                        gitkeep_path.unlink()
+                        logging.info(f"Removed .gitkeep file from non-empty directory: {subdir}")
 
 if __name__ == "__main__":
     model_name = str(input("Enter the name of the model: "))
@@ -276,3 +291,4 @@ if __name__ == "__main__":
         logging.info("All scripts have been successfully generated.")
     else:
         logging.warning(f"Missing scripts: {assessment['missing_scripts']}")
+    model_directory_builder.update_gitkeep_empty_directories()

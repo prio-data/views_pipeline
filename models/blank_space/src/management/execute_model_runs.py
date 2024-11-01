@@ -16,6 +16,7 @@ def execute_sweep_run(args):
     project = f"{sweep_config['name']}_sweep"  # we can name the sweep in the config file
 
     with wandb.init(project=f'{project}_fetch', entity="views_pipeline"):
+
         get_data(args, sweep_config["name"], args.drift_self_test)
 
     wandb.finish()
