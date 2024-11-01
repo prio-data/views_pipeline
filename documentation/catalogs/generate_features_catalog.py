@@ -11,21 +11,57 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+
+
 # Path to the root and querysets
 PATH = Path(__file__).resolve()
 indices = [i for i, x in enumerate(PATH.parts) if x == "views_pipeline"]
 PATH_ROOT = Path(*PATH.parts[:indices[-1] + 1])
 
 querysets_path = PATH_ROOT / 'common_querysets'
-GITHUB_URL = 'https://github.com/prio-data/views_pipeline/blob/production/' 
 
-def extract_columns_from_querysets(querysets_path):
+
+
+def get_path_common_querysets():
+    """
+    Retrieves the path to the 'common_querysets' directory within the 'views_pipeline' directory.
+
+    This function identifies the 'views_pipeline' directory within the path of the current file,
+    constructs a new path up to and including this directory, and then appends the relative path
+    to the 'common_querysets' directory. If the 'views_pipeline' directory or the 'common_querysets'
+    directory is not found, it raises a ValueError.
+
+    Returns:
+        Path: The path to the 'common_querysets' directory.
+
+    Raises:
+        ValueError: If the 'views_pipeline' directory or the 'common_querysets' directory is not found in the provided path.
+    """
+
+    PATH = Path(__file__)
+
+    # Locate 'views_pipeline' in the current file's path parts
+    if 'views_pipeline' in PATH.parts:
+        PATH_ROOT = Path(*PATH.parts[:PATH.parts.index('views_pipeline') + 1])
+        PATH_COMMON_QUERYSETS = PATH_ROOT / 'common_querysets'
+
+        # Check if 'common_querysets' directory exists
+        if not PATH_COMMON_QUERYSETS.exists():
+            raise ValueError("The 'common_querysets' directory was not found in the provided path.")
+        
+    else:
+        raise ValueError("The 'views_pipeline' directory was not found in the provided path.")
+
+    return PATH_COMMON_QUERYSETS
+
+
+def extract_columns_from_querysets(PATH_COMMON_QUERYSETS):
     """
     Parses each queryset file in the common_querysets folder to extract columns, querysets, and LOA.
     """
     columns_info = []
     
-    for file_path in querysets_path.glob("*.py"):
+    for file_path in PATH_COMMON_QUERYSETS.glob("*.py"):
         with open(file_path, 'r') as file:
             content = file.read()
             queryset_name = file_path.stem
@@ -76,12 +112,17 @@ def generate_markdown_table(columns_info):
     return markdown_table
 
 if __name__ == "__main__":
+
+    GITHUB_URL = 'https://github.com/prio-data/views_pipeline/blob/production/' 
+
+    PATH_COMMON_QUERYSETS = get_path_common_querysets()
+
     # Extract feature information from querysets
-    columns_info = extract_columns_from_querysets(querysets_path)
+    columns_info = extract_columns_from_querysets(PATH_COMMON_QUERYSETS)
     
     # Generate the markdown table for the feature catalog
     feature_catalog = generate_markdown_table(columns_info)
     
     # Save the markdown table
-    with open('documentation/catalogs/feature_catalog.md', 'w') as f:
+    with open('feature_catalog.md', 'w') as f: # saved locally right next to this script
         f.write(feature_catalog)
