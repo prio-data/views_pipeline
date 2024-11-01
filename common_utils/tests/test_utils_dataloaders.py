@@ -27,7 +27,7 @@ from utils_dataloaders import (
     create_or_load_views_vol
 )
 
-# Pretends to be "electric_relaxation" to viewser because it has the lowest download time.
+# Pretends to be "electric_relaxation".
 
 # Fixture to provide a sample DataFrame for testing
 @pytest.fixture
@@ -154,7 +154,7 @@ def test_fetch_data_from_viewser(mock_queryset, mock_modelpath, sample_df):
     mock_modelpath.return_value.get_queryset.return_value = mock_queryset
     mock_queryset.publish.return_value.fetch_with_drift_detection.return_value = (sample_df, "alerts")
     
-    df, alerts = fetch_data_from_viewser("electric_relaxation", 1, 5, {}, False)
+    df, alerts = fetch_data_from_viewser("electric_relaxation", 1, 5, {}, False) # No self test
     
     assert isinstance(df, pd.DataFrame)
     assert alerts == "alerts"
