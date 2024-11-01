@@ -1,5 +1,4 @@
-## Production and Development Branches
-*Using production and development branches instead of main*
+# Production and Development Branches
 
 | ADR Info            | Details           |
 |---------------------|-------------------|
