@@ -4,7 +4,7 @@
 | ADR Info            | Details           |
 |---------------------|-------------------|
 | Subject             | Log Files for Input Data  |
-| ADR Number          | [Insert Number (NNN)]   |
+| ADR Number          | 026   |
 | Status              | [Insert Status (proposed, accepted, rejected, deprecated)]   |
 | Author              | [Insert Author (Name)]   |
 | Date                | [Insert Date (DD.MM.YYYY)]     |

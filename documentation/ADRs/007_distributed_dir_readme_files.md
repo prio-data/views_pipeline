@@ -3,7 +3,7 @@
 | ADR Info            | Details           |
 |---------------------|-------------------|
 | Subject             |  Distributed Directories for README Files |
-| ADR Number          | 006   |
+| ADR Number          | 007   |
 | Status              | Proposed   |
 | Author              | Simon  |
 | Date                | [Insert Date (DD.MM.YYYY)]     |
