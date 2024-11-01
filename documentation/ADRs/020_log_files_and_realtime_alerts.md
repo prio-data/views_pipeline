@@ -16,7 +16,9 @@ This logging framework will improve the timely detection and handling of critica
 
 Our goal is to set new MLOps standards in early warning systems, establishing a benchmark for reliable, data-driven decision-making in high-stakes social science applications.
 
-For related ADRs on the generation of different log files and other general logging standards/routines, please see the ADRs below:  [NOTE: new relevant ADRs links should be added]
+For related ADRs on the generation of different log files and other general logging standards/routines, please see the ADRs below:  
+
+[NOTE: new relevant ADRs links should be added]
 
 [009_log_file_for_generated_data](/documentation/ADRs/009_log_file_for_generated_data.md)
 
@@ -33,12 +35,13 @@ For related ADRs on the generation of different log files and other general logg
 [026_log_files_for_input_data](/documentation/ADRs/026_log_files_for_input_data.md)
 
 ## Decision
-We will implement a real-time alert and notification system that distributes alerts through designated channels — Slack, Email, Prefect, and Weights & Biases (W&B). Alerts will be targeted to specific audiences such as Infrastructure teams, Model Development & Deployment (MD&D) teams, Outreach teams, and individuals responsible for monthly runs. This targeted approach ensures that each alert reaches the appropriate stakeholders promptly, in turn facilitating efficient and effective issue resolution.
+We will implement a real-time alert and notification system that distributes alerts through designated channels — Slack, Email, Prefect, and Weights & Biases (W&B). To ensure clear communication and streamlined response, dedicated Slack channels will be set up for different log levels, with critical alerts (e.g., ERROR and CRITICAL) prioritized to prevent bottlenecks in high-stakes processes. Alerts will also be targeted to specific audiences, including Infrastructure teams, Model Development & Deployment (MD&D) teams, Outreach teams, and individuals responsible for monthly runs.
 
+This targeted and structured approach ensures each alert reaches the appropriate stakeholders promptly, enabling efficient and effective issue resolution aligned with best MLOps practices.
 
 ## Overview
 Alert channels: 
-- Slack 
+- Slack (dedicated channels)
 - Email 
 - Prefect
 - Weights & Biases (W&B)
@@ -55,16 +58,29 @@ Audiences:
 - Outreach: Team handling communication and external interactions.
 - Monthly-Run Responsible: Individuals overseeing monthly pipeline executions.
 
+The table below shows designated channels for distributing alerts by log level and audience, supporting a balanced approach that prioritizes critical issues while keeping teams informed of less urgent warnings. Alerts are segmented into **Critical** (ERROR, CRITICAL) and **Non-Critical** (DEBUG, INFO, WARNING) categories.
 
-Below is a summary of which channels are designated for distributions of specific alerts to the assigned audiences. For alert prioritization, "critical" and "non-critical" alerts are separated, with critical alerts stemming from logging levels ERROR and CRITICAL. 
+
+| Channel                  | Log Level         | Alert Type                                     | Audience                       | Purpose |
+|--------------------------|-------------------|------------------------------------------------|--------------------------------|---------|
+| **Slack (Warning Channel)**   | WARNING           | Real-time alert with brief summary | MD&D, Infrastructure           | Alerts teams to potential issues that may require attention if they persist |
+| **Slack (Error Channel)**     | ERROR             | Real-time alert with concise summary and link to detailed log | MD&D, Infrastructure           | Immediate notification of high-priority errors needing prompt investigation |
+| **Slack (Critical Channel)**  | CRITICAL          | Real-time alert with prominent notification, link to log, and escalation tag | MD&D, Infrastructure, Outreach   | Urgent notification of severe issues requiring instant response to prevent outages |
+| **Email**                | ERROR             | Real-time alert with expanded details and troubleshooting guidance | MD&D, Infrastructure           | Allows asynchronous review of high-priority errors, ensuring comprehensive context |
+| **Email**      | CRITICAL          | Immediate escalation for critical issues, triggering on-call response | MD&D, Infrastructure, Outreach         | Ensures CRITICAL issues are immediately addressed even outside regular hours |
+| **Prefect**              | INFO, WARNING     | Real-time updates on standard workflow stages and performance | MD&D, Infrastructure           | Provides visibility into routine pipeline health and workflow status |
+| **Prefect**              | WARNING, ERROR, CRITICAL | Real-time alerts for pipeline issues that could impact outputs | MD&D, Infrastructure, Outreach | Ensures Outreach is notified of impactful warnings or errors relevant to stakeholders |
+| **Weights & Biases (W&B)** | INFO, WARNING, ERROR, CRITICAL | Model performance metrics and anomaly detection alerts | All | Enables access to critical model metrics for monitoring, supporting data-driven decisions |
 
 
-| Channel | Threshold        | Alert Type                         | Audience                  |
-|---------|-------------------|------------------------------------|---------------------------|
-| Slack   | ERROR, CRITICAL   | Real-Time, Short Summary + Link to Full Log | MD&D, Infrastructure, Outreach|
-| Email   | ERROR, CRITICAL   | Real-Time, Expanded Summary       | MD&D, Infrastructure      |
-| Prefect | ALL               | Real-Time, Workflow Status        | MD&D, Infrastructure, Outreach |
-| W&B     | ALL               | Performance Metrics               | MD&D, Infrastructure, Outreach |
+**NOTES**
+- **Slack Channels (Warning, Error, Critical)** provide a structured, priority-based notification system tailored to severity. The **Warning channel** alerts MD&D and Infrastructure teams to potential issues that may need attention, while the **Error channel** notifies them of significant errors requiring prompt investigation. The **Critical channel** sends urgent notifications to MD&D, Infrastructure, and Outreach teams, enabling rapid response to severe issues that could impact system stability or outputs.
+  
+- **Email** serves as an asynchronous channel for ERROR and CRITICAL alerts, providing expanded details and troubleshooting guidance. This channel allows teams to follow up outside of immediate notifications, ensuring comprehensive context for high-priority issues.
+
+- **Prefect** provides real-time visibility into workflow stages and pipeline health for MD&D, Infrastructure, and Outreach teams. INFO and WARNING levels inform MD&D and Infrastructure of routine stages, while WARNING and higher alerts keep Outreach updated on impactful issues.
+
+- **Weights & Biases (W&B)** offers continuous access to model performance metrics and anomaly detection, with INFO, WARNING, ERROR, and CRITICAL levels available to all stakeholders. This channel supports comprehensive monitoring, allowing teams to track model health and proactively adjust as needed.
 
 
 ## Consequences
@@ -96,7 +112,7 @@ Implementation:
    
 - Event and Error Triggers
     - Define clear criteria and examples for each logging level (INFO, WARNING, ERROR, CRITICAL).
-    - Use structured logging (e.g., JSON) for easy log parsing and filtering.
+    - Use structured logging (yaml) for easy log parsing and filtering.
     - Set rules for triggering alerts based on event severity.
 
 - Testing and Reliability:
@@ -105,17 +121,14 @@ Implementation:
     - Monitor the alerting system to detect and resolve delivery issues.
 
 
-
-
 Maintaining: 
-- Should logs be archived or deleted? If so, which ones and when? Log rotation system? 
 - The levels of the tresholds may have to be adjusted over time in order to fine-tune the alerts. Thus, it is good to have a periodic review of how (in)effective they are.
 - Audience responsibility: possibly develop guidelines which alerts require which audience to act. This can keep everyone in the loop, yet maintain clarity on individual tasks and responsibilities
 - In the long-term make sure that the alerts are being distributed to the (still) relevant audiences, and adjust accordingly
 - Alert noise reduction: introduce possible ways of grouping similar or related alerts in order to avoid alert channel overflows 
 
 ## Additional Notes
-
+...
 
 ## Feedback and Suggestions
 Feedback is welcome!
