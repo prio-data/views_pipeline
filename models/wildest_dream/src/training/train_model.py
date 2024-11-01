@@ -11,6 +11,7 @@ from views_partitioning.data_partitioner import DataPartitioner
 
 def train_model_artifact(config, model):
     # print(config)
+
     model_path = ModelPath(config["name"])
     path_raw  = model_path.data_raw
     path_generated = model_path.data_generated

@@ -1,5 +1,6 @@
 import logging
 from pathlib import Path
+
 from model_path import ModelPath
 
 logger = logging.getLogger(__name__)
@@ -10,6 +11,7 @@ def read_log_file(log_file_path):
     Reads the log file and returns a dictionary with the relevant information.
 
     Args:
+
     - log_file_path (str or Path): The path to the log file.
 
     Returns:
@@ -96,7 +98,7 @@ def create_log_file(path_generated,
                     model_config,
                     model_timestamp,
                     data_generation_timestamp,
-                    data_fetch_timestamp, 
+                    data_fetch_timestamp,
                     model_type="single",
                     models=None):
     

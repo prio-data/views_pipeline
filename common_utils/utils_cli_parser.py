@@ -81,6 +81,11 @@ def parse_args():
         "-o", "--override_month", help="Over-ride use of current month", type=int
     )
 
+    parser.add_argument(
+        "-dd", "--drift_self_test", action="store_true", default=False,
+        help="Enable drift-detection self_test at data-fetch"
+    )
+
     return parser.parse_args()
 
 

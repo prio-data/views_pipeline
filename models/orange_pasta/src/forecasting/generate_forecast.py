@@ -44,4 +44,5 @@ def forecast_model_artifact(config, artifact_name):
     date_fetch_timestamp = read_log_file(path_raw / f"{run_type}_data_fetch_log.txt").get("Data Fetch Timestamp", None)
 
     save_predictions(df_predictions, path_generated, config)
+
     create_log_file(path_generated, config, config["timestamp"], data_generation_timestamp, date_fetch_timestamp)
