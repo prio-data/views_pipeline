@@ -5,7 +5,7 @@
 |---------------------|-------------------|
 | Subject             | Production and Development Branches  |
 | ADR Number          | 023   |
-| Status              | proposed   |
+| Status              | Accepted   |
 | Author              | Borbála   |
 | Date                | 29.10.2024.     |
 
