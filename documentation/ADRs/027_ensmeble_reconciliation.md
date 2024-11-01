@@ -12,6 +12,7 @@ Ensemble reconcilation
 The notebook-based views3/fatalities002 pipeline generates a cm and a pgm ensemble. It was found that the pgm ensemble suffered from what might be termed normalisation issues, in that the peak and total numbers of fatalities forecast at pgm level are clearly too low. In particular, summing forecast fatalities over the pg cells belonging to a given country, a dcomapring to the fatalities forecast for the same country at cm level almost always gives the result that the summed pgm values are significantly - often an order of magnitude - lower.
 As a quick fix, therefore, a reconciliation function was created which accepts a pgm forecast dataframe and a cm forecast dataframe, fetches via viewser a pgm->cm mapping, computes for every country for every month the sum over its constituent pg cells, and renormalises the pgm forecasts for those cells so that the sum matches the cm-level forecast. A check is performed which ensures that the set of months in the two input dfs is the same.
 The reconciliation will be applied to every pgm-level constituent model from which the pgm ensemble is built.
+this is a known issue with legacy models that were adapted in various forms from the old pipeline. Although some hyper-parameters might help mitigate these issues, the challenges are inherent to the models' architecture and loss functions.
 
 ## Decision
 This reconciliation is to be implemented in the pipeline as a temporary fix in lieu of improvements to the pgm models. The reconciliation function itself needs to be globally available, so should live in common utils.
@@ -21,8 +22,9 @@ Warnings are to be issued and logged if negative-valued forecasts are encountere
 
 
 ### Overview
-This is to be viewed as a temporary fix intended to align forecasts from the new pipeline with those of the old. Warnings are issued to inform the user if large normalisations are being performed, which indicates poorly-performing pgm-level models.
+Reconciliation is being deployed partly to allow the aligning of forecasts from the new pipeline with those of the old. Warnings are issued to inform the user if large normalisations are being performed, which indicates poorly-performing pgm-level models.
 This feature is very simple to disable via the ensemble metadata dict.
+The reconciliation machinery will be maintained as a stable approach to maintain strict consistency between CM-level and aggregated PGM data. In future, it should NOT be viewed as a tool to systematically up-bias PGM models that underestimate conflict fatalities. This underestimation is fundamentally a modeling issue, not a reconciliation problem. Going forward, the explicit goal for all model development efforts is to design architectures, loss functions, optimization routines, sampling strategies, and other methods that address these issues.
 
 ## Consequences
 
