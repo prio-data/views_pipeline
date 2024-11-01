@@ -52,17 +52,17 @@ def generate():
 
               .with_column(Column('sptime_dist_k1_ged_sb', from_loa='priogrid_month', from_column='ged_sb_best_sum_nokgi')
                      .transform.missing.replace_na()
-                     .transform.spatial.sptime_dist(distances,1,1.0,0.0)
+                     .transform.spatial.sptime_dist('distances',1,1.0,0.0)
                      )
 
               .with_column(Column('sptime_dist_k10_ged_sb', from_loa='priogrid_month', from_column='ged_sb_best_sum_nokgi')
                      .transform.missing.replace_na()
-                     .transform.spatial.sptime_dist(distances,1,10.0,0.0)
+                     .transform.spatial.sptime_dist('distances',1,10.0,0.0)
                      )
 
               .with_column(Column('sptime_dist_k001_ged_sb', from_loa='priogrid_month', from_column='ged_sb_best_sum_nokgi')
                      .transform.missing.replace_na()
-                     .transform.spatial.sptime_dist(distances,1,0.01,0.0)
+                     .transform.spatial.sptime_dist('distances',1,0.01,0.0)
                      )
 
               .with_column(Column('dist_diamsec', from_loa='priogrid', from_column='dist_diamsec_s_wgs')
