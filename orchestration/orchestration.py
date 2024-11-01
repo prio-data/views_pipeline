@@ -25,7 +25,9 @@ def initialize():
 
 
 @task(task_run_name="{name}")
-def run_model_script(script_path, name, run_type, sweep, train, evaluate, forecast, saved, override_month):
+def run_model_script(script_path, name, run_type, sweep, train, evaluate, forecast, saved, override_month,
+                     drift_self_test):
+
     cli_args = []
     cli_args.append("--run_type")
     cli_args.append(run_type)
@@ -42,6 +44,8 @@ def run_model_script(script_path, name, run_type, sweep, train, evaluate, foreca
         cli_args.append("--saved")
     if override_month:
         cli_args.extend(["--override_month", int(override_month)])
+    if drift_self_test:
+        cli_args.extend(["--drift_self_test"])
 
     # command = ["python", script_path] + cli_args
     # # print(command)
@@ -80,13 +84,15 @@ def run_ensemble_script(script_path, name, run_type, train, evaluate, forecast):
 def model_execution_flow(run_type, sweep, train, evaluate, forecast, ensemble, saved, override_month):
     model_main_files, ensemble_main_files = initialize()
     if not ensemble:
+        drift_self_test = True
         for main_file in model_main_files:
             # These two models don't fit the current orchestration
             if main_file.parent.name in ['abundant_abyss', 'purple_alien']:
                 continue
             run_model_script(main_file, main_file.parent.name,
                              run_type, sweep, train, evaluate, forecast,
-                             saved, override_month)
+                             saved, override_month, drift_self_test)
+            drift_self_test = False
     else:
         for ensemble_file in ensemble_main_files:
             run_ensemble_script(ensemble_file, ensemble_file.parent.name, run_type, train, evaluate, forecast)

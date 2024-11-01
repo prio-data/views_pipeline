@@ -23,6 +23,7 @@ def train_model_artifact(config):
         stepshift_model.save(path_artifacts / model_filename)
         date_fetch_timestamp = read_log_file(path_raw / f"{run_type}_data_fetch_log.txt").get("Data Fetch Timestamp", None)
         create_log_file(path_generated, config, timestamp, None, date_fetch_timestamp)
+
     return stepshift_model
 
 

@@ -14,7 +14,15 @@ from utils_logger import setup_logging
 from execute_model_runs import execute_single_run
 
 warnings.filterwarnings("ignore")
-
+try:
+    from common_utils.ensemble_path import EnsemblePath
+    from common_utils.global_cache import GlobalCache
+    model_name = EnsemblePath.get_model_name_from_path(PATH)
+    GlobalCache["current_model"] = model_name
+except ImportError as e:
+    warnings.warn(f"ImportError: {e}. Some functionalities (model seperated log files) may not work properly.", ImportWarning)
+except Exception as e:
+    warnings.warn(f"An unexpected error occurred: {e}.", RuntimeWarning)
 logger = setup_logging("run.log")
 
 

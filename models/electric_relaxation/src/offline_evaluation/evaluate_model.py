@@ -53,4 +53,5 @@ def evaluate_model_artifact(config, artifact_name):
 
     save_model_outputs(df_evaluation, df_output, path_generated, config)
     save_predictions(df, path_generated, config)
+
     create_log_file(path_generated, config, config["timestamp"], data_generation_timestamp, date_fetch_timestamp)
