@@ -1,18 +1,35 @@
-## Title
-*Log Level Standards*
+# Log Level Standards
 
 | ADR Info            | Details           |
 |---------------------|-------------------|
 | Subject             | Logging Levels Configuration  |
 | ADR Number          | 025   |
-| Status              | Proposed  |
+| Status              | Accepted  |
 | Author              | Simon   |
-| Date                | 30.10.2024     |
+| Date                | 30.10.2024.     |
 
 ## Context
 We aim to establish a new benchmark in MLOps for early warning systems (EWS), emphasizing robust and transparent logging practices. The conflict forecasting pipeline must have a comprehensive logging strategy to support the continuous quality assurance, real-time monitoring, and rapid model updates critical for high-stakes decision-making and early action. This ADR specifically addresses the standardized use of log levels within the pipeline, which helps the team capture relevant system states and provides clear visibility into operations, potential issues, and crucial decision points across the pipeline.
 
 The following log levels—DEBUG, INFO, WARNING, ERROR, and CRITICAL—are configured to ensure appropriate information is logged for various scenarios, supporting both ongoing development and long-term system monitoring and troubleshooting.
+
+
+For related ADRs on the generation of different log files and other general logging standards/routines, please see the ADRs below:  [NOTE: new relevant ADRs links should be added]
+
+- [009_log_file_for_generated_data](/documentation/ADRs/009_log_file_for_generated_data.md)
+
+- [016_input_drift_detection_logging](/documentation/ADRs/016_input_drift_detection_logging.md)
+
+- [017_log_files_for_offline_evaluation](/documentation/ADRs/017_log_files_for_offline_evaluation.md)
+
+- [018_log_files_for_online_evaluation](/documentation/ADRs/018_log_files_for_online_evaluation.md)
+
+- [019_log_files_for_model_training](/documentation/ADRs/019_log_files_for_model_training.md)
+
+- [020_log_files_and_realtime_alerts](/documentation/ADRs/020_log_files_and_realtime_alerts.md)
+
+- [026_log_files_for_input_data](/documentation/ADRs/026_log_files_for_input_data.md)
+
 
 ## Decision
 The following log levels are implemented as standard for the conflict forecasting pipeline:
