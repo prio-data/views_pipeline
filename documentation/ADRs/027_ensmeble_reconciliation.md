@@ -4,7 +4,7 @@ Ensemble reconcilation
 |---------------------|-------------------------|
 | Subject             | Ensemble reconciliation |
 | ADR Number          | 027                     |
-| Status              | proposed                |
+| Status              | Accepted                |
 | Author              | Jim                     |
 | Date                | 01/11/2024              |
 
