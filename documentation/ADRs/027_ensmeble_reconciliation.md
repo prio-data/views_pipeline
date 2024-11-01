@@ -1,8 +1,8 @@
-Ensemble reconcilation
+# Ensemble Reconcilation
 
 | ADR Info            | Details                 |
 |---------------------|-------------------------|
-| Subject             | Ensemble reconciliation |
+| Subject             | Ensemble Reconciliation |
 | ADR Number          | 027                     |
 | Status              | Accepted                |
 | Author              | Jim                     |
