@@ -1,12 +1,9 @@
-# 
-(Fine name should follow convention NNN-short-title.md)
+# Log Files for Input Data
 
-## Title
-*Refinement of Model Configuration Files Structure*
 
 | ADR Info            | Details           |
 |---------------------|-------------------|
-| Subject             | [Insert Subject]  |
+| Subject             | Log Files for Input Data  |
 | ADR Number          | [Insert Number (NNN)]   |
 | Status              | [Insert Status (proposed, accepted, rejected, deprecated)]   |
 | Author              | [Insert Author (Name)]   |
@@ -14,6 +11,23 @@
 
 ## Context
 *Describe the issue that necessitated the decision, including any factors considered during the decision-making process. This should provide a clear understanding of the challenges or opportunities addressed by the ADR.*
+
+For related ADRs on the generation of different log files and other general logging standards/routines, please see the ADRs below:  [NOTE: new relevant ADRs links should be added]
+
+- [009_log_file_for_generated_data](/documentation/ADRs/009_log_file_for_generated_data.md) 
+
+- [016_input_drift_detection_logging](/documentation/ADRs/016_input_drift_detection_logging.md) 
+
+- [018_log_files_for_online_evaluation](/documentation/ADRs/018_log_files_for_online_evaluation.md) 
+
+- [019_log_files_for_model_training](/documentation/ADRs/019_log_files_for_model_training.md) 
+
+- [020_log_files_and_realtime_alerts](/documentation/ADRs/020_log_files_and_realtime_alerts.md) 
+
+- [025_log_level_standards](/documentation/ADRs/025_log_level_standards.md) 
+
+ALSO RELATED: [016_input_drift_detection_logging](/documentation/ADRs/016_input_drift_detection_logging.md) 
+
 
 ## Decision
 *Detail the decision that was made, including any alternatives that were considered and the reasons for choosing the implemented solution. Provide enough technical specifics to justify the approach.*
