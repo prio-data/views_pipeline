@@ -6,7 +6,7 @@
 |---------------------|-------------------|
 | Subject             | Production and Development Branch Synchronization  |
 | ADR Number          | 024   |
-| Status              | Proposed   |
+| Status              | Accepted   |
 | Author              | Simon  |
 | Date                | 31.10.2024.    |
 
