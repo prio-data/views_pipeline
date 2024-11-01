@@ -4,7 +4,7 @@
 |---------------------|---------------------------|
 | Subject             | Log files and real-time alerts |
 | ADR Number          | 020                       |
-| Status              | Proposed                  |
+| Status              | Approved                  |
 | Author              | Marina                    |
 | Date                | 01.11.2024                |
 
