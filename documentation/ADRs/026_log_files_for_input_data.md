@@ -1,4 +1,3 @@
-TODO        
 
 
 
@@ -12,8 +11,8 @@ For related ADRs on the generation of different log files and other general logg
 
 [018_log_files_for_online_evaluation](/documentation/ADRs/018_log_files_for_online_evaluation.md)
 
+[019_log_files_for_model_training](/documentation/ADRs/019_log_files_for_model_training.md)
+
 [020_log_files_and_realtime_alerts](/documentation/ADRs/020_log_files_and_realtime_alerts.md)
 
 [025_log_level_standards](/documentation/ADRs/025_log_level_standards.md)
-
-[026_log_files_for_input_data](/documentation/ADRs/026_log_files_for_input_data.md)
