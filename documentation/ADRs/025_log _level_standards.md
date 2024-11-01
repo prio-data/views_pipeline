@@ -1,5 +1,4 @@
-## Title
-*Log Level Standards*
+# Log Level Standards
 
 | ADR Info            | Details           |
 |---------------------|-------------------|
