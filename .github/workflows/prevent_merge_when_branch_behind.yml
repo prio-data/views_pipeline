@@ -7,6 +7,7 @@ on:
       - production
       - development
       - fix_prevent_merge_when_branch_behind
+
   workflow_dispatch: # enables manual triggering
 
 jobs:
@@ -26,7 +27,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           ref: ${{ github.event.pull_request.head.ref }}
-    
+
       - name: Fetch comparison branch
         run: |
           git fetch --unshallow
@@ -38,5 +39,6 @@ jobs:
             echo "::notice ::Branch is up-to-date with ${{ env.branch }}."
           else
             echo "::error ::Merge Blocked: Your branch is behind the latest commits on ${{ env.branch }}. Please update your branch before attempting to merge."
+
             exit 1
           fi

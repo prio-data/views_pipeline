@@ -2,6 +2,7 @@ import argparse
 import os
 import numpy as np
 import pandas as pd
+
 import sys
 import logging
 from datetime import datetime
@@ -13,10 +14,16 @@ from utils_log_files import create_data_fetch_log_file
 from viewser import Queryset, Column
 
 import logging
+
 from model_path import ModelPath
 
-logger = logging.getLogger(__name__)
+#from utils_logger import setup_logging
 
+#logging.basicConfig(
+#    level=logging.INFO, format="%(asctime)s %(name)s - %(levelname)s - %(message)s"
+#)
+
+logger = logging.getLogger(__name__)
 
 def fetch_data_from_viewser(model_name, month_first, month_last, drift_config_dict, self_test):
     """
@@ -28,19 +35,27 @@ def fetch_data_from_viewser(model_name, month_first, month_last, drift_config_di
         pd.DataFrame: The prepared DataFrame with initial processing done.
     """
     logger.info(f'Beginning file download through viewser with month range {month_first},{month_last}')
+
     model_path = ModelPath(model_name)
+
     queryset_base = model_path.get_queryset()  # just used here..
     if queryset_base is None:
         raise RuntimeError(f'Could not find queryset for {model_path.model_name} in common_querysets')
     else:
         logger.info(f'Found queryset for {model_path.model_name} in common_querysets')
-    del model_path
+
     df, alerts = queryset_base.publish().fetch_with_drift_detection(start_date=month_first,
                                                                     end_date=month_last - 1,
                                                                     drift_config_dict=drift_config_dict,
                                                                     self_test=self_test)
 
     df = ensure_float64(df)  # The dataframe must contain only np.float64 floats
+#    with wandb.init(project=f'{model_path.model_name}', entity="views_pipeline"):
+    for ialert, alert in enumerate(str(alerts).strip('[').strip(']').split('Input')):
+        if 'offender' in alert:
+            logger.warning({f"{model_path.model_name} data alert {ialert}": str(alert)})
+
+    del model_path
 
     # Not required for stepshift model
     # df.reset_index(inplace=True)
@@ -147,7 +162,8 @@ def filter_dataframe_by_month_range(df, month_first, month_last):
     return df[df['month_id'].isin(month_range)].copy()
 
 
-def get_views_df(model_name, partition, override_month=None, self_test=False):
+def get_views_df(model_name, partition, self_test, override_month=None):
+
     """
     Fetches and processes a DataFrame containing spatial-temporal data for the specified partition type.
 
@@ -187,8 +203,8 @@ def get_views_df(model_name, partition, override_month=None, self_test=False):
 
     return df, alerts
 
+def fetch_or_load_views_df(model_name, partition, PATH_RAW, self_test, use_saved=False, override_month=None):
 
-def fetch_or_load_views_df(model_name, partition, PATH_RAW, self_test=False, use_saved=False, override_month=None):
     """
     Fetches or loads a DataFrame for a given partition from viewser.
 
@@ -225,12 +241,14 @@ def fetch_or_load_views_df(model_name, partition, PATH_RAW, self_test=False, use
 
     else:
         logger.info(f'Fetching data...')
-        df, alerts = get_views_df(model_name, partition, override_month, self_test)  # which is then used here
+
+        df, alerts = get_views_df(model_name, partition, self_test, override_month)  # which is then used here
 
         data_fetch_timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         create_data_fetch_log_file(PATH_RAW, partition, model_name, data_fetch_timestamp)
 
         logger.info(f'Saving data to {path_viewser_df}')
+
         df.to_pickle(path_viewser_df)
 
     if validate_df_partition(df, partition, override_month):

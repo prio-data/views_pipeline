@@ -1,4 +1,5 @@
 import logging
+import pandas as pd
 from datetime import datetime
 from model_path import ModelPath
 from set_partition import get_partitioner_dict
@@ -18,7 +19,6 @@ def train_ensemble(config):
 
     for model_name in config["models"]:
         logger.info(f"Training single model {model_name}...")
-        
         model_path = ModelPath(model_name)
         path_raw  = model_path.data_raw
         path_generated = model_path.data_generated

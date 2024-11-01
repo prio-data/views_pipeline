@@ -6,11 +6,13 @@ import hashlib
 from typing import Union, Optional, List, Dict
 
 PATH = Path(__file__)
-if 'views_pipeline' in PATH.parts:
-    PATH_ROOT = Path(*PATH.parts[:PATH.parts.index('views_pipeline') + 1])
+if "views_pipeline" in PATH.parts:
+    PATH_ROOT = Path(*PATH.parts[: PATH.parts.index("views_pipeline") + 1])
     sys.path.insert(0, str(PATH_ROOT))
 else:
-    raise ValueError("The 'views_pipeline' directory was not found in the provided path.")
+    raise ValueError(
+        "The 'views_pipeline' directory was not found in the provided path."
+    )
 from meta_tools.utils import utils_model_naming, utils_model_paths
 
 logging.basicConfig(
@@ -123,14 +125,14 @@ class ModelPath:
         if cls._meta_tools is None:
             cls._initialize_class_paths()
         return cls._meta_tools
-    
+
     @classmethod
     def get_common_logs(cls) -> Path:
         """Get the common logs path."""
         if cls._common_logs is None:
             cls._initialize_class_paths()
         return cls._common_logs
-    
+
     @classmethod
     def check_if_model_dir_exists(cls, model_name: str) -> bool:
         """
@@ -314,6 +316,7 @@ class ModelPath:
         """
         try:
             from global_cache import GlobalCache
+
             cached_instance = GlobalCache[self._instance_hash]
             if cached_instance and not self._force_cache_overwrite:
                 logger.info(
@@ -324,7 +327,7 @@ class ModelPath:
             logger.error(
                 f"Error adding model {self.model_name} to cache: {e}. Initializing new ModelPath instance."
             )
-            
+
     def _write_to_global_cache(self) -> None:
         """
         Writes the current model instance to the global cache if it doesn't exist.
@@ -332,13 +335,17 @@ class ModelPath:
         Adds the model instance to the global cache using the instance hash as the key.
         """
         from global_cache import GlobalCache
-        
+
         if GlobalCache[self._instance_hash] is None:
-            logger.info(f"Writing {self.target.title}Path object to cache for model {self.model_name}.")
+            logger.info(
+                f"Writing {self.target.title}Path object to cache for model {self.model_name}."
+            )
             GlobalCache[self._instance_hash] = self
         else:
             if self._force_cache_overwrite:
-                logger.info(f"Overwriting {self.target.title}Path object in cache for model {self.model_name}. (_force_cache_overwrite is set to True)")
+                logger.info(
+                    f"Overwriting {self.target.title}Path object in cache for model {self.model_name}. (_force_cache_overwrite is set to True)"
+                )
                 GlobalCache[self._instance_hash] = self
 
     def _initialize_directories(self) -> None:
@@ -359,12 +366,8 @@ class ModelPath:
         self.dataloaders = self._build_absolute_directory(Path("src/dataloaders"))
         self.forecasting = self._build_absolute_directory(Path("src/forecasting"))
         self.management = self._build_absolute_directory(Path("src/management"))
-        self.notebooks = self._build_absolute_directory(Path("notebooks"))
         self.offline_evaluation = self._build_absolute_directory(
             Path("src/offline_evaluation")
-        )
-        self.online_evaluation = self._build_absolute_directory(
-            Path("src/online_evaluation")
         )
         self.reports = self._build_absolute_directory(Path("reports"))
         self._templates = self.meta_tools / "templates"
@@ -377,6 +380,18 @@ class ModelPath:
         self.queryset_path = self.common_querysets / f"queryset_{self.model_name}.py"
         self._queryset = None
 
+        # Initialize model-specific directories only if the class is ModelPath
+        if self.__class__.__name__ == "ModelPath":
+            self._initialize_model_specific_directories()
+
+    def _initialize_model_specific_directories(self) -> None:
+        self.architectures = self._build_absolute_directory(Path("src/architectures"))
+        self.data_raw = self._build_absolute_directory(Path("data/raw"))
+        self.notebooks = self._build_absolute_directory(Path("notebooks"))
+        self.online_evaluation = self._build_absolute_directory(
+            Path("src/online_evaluation")
+        )
+
     def _initialize_scripts(self) -> None:
         """
         Initializes the necessary scripts for the model.
@@ -387,10 +402,8 @@ class ModelPath:
             self._build_absolute_directory(Path("configs/config_deployment.py")),
             self._build_absolute_directory(Path("configs/config_hyperparameters.py")),
             self._build_absolute_directory(Path("configs/config_meta.py")),
-            self._build_absolute_directory(Path("configs/config_sweep.py")),
             self._build_absolute_directory(Path("main.py")),
             self._build_absolute_directory(Path("README.md")),
-            self._build_absolute_directory(Path("src/dataloaders/get_data.py")),
             self._build_absolute_directory(
                 Path("src/forecasting/generate_forecast.py")
             ),
@@ -400,11 +413,29 @@ class ModelPath:
             self._build_absolute_directory(
                 Path("src/management/execute_model_tasks.py")
             ),
+        ]
+        # Initialize model-specific directories only if the class is ModelPath
+        if self.__class__.__name__ == "ModelPath":
+            self._initialize_model_specific_directories()
+
+    def _initialize_model_specific_scripts(self) -> None:
+        """
+        Initializes and appends model-specific script paths to the `scripts` attribute.
+
+        The paths are built using the `_build_absolute_directory` method.
+        Returns:
+            None
+        """
+        self.scripts += [
+            self._build_absolute_directory(Path("configs/config_sweep.py")),
+            self._build_absolute_directory(Path("src/dataloaders/get_data.py")),
             self._build_absolute_directory(
                 Path("src/offline_evaluation/evaluate_model.py")
             ),
-            self._build_absolute_directory(Path(f"src/training/train_{self.target}.py")),
-            self.common_querysets / f"queryset_{self.model_name}.py"
+            self._build_absolute_directory(
+                Path(f"src/training/train_{self.target}.py")
+            ),
+            self.common_querysets / f"queryset_{self.model_name}.py",
         ]
 
     def _is_path(self, path_input: Union[str, Path]) -> bool:

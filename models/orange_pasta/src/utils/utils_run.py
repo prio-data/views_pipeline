@@ -9,7 +9,7 @@ def get_model(config, partitioner_dict):
     Get the model based on the algorithm specified in the config
     """
 
-    if config["algorithm"] == "HurdleRegression":
+    if config["algorithm"] == "HurdleModel":
         model = HurdleModel(config, partitioner_dict)
     else:
         config["model_reg"] = config["algorithm"]
