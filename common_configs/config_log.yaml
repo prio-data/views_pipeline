@@ -1,0 +1,62 @@
+version: 1
+disable_existing_loggers: False
+
+formatters:
+  detailed:
+    format: '%(asctime)s %(pathname)s [%(filename)s:%(lineno)d] [%(process)d] [%(threadName)s] - %(levelname)s - %(message)s'
+
+handlers:
+  console:
+    class: logging.StreamHandler
+    level: INFO
+    formatter: detailed
+    stream: ext://sys.stdout
+
+  info_file_handler:
+    class: logging.handlers.TimedRotatingFileHandler
+    level: INFO
+    formatter: detailed
+    filename: "{LOG_PATH}/views_pipeline_INFO.log"
+    when: "midnight"
+    backupCount: 30
+    encoding: "utf8"
+
+  debug_file_handler:
+    class: logging.handlers.TimedRotatingFileHandler
+    level: DEBUG
+    formatter: detailed
+    filename: "{LOG_PATH}/views_pipeline_DEBUG.log"
+    when: "midnight"
+    backupCount: 10
+    encoding: "utf8"
+
+  warning_file_handler:
+    class: logging.handlers.TimedRotatingFileHandler
+    level: WARNING
+    formatter: detailed
+    filename: "{LOG_PATH}/views_pipeline_WARNING.log"
+    when: "midnight"
+    backupCount: 20
+    encoding: "utf8"
+
+  error_file_handler:
+    class: logging.handlers.TimedRotatingFileHandler
+    level: ERROR
+    formatter: detailed
+    filename: "{LOG_PATH}/views_pipeline_ERROR.log"
+    when: "midnight"
+    backupCount: 60
+    encoding: "utf8"
+
+  critical_file_handler:
+    class: logging.handlers.TimedRotatingFileHandler
+    level: CRITICAL
+    formatter: detailed
+    filename: "{LOG_PATH}/views_pipeline_CRITICAL.log"
+    when: "midnight"
+    backupCount: 90
+    encoding: "utf8"
+
+root:
+  level: DEBUG
+  handlers: [console, info_file_handler, debug_file_handler, warning_file_handler, error_file_handler, critical_file_handler]

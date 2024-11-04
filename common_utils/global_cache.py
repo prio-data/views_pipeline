@@ -113,12 +113,12 @@ class GlobalCache(metaclass=GlobalCacheMeta):
         Ensures that the cache file exists. If it does not exist, creates a new cache file.
         """
         if not self.filepath.exists():
-            logging.info(
+            logging.warning(
                 f"Cache file: {self.filepath} does not exist. Creating new cache file..."
             )
             with open(self.filepath, "wb") as f:
                 pickle.dump({}, f)
-            logging.info(f"Created new cache file: {self.filepath}")
+            logging.debug(f"Created new cache file: {self.filepath}")
 
     def set(self, key, value):
         """
@@ -167,7 +167,7 @@ class GlobalCache(metaclass=GlobalCacheMeta):
         """
         with open(self.filepath, "wb") as f:
             pickle.dump(self.cache, f)
-        logging.info(f"Cache saved to file: {self.filepath}")
+        logging.debug(f"Cache saved to file: {self.filepath}")
 
     def load_cache(self):
         """
@@ -179,7 +179,7 @@ class GlobalCache(metaclass=GlobalCacheMeta):
                     loaded_cache = pickle.loads(f.read())
                     if isinstance(loaded_cache, dict):
                         self.cache = loaded_cache
-                        logging.info(f"Cache loaded from file: {self.filepath}")
+                        logging.debug(f"Cache loaded from file: {self.filepath}")
                     else:
                         logging.error(
                             f"Loaded cache is not a dictionary. Initializing empty cache."
@@ -192,7 +192,7 @@ class GlobalCache(metaclass=GlobalCacheMeta):
                 self.cache = {}
         else:
             self.cache = {}
-            logging.info(f"Cache file does not exist. Initialized empty cache.")
+            logging.debug(f"Cache file does not exist. Initialized empty cache.")
 
 
 def cleanup_cache_file():

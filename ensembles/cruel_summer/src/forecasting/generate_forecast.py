@@ -24,7 +24,6 @@ def forecast_ensemble(config):
 
     for model_name in config["models"]:
         logger.info(f"Forecasting single model {model_name}...")
-
         model_path = ModelPath(model_name)    
         path_raw = model_path.data_raw
         path_generated = model_path.data_generated
@@ -70,6 +69,7 @@ def forecast_ensemble(config):
     save_predictions(df_prediction, path_generated_e, config)
 
     # How to define an ensemble model timestamp? Currently set as data_generation_timestamp.
+
     create_log_file(path_generated_e, config, data_generation_timestamp, data_generation_timestamp, date_fetch_timestamp=None,
                     model_type="ensemble", models=config["models"])
     

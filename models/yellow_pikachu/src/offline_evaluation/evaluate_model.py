@@ -15,6 +15,7 @@ logger = logging.getLogger(__name__)
 
 
 def evaluate_model_artifact(config, artifact_name):
+
     model_path = ModelPath(config["name"])
     path_raw = model_path.data_raw
     path_generated = model_path.data_generated
