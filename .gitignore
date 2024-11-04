@@ -211,5 +211,8 @@ cython_debug/
 *.bak
 
 # txt logs
-
 *.txt
+
+# logs
+*.log
+*.log.*
