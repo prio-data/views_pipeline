@@ -3,7 +3,7 @@
 
 | ADR Info            | Details                  |
 |---------------------|--------------------------|
-| Subject             | Output naming convention |
+| Subject             | Output Naming Convention |
 | ADR Number          | 013                      |
 | Status              | Accepted                 |
 | Author              | Xiaolong                 |
