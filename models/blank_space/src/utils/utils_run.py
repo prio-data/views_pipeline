@@ -96,6 +96,6 @@ def update_sweep_config(sweep_config, args, meta_config):
     sweep_config["parameters"]["name"] = {"value": meta_config["name"]}
     sweep_config["parameters"]["depvar"] = {"value": meta_config["depvar"]}
     sweep_config["parameters"]["algorithm"] = {"value": meta_config["algorithm"]}
-    if meta_config["algorithm"] == "HurdleModel":
+    if meta_config["algorithm"] == "HurdleRegression":
         sweep_config["parameters"]["model_clf"] = {"value": meta_config["model_clf"]}
         sweep_config["parameters"]["model_reg"] = {"value": meta_config["model_reg"]}

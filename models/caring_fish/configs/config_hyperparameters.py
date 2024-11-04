@@ -10,8 +10,10 @@ def get_hp_config():
     
     hyperparameters = {
         'steps': [*range(1, 36 + 1, 1)],
-        'n_estimators': 200,
-        'tree_method': 'hist',
-        'n_jobs': 12,
+        'parameters': {
+            'n_estimators': 200,
+            'tree_method': 'hist',
+            'n_jobs': 12,
+        }
     }
     return hyperparameters
