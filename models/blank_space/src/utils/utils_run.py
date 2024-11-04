@@ -82,7 +82,7 @@ def update_config(hp_config, meta_config, dp_config, args):
     config["name"] = meta_config["name"]
     config["depvar"] = meta_config["depvar"]
     config["algorithm"] = meta_config["algorithm"]
-    if meta_config["algorithm"] == "HurdleModel":
+    if meta_config["algorithm"] == "HurdleRegression":
         config["model_clf"] = meta_config["model_clf"]
         config["model_reg"] = meta_config["model_reg"]
     config["deployment_status"] = dp_config["deployment_status"]
