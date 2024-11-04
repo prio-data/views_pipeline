@@ -69,7 +69,6 @@ def evaluate_ensemble(config):
     df_agg = get_aggregated_df(dfs, config["aggregation"])
     data_generation_timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     
-
     _, df_output = generate_output_dict(df_agg, config)
     evaluation, df_evaluation = generate_metric_dict(df_agg, config)
     log_wandb_log_dict(config, evaluation)
@@ -80,6 +79,5 @@ def evaluate_ensemble(config):
     save_predictions(df_agg, path_generated_e, config)
 
     # How to define an ensemble model timestamp? Currently set as data_generation_timestamp.
-
     create_log_file(path_generated_e, config, data_generation_timestamp, data_generation_timestamp, data_fetch_timestamp=None,
                     model_type="ensemble", models=config["models"])
