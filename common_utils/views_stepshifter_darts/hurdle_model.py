@@ -43,6 +43,7 @@ class HurdleModel(StepshifterModel):
 
     @views_validate
     def fit(self, df: pd.DataFrame, threshold: float = 0.1):
+        df = self._process_data(df)
         self._prepare_time_series(df)
 
         # Binary outcome (event/no-event)
