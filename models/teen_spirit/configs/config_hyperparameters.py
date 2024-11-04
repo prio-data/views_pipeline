@@ -9,7 +9,7 @@ def get_hp_config():
     """
     
     hyperparameters = {
-        'steps': [*range(1, 36 + 1, 1)],
+        "steps": [*range(1, 36 + 1, 1)],
         "parameters": {
             "n_estimators": 300,
             "n_jobs": 12,
