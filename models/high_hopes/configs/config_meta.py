@@ -8,10 +8,12 @@ def get_meta_config():
     """
     
     meta_config = {
-        "name": "brown_cheese", 
-        "algorithm": "RandomForestModel",
+        "name": "high_hopes", 
+        "algorithm": "HurdleModel",
+        "model_clf": "LightGBMModel",
+        "model_reg": "LightGBMModel",
         "depvar": "ln_ged_sb_dep",
-        "queryset": "fatalities002_baseline",
+        "queryset": "fatalities002_conflict_history",
         "level": "cm",
         "creator": "Borbála"
     }

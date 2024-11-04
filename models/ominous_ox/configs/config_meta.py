@@ -8,10 +8,10 @@ def get_meta_config():
     """
     
     meta_config = {
-        "name": "brown_cheese", 
+        "name": "ominous_ox", 
         "algorithm": "RandomForestModel",
         "depvar": "ln_ged_sb_dep",
-        "queryset": "fatalities002_baseline",
+        "queryset": "fatalities002_conflict_history",
         "level": "cm",
         "creator": "Borbála"
     }
