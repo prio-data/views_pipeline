@@ -10,8 +10,8 @@ def get_meta_config():
     meta_config = {
         "name": "little_lies", 
         "algorithm": "HurdleModel",
-        "clf_name": "LGBMClassifier", 
-        "reg_name": "LGBMRegressor",
+        "model_clf": "LightGBMModel", 
+        "model_reg": "LightGBMModel",
         "depvar": "ln_ged_sb_dep",
         "queryset": "fatalities002_joint_narrow",
         "level": "cm",
