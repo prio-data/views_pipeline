@@ -10,8 +10,14 @@ def get_hp_config():
     
     hyperparameters = {
         "steps": [*range(1, 36 + 1, 1)],
-        'LGBMRegressor': LGBMRegressor(n_estimators=250), 
-        'LGBMClassifier': LGBMClassifier(n_estimators=250)
+        "parameters": {
+            "clf": {
+                "n_estimators": 250,
+            },
+            "reg": {
+                "n_estimators": 250,
+            }
+        }
     }
     return hyperparameters
 
