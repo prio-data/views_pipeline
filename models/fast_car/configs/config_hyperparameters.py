@@ -12,10 +12,14 @@ def get_hp_config():
         "steps": [*range(1, 36 + 1, 1)],
         "parameters": {
             "clf": {
-                "n_estimators": 200,
+                "n_estimators": 100,
+                "learning_rate": 0.05,
+                "n_jobs": -2
             },
             "reg": {
-                "n_estimators": 200,
+                "n_estimators": 100,
+                "learning_rate": 0.05,
+                "n_jobs": -2
             }
         }
     }
