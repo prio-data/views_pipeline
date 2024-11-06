@@ -15,7 +15,7 @@ def evaluate_sweep(config, stepshift_model):
 
     df_viewser = pd.read_pickle(path_raw / f"{run_type}_viewser_df.pkl")
     df = stepshift_model.predict(run_type, df_viewser)
-    df = get_standardized_df(df, config)
+    df = get_standardized_df(df)
 
     # Temporarily keep this because the metric to minimize is MSE
     pred_cols = [f"step_pred_{str(i)}" for i in steps]

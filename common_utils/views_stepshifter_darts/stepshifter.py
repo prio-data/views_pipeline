@@ -1,11 +1,13 @@
 import pickle
 import numpy as np
+import logging
 from darts import TimeSeries
-from darts.models import LightGBMModel, XGBModel, LinearRegressionModel, RandomForest
 from sklearn.utils.validation import check_is_fitted
 from typing import List, Dict
 from views_forecasts.extensions import *
 from .validation import views_validate
+
+logger = logging.getLogger(__name__)
 
 
 class StepshifterModel:
@@ -29,36 +31,43 @@ class StepshifterModel:
         self.is_fitted_ = True
 
     @views_validate
-    def predict(self, run_type, df: pd.DataFrame) -> pd.DataFrame:
+    def predict(self, run_type: str, df: pd.DataFrame) -> pd.DataFrame:
         df = self._process_data(df)
         check_is_fitted(self, 'is_fitted_')
         pred_by_step = [self._predict_by_step(self._models[step], step, self._target_train, run_type) for step in self._steps]
         pred = pd.concat(pred_by_step, axis=1)
 
         # Add the target variable to the predictions to make sure it is a VIEWS prediction
-        # But if it is forecasting, we don't need to add the target variable
+        # If it is a forecasting run, the target variable is not available in the input data so we fill it with NaN
         if run_type != 'forecasting':
             pred = pd.merge(pred, df[self._depvar], left_index=True, right_index=True)
+        else:
+            pred[self._depvar] = np.nan
 
         return pred
-
+    
     @staticmethod
     def _resolve_estimator(func_name: str):
         """ Lookup table for supported estimators.
         This is necessary because sklearn estimator default arguments
         must pass equality test, and instantiated sub-estimators are not equal. """
 
-        funcs = {
-            'LinearRegressionModel': LinearRegressionModel,
-            'RandomForestModel': RandomForest,
-            'LightGBMModel': LightGBMModel,
-            'XGBModel': XGBModel,
-        }
-
-        if func_name not in funcs.keys():
-            raise ValueError(f"Model {func_name} is not a valid Darts forecasting model or is not supported now. "
-                             f"Change the model in the config file.")
-        return funcs[func_name]
+        match func_name:
+            case 'LinearRegressionModel':
+                from darts.models import LinearRegressionModel
+                return LinearRegressionModel
+            case 'RandomForestModel':
+                from darts.models import RandomForest
+                return RandomForest
+            case 'LightGBMModel':
+                from darts.models import LightGBMModel
+                return LightGBMModel
+            case 'XGBModel':
+                from darts.models import XGBModel
+                return XGBModel
+            case _:
+                raise ValueError(f"Model {func_name} is not a valid Darts forecasting model or is not supported now. "
+                                f"Change the model in the config file.")
 
     @staticmethod
     def _get_parameters(config: Dict):
@@ -122,10 +131,11 @@ class StepshifterModel:
                                 # darts automatically locates the time period of past_covariates
                                 past_covariates=self._past_cov,
                                 show_warnings=False)
-
+        
         # process the predictions
         index_tuples, df_list = [], []
         test_period = slice(self._test_start, self._test_end)
+        
         for pred in ts_pred:
             df_pred = pred.pd_dataframe().loc[test_period]
             level = pred.static_covariates.iat[0, 0]
@@ -144,9 +154,9 @@ class StepshifterModel:
         try:
             with open(path, "wb") as file:
                 pickle.dump(self, file)
-            print(f"Model successfully saved to {path}")
+            logger.info(f"Model successfully saved to {path}")
         except Exception as e:
-            print(f"Failed to save model: {e}")
+            logger.exception(f"Failed to save model: {e}")
 
     @property
     def models(self):

@@ -39,7 +39,7 @@ def forecast_model_artifact(config, artifact_name):
         logger.exception(f"Model artifact not found at {path_artifact}")
 
     df_predictions = stepshift_model.predict(run_type, df_viewser)
-    df_predictions = get_standardized_df(df_predictions, config)
+    df_predictions = get_standardized_df(df_predictions)
     data_generation_timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     date_fetch_timestamp = read_log_file(path_raw / f"{run_type}_data_fetch_log.txt").get("Data Fetch Timestamp", None)
 
