@@ -12,7 +12,7 @@ def generate():
     
     # VIEWSER 6, Example configuration. Modify as needed.
 
-    queryset = (Queryset('fatalities002_conflict_history','country_month')
+    queryset = (Queryset('fatalities003_conflict_history','country_month')
     .with_column(Column('gleditsch_ward', from_loa='country', from_column='gwcode')
         )
 

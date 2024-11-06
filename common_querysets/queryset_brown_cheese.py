@@ -10,7 +10,7 @@ def generate():
     - queryset_base (Queryset): A queryset containing the base data for the model training.
     """
     
-    queryset = (Queryset('fatalities002_baseline','country_month')
+    queryset = (Queryset('fatalities003_baseline','country_month')
         .with_column(Column('ln_ged_sb_dep', from_loa='country_month', from_column='ged_sb_best_sum_nokgi')
             .transform.ops.ln()
             .transform.missing.fill()

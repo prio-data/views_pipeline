@@ -12,7 +12,7 @@ def generate():
     
     # VIEWSER 6, Example configuration. Modify as needed.
 
-    queryset = (Queryset('fatalities002_aquastat','country_month')
+    queryset = (Queryset('fatalities003_aquastat','country_month')
     .with_column(Column('ln_ged_sb_dep', from_loa='country_month', from_column='ged_sb_best_sum_nokgi')
         .transform.ops.ln()
         .transform.missing.fill()

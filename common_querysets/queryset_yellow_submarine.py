@@ -12,7 +12,7 @@ def generate():
     
     # VIEWSER 6, Example configuration. Modify as needed.
 
-    queryset = (Queryset('fatalities002_imfweo','country_month')
+    queryset = (Queryset('fatalities003_imfweo','country_month')
     .with_column(Column('imfweo_ngdp_rpch_tcurrent', from_loa='country_month', from_column='ngdp_rpch_tcurrent')
         .transform.missing.replace_na(0)
         )

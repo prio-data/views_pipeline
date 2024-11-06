@@ -12,7 +12,7 @@ def generate():
     
     # VIEWSER 6, Example configuration. Modify as needed.
 
-    queryset = (Queryset('fatalities002_faoprices','country_month')
+    queryset = (Queryset('fatalities003_faoprices','country_month')
     .with_column(Column('fao_wheat_price', from_loa='country_month', from_column='wheat_price')
         .transform.missing.replace_na(0)
         )
