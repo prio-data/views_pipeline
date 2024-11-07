@@ -177,7 +177,7 @@ class DataLoader:
         return month_first, month_last
 
     def __validate_df_partition(
-        self, df: pd.DataFrame, override_month: int = None
+        self, df: pd.DataFrame
     ) -> bool:
         """
         Checks to see if the min and max months in the input dataframe are the same as the min
@@ -261,7 +261,8 @@ class DataLoader:
             partition
         ] if self.drift_config_dict is None else self.drift_config_dict
         self.override_month = override_month if self.override_month is None else override_month
-        self.month_first, self.month_last = self.__get_month_range() if self.month_first is None or self.month_last is None else self.month_first, self.month_last
+        if self.month_first is None or self.month_last is None:
+            self.month_first, self.month_last = self.__get_month_range()
 
         path_viewser_df = Path(
             os.path.join(str(self._path_raw), f"{self.partition}_viewser_df.pkl")
@@ -290,7 +291,7 @@ class DataLoader:
             logger.info(f"Saving data to {path_viewser_df}")
             df.to_pickle(path_viewser_df)
         if validate:
-            if self.__validate_df_partition(df=df, override_month=override_month):
+            if self.__validate_df_partition(df=df):
                 return df, alerts
             else:
                 raise RuntimeError(
@@ -304,3 +305,4 @@ class DataLoader:
                 logger.warning({f"{partition} data alert {ialert}": str(alert)})
 
         return df, alerts
+    
