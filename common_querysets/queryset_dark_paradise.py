@@ -2,7 +2,7 @@ from viewser import Queryset, Column
 
 def generate():
 
-    qs_conflictlong = (Queryset('fatalities002_pgm_conflictlong','priogrid_month')
+    qs_conflictlong = (Queryset('fatalities003_pgm_conflictlong','priogrid_month')
                        
         .with_column(Column('ln_ged_sb_dep', from_loa='priogrid_month', from_column='ged_sb_best_sum_nokgi')
             .transform.missing.replace_na()
