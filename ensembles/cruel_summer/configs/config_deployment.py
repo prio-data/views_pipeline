@@ -1,16 +1,20 @@
+"""
+Deployment Configuration Script
+
+This script defines the deployment configuration settings for the application. 
+It includes the deployment status and any additional settings specified.
+
+Deployment Status:
+- shadow: The deployment is shadowed and not yet active.
+- deployed: The deployment is active and in use.
+- baseline: The deployment is in a baseline state, for reference or comparison.
+- deprecated: The deployment is deprecated and no longer supported.
+
+Additional settings can be included in the configuration dictionary as needed.
+
+"""
+
 def get_deployment_config():
-
-    """
-    Contains the configuration for deploying the model into different environments.
-    This configuration is "behavioral" so modifying it will affect the model's runtime behavior and integration into the deployment system.
-
-    Returns:
-    - deployment_config (dict): A dictionary containing deployment settings, determining how the model is deployed, including status, endpoints, and resource allocation.
-    """
-
-    # More deployment settings can/will be added here
-    deployment_config = {
-       "deployment_status": "shadow", # shadow, deployed, baseline, or deprecated
-    }
-
+    # Deployment settings
+    deployment_config = {'deployment_status': 'shadow'}
     return deployment_config
