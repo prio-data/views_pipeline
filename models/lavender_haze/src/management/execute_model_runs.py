@@ -4,9 +4,11 @@ from config_hyperparameters import get_hp_config
 from config_meta import get_meta_config
 from config_sweep import get_sweep_config
 from execute_model_tasks import execute_model_tasks
-from get_data import get_data
+# from get_data import get_data
 from utils_run import update_config, update_sweep_config
-
+from dataloaders import DataLoader
+from model_path import ModelPath
+from pathlib import Path
 
 def execute_sweep_run(args):
 
@@ -20,7 +22,8 @@ def execute_sweep_run(args):
 
     with wandb.init(project=f'{project}_fetch', entity="views_pipeline"):
 
-        get_data(args, sweep_config["name"], args.drift_self_test)
+        data_loader = DataLoader(model_path=ModelPath(Path(__file__)))
+        data_loader.get_data(use_saved=args.saved, validate=True, self_test=args.drift_self_test, partition=args.run_type)
 
     wandb.finish()
 
@@ -37,7 +40,9 @@ def execute_single_run(args):
 
     with wandb.init(project=f'{project}_fetch', entity="views_pipeline"):
 
-        get_data(args, config["name"], args.drift_self_test)
+        # get_data(args, config["name"], args.drift_self_test)
+        data_loader = DataLoader(model_path=ModelPath(Path(__file__)))
+        data_loader.get_data(use_saved=args.saved, validate=True, self_test=args.drift_self_test, partition=args.run_type)
 
     wandb.finish()
 

@@ -4,6 +4,7 @@ import logging
 import importlib
 import hashlib
 from typing import Union, Optional, List, Dict
+import re
 
 PATH = Path(__file__)
 if "views_pipeline" in PATH.parts:
@@ -164,6 +165,26 @@ class ModelPath:
         return hashlib.sha256(str((model_name, validate, target)).encode()).hexdigest()
 
     @staticmethod
+    def validate_model_name(name: str) -> bool:
+        """
+        Validates the model name to ensure it follows the lowercase "adjective_noun" format.
+
+        Parameters:
+            name (str): The model name to validate.
+
+        Returns:
+            bool: True if the name is valid, False otherwise.
+        """
+        # Define a basic regex pattern for a noun_adjective format
+        pattern = r"^[a-z]+_[a-z]+$"
+        # Check if the name matches the pattern
+        if re.match(pattern, name):
+            # You might want to add further checks for actual noun and adjective validation
+            # For now, this regex checks for two words separated by an underscore
+            return True
+        return False
+
+    @staticmethod
     def get_model_name_from_path(path: Union[Path, str]) -> str:
         """
         Returns the model name based on the provided path.
@@ -182,7 +203,7 @@ class ModelPath:
         if "models" in path.parts and "ensembles" not in path.parts:
             model_idx = path.parts.index("models")
             model_name = path.parts[model_idx + 1]
-            if utils_model_naming.validate_model_name(model_name):
+            if ModelPath.validate_model_name(model_name):
                 logger.info(f"Valid model name {model_name} found in path {path}")
                 return str(model_name)
             else:
@@ -191,7 +212,7 @@ class ModelPath:
         if "ensembles" in path.parts and "models" not in path.parts:
             model_idx = path.parts.index("ensembles")
             model_name = path.parts[model_idx + 1]
-            if utils_model_naming.validate_model_name(model_name):
+            if ModelPath.validate_model_name(model_name):
                 logger.info(f"Valid ensemble name {model_name} found in path {path}")
                 return str(model_name)
             else:
@@ -286,7 +307,7 @@ class ModelPath:
         if self._is_path(model_name_or_path):
             logger.debug(f"Path input detected: {model_name_or_path}")
             try:
-                result = ModelPath.get_model_name_from_path(model_name_or_path)
+                result = self.get_model_name_from_path(model_name_or_path)
                 if result:
                     logger.debug(f"Model name extracted from path: {result}")
                     return result
@@ -297,7 +318,7 @@ class ModelPath:
             except Exception as e:
                 logger.error(f"Error extracting model name from path: {e}")
         else:
-            if not utils_model_naming.validate_model_name(model_name_or_path):
+            if not ModelPath.validate_model_name(model_name_or_path):
                 raise ValueError(
                     f"Invalid {self.target} name. Please provide a valid {self.target} name that follows the lowercase 'adjective_noun' format."
                 )
@@ -560,7 +581,7 @@ class ModelPath:
             path = Path(path)
             if str(self.target + "s") in path.parts:
                 try:
-                    model_name = ModelPath.get_model_name_from_path(path)
+                    model_name = self.get_model_name_from_path(path)
                 except:
                     continue
                 if model_name != self.model_name:
@@ -745,3 +766,4 @@ class ModelPath:
 #     print(model_path.get_directories())
 #     print(model_path.get_queryset())
 #     print(model_path.queryset_path)
+#     print(model_path.config_deployment)
