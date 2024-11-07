@@ -4,7 +4,7 @@ from common_utils.model_path import ModelPath
 from common_utils.global_cache import GlobalCache
 from common_utils.ensemble_path import EnsemblePath
 from typing import Union, Optional, List, Dict
-from dataloaders import DataLoaders
+from dataloaders import DataLoader
 import logging
 import importlib
 
@@ -23,7 +23,7 @@ class ModelManager:
             self.config_sweep = self.__load_config("config_sweep.py", "get_sweep_config")
         else:
             self.config_sweep = None
-        # self._data_loader = DataLoaders(model_path=self.model_path, partition=)
+        self._data_loader = DataLoader(model_path=self.model_path)
 
     def __load_config(self, script_name, config_method) -> Optional[Dict]:
         """
@@ -63,7 +63,7 @@ class ModelManager:
 
         
 if "main" in __name__:
-    model_path = ModelPath("orange_pasta")
+    model_path = ModelPath("lavender_haze")
     model_manager = ModelManager(model_path)
     print(model_manager.config_deployment)
     print(model_manager.config_hyperparameters)
