@@ -6,11 +6,10 @@ import sys
 import logging
 from pathlib import Path
 from datetime import datetime
-from common_utils.set_partition import get_partitioner_dict
 from common_configs import config_drift_detection
 from common_utils.utils_df_to_vol_conversion import df_to_vol
 from common_utils.utils_log_files import create_data_fetch_log_file
-from viewser import Queryset, Column
+# from viewser import Queryset, Column
 from common_utils.model_path import ModelPath
 from typing import Dict
 from ingester3.ViewsMonth import ViewsMonth
@@ -27,31 +26,34 @@ class DataLoader:
     create or load volumes, and handle drift detection configurations.
     """
 
-    def __init__(self, model_path: ModelPath):
+    def __init__(self, model_path: ModelPath, **kwargs):
         """
-        Initializes the DataLoaders class with a ModelPath object and partition type.
+        Initializes the DataLoaders class with a ModelPath object and optional keyword arguments.
 
         Args:
             model_path (ModelPath): An instance of the ModelPath class.
+            **kwargs: Additional keyword arguments to set instance attributes.
 
         Attributes:
-            model_path (ModelPath): The ModelPath instance containing model-specific paths.
-            model_name (str): The name of the model.
-            path_raw (Path): The path to the raw data directory.
-            path_processed (Path): The path to the processed data directory.
-            partition (str): The partition type.
-            partition_dict (dict): The dictionary containing partition information.
-            drift_config_dict (dict): The dictionary containing drift detection configuration.
+            partition (str, optional): The partition type. Defaults to None.
+            partition_dict (dict, optional): The dictionary containing partition information. Defaults to None.
+            drift_config_dict (dict, optional): The dictionary containing drift detection configuration. Defaults to None.
+            override_month (str, optional): The override month. Defaults to None.
+            month_first (str, optional): The first month in the range. Defaults to None.
+            month_last (str, optional): The last month in the range. Defaults to None.
         """
-        self.model_path = model_path
-        self.model_name = model_path.model_name
-        self.path_raw = model_path.data_raw
-        self.path_processed = model_path.data_processed
+        self._model_path = model_path
+        self._model_name = model_path.model_name
+        self._path_raw = model_path.data_raw
+        self._path_processed = model_path.data_processed
         self.partition = None
         self.partition_dict = None
         self.drift_config_dict = None
         self.override_month = None
         self.month_first, self.month_last = None, None
+
+        for key, value in kwargs.items():
+            setattr(self, key, value)
 
     def __get_partition_dict(self, step=36) -> Dict:
         """
@@ -113,13 +115,13 @@ class DataLoader:
             f"Beginning file download through viewser with month range {self.month_first},{self.month_last}"
         )
 
-        queryset_base = self.model_path.get_queryset()  # just used here..
+        queryset_base = self._model_path.get_queryset()  # just used here..
         if queryset_base is None:
             raise RuntimeError(
-                f"Could not find queryset for {self.model_name} in common_querysets"
+                f"Could not find queryset for {self._model_name} in common_querysets"
             )
         else:
-            logger.info(f"Found queryset for {self.model_name} in common_querysets")
+            logger.info(f"Found queryset for {self._model_name} in common_querysets")
 
         df, alerts = queryset_base.publish().fetch_with_drift_detection(
             start_date=self.month_first,
@@ -135,7 +137,7 @@ class DataLoader:
         ):
             if "offender" in alert:
                 logger.warning(
-                    {f"{self.model_path.model_name} data alert {ialert}": str(alert)}
+                    {f"{self._model_path.model_name} data alert {ialert}": str(alert)}
                 )
 
         # Not required for stepshift model
@@ -252,16 +254,16 @@ class DataLoader:
         Raises:
             RuntimeError: If the saved data file is not found or if the data is incompatible with the partition.
         """
-        self.partition = partition
-        self.partition_dict = self.__get_partition_dict()
+        self.partition = partition if self.partition is None else self.partition
+        self.partition_dict = self.__get_partition_dict() if self.partition_dict is None else self.partition_dict
         self.drift_config_dict = config_drift_detection.drift_detection_partition_dict[
             partition
-        ]
-        self.override_month = override_month
-        self.month_first, self.month_last = self.__get_month_range()
+        ] if self.drift_config_dict is None else self.drift_config_dict
+        self.override_month = override_month if self.override_month is None else override_month
+        self.month_first, self.month_last = self.__get_month_range() if self.month_first is None or self.month_last is None else self.month_first, self.month_last
 
         path_viewser_df = Path(
-            os.path.join(str(self.path_raw), f"{self.partition}_viewser_df.pkl")
+            os.path.join(str(self._path_raw), f"{self.partition}_viewser_df.pkl")
         )  # maby change to df...
         alerts = None
 
@@ -282,7 +284,7 @@ class DataLoader:
             )  # which is then used here
             data_fetch_timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             create_data_fetch_log_file(
-                self.path_raw, self.partition, self.model_name, data_fetch_timestamp
+                self._path_raw, self.partition, self._model_name, data_fetch_timestamp
             )
             logger.info(f"Saving data to {path_viewser_df}")
             df.to_pickle(path_viewser_df)
