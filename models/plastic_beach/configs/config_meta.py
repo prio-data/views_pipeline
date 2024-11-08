@@ -11,7 +11,7 @@ def get_meta_config():
         "name": "plastic_beach", 
         "algorithm": "RandomForestModel",
         "depvar": "ln_ged_sb_dep",
-        "queryset": "fatalities002_aquastat",
+        "queryset": "fatalities003_aquastat",
         "level": "cm",
         "creator": "Marina"
     }

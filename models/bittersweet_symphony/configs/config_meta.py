@@ -11,7 +11,7 @@ def get_meta_config():
         "name": "bittersweet_symphony", 
         "algorithm": "XGBModel",
         "depvar": "ln_ged_sb_dep",
-        "queryset": " fatalities002_all_features",
+        "queryset": " fatalities003_all_features",
         "level": "cm",
         "creator": "Marina"
     }

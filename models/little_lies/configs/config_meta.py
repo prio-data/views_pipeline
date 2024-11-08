@@ -13,7 +13,7 @@ def get_meta_config():
         "model_clf": "LightGBMModel", 
         "model_reg": "LightGBMModel",
         "depvar": "ln_ged_sb_dep",
-        "queryset": "fatalities002_joint_narrow",
+        "queryset": "fatalities003_joint_narrow",
         "level": "cm",
         "creator": "Marina"
     }

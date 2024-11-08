@@ -11,7 +11,7 @@ def get_meta_config():
         "name": "counting_stars", 
         "algorithm": "XGBModel",
         "depvar": "ln_ged_sb_dep",
-        "queryset": "fatalities002_conflict_history_long",
+        "queryset": "fatalities003_conflict_history_long",
         "level": "cm",
         "creator": "Borbála"
     }

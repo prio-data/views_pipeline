@@ -13,7 +13,7 @@ def get_meta_config():
         "model_clf": "XGBModel",
         "model_reg": "XGBModel",
         "depvar": "ln_ged_sb_dep",
-        "queryset": "fatalities002_vdem_short",
+        "queryset": "fatalities003_vdem_short",
         "level": "cm",
         "creator": "Borbála"
     }

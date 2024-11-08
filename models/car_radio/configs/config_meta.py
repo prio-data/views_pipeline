@@ -11,7 +11,7 @@ def get_meta_config():
         "name": "car_radio", 
         "algorithm": "XGBModel",
         "depvar": "ln_ged_sb_dep",
-        "queryset": "fatalities002_topics",
+        "queryset": "fatalities003_topics",
         "level": "cm",
         "creator": "Borbála"
     }

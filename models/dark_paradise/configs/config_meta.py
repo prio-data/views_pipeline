@@ -13,7 +13,7 @@ def get_meta_config():
         "model_clf": "LightGBMModel",
         "model_reg": "LightGBMModel",
         "depvar": "ln_ged_sb_dep",
-        "queryset": "fatalities002_pgm_conflictlong",
+        "queryset": "fatalities003_pgm_conflictlong",
         "level": "pgm",
         "creator": "Xiaolong"
     }

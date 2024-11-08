@@ -11,7 +11,7 @@ def get_meta_config():
         "name": "brown_cheese", 
         "algorithm": "RandomForestModel",
         "depvar": "ln_ged_sb_dep",
-        "queryset": "fatalities002_baseline",
+        "queryset": "fatalities003_baseline",
         "level": "cm",
         "creator": "Borbála"
     }

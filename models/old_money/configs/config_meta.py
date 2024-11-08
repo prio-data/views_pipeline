@@ -12,7 +12,7 @@ def get_meta_config():
         "model_clf": "LightGBMModel",
         "model_reg": "LightGBMModel",
         "depvar": "ln_ged_sb_dep",  # IMPORTANT! The current stepshift only takes one target variable! Not compatiable with Simon's code!
-        "queryset": "fatalities002_pgm_escwa_drought",
+        "queryset": "fatalities003_pgm_escwa_drought",
         "level": "pgm",
         "creator": "Xiaolong"
     }
