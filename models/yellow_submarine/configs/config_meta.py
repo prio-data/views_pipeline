@@ -11,7 +11,7 @@ def get_meta_config():
         "name": "yellow_submarine", 
         "algorithm": "RandomForestModel",
         "depvar": "ln_ged_sb_dep",
-        "queryset": "atalities003_imfweo",
+        "queryset": "fatalities003_imfweo",
         "level": "cm",
         "creator": "Marina"
     }
