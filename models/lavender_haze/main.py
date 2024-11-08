@@ -12,6 +12,7 @@ setup_project_paths(PATH)
 from utils_cli_parser import parse_args, validate_arguments
 from utils_logger import setup_logging
 from execute_model_runs import execute_sweep_run, execute_single_run
+from model_manager import ModelManager
 
 warnings.filterwarnings("ignore")
 try:
@@ -35,4 +36,5 @@ if __name__ == "__main__":
     if args.sweep:
         execute_sweep_run(args)
     else:
-        execute_single_run(args)
+        # execute_single_run(args)
+        ModelManager(model_path=ModelPath(__file__), cli_args=args).start()

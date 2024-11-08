@@ -406,6 +406,18 @@ class ModelPath:
             self._initialize_model_specific_directories()
 
     def _initialize_model_specific_directories(self) -> None:
+        """
+        Initializes model-specific directories by creating absolute paths for 
+        various directories used in the project. The directories include:
+
+        - architectures: Directory for storing model architectures.
+        - data_raw: Directory for storing raw data.
+        - notebooks: Directory for storing Jupyter notebooks.
+        - online_evaluation: Directory for storing online evaluation scripts.
+
+        This method ensures that the necessary directories are set up with 
+        absolute paths for use throughout the project.
+        """
         self.architectures = self._build_absolute_directory(Path("src/architectures"))
         self.data_raw = self._build_absolute_directory(Path("data/raw"))
         self.notebooks = self._build_absolute_directory(Path("notebooks"))
@@ -437,7 +449,7 @@ class ModelPath:
         ]
         # Initialize model-specific directories only if the class is ModelPath
         if self.__class__.__name__ == "ModelPath":
-            self._initialize_model_specific_directories()
+            self._initialize_model_specific_scripts()
 
     def _initialize_model_specific_scripts(self) -> None:
         """

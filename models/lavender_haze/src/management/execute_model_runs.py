@@ -6,7 +6,7 @@ from config_sweep import get_sweep_config
 # from execute_model_tasks import execute_model_tasks
 # from get_data import get_data
 from utils_run import update_config, update_sweep_config
-from dataloaders import DataLoader
+from views_dataloader import ViewsDataLoader
 from model_manager import ModelManager
 from model_path import ModelPath
 from pathlib import Path
@@ -23,7 +23,7 @@ def execute_sweep_run(args):
 
     with wandb.init(project=f'{project}_fetch', entity="views_pipeline"):
 
-        data_loader = DataLoader(model_path=ModelPath(Path(__file__)))
+        data_loader = ViewsDataLoader(model_path=ModelPath(Path(__file__)))
         data_loader.get_data(use_saved=args.saved, validate=True, self_test=args.drift_self_test, partition=args.run_type)
 
     wandb.finish()
@@ -46,7 +46,7 @@ def execute_single_run(args):
         # data_loader = DataLoader(model_path=ModelPath(Path(__file__)))
         # data_loader.get_data(use_saved=args.saved, validate=True, self_test=args.drift_self_test, partition=args.run_type)
     print("MODEL PATH ", __file__)
-    ModelManager(ModelPath(Path(__file__))).execute_single_run(args)
+    ModelManager(ModelPath(Path(__file__)), cli_args=args).start()
 
     # wandb.finish()
 

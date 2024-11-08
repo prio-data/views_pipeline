@@ -13,6 +13,8 @@ from utils_cli_parser import parse_args, validate_arguments
 from utils_logger import setup_logging
 from execute_model_runs import execute_sweep_run, execute_single_run
 
+from model_manager import ModelManager
+
 warnings.filterwarnings("ignore")
 try:
     from common_utils.model_path import ModelPath
@@ -33,6 +35,8 @@ if __name__ == "__main__":
     validate_arguments(args)
 
     if args.sweep:
-        execute_sweep_run(args)
+        # execute_sweep_run(args)
+        ModelManager(model_path=ModelPath(__file__), cli_args=args).start()
     else:
-        execute_single_run(args)
+        # execute_single_run(args)
+        ModelManager(model_path=ModelPath(__file__), cli_args=args).start()
