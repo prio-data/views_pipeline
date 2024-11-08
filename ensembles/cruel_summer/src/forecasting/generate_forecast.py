@@ -5,7 +5,6 @@ import logging
 from pathlib import Path
 from model_path import ModelPath
 from ensemble_path import EnsemblePath
-from set_partition import get_partitioner_dict
 from utils_log_files import create_log_file, read_log_file
 from utils_save_outputs import save_predictions
 from utils_run import get_standardized_df, get_aggregated_df, get_single_model_config
@@ -50,14 +49,13 @@ def forecast_ensemble(config):
             except FileNotFoundError:
                 logger.exception(f"Model artifact not found at {path_artifact}")
 
-            partition = get_partitioner_dict(run_type)["predict"]
-            df = stepshift_model.future_point_predict(partition[0]-1, df_viewser, keep_specific=True)
+            df = stepshift_model.predict(run_type, df_viewser)
             df = get_standardized_df(df, model_config)
 
             data_generation_timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            date_fetch_timestamp = read_log_file(path_raw / f"{run_type}_data_fetch_log.txt").get("Data Fetch Timestamp", None)
+            data_fetch_timestamp = read_log_file(path_raw / f"{run_type}_data_fetch_log.txt").get("Data Fetch Timestamp", None)
             save_predictions(df, path_generated, model_config)
-            create_log_file(path_generated, model_config, ts, data_generation_timestamp, date_fetch_timestamp)
+            create_log_file(path_generated, model_config, ts, data_generation_timestamp, data_fetch_timestamp)
 
         dfs.append(df)
 
@@ -69,7 +67,6 @@ def forecast_ensemble(config):
     save_predictions(df_prediction, path_generated_e, config)
 
     # How to define an ensemble model timestamp? Currently set as data_generation_timestamp.
-
-    create_log_file(path_generated_e, config, data_generation_timestamp, data_generation_timestamp, date_fetch_timestamp=None,
+    create_log_file(path_generated_e, config, data_generation_timestamp, data_generation_timestamp, data_fetch_timestamp=None,
                     model_type="ensemble", models=config["models"])
     

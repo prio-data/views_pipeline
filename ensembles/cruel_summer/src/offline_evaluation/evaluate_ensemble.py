@@ -53,16 +53,16 @@ def evaluate_ensemble(config):
             except FileNotFoundError:
                 logger.exception(f"Model artifact not found at {path_artifact}")
 
-            df = stepshift_model.predict(run_type, "predict", df_viewser)
+            df = stepshift_model.predict(run_type, df_viewser)
             df = get_standardized_df(df, model_config)
             data_generation_timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            date_fetch_timestamp = read_log_file(path_raw / f"{run_type}_data_fetch_log.txt").get("Data Fetch Timestamp", None)
+            data_fetch_timestamp = read_log_file(path_raw / f"{run_type}_data_fetch_log.txt").get("Data Fetch Timestamp", None)
 
             _, df_output = generate_output_dict(df, model_config)
             evaluation, df_evaluation = generate_metric_dict(df, model_config)
             save_model_outputs(df_evaluation, df_output, path_generated, model_config)
             save_predictions(df, path_generated, model_config)
-            create_log_file(path_generated, model_config, ts, data_generation_timestamp, date_fetch_timestamp)
+            create_log_file(path_generated, model_config, ts, data_generation_timestamp, data_fetch_timestamp)
 
         dfs.append(df)
 

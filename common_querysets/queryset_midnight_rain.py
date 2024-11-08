@@ -10,7 +10,7 @@ def generate():
     - queryset_base (Queryset): A queryset containing the base data for the model training.
     """
     
-    qs_escwa_drought = (Queryset('fatalities002_pgm_escwa_drought','priogrid_month')
+    qs_escwa_drought = (Queryset('fatalities003_pgm_escwa_drought','priogrid_month')
                         
               .with_column(Column('pgd_nlights_calib_mean', from_loa='priogrid_year', from_column='nlights_calib_mean')
                      .transform.missing.replace_na(0)

@@ -3,8 +3,32 @@ import logging
 from pathlib import Path
 from model_path import ModelPath
 from utils_log_files import read_log_file
+from utils_run import get_single_model_config
 
 logger = logging.getLogger(__name__)
+
+
+def check_model_config(model_config, config):
+    """
+    Checks if devpar and level of the single model matches the ensemble model using config files.
+
+    Args:
+    - model_config (dict): The configuration dictionary containing the model details.
+    - config (dict): The configuration dictionary containing the ensemble details.
+
+    Returns:
+    - bool: True if all conditions are met, False otherwise.
+    """
+
+    if model_config["depvar"] != config["depvar"]:
+        logger.error(f"Model {model_config['name']} target variable {model_config['depvar']} does not match the ensemble target variable {config['depvar']}. Exiting.")
+        return False
+    
+    if model_config["level"] != config["level"]:
+        logger.error(f"Model {model_config['name']} level {model_config['level']} does not match the ensemble level {config['level']}. Exiting.")
+        return False
+
+    return True
 
 
 def check_model_conditions(path_generated, run_type):
@@ -113,8 +137,10 @@ def ensemble_model_check(config):
     for model_name in config["models"]:
         model_path = ModelPath(model_name)
         path_generated = model_path.data_generated
+        model_config = get_single_model_config(model_name)
 
         if (
+                (not check_model_config(model_config, config)) or
                 (not check_model_conditions(path_generated, config["run_type"])) or
                 (not check_model_deployment_status(path_generated, config["run_type"], config["deployment_status"]))
         ):

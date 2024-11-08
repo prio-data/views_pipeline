@@ -3,7 +3,7 @@ from viewser import Queryset, Column
 def generate():
     
 
-    qs_sptime_dist = (Queryset('fatalities002_pgm_conflict_sptime_dist','priogrid_month')
+    qs_sptime_dist = (Queryset('fatalities003_pgm_conflict_sptime_dist','priogrid_month')
                       
                      .with_column(Column('ged_gte_1', from_loa='priogrid_month', from_column='ged_sb_best_sum_nokgi')
                             .transform.bool.gte(1)
