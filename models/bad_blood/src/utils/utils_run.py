@@ -21,16 +21,21 @@ def get_model(config, partitioner_dict):
     return model
 
 
-def get_standardized_df(df):
+def get_standardized_df(df, config):
     """
-    Standardize the DataFrame 
+    Standardize the DataFrame based on the run type
     """
 
-    # choose the columns to keep and replace negative values with 0
-    cols = [df.forecasts.target] + df.forecasts.prediction_columns
+    run_type = config["run_type"]
+    depvar = config["depvar"]
+
+    # choose the columns to keep based on the run type and replace negative values with 0
+    if run_type in ["calibration", "testing"]:
+        cols = [depvar] + df.forecasts.prediction_columns
+    elif run_type == "forecasting":
+        cols = ["step_pred_combined", depvar]
     df = df.replace([np.inf, -np.inf], 0)[cols]
     df = df.mask(df < 0, 0)
-    
     return df
 
 
