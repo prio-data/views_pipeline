@@ -70,20 +70,25 @@ class HurdleModel(StepshifterModel):
 
     @views_validate
     def predict(self, run_type: str, df: pd.DataFrame) -> pd.DataFrame:
+        df = self._process_data(df)
         check_is_fitted(self, 'is_fitted_')
-        pred_by_step_binary = [self._predict_by_step(self._models[step][0], step, self._target_train, run_type)
-                               for step in self._steps]
 
-        pred_by_step_positive = [self._predict_by_step(self._models[step][1], step, self._target_train, run_type)
-                                 for step in self._steps]
-
-        final_pred = pd.concat(pred_by_step_binary, axis=1) * pd.concat(pred_by_step_positive, axis=1)
-
-        # Add the target variable to the predictions to make sure it is a VIEWS prediction
-        # If it is a forecasting run, the target variable is not available in the input data so we fill it with NaN
-        if run_type != 'forecasting':
-            final_pred = pd.merge(final_pred, df[self._depvar], left_index=True, right_index=True)
-        else:
+        if run_type == 'forecasting':
+            pred_by_step_binary = [self._predict_by_step_combined(self._models[step][0], step, self._target_train) 
+                                   for step in self._steps]
+            pred_by_step_positive = [self._predict_by_step_combined(self._models[step][1], step, self._target_train) 
+                                     for step in self._steps]
+            final_pred = pd.concat(pred_by_step_binary, axis=0) * pd.concat(pred_by_step_positive, axis=0)
+            # Add the target variable to the predictions to make sure it is a VIEWS prediction
+            # If it is a forecasting run, the target variable is not available in the input data so we fill it with NaN
             final_pred[self._depvar] = np.nan
+
+        else:
+            pred_by_step_binary = [self._predict_by_step(self._models[step][0], step, self._target_train)
+                                   for step in self._steps]
+            pred_by_step_positive = [self._predict_by_step(self._models[step][1], step, self._target_train)
+                                     for step in self._steps]
+            final_pred = pd.concat(pred_by_step_binary, axis=1) * pd.concat(pred_by_step_positive, axis=1)
+            final_pred = pd.merge(final_pred, df[self._depvar], left_index=True, right_index=True)
 
         return final_pred

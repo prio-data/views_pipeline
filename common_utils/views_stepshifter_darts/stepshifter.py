@@ -19,32 +19,6 @@ class StepshifterModel:
         self._train_start, self._train_end = partitioner_dict['train']
         self._test_start, self._test_end = partitioner_dict['predict']
         self._models = {}
-
-    @views_validate
-    def fit(self, df: pd.DataFrame):
-        df = self._process_data(df)
-        self._prepare_time_series(df)
-        for step in self._steps:
-            model = self._reg(lags_past_covariates=[-step], **self._params)
-            model.fit(self._target_train, past_covariates=self._past_cov_train)
-            self._models[step] = model
-        self.is_fitted_ = True
-
-    @views_validate
-    def predict(self, run_type: str, df: pd.DataFrame) -> pd.DataFrame:
-        df = self._process_data(df)
-        check_is_fitted(self, 'is_fitted_')
-        pred_by_step = [self._predict_by_step(self._models[step], step, self._target_train, run_type) for step in self._steps]
-        pred = pd.concat(pred_by_step, axis=1)
-
-        # Add the target variable to the predictions to make sure it is a VIEWS prediction
-        # If it is a forecasting run, the target variable is not available in the input data so we fill it with NaN
-        if run_type != 'forecasting':
-            pred = pd.merge(pred, df[self._depvar], left_index=True, right_index=True)
-        else:
-            pred[self._depvar] = np.nan
-
-        return pred
     
     @staticmethod
     def _resolve_estimator(func_name: str):
@@ -109,7 +83,10 @@ class StepshifterModel:
         return df
 
     def _prepare_time_series(self, df: pd.DataFrame):
-        # prepare time series
+        '''
+        Prepare time series for training and prediction
+        '''
+
         df_reset = df.reset_index(level=[1])
         self._series = TimeSeries.from_group_dataframe(df_reset, group_cols=self._level,
                                                        value_cols=self._independent_variables + [self._depvar])
@@ -120,13 +97,8 @@ class StepshifterModel:
                                 for series in self._series]
         self._past_cov = [series[self._independent_variables] for series in self._series]
 
-    def _predict_by_step(self, model, step, target, run_type):
-        if run_type == 'forecasting':
-            horizon = step
-        else:
-            horizon = self._test_end - self._test_start + 1
-
-        ts_pred = model.predict(n=horizon,
+    def _predict_by_step(self, model, step, target):
+        ts_pred = model.predict(n=self._test_end - self._test_start + 1,
                                 series=target,
                                 # darts automatically locates the time period of past_covariates
                                 past_covariates=self._past_cov,
@@ -150,7 +122,64 @@ class StepshifterModel:
 
         return df_preds.sort_index()
 
+    def _predict_by_step_combined(self, model, step, target):
+        '''
+        For forecasting only need to keep predictions with last-month-with-data, i.e., diagonal prediction
+        '''
+
+        ts_pred = model.predict(n=step,
+                                series=target,
+                                # darts automatically locates the time period of past_covariates
+                                past_covariates=self._past_cov,
+                                show_warnings=False)
+        
+        # process the predictions
+        index_tuples, df_list = [], []
+        for pred in ts_pred:
+            df_pred = pred.pd_dataframe().loc[[self._test_start + step - 1]]
+            level = pred.static_covariates.iat[0, 0]
+            index_tuples.extend([(month, level) for month in df_pred.index])
+            df_list.append(df_pred.values)
+
+        df_preds = pd.DataFrame(
+            data=np.concatenate(df_list),
+            index=pd.MultiIndex.from_tuples(index_tuples, names=[self._time, self._level]),
+            columns=["step_pred_combined"]
+        )
+
+        return df_preds.sort_index()
+    
+    @views_validate
+    def fit(self, df: pd.DataFrame):
+        df = self._process_data(df)
+        self._prepare_time_series(df)
+        for step in self._steps:
+            model = self._reg(lags_past_covariates=[-step], **self._params)
+            model.fit(self._target_train, past_covariates=self._past_cov_train)
+            self._models[step] = model
+        self.is_fitted_ = True
+
+    @views_validate
+    def predict(self, run_type: str, df: pd.DataFrame) -> pd.DataFrame:
+        df = self._process_data(df)
+        check_is_fitted(self, 'is_fitted_')
+
+        if run_type == 'forecasting':
+            pred_by_step = [self._predict_by_step_combined(self._models[step], step, self._target_train) for step in self._steps]
+            pred = pd.concat(pred_by_step, axis=0)
+            # Add the target variable to the predictions to make sure it is a VIEWS prediction
+            # If it is a forecasting run, the target variable is not available in the input data so we fill it with NaN
+            pred[self._depvar] = np.nan
+
+        else:
+            pred_by_step = [self._predict_by_step(self._models[step], step, self._target_train) for step in self._steps]
+            pred = pd.concat(pred_by_step, axis=1)
+            pred = pd.merge(pred, df[self._depvar], left_index=True, right_index=True)
+
+        return pred
+    
     def save(self, path: str):
+
         try:
             with open(path, "wb") as file:
                 pickle.dump(self, file)
