@@ -126,7 +126,8 @@ class ModelManager:
             if self._config_meta["algorithm"] == "HurdleRegression":
                 self._config_sweep["parameters"]["model_clf"] = {"value": self._config_meta["model_clf"]}
                 self._config_sweep["parameters"]["model_reg"] = {"value": self._config_meta["model_reg"]}
-            return self._config_sweep
+            # return self._config_sweep
+        
         _config = self._config_hyperparameters.copy()
         if self.__args is not None:
             _config["run_type"] = self.__args.run_type
@@ -161,11 +162,13 @@ class ModelManager:
 
         def decorator(func):
             def wrapper(self):
-                if self._aggregated_config is None:
-                    self._aggregated_config = self._aggregate_configs()
+                # if self._aggregated_config is None:
+                self._aggregated_config = self._aggregate_configs()
                 self._project = (
                     f"{self._aggregated_config['name']}_{self.__args.run_type}"
                 )
+                start_t = time.time()
+
                 with wandb.init(
                     project=f"{self._project}_{stage}",
                     entity=self._entity,
@@ -175,12 +178,16 @@ class ModelManager:
                     result = func(self)
                 wandb.finish()
                 if self.__args.sweep:
-                    if self._wandb_sweep_id is None:
-                        self._wandb_sweep_id = wandb.sweep(
-                            self._config_sweep, project=self._project, entity=self._entity
-                        )
+                    # if self._wandb_sweep_id is None:
+                    self._wandb_sweep_id = wandb.sweep(
+                        self._config_sweep, project=self._project, entity=self._entity
+                    )
                     # self._wandb_sweep_id = wandb.sweep(sweep_config, project=project, entity="views_pipeline")
                     wandb.agent(self._wandb_sweep_id, self.train(), entity=self._entity)
+
+                end_t = time.time()
+                minutes = (end_t - start_t) / 60
+                logger.info(f"Done. Runtime: {minutes:.3f} minutes.\n")
                 return result
 
             return wrapper
@@ -286,13 +293,19 @@ class ModelManager:
     def stepshift_training(self):
         stepshift_model = self.get_model()
         stepshift_model.fit(self._data)
+        if not self._wandb_config["sweep"]:
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            model_filename = f"{self.__args.run_type}_model_{timestamp}.pkl"
+            stepshift_model.save(self._model_path.artifacts / model_filename)
+            date_fetch_timestamp = read_log_file(self._model_path.data_raw / f"{self.__args.run_type}_data_fetch_log.txt").get("Data Fetch Timestamp", None)
+            create_log_file(self._model_path.data_generated, self._aggregated_config, timestamp, None, date_fetch_timestamp)
         return stepshift_model
 
     @wandb_session(stage="train")
     def train(self):
         # from utils_run import get_model, split_hurdle_parameters
-        start_t = time.time()
-        # from train_model import train_model_artifact
+        # start_t = time.time()
+        from train_model import train_model_artifact
         
         self._wandb_config = wandb.config
         print(self._wandb_config)
@@ -306,28 +319,22 @@ class ModelManager:
                 self._wandb_config["parameters"]["reg"],
             ) = self._split_hurdle_parameters(self._wandb_config)
 
-        # if self._wandb_config["sweep"]:
-        #     logger.info(f"Sweeping model {self._wandb_config['name']}...")
-        #     stepshift_model = train_model_artifact(self._wandb_config)
-        #     logger.info(f"Evaluating model {self._wandb_config['name']}...")
-        #     evaluate_sweep(self._wandb_config, stepshift_model)
+        if self._wandb_config["sweep"]:
+            logger.info(f"Sweeping model {self._wandb_config['name']}...")
+            stepshift_model = self.stepshift_training()
+            logger.info(f"Evaluating model {self._wandb_config['name']}...")
+            evaluate_sweep(self._wandb_config, stepshift_model)
 
         # Handle the single model runs: train and save the model as an artifact
         if self.__args.train:
             logger.info(f"Training model {self._wandb_config['name']}...")
-            # train_model_artifact(self._wandb_config)
+            train_model_artifact(self._wandb_config)
             ## Actual training
-            stepshift_model = self.stepshift_training()
-            if not self._wandb_config["sweep"]:
-                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                model_filename = f"{self.__args.run_type}_model_{timestamp}.pkl"
-                stepshift_model.save(self._model_path.artifacts / model_filename)
-                date_fetch_timestamp = read_log_file(self._model_path.data_raw / f"{self.__args.run_type}_data_fetch_log.txt").get("Data Fetch Timestamp", None)
-                create_log_file(self._model_path.data_generated, self._aggregated_config, timestamp, None, date_fetch_timestamp)
-
-        end_t = time.time()
-        minutes = (end_t - start_t) / 60
-        logger.info(f"Done. Runtime: {minutes:.3f} minutes.\n")
+            # stepshift_model = self.stepshift_training()
+            
+        # end_t = time.time()
+        # minutes = (end_t - start_t) / 60
+        # logger.info(f"Done. Runtime: {minutes:.3f} minutes.\n")
 
         self.evaluate()
         self.forecast()
@@ -340,6 +347,11 @@ class ModelManager:
         if self.__args.evaluate:
             logger.info(f"Evaluating model {self._wandb_config['name']}...")
             evaluate_model_artifact(self._wandb_config, self.__args.artifact_name)
+
+    # @wandb_session(stage="testing")
+    # def evaluate_sweep(self):
+    #     from evaluate_sweep import evaluate_sweep
+    #     evaluate_sweep(self._wandb_config, self.stepshift_model)
     
     @wandb_session(stage="forecasting")
     def forecast(self):
@@ -354,19 +366,3 @@ class ModelManager:
         self.train()
         self.evaluate()
         self.forecast()
-
-
-if "main" in __name__:
-    model_path = ModelPath("lavender_haze")
-    model_manager = ModelManager(model_path)
-    print(model_manager.config_deployment)
-    print(model_manager.config_hyperparameters)
-    print(model_manager.config_meta)
-    print(model_manager.config_sweep)
-    # model_manager.execute_single_run("__args")
-    # ensemble_path = EnsemblePath("white_mustang")
-    # ensemble_manager = ModelManager(ensemble_path)
-    # print(ensemble_manager.config_deployment)
-    # print(ensemble_manager.config_hyperparameters)
-    # print(ensemble_manager.config_meta)
-    # print(ensemble_manager.config_sweep)
