@@ -416,7 +416,7 @@ class ModelPath:
         ]
         # Initialize model-specific directories only if the class is ModelPath
         if self.__class__.__name__ == "ModelPath":
-            self._initialize_model_specific_directories()
+            self._initialize_model_specific_scripts()
 
     def _initialize_model_specific_scripts(self) -> None:
         """

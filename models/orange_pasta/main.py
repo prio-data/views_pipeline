@@ -25,6 +25,7 @@ except Exception as e:
     warnings.warn(f"An unexpected error occurred: {e}.", RuntimeWarning)
 logger = setup_logging("run.log")
 
+from stepshifter_manager import StepshifterManager
 
 if __name__ == "__main__":
     wandb.login()
@@ -33,6 +34,6 @@ if __name__ == "__main__":
     validate_arguments(args)
 
     if args.sweep:
-        execute_sweep_run(args)
+        StepshifterManager(model_path=ModelPath(PATH)).execute_sweep_run(args)
     else:
-        execute_single_run(args)
+        StepshifterManager(model_path=ModelPath(PATH)).execute_single_run(args)

@@ -16,6 +16,7 @@ import numpy as np
 import time
 import wandb
 from datetime import datetime
+from sklearn.metrics import mean_squared_error
 
 logger = logging.getLogger(__name__)
 
@@ -109,21 +110,21 @@ class StepshifterManager(ModelManager):
 
             if self.config["sweep"]:
                 logger.info(f"Sweeping model {self.config['name']}...")
-                model = self._train_model_artifact(self.config)
+                model = self._train_model_artifact()
                 logger.info(f"Evaluating model {self.config['name']}...")
-                self._evaluate_sweep(self.config, model)
+                self._evaluate_sweep(model)
 
             if train:
                 logger.info(f"Training model {self.config['name']}...")
-                self._train_model_artifact(self.config)
+                self._train_model_artifact()
 
             if eval:
                 logger.info(f"Evaluating model {self.config['name']}...")
-                self._evaluate_model_artifact(self.config, artifact_name)
+                self._evaluate_model_artifact(artifact_name)
 
             if forecast:
                 logger.info(f"Forecasting model {self.config['name']}...")
-                self._forecast_model_artifact(self.config, artifact_name)
+                self._forecast_model_artifact(artifact_name)
 
             end_t = time.time()
             minutes = (end_t - start_t) / 60
@@ -180,7 +181,7 @@ class StepshifterManager(ModelManager):
         run_type = self.config["run_type"]
         df_viewser = pd.read_pickle(path_raw / f"{run_type}_viewser_df.pkl")
 
-        partitioner_dict = self._data_loader.__get_partitioner_dict(run_type)
+        partitioner_dict = self._data_loader.partition_dict
         stepshift_model = self._get_model(partitioner_dict)
         stepshift_model.fit(df_viewser)
 
@@ -267,3 +268,21 @@ class StepshifterManager(ModelManager):
         save_predictions(df_predictions, path_generated, self.config)
         create_log_file(path_generated, self.config, self.config["timestamp"], data_generation_timestamp, data_fetch_timestamp)
 
+    def _evaluate_sweep(self, model):
+        path_raw = self._model_path.data_raw
+        run_type = self.config["run_type"]
+        steps = self.config["steps"]
+
+        df_viewser = pd.read_pickle(path_raw / f"{run_type}_viewser_df.pkl")
+        df = model.predict(run_type, df_viewser)
+        df = self._get_standardized_df(df)
+
+        # Temporarily keep this because the metric to minimize is MSE
+        pred_cols = [f"step_pred_{str(i)}" for i in steps]
+        df["mse"] = df.apply(lambda row: mean_squared_error([row[self.config["depvar"]]] * len(steps),
+                                                            [row[col] for col in pred_cols]), axis=1)
+
+        wandb.log({"MSE": df["mse"].mean()})
+
+        evaluation, _ = generate_metric_dict(df, self.config)
+        log_wandb_log_dict(self.config, evaluation)

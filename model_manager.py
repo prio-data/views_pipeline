@@ -161,21 +161,21 @@ class ModelManager:
 
             if self.config["sweep"]:
                 logger.info(f"Sweeping model {self.config['name']}...")
-                model = self._train_model_artifact(self.config)
+                model = self._train_model_artifact()
                 logger.info(f"Evaluating model {self.config['name']}...")
-                self._evaluate_sweep(self.config, model)
+                self._evaluate_sweep(model)
 
             if train:
                 logger.info(f"Training model {self.config['name']}...")
-                self._train_model_artifact(self.config)
+                self._train_model_artifact(self)
 
             if eval:
                 logger.info(f"Evaluating model {self.config['name']}...")
-                self._evaluate_model_artifact(self.config, artifact_name)
+                self._evaluate_model_artifact(artifact_name)
 
             if forecast:
                 logger.info(f"Forecasting model {self.config['name']}...")
-                self._forecast_model_artifact(self.config, artifact_name)
+                self._forecast_model_artifact(artifact_name)
 
             end_t = time.time()
             minutes = (end_t - start_t) / 60
@@ -186,15 +186,15 @@ class ModelManager:
         pass
     
     @abstractmethod
-    def _evaluate_model_artifact(self):
+    def _evaluate_model_artifact(self, artifact_name):
         pass
 
     @abstractmethod
-    def _forecast_model_artifact(self):
+    def _forecast_model_artifact(self, artifact_name):
         pass
 
     @abstractmethod
-    def _evaluate_sweep(self):
+    def _evaluate_sweep(self, model):
         pass
 
 
