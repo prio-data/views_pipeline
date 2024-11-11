@@ -179,7 +179,6 @@ class StepshifterModel:
         return pred
     
     def save(self, path: str):
-
         try:
             with open(path, "wb") as file:
                 pickle.dump(self, file)
