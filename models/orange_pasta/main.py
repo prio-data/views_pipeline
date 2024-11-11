@@ -35,5 +35,6 @@ if __name__ == "__main__":
 
     if args.sweep:
         StepshifterManager(model_path=ModelPath(PATH)).execute_sweep_run(args)
+        # execute_sweep_run(args)
     else:
         StepshifterManager(model_path=ModelPath(PATH)).execute_single_run(args)

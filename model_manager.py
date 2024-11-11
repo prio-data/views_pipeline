@@ -1,21 +1,20 @@
 import sys
 from abc import abstractmethod
 from common_utils.model_path import ModelPath
-from common_utils.global_cache import GlobalCache
 from common_utils.ensemble_path import EnsemblePath
-from common_utils.utils_wandb import add_wandb_monthly_metrics
+from wandb_utils import WandbUtils
 from typing import Union, Optional, List, Dict
-from dataloaders import DataLoader
+from dataloaders import ViewsDataLoader
 import logging
 import importlib
 import wandb
 import time
+import pickle
+import pandas as pd
+from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
-
-# Temp
-# from execute_model_tasks import execute_model_tasks
 
 class ModelManager:
 
@@ -28,8 +27,8 @@ class ModelManager:
         self._config_meta = self.__load_config("config_meta.py", "get_meta_config")
         if self._model_path.target == "model":
             self._config_sweep = self.__load_config("config_sweep.py", "get_sweep_config")
-        self._data_loader = DataLoader(model_path=self._model_path)
-        self.__state = {"training_complete": False, "evaluation_complete": False, "forecasting_complete": False, "calibration_complete": False}
+        self._data_loader = ViewsDataLoader(model_path=self._model_path)
+        # self.__state = {"training_complete": False, "evaluation_complete": False, "forecasting_complete": False, "calibration_complete": False}
 
     def __load_config(self, script_name, config_method) -> Union[Dict, None]:
         """
@@ -112,15 +111,14 @@ class ModelManager:
 
         wandb.finish()
 
-        self._execute_model_tasks(train=args.train, eval=args.evaluate, forecast=args.forecast, artifact_name=args.artifact_name)
+        self._execute_model_tasks(config=self.config, train=args.train, eval=args.evaluate, forecast=args.forecast, artifact_name=args.artifact_name)
 
             
     def execute_sweep_run(self, args):
+
         self.config = self._update_sweep_config(args)
 
         self._project = f"{self.config['name']}_sweep" 
-
-        sweep_id = wandb.sweep(self.config, project=self._project, entity=self._entity)
 
         with wandb.init(project=f'{self._project}_fetch', entity=self._entity):
 
@@ -128,10 +126,12 @@ class ModelManager:
 
         wandb.finish()
 
+        sweep_id = wandb.sweep(self.config, project=self._project, entity=self._entity)
+
         wandb.agent(sweep_id, self._execute_model_tasks, entity=self._entity)
             
 
-    def _execute_model_tasks(self, train=None, eval=None, forecast=None, artifact_name=None):
+    def _execute_model_tasks(self, config=None, train=None, eval=None, forecast=None, artifact_name=None):
         """
         Executes various model-related tasks including training, evaluation, and forecasting.
 
@@ -151,10 +151,10 @@ class ModelManager:
 
         # Initialize WandB
         with wandb.init(project=self._project, entity=self._entity,
-                        config=self.config):  # project and config ignored when running a sweep
+                        config=config):  # project and config ignored when running a sweep
 
             # add the monthly metrics to WandB
-            add_wandb_monthly_metrics()
+            WandbUtils.add_wandb_monthly_metrics()
 
             # Update config from WandB initialization above
             self.config = wandb.config
@@ -197,6 +197,89 @@ class ModelManager:
     def _evaluate_sweep(self, model):
         pass
 
+    def _get_artifact_files(self, path_artifact, run_type):
+        """
+        Retrieve artifact files from a directory that match the given run type and common extensions.
+
+        Args:
+            path (str): The directory path where model files are stored.
+            run_type (str): The type of run (e.g., calibration, testing).
+
+        Returns:
+            list: List of matching model file paths.
+        """
+        common_extensions = ['.pt', '.pth', '.h5', '.hdf5', '.pkl', '.json', '.bst', '.txt', '.bin', '.cbm', '.onnx']
+
+        # Retrieve files that start with run_type and end with any of the common extensions
+        # artifact_files = [f for f in os.listdir(PATH) if f.startswith(f"{run_type}_model_") and any(f.endswith(ext) for ext in common_extensions)]
+        
+        artifact_files = [f for f in path_artifact.iterdir() if f.is_file() and f.stem.startswith(f"{run_type}_model_") and f.suffix in common_extensions]
+
+        return artifact_files
+
+
+    def _get_latest_model_artifact(self, path_artifact, run_type):
+        """
+        Retrieve the path (pathlib path object) latest model artifact for a given run type based on the modification time.
+
+        Args:
+            path_artifact (Path): The model specifc directory path where artifacts are stored. 
+            run_type (str): The type of run (e.g., calibration, testing, forecasting).
+
+        Returns:
+            The path (pathlib path objsect) to the latest model artifact given the run type.
+
+        Raises:
+            FileNotFoundError: If no model artifacts are found for the given run type.
+        """
+
+        # List all model files for the given specific run_type with the expected filename pattern
+        model_files = self._get_artifact_files(path_artifact, run_type)
+        
+        if not model_files:
+            raise FileNotFoundError(f"No model artifacts found for run type '{run_type}' in path '{path_artifact}'")
+        
+        # Sort the files based on the timestamp embedded in the filename. With format %Y%m%d_%H%M%S For example, '20210831_123456.pt'
+        model_files.sort(reverse=True)
+
+        #print statements for debugging
+        logger.info(f"artifact used: {model_files[0]}")
+
+        PATH_MODEL_ARTIFACT = path_artifact / model_files[0]
+
+        return PATH_MODEL_ARTIFACT
+    
+    def _save_model_outputs(self, df_evaluation: pd.DataFrame, df_output: pd.DataFrame, path_generated: str | Path):
+        '''
+        Save the model outputs and evaluation metrics to the specified path
+        '''
+
+        Path(path_generated).mkdir(parents=True, exist_ok=True)
+
+        # Save the DataFrame of model outputs
+        outputs_path = f'{path_generated}/output_{self.config["steps"][-1]}_{self.config["run_type"]}_{self.config["timestamp"]}.pkl'
+        with open(outputs_path, "wb") as file:
+            pickle.dump(df_output, file)
+        logger.info(f"Model outputs saved at: {outputs_path}")
+
+        # Save the DataFrame of evaluation metrics
+        evaluation_path = f'{path_generated}/evaluation_{self.config["steps"][-1]}_{self.config["run_type"]}_{self.config["timestamp"]}.pkl'
+        with open(evaluation_path, "wb") as file:
+            pickle.dump(df_evaluation, file)
+        logger.info(f"Evaluation metrics saved at: {evaluation_path}")
+
+
+    def _save_predictions(self, df_predictions: pd.DataFrame, path_generated: str | Path):
+        '''
+        Save the model predictions to the specified path
+        '''
+        
+        Path(path_generated).mkdir(parents=True, exist_ok=True)
+
+        predictions_path = f'{path_generated}/predictions_{self.config["steps"][-1]}_{self.config["run_type"]}_{self.config["timestamp"]}.pkl'
+        with open(predictions_path, "wb") as file:
+            pickle.dump(df_predictions, file)
+        logger.info(f"Predictions saved at: {predictions_path}")
 
 
 if "main" in __name__:

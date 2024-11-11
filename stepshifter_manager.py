@@ -1,14 +1,12 @@
 from model_manager import ModelManager
 from common_utils.model_path import ModelPath
 from common_utils.ensemble_path import EnsemblePath
-from common_utils.utils_wandb import add_wandb_monthly_metrics, log_wandb_log_dict
 from common_utils.views_stepshifter_darts.stepshifter import StepshifterModel
 from common_utils.views_stepshifter_darts.hurdle_model import HurdleModel
-from common_utils.utils_log_files import create_log_file, read_log_file
-from common_utils.utils_save_outputs import save_model_outputs, save_predictions
-from common_utils.utils_artifacts import get_latest_model_artifact
 from common_utils.utils_evaluation_metrics import generate_metric_dict
 from common_utils.utils_model_outputs import generate_output_dict
+from wandb_utils import WandbUtils
+from file_utils import FileUtils
 from views_forecasts.extensions import *
 import logging
 import pandas as pd
@@ -77,7 +75,7 @@ class StepshifterManager(ModelManager):
 
         return config
 
-    def _execute_model_tasks(self, train=None, eval=None, forecast=None, artifact_name=None):
+    def _execute_model_tasks(self, config=None, train=None, eval=None, forecast=None, artifact_name=None):
         """
         Executes various model-related tasks including training, evaluation, and forecasting.
 
@@ -96,10 +94,10 @@ class StepshifterManager(ModelManager):
         start_t = time.time()
 
         # Initialize WandB
-        with wandb.init(project=self._project, entity=self._entity, config=self.config):  # project and config ignored when running a sweep
+        with wandb.init(project=self._project, entity=self._entity, config=config):  # project and config ignored when running a sweep
 
             # add the monthly metrics to WandB
-            add_wandb_monthly_metrics()
+            WandbUtils.add_wandb_monthly_metrics()
 
             # Update config from WandB initialization above
             self.config = wandb.config
@@ -189,8 +187,8 @@ class StepshifterManager(ModelManager):
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             model_filename = f"{run_type}_model_{timestamp}.pkl"
             stepshift_model.save(path_artifacts / model_filename)
-            data_fetch_timestamp = read_log_file(path_raw / f"{run_type}_data_fetch_log.txt").get("Data Fetch Timestamp", None)
-            create_log_file(path_generated, self.config, timestamp, None, data_fetch_timestamp)
+            data_fetch_timestamp = FileUtils.read_log_file(path_raw / f"{run_type}_data_fetch_log.txt").get("Data Fetch Timestamp", None)
+            FileUtils.create_log_file(path_generated, self.config, timestamp, None, data_fetch_timestamp)
         return stepshift_model
 
     def _evaluate_model_artifact(self, artifact_name):
@@ -210,7 +208,7 @@ class StepshifterManager(ModelManager):
         else:
             # use the latest model artifact based on the run type
             logger.info(f"Using latest (default) run type ({run_type}) specific artifact")
-            path_artifact = get_latest_model_artifact(path_artifacts, run_type)
+            path_artifact = self._get_latest_model_artifact(path_artifacts, run_type)
 
         self.config["timestamp"] = path_artifact.stem[-15:]
         df_viewser = pd.read_pickle(path_raw / f"{run_type}_viewser_df.pkl")
@@ -223,15 +221,15 @@ class StepshifterManager(ModelManager):
         df = stepshift_model.predict(run_type, df_viewser)
         df = self._get_standardized_df(df)
         data_generation_timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        data_fetch_timestamp = read_log_file(path_raw / f"{run_type}_data_fetch_log.txt").get("Data Fetch Timestamp", None)
+        data_fetch_timestamp = FileUtils.read_log_file(path_raw / f"{run_type}_data_fetch_log.txt").get("Data Fetch Timestamp", None)
 
         _, df_output = generate_output_dict(df, self.config)
         evaluation, df_evaluation = generate_metric_dict(df, self.config)
-        log_wandb_log_dict(self.config, evaluation)
+        WandbUtils.log_wandb_log_dict(self.config, evaluation)
 
-        save_model_outputs(df_evaluation, df_output, path_generated, self.config)
-        save_predictions(df, path_generated, self.config)
-        create_log_file(path_generated, self.config, self.config["timestamp"], data_generation_timestamp, data_fetch_timestamp)
+        self._save_model_outputs(df_evaluation, df_output, path_generated)
+        self._save_predictions(df, path_generated)
+        FileUtils.create_log_file(path_generated, self.config, self.config["timestamp"], data_generation_timestamp, data_fetch_timestamp)
     
     def _forecast_model_artifact(self, artifact_name):
         path_raw = self._model_path.data_raw
@@ -250,7 +248,7 @@ class StepshifterManager(ModelManager):
         else:
             # use the latest model artifact based on the run type
             logger.info(f"Using latest (default) run type ({run_type}) specific artifact")
-            path_artifact = get_latest_model_artifact(path_artifacts, run_type)
+            path_artifact = self._get_latest_model_artifact(path_artifacts, run_type)
 
         self.config["timestamp"] = path_artifact.stem[-15:]
         df_viewser = pd.read_pickle(path_raw / f"{run_type}_viewser_df.pkl")
@@ -263,10 +261,10 @@ class StepshifterManager(ModelManager):
         df_predictions = stepshift_model.predict(run_type, df_viewser)
         df_predictions = self._get_standardized_df(df_predictions)
         data_generation_timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        data_fetch_timestamp = read_log_file(path_raw / f"{run_type}_data_fetch_log.txt").get("Data Fetch Timestamp", None)
+        data_fetch_timestamp = FileUtils.read_log_file(path_raw / f"{run_type}_data_fetch_log.txt").get("Data Fetch Timestamp", None)
 
-        save_predictions(df_predictions, path_generated, self.config)
-        create_log_file(path_generated, self.config, self.config["timestamp"], data_generation_timestamp, data_fetch_timestamp)
+        self._save_predictions(df_predictions, path_generated)
+        FileUtils.create_log_file(path_generated, self.config, self.config["timestamp"], data_generation_timestamp, data_fetch_timestamp)
 
     def _evaluate_sweep(self, model):
         path_raw = self._model_path.data_raw
@@ -285,4 +283,4 @@ class StepshifterManager(ModelManager):
         wandb.log({"MSE": df["mse"].mean()})
 
         evaluation, _ = generate_metric_dict(df, self.config)
-        log_wandb_log_dict(self.config, evaluation)
+        WandbUtils.log_wandb_log_dict(self.config, evaluation)
