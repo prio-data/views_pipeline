@@ -18,7 +18,7 @@ from datautils import ensure_float64
 logger = logging.getLogger(__name__)
 
 
-class DataLoader:
+class ViewsDataLoader:
     """
     A class to handle data loading, fetching, and processing for different partitions.
 
