@@ -1,0 +1,14 @@
+[tool.poetry]
+name = "views_pipeline"
+version = "0.1.0"
+description = ""
+authors = ["Borbála Farkas <borbala.farkas@pcr.uu.se>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

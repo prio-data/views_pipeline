@@ -1,4 +1,4 @@
-from model_manager import ModelManager
+from views_pipeline.managers.model_manager import ModelManager
 from common_utils.model_path import ModelPath
 from common_utils.ensemble_path import EnsemblePath
 from common_utils.views_stepshifter_darts.stepshifter import StepshifterModel
