@@ -25,7 +25,7 @@ except Exception as e:
     warnings.warn(f"An unexpected error occurred: {e}.", RuntimeWarning)
 logger = setup_logging("run.log")
 
-from stepshifter_manager import StepshifterManager
+from views_package.stepshifter_manager import StepshifterManager
 
 if __name__ == "__main__":
     wandb.login()

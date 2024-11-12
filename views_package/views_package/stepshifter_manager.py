@@ -1,4 +1,4 @@
-from model_manager import ModelManager
+from views_package.model_manager import ModelManager
 from common_utils.model_path import ModelPath
 from common_utils.ensemble_path import EnsemblePath
 from common_utils.utils_wandb import add_wandb_monthly_metrics, log_wandb_log_dict
