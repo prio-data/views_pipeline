@@ -56,7 +56,7 @@ class ViewsDataLoader:
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    def __get_partition_dict(self, step=36) -> Dict:
+    def _get_partition_dict(self, step=36) -> Dict:
         """
         Returns the partitioner dictionary for the given partition.
 
@@ -96,7 +96,7 @@ class ViewsDataLoader:
                     'partition should be either "calibration", "testing" or "forecasting"'
                 )
 
-    def __fetch_data_from_viewser(self, self_test: bool) -> tuple[pd.DataFrame, list]:
+    def _fetch_data_from_viewser(self, self_test: bool) -> tuple[pd.DataFrame, list]:
         """
         Fetches and prepares the initial DataFrame from viewser.
 
@@ -148,7 +148,7 @@ class ViewsDataLoader:
 
         return df, alerts
 
-    def __get_month_range(self) -> tuple[int, int]:
+    def _get_month_range(self) -> tuple[int, int]:
         """
         Determines the month range based on the partition type.
 
@@ -176,7 +176,7 @@ class ViewsDataLoader:
 
         return month_first, month_last
 
-    def __validate_df_partition(
+    def _validate_df_partition(
         self, df: pd.DataFrame
     ) -> bool:
         """
@@ -255,14 +255,14 @@ class ViewsDataLoader:
         Raises:
             RuntimeError: If the saved data file is not found or if the data is incompatible with the partition.
         """
-        self.partition = partition if self.partition is None else self.partition
-        self.partition_dict = self.__get_partition_dict() if self.partition_dict is None else self.partition_dict
+        self.partition = partition #if self.partition is None else self.partition
+        self.partition_dict = self._get_partition_dict() #if self.partition_dict is None else self.partition_dict
         self.drift_config_dict = config_drift_detection.drift_detection_partition_dict[
             partition
         ] if self.drift_config_dict is None else self.drift_config_dict
         self.override_month = override_month if self.override_month is None else override_month
         if self.month_first is None or self.month_last is None:
-            self.month_first, self.month_last = self.__get_month_range()
+            self.month_first, self.month_last = self._get_month_range()
 
         path_viewser_df = Path(
             os.path.join(str(self._path_raw), f"{self.partition}_viewser_df.pkl")
@@ -281,7 +281,7 @@ class ViewsDataLoader:
                 )
         else:
             logger.info(f"Fetching data from viewser...")
-            df, alerts = self.__fetch_data_from_viewser(
+            df, alerts = self._fetch_data_from_viewser(
                 self_test
             )  # which is then used here
             data_fetch_timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -291,7 +291,7 @@ class ViewsDataLoader:
             logger.info(f"Saving data to {path_viewser_df}")
             df.to_pickle(path_viewser_df)
         if validate:
-            if self.__validate_df_partition(df=df):
+            if self._validate_df_partition(df=df):
                 return df, alerts
             else:
                 raise RuntimeError(
