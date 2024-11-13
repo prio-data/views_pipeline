@@ -2,10 +2,6 @@
 ## Overview
 This folder contains code for Cruel Summer model, an ensemble machine learning model designed for predicting fatalities. 
 
-The model utilizes **latest** Lavender Haze (Hurdle Model LGBMClassifier+LGBMRegressor), **latest** Blank Space 
-(Hurdle Model LGBMClassifier+LGBMRegressor) and **latest** Wildest Dream (Hurdle Model XGBClassifier+XGBRegressor) 
-for its predictions and is on pgm level of analysis.
-
 The model uses log fatalities.
 
 ## Repository Structure
@@ -54,7 +50,6 @@ cruel_summer/ # should follow the naming convention adjective_noun
     |
     |-- utils/ # functions and classes 
     |   |-- utils_check.py # utils function to check if an ensemble is valid
-    |   |-- utils_outputs.py # util functions to save outputs
     |   |-- utils_run.py # util functions for running models
     | 
     |-- visualization/ # scripts to create visualizations

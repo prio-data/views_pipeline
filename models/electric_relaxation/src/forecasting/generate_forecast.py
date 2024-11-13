@@ -5,7 +5,7 @@ from model_path import ModelPath
 from set_partition import get_partitioner_dict
 from utils_log_files import create_log_file, read_log_file
 from utils_run import get_standardized_df
-from utils_outputs import save_predictions
+from utils_save_outputs import save_predictions
 from utils_artifacts import get_latest_model_artifact
 
 logger = logging.getLogger(__name__)
@@ -44,8 +44,8 @@ def forecast_model_artifact(config, artifact_name):
     df_predictions = stepshift_model.future_point_predict(partition[0] - 1, df_viewser, keep_specific=True)
     df_predictions = get_standardized_df(df_predictions, config)
     data_generation_timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    date_fetch_timestamp = read_log_file(path_raw / f"{run_type}_data_fetch_log.txt").get("Data Fetch Timestamp", None)
+    data_fetch_timestamp = read_log_file(path_raw / f"{run_type}_data_fetch_log.txt").get("Data Fetch Timestamp", None)
 
     save_predictions(df_predictions, path_generated, config)
 
-    create_log_file(path_generated, config, config["timestamp"], data_generation_timestamp, date_fetch_timestamp)
+    create_log_file(path_generated, config, config["timestamp"], data_generation_timestamp, data_fetch_timestamp)

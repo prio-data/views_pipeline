@@ -87,7 +87,6 @@ class EnsemblePath(ModelPath):
                 Path("src/offline_evaluation/evaluate_ensemble.py")
             ),
             self._build_absolute_directory(Path("src/training/train_ensemble.py")),
-            self._build_absolute_directory(Path("src/utils/utils_outputs.py")),
             self._build_absolute_directory(Path("src/utils/utils_check.py")),
             self._build_absolute_directory(Path("src/utils/utils_run.py")),
             self._build_absolute_directory(Path("src/visualization/visual.py")),

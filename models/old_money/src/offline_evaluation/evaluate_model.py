@@ -3,7 +3,7 @@ import pandas as pd
 import logging
 from model_path import ModelPath
 from utils_log_files import create_log_file, read_log_file
-from utils_outputs import save_model_outputs, save_predictions
+from utils_save_outputs import save_model_outputs, save_predictions
 from utils_run import get_standardized_df
 from utils_artifacts import get_latest_model_artifact
 from utils_evaluation_metrics import generate_metric_dict
@@ -45,7 +45,7 @@ def evaluate_model_artifact(config, artifact_name):
     df = stepshift_model.predict(run_type, df_viewser)
     df = get_standardized_df(df, config)
     data_generation_timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    date_fetch_timestamp = read_log_file(path_raw / f"{run_type}_data_fetch_log.txt").get("Data Fetch Timestamp", None)
+    data_fetch_timestamp = read_log_file(path_raw / f"{run_type}_data_fetch_log.txt").get("Data Fetch Timestamp", None)
 
     _, df_output = generate_output_dict(df, config)
     evaluation, df_evaluation = generate_metric_dict(df, config)
@@ -53,4 +53,4 @@ def evaluate_model_artifact(config, artifact_name):
 
     save_model_outputs(df_evaluation, df_output, path_generated, config)
     save_predictions(df, path_generated, config)
-    create_log_file(path_generated, config, config["timestamp"], data_generation_timestamp, date_fetch_timestamp)
+    create_log_file(path_generated, config, config["timestamp"], data_generation_timestamp, data_fetch_timestamp)
