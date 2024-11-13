@@ -41,8 +41,8 @@ def forecast_model_artifact(config, artifact_name):
     df_predictions = stepshift_model.predict(run_type, df_viewser)
     df_predictions = get_standardized_df(df_predictions, config)
     data_generation_timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    date_fetch_timestamp = read_log_file(path_raw / f"{run_type}_data_fetch_log.txt").get("Data Fetch Timestamp", None)
+    data_fetch_timestamp = read_log_file(path_raw / f"{run_type}_data_fetch_log.txt").get("Data Fetch Timestamp", None)
 
     save_predictions(df_predictions, path_generated, config)
 
-    create_log_file(path_generated, config, config["timestamp"], data_generation_timestamp, date_fetch_timestamp)
+    create_log_file(path_generated, config, config["timestamp"], data_generation_timestamp, data_fetch_timestamp)

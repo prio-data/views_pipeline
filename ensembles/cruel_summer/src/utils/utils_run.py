@@ -3,9 +3,25 @@ import pandas as pd
 import runpy
 import logging
 from model_path import ModelPath
+from views_stepshifter_darts.stepshifter import StepshifterModel
+from views_stepshifter_darts.hurdle_model import HurdleModel
 from views_forecasts.extensions import *
 
 logger = logging.getLogger(__name__)
+
+
+def get_model(config, partitioner_dict):
+    """
+    Get the model based on the algorithm specified in the config
+    """
+
+    if config["algorithm"] == "HurdleModel":
+        model = HurdleModel(config, partitioner_dict)
+    else:
+        config["model_reg"] = config["algorithm"]
+        model = StepshifterModel(config, partitioner_dict)
+
+    return model
 
 
 def get_standardized_df(df, config):
@@ -54,13 +70,10 @@ def get_aggregated_df(dfs, aggregation):
 
 
 def update_config(hp_config, meta_config, dp_config, args):
-    config = hp_config.copy()
+    config = {**hp_config, **meta_config, **dp_config}
     config["run_type"] = args.run_type
-    config["aggregation"] = meta_config["aggregation"]
-    config["name"] = meta_config["name"]
-    config["models"] = meta_config["models"]
-    config["depvar"] = meta_config["depvar"]
-    config["deployment_status"] = dp_config["deployment_status"]
+    config["saved"] = args.saved
+    config["sweep"] = False
 
     return config
 
@@ -72,23 +85,3 @@ def get_single_model_config(model_name):
     dp_config = runpy.run_path(model_path.configs / "config_deployment.py")["get_deployment_config"]()
 
     return {**hp_config, **meta_config, **dp_config}
-
-
-def get_model(config):
-    """
-    Get the model based on the algorithm specified in the config
-    Will be deprecated in the future
-    """
-    from hurdle_model import HurdleRegression
-    from lightgbm import LGBMRegressor
-    from xgboost import XGBRegressor
-    from sklearn.ensemble import RandomForestClassifier
-
-    if config["algorithm"] == "HurdleRegression":
-        model = HurdleRegression(clf_name=config["model_clf"], reg_name=config["model_reg"],
-                                 clf_params=config["parameters"]["clf"], reg_params=config["parameters"]["reg"])
-    else:
-        parameters = config["parameters"]
-        model = globals()[config["algorithm"]](**parameters)
-
-    return model

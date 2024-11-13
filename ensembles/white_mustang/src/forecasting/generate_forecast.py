@@ -55,9 +55,9 @@ def forecast_ensemble(config):
             df = get_standardized_df(df, model_config)
 
             data_generation_timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            date_fetch_timestamp = read_log_file(path_raw / f"{run_type}_data_fetch_log.txt").get("Data Fetch Timestamp", None)
+            data_fetch_timestamp = read_log_file(path_raw / f"{run_type}_data_fetch_log.txt").get("Data Fetch Timestamp", None)
             save_predictions(df, path_generated, model_config)
-            create_log_file(path_generated, model_config, ts, data_generation_timestamp, date_fetch_timestamp)
+            create_log_file(path_generated, model_config, ts, data_generation_timestamp, data_fetch_timestamp)
 
         dfs.append(df)
 
@@ -70,6 +70,6 @@ def forecast_ensemble(config):
 
     # How to define an ensemble model timestamp? Currently set as data_generation_timestamp.
 
-    create_log_file(path_generated_e, config, data_generation_timestamp, data_generation_timestamp, date_fetch_timestamp=None,
+    create_log_file(path_generated_e, config, data_generation_timestamp, data_generation_timestamp, data_fetch_timestamp=None,
                     model_type="ensemble", models=config["models"])
     
