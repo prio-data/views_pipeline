@@ -7,7 +7,7 @@ from views_forecasts.extensions import *
 logger = logging.getLogger(__name__)
 
 
-def dataframe_is_right_format(self, dataframe: pd.DataFrame):
+def dataframe_is_right_format(dataframe: pd.DataFrame):
     try:
         assert len(dataframe.index.levels) == 2
         # print("The dataframe has a two-level index")
@@ -39,7 +39,7 @@ def dataframe_is_right_format(self, dataframe: pd.DataFrame):
 
 def views_validate(fn):
     @functools.wraps(fn)
-    def inner(self, *args,**kwargs):
-        dataframe_is_right_format(self, args[-1])
-        return fn(self, *args, **kwargs)
+    def inner(*args,**kwargs):
+        dataframe_is_right_format(args[-1])
+        return fn(*args, **kwargs)
     return inner
