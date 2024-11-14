@@ -3,8 +3,8 @@ import logging.config
 import yaml
 import os
 from pathlib import Path
-from model_path import ModelPath
-from global_cache import GlobalCache
+from views_pipeline.managers.path_manager import ModelPath
+from views_pipeline.cache.global_cache import GlobalCache
 
 _split_by_model = True # Only works for lavender_haze
 

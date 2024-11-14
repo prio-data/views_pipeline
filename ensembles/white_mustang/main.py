@@ -16,7 +16,7 @@ from execute_model_runs import execute_single_run
 warnings.filterwarnings("ignore")
 try:
     from common_utils.ensemble_path import EnsemblePath
-    from common_utils.global_cache import GlobalCache
+    from views_pipeline.views_pipeline.cache.global_cache import GlobalCache
     model_name = EnsemblePath.get_model_name_from_path(PATH)
     GlobalCache["current_model"] = model_name
 except ImportError as e:

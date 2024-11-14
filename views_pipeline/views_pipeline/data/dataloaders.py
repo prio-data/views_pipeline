@@ -10,7 +10,7 @@ from common_configs import config_drift_detection
 from common_utils.utils_df_to_vol_conversion import df_to_vol
 from common_utils.utils_log_files import create_data_fetch_log_file
 # from viewser import Queryset, Column
-from common_utils.model_path import ModelPath
+from views_pipeline.managers.path_manager import ModelPath
 from typing import Dict
 from ingester3.ViewsMonth import ViewsMonth
 from datautils import ensure_float64

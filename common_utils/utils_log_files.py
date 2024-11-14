@@ -10,7 +10,7 @@ if 'views_pipeline' in PATH.parts:
     sys.path.insert(0, str(PATH_COMMON_UTILS))
 else:
     raise ValueError("The 'views_pipeline' directory was not found in the provided path.")
-from model_path import ModelPath
+from views_pipeline.managers.path_manager import ModelPath
 
 logger = logging.getLogger(__name__)
 

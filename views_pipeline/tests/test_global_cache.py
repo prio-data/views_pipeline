@@ -4,18 +4,7 @@ import sys
 import os
 import signal
 from unittest.mock import patch
-
-PATH = Path(__file__)
-if 'views_pipeline' in PATH.parts:
-    PATH_ROOT = Path(*PATH.parts[:PATH.parts.index('views_pipeline') + 1])
-    PATH_COMMON_UTILS = PATH_ROOT / 'common_utils'
-    if not PATH_COMMON_UTILS.exists():
-        raise ValueError("The 'common_utils' directory was not found in the provided path.")
-    sys.path.insert(0, str(PATH_COMMON_UTILS))
-else:
-    raise ValueError("The 'views_pipeline' directory was not found in the provided path.")
- 
-from global_cache import GlobalCache, cleanup_cache_file, signal_handler
+from views_pipeline.cache.global_cache import GlobalCache, cleanup_cache_file, signal_handler
 
 @pytest.fixture(scope="function")
 def cache_file(tmp_path):

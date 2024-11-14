@@ -1,5 +1,5 @@
 from pathlib import Path
-from utils.utils_model_naming import validate_model_name
+# from utils.utils_model_naming import validate_model_name
 import datetime
 import logging
 import sys
@@ -220,7 +220,7 @@ class EnsembleScaffoldBuilder:
 if __name__ == "__main__":
     model_name = str(input("Enter the name of the ensemble: "))
     while (
-        not validate_model_name(model_name)
+        not model_path.ModelPath.validate_model_name(model_name)
         or model_path.ModelPath.check_if_model_dir_exists(model_name)
         or ensemble_path.EnsemblePath.check_if_model_dir_exists(model_name)
     ):
