@@ -16,7 +16,7 @@ from execute_model_runs import execute_sweep_run, execute_single_run
 warnings.filterwarnings("ignore")
 try:
     from common_utils.model_path import ModelPath
-    from common_utils.global_cache import GlobalCache
+    from views_pipeline.views_pipeline.cache.global_cache import GlobalCache
     GlobalCache["current_model"] = ModelPath.get_model_name_from_path(Path(__file__))
 except Exception:
     pass

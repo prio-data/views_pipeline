@@ -6,7 +6,7 @@ from pathlib import Path
 import threading
 import atexit
 import signal
-
+from views_pipeline.managers.path_manager import ModelPath
 PATH = Path(__file__)
 if 'views_pipeline' in PATH.parts:
     PATH_ROOT = Path(*PATH.parts[:PATH.parts.index('views_pipeline') + 1])
@@ -71,7 +71,7 @@ class GlobalCache(metaclass=GlobalCacheMeta):
             self.local_imports()
             if filepath is None:
                 filepath = (
-                    self.utils_model_paths.find_project_root() / ".global_cache.pkl"
+                    ModelPath.find_project_root() / ".global_cache.pkl"
                 )
             self.filepath = filepath
             self.cache = {}

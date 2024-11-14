@@ -1,5 +1,6 @@
 from views_pipeline.managers.model_manager import ModelManager
-from views_pipeline.managers.path_manager import ModelPath, EnsemblePath
+from views_pipeline.managers.path_manager import ModelPath
+# from views_pipeline.views_pipeline.managers.path_manager import EnsemblePath
 from common_utils.views_stepshifter_darts.stepshifter import StepshifterModel
 from common_utils.views_stepshifter_darts.hurdle_model import HurdleModel
 from common_utils.utils_evaluation_metrics import generate_metric_dict
@@ -20,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 class StepshifterManager(ModelManager):
 
-    def __init__(self, model_path: Union[ModelPath, EnsemblePath]) -> None:
+    def __init__(self, model_path: ModelPath) -> None:
         super().__init__(model_path)
         self._is_hurdle = self._config_meta["algorithm"] == "HurdleModel"
 
@@ -93,39 +94,42 @@ class StepshifterManager(ModelManager):
         start_t = time.time()
 
         # Initialize WandB
-        with wandb.init(project=self._project, entity=self._entity, config=config):  # project and config ignored when running a sweep
+        try:
+            with wandb.init(project=self._project, entity=self._entity, config=config):  # project and config ignored when running a sweep
 
-            # add the monthly metrics to WandB
-            WandbUtils.add_wandb_monthly_metrics()
+                # add the monthly metrics to WandB
+                WandbUtils.add_wandb_monthly_metrics()
 
-            # Update config from WandB initialization above
-            self.config = wandb.config
+                # Update config from WandB initialization above
+                self.config = wandb.config
 
-            # W&B does not directly support nested dictionaries for hyperparameters
-            if self.config["sweep"] and self._is_hurdle:
-                self.config["parameters"] = self._split_hurdle_parameters(self.config)
+                # W&B does not directly support nested dictionaries for hyperparameters
+                if self.config["sweep"] and self._is_hurdle:
+                    self.config["parameters"] = self._split_hurdle_parameters(self.config)
 
-            if self.config["sweep"]:
-                logger.info(f"Sweeping model {self.config['name']}...")
-                model = self._train_model_artifact()
-                logger.info(f"Evaluating model {self.config['name']}...")
-                self._evaluate_sweep(model)
+                if self.config["sweep"]:
+                    logger.info(f"Sweeping model {self.config['name']}...")
+                    model = self._train_model_artifact()
+                    logger.info(f"Evaluating model {self.config['name']}...")
+                    self._evaluate_sweep(model)
 
-            if train:
-                logger.info(f"Training model {self.config['name']}...")
-                self._train_model_artifact()
+                if train:
+                    logger.info(f"Training model {self.config['name']}...")
+                    self._train_model_artifact()
 
-            if eval:
-                logger.info(f"Evaluating model {self.config['name']}...")
-                self._evaluate_model_artifact(artifact_name)
+                if eval:
+                    logger.info(f"Evaluating model {self.config['name']}...")
+                    self._evaluate_model_artifact(artifact_name)
 
-            if forecast:
-                logger.info(f"Forecasting model {self.config['name']}...")
-                self._forecast_model_artifact(artifact_name)
-
-            end_t = time.time()
-            minutes = (end_t - start_t) / 60
-            logger.info(f"Done. Runtime: {minutes:.3f} minutes.\n")
+                if forecast:
+                    logger.info(f"Forecasting model {self.config['name']}...")
+                    self._forecast_model_artifact(artifact_name)
+            wandb.finish()
+        except Exception as e:
+            logger.error(f"Error during model tasks execution: {e}")
+        end_t = time.time()
+        minutes = (end_t - start_t) / 60
+        logger.info(f"Done. Runtime: {minutes:.3f} minutes.\n")
 
     def _get_model(self, partitioner_dict: dict):
         """
