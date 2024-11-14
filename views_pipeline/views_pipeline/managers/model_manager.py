@@ -17,8 +17,6 @@ from pathlib import Path
 logger = logging.getLogger(__name__)
 
 
-
-
 # ============================================================ Model Manager ============================================================
 
 
@@ -37,6 +35,7 @@ import pandas as pd
 from pathlib import Path
 
 logger = logging.getLogger(__name__)
+
 
 class ModelManager:
     """
@@ -64,11 +63,17 @@ class ModelManager:
         self._entity = "views_pipeline"
         self._model_path = model_path
         self._script_paths = self._model_path.get_scripts()
-        self._config_deployment = self.__load_config("config_deployment.py", "get_deployment_config")
-        self._config_hyperparameters = self.__load_config("config_hyperparameters.py", "get_hp_config")
+        self._config_deployment = self.__load_config(
+            "config_deployment.py", "get_deployment_config"
+        )
+        self._config_hyperparameters = self.__load_config(
+            "config_hyperparameters.py", "get_hp_config"
+        )
         self._config_meta = self.__load_config("config_meta.py", "get_meta_config")
         if self._model_path.target == "model":
-            self._config_sweep = self.__load_config("config_sweep.py", "get_sweep_config")
+            self._config_sweep = self.__load_config(
+                "config_sweep.py", "get_sweep_config"
+            )
         self._data_loader = ViewsDataLoader(model_path=self._model_path)
 
     def __load_config(self, script_name: str, config_method: str) -> Union[Dict, None]:
@@ -109,7 +114,11 @@ class ModelManager:
         Returns:
             dict: The updated configuration object.
         """
-        config = {**self._config_hyperparameters, **self._config_meta, **self._config_deployment}
+        config = {
+            **self._config_hyperparameters,
+            **self._config_meta,
+            **self._config_deployment,
+        }
         config["run_type"] = args.run_type
         config["sweep"] = False
         return config
@@ -143,11 +152,22 @@ class ModelManager:
         self._project = f"{self.config['name']}_{args.run_type}"
 
         try:
-            with wandb.init(project=f'{self._project}_fetch', entity=self._entity):
-                self._data_loader.get_data(use_saved=args.saved, validate=True, self_test=args.drift_self_test, partition=args.run_type)
+            with wandb.init(project=f"{self._project}_fetch", entity=self._entity):
+                self._data_loader.get_data(
+                    use_saved=args.saved,
+                    validate=True,
+                    self_test=args.drift_self_test,
+                    partition=args.run_type,
+                )
             wandb.finish()
 
-            self._execute_model_tasks(config=self.config, train=args.train, eval=args.evaluate, forecast=args.forecast, artifact_name=args.artifact_name)
+            self._execute_model_tasks(
+                config=self.config,
+                train=args.train,
+                eval=args.evaluate,
+                forecast=args.forecast,
+                artifact_name=args.artifact_name,
+            )
         except Exception as e:
             logger.error(f"Error during single run execution: {e}")
 
@@ -162,16 +182,30 @@ class ModelManager:
         self._project = f"{self.config['name']}_sweep"
 
         try:
-            with wandb.init(project=f'{self._project}_fetch', entity=self._entity):
-                self._data_loader.get_data(use_saved=args.saved, validate=True, self_test=args.drift_self_test, partition=args.run_type)
+            with wandb.init(project=f"{self._project}_fetch", entity=self._entity):
+                self._data_loader.get_data(
+                    use_saved=args.saved,
+                    validate=True,
+                    self_test=args.drift_self_test,
+                    partition=args.run_type,
+                )
             wandb.finish()
 
-            sweep_id = wandb.sweep(self.config, project=self._project, entity=self._entity)
+            sweep_id = wandb.sweep(
+                self.config, project=self._project, entity=self._entity
+            )
             wandb.agent(sweep_id, self._execute_model_tasks, entity=self._entity)
         except Exception as e:
             logger.error(f"Error during sweep run execution: {e}")
 
-    def _execute_model_tasks(self, config: Optional[Dict] = None, train: Optional[bool] = None, eval: Optional[bool] = None, forecast: Optional[bool] = None, artifact_name: Optional[str] = None) -> None:
+    def _execute_model_tasks(
+        self,
+        config: Optional[Dict] = None,
+        train: Optional[bool] = None,
+        eval: Optional[bool] = None,
+        forecast: Optional[bool] = None,
+        artifact_name: Optional[str] = None,
+    ) -> None:
         """
         Executes various model-related tasks including training, evaluation, and forecasting.
 
@@ -261,32 +295,65 @@ class ModelManager:
         Returns:
             List[Path]: List of matching model file paths.
         """
-        common_extensions = ['.pt', '.pth', '.h5', '.hdf5', '.pkl', '.json', '.bst', '.txt', '.bin', '.cbm', '.onnx']
-        artifact_files = [f for f in path_artifact.iterdir() if f.is_file() and f.stem.startswith(f"{run_type}_model_") and f.suffix in common_extensions]
+        common_extensions = [
+            ".pt",
+            ".pth",
+            ".h5",
+            ".hdf5",
+            ".pkl",
+            ".json",
+            ".bst",
+            ".txt",
+            ".bin",
+            ".cbm",
+            ".onnx",
+        ]
+        artifact_files = [
+            f
+            for f in path_artifact.iterdir()
+            if f.is_file()
+            and f.stem.startswith(f"{run_type}_model_")
+            and f.suffix in common_extensions
+        ]
         return artifact_files
 
-    def _get_latest_model_artifact(self, path_artifact: Path, run_type: str) -> Path:
+    def _get_latest_model_artifact(self, path_artifact, run_type):
         """
-        Retrieve the path to the latest model artifact for a given run type based on the modification time.
+        Retrieve the path (pathlib path object) latest model artifact for a given run type based on the modification time.
 
         Args:
-            path_artifact (Path): The directory path where artifacts are stored.
+            path_artifact (Path): The model specifc directory path where artifacts are stored.
             run_type (str): The type of run (e.g., calibration, testing, forecasting).
 
         Returns:
-            Path: The path to the latest model artifact for the given run type.
+            The path (pathlib path objsect) to the latest model artifact given the run type.
 
         Raises:
             FileNotFoundError: If no model artifacts are found for the given run type.
         """
-        try:
-            files = self._get_artifact_files(path_artifact, run_type)
-            return max(files, key=lambda x: x.stat().st_mtime)
-        except Exception as e:
-            logger.error(f"Error retrieving latest model artifact: {e}")
-            return None
 
-    def _save_model_outputs(self, df_evaluation: pd.DataFrame, df_output: pd.DataFrame, path_generated: Union[str, Path]) -> None:
+        # List all model files for the given specific run_type with the expected filename pattern
+        model_files = self._get_artifact_files(path_artifact, run_type)
+
+        if not model_files:
+            raise FileNotFoundError(
+                f"No model artifacts found for run type '{run_type}' in path '{path_artifact}'"
+            )
+
+        # Sort the files based on the timestamp embedded in the filename. With format %Y%m%d_%H%M%S For example, '20210831_123456.pt'
+        model_files.sort(reverse=True)
+
+        # print statements for debugging
+        logger.info(f"artifact used: {model_files[0]}")
+
+        return path_artifact / model_files[0]
+
+    def _save_model_outputs(
+        self,
+        df_evaluation: pd.DataFrame,
+        df_output: pd.DataFrame,
+        path_generated: Union[str, Path],
+    ) -> None:
         """
         Save the model outputs and evaluation metrics to the specified path.
 
@@ -306,7 +373,9 @@ class ModelManager:
         except Exception as e:
             logger.error(f"Error saving model outputs: {e}")
 
-    def _save_predictions(self, df_predictions: pd.DataFrame, path_generated: Union[str, Path]) -> None:
+    def _save_predictions(
+        self, df_predictions: pd.DataFrame, path_generated: Union[str, Path]
+    ) -> None:
         """
         Save the model predictions to the specified path.
 
@@ -321,6 +390,7 @@ class ModelManager:
             df_predictions.to_pickle(predictions_path)
         except Exception as e:
             logger.error(f"Error saving predictions: {e}")
+
 
 if __name__ == "__main__":
     model_path = ModelPath("lavender_haze")
