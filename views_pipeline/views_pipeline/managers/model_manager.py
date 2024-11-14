@@ -1,7 +1,7 @@
 import sys
 from abc import abstractmethod
 from views_pipeline.managers.path_manager import ModelPath
-from views_pipeline.wandb.utils import WandbUtils
+from views_pipeline.wandb.utils import add_wandb_monthly_metrics, generate_wandb_log_dict, log_wandb_log_dict
 from typing import Union, Optional, List, Dict
 from views_pipeline.data.dataloaders import ViewsDataLoader
 import logging
@@ -201,7 +201,7 @@ class ModelManager:
         start_t = time.time()
         try:
             with wandb.init(project=self._project, entity=self._entity, config=config):
-                WandbUtils.add_wandb_monthly_metrics()
+                add_wandb_monthly_metrics()
                 self.config = wandb.config
 
                 if self.config["sweep"]:
