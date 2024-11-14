@@ -1,7 +1,7 @@
 import logging
 from pathlib import Path
 
-from model_path import ModelPath
+from views_pipeline.managers.path_manager import ModelPath
 
 logger = logging.getLogger(__name__)
 

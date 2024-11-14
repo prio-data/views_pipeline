@@ -11,11 +11,11 @@ setup_project_paths(PATH)
 
 from utils_cli_parser import parse_args, validate_arguments
 from utils_logger import setup_logging
-from execute_model_runs import execute_sweep_run, execute_single_run
+#from execute_model_runs import execute_sweep_run, execute_single_run
+from views_pipeline.managers.path_manager import ModelPath
 
 warnings.filterwarnings("ignore")
 try:
-    from common_utils.model_path import ModelPath
     from common_utils.global_cache import GlobalCache
     model_name = ModelPath.get_model_name_from_path(PATH)
     GlobalCache["current_model"] = model_name

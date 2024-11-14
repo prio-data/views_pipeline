@@ -1,8 +1,7 @@
 import sys
 from abc import abstractmethod
-from common_utils.model_path import ModelPath
-from common_utils.ensemble_path import EnsemblePath
-from wandb_utils import WandbUtils
+from views_pipeline.managers.path_manager import ModelPath, EnsemblePath
+from views_pipeline.wandb.utils import WandbUtils
 from typing import Union, Optional, List, Dict
 from views_pipeline.data.dataloaders import ViewsDataLoader
 import logging

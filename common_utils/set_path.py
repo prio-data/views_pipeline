@@ -1,8 +1,8 @@
 import logging
 import sys
 from pathlib import Path
-from model_path import ModelPath
-from ensemble_path import EnsemblePath
+from views_pipeline.managers.path_manager import ModelPath, EnsemblePath
+
 
 # Configure logging - don't know if this is necessary here
 logging.basicConfig(

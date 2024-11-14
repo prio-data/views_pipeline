@@ -1,12 +1,11 @@
 from views_pipeline.managers.model_manager import ModelManager
-from common_utils.model_path import ModelPath
-from common_utils.ensemble_path import EnsemblePath
+from views_pipeline.managers.path_manager import ModelPath, EnsemblePath
 from common_utils.views_stepshifter_darts.stepshifter import StepshifterModel
 from common_utils.views_stepshifter_darts.hurdle_model import HurdleModel
 from common_utils.utils_evaluation_metrics import generate_metric_dict
 from common_utils.utils_model_outputs import generate_output_dict
-from wandb_utils import WandbUtils
-from file_utils import FileUtils
+from views_pipeline.wandb.utils import WandbUtils
+from views_pipeline.files.utils import FileUtils
 from views_forecasts.extensions import *
 import logging
 import pandas as pd
