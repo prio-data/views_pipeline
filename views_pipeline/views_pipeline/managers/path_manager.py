@@ -257,7 +257,7 @@ class ModelPath:
         self.models = self.__class__.get_models()
         self.common_utils = self.__class__.get_common_utils()
         self.common_configs = self.__class__.get_common_configs()
-        self.common_querysets = self.__class__.get_common_querysets()
+        # self.common_querysets = self.__class__.get_common_querysets()
         self.meta_tools = self.__class__.get_meta_tools()
         # Ignore attributes while processing
         self._ignore_attributes = [
@@ -406,9 +406,9 @@ class ModelPath:
         self.utils = self._build_absolute_directory(Path("src/utils"))
         self.visualization = self._build_absolute_directory(Path("src/visualization"))
         self._sys_paths = None
-        if self.common_querysets not in sys.path:
-            sys.path.insert(0, str(self.common_querysets))
-        self.queryset_path = self.common_querysets / f"queryset_{self.model_name}.py"
+        # if self.common_querysets not in sys.path:
+        #     sys.path.insert(0, str(self.common_querysets))
+        self.queryset_path = self._build_absolute_directory(Path(f"queryset_{self.model_name}.py"))
         self._queryset = None
 
         # Initialize model-specific directories only if the class is ModelPath
@@ -466,7 +466,7 @@ class ModelPath:
             self._build_absolute_directory(
                 Path(f"src/training/train_{self.target}.py")
             ),
-            self.common_querysets / f"queryset_{self.model_name}.py",
+            self.queryset_path
         ]
 
     def _is_path(self, path_input: Union[str, Path]) -> bool:
@@ -501,11 +501,11 @@ class ModelPath:
         Raises:
             FileNotFoundError: If the common queryset directory does not exist and validation is enabled.
         """
-        if self._validate and not self._check_if_dir_exists(self.common_querysets):
-            error = f"Common queryset directory {self.common_querysets} does not exist. Please create it first using `make_new_scripts.py` or set validate to `False`."
-            logger.error(error)
-            raise FileNotFoundError(error)
-        elif self._validate and self._check_if_dir_exists(self.queryset_path):
+        # if self._validate and not self._check_if_dir_exists(self.queryset_path):
+        #     error = f"Common queryset directory {self.common_querysets} does not exist. Please create it first using `make_new_scripts.py` or set validate to `False`."
+        #     logger.error(error)
+        #     raise FileNotFoundError(error)
+        if self._validate and self._check_if_dir_exists(self.queryset_path):
             try:
                 self._queryset = importlib.import_module(self.queryset_path.stem)
             except Exception as e:

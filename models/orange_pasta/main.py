@@ -3,11 +3,7 @@ import sys
 import warnings
 
 from pathlib import Path
-PATH = Path(__file__)
-sys.path.insert(0, str(Path(
-    *[i for i in PATH.parts[:PATH.parts.index("views_pipeline") + 1]]) / "common_utils"))  # PATH_COMMON_UTILS
-# from set_path import setup_project_paths
-# setup_project_paths(PATH)
+
 
 from views_pipeline.cli.utils import parse_args, validate_arguments
 from views_pipeline.logging.utils import setup_logging
@@ -17,7 +13,7 @@ warnings.filterwarnings("ignore")
 try:
     from views_pipeline.managers.path_manager import ModelPath
     from views_pipeline.cache.global_cache import GlobalCache
-    model_name = ModelPath.get_model_name_from_path(PATH)
+    model_name = ModelPath.get_model_name_from_path(__file__)
     GlobalCache["current_model"] = model_name
 except ImportError as e:
     warnings.warn(f"ImportError: {e}. Some functionalities (model seperated log files) may not work properly.", ImportWarning)
@@ -25,7 +21,7 @@ except Exception as e:
     warnings.warn(f"An unexpected error occurred: {e}.", RuntimeWarning)
 logger = setup_logging("run.log")
 
-from stepshifter_manager import StepshifterManager
+from views_stepshifter.manager.stepshifter_manager import StepshifterManager
 
 if __name__ == "__main__":
     wandb.login()
@@ -34,7 +30,7 @@ if __name__ == "__main__":
     validate_arguments(args)
 
     if args.sweep:
-        StepshifterManager(model_path=ModelPath(PATH)).execute_sweep_run(args)
+        StepshifterManager(model_path=ModelPath(__file__)).execute_sweep_run(args)
         # execute_sweep_run(args)
     else:
-        StepshifterManager(model_path=ModelPath(PATH)).execute_single_run(args)
+        StepshifterManager(model_path=ModelPath(__file__)).execute_single_run(args)
