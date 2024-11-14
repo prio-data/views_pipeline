@@ -563,6 +563,7 @@ class ModelPath:
                 return None
         return directory
 
+    @DeprecationWarning
     def add_paths_to_sys(self) -> List[str]:
         """
         (Will be deprecated soon) Adds the necessary paths for the current model to the system path (sys.path).
@@ -626,6 +627,7 @@ class ModelPath:
                     )
         return self._sys_paths
 
+    @DeprecationWarning
     def remove_paths_from_sys(self) -> bool:
         """
         Removes the paths added by the current model from the system path (sys.path).
