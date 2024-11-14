@@ -107,7 +107,6 @@ class ModelOutputs:
 # And this is also a good place to decide on the uncertainty quantification. Right now var, but maybe HDI or something else.
 # you might also want the a non-step specific list of pgm? So you can recreate the full df from here? Otherwise this could turn into a mess
 
-
 def generate_output_dict(df, config):
     """
     Generate a dictionary of ModelOutputs instances and a DataFrame from a DataFrame of model predictions.
