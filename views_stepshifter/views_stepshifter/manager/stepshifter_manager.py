@@ -25,7 +25,7 @@ class StepshifterManager(ModelManager):
         self._is_hurdle = self._config_meta["algorithm"] == "HurdleModel"
 
     def _update_sweep_config(self, args):
-        '''
+        """
         Updates the configuration object with config_hyperparameters, config_meta, config_deployment, and the command line arguments.
 
         Args:
@@ -33,7 +33,7 @@ class StepshifterManager(ModelManager):
 
         Returns:
             The updated configuration object.
-        '''
+        """
 
         config = self._config_sweep
         config["parameters"]["run_type"] = {"value": args.run_type}
@@ -174,7 +174,7 @@ class StepshifterManager(ModelManager):
     
     def _train_model_artifact(self):
         # print(config)
-        path_raw  = self._model_path.data_raw
+        path_raw = self._model_path.data_raw
         path_generated = self._model_path.data_generated
         path_artifacts = self._model_path.artifacts
         run_type = self.config["run_type"]
@@ -186,7 +186,7 @@ class StepshifterManager(ModelManager):
 
         if not self.config["sweep"]:
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            model_filename = f"{run_type}_model_{timestamp}.pkl"
+            model_filename = ModelManager._generate_model_file_name(run_type, timestamp)
             stepshift_model.save(path_artifacts / model_filename)
             data_fetch_timestamp = FileUtils.read_log_file(path_raw / f"{run_type}_data_fetch_log.txt").get("Data Fetch Timestamp", None)
             FileUtils.create_log_file(path_generated, self.config, timestamp, None, data_fetch_timestamp)

@@ -347,8 +347,16 @@ class ModelManager:
         try:
             Path(path_generated).mkdir(parents=True, exist_ok=True)
 
-            outputs_path = f'{path_generated}/output_{self.config["steps"][-1]}_{self.config["run_type"]}_{self.config["timestamp"]}.pkl'
-            evaluation_path = f'{path_generated}/evaluation_{self.config["steps"][-1]}_{self.config["run_type"]}_{self.config["timestamp"]}.pkl'
+            outputs_path = ModelManager._generate_output_file_name(path_generated,
+                                                                   "output",
+                                                                   self.config["steps"][-1],
+                                                                   self.config["run_type"],
+                                                                   self.config["timestamp"])
+            evaluation_path = ModelManager._generate_output_file_name(path_generated,
+                                                                      "evaluation",
+                                                                      self.config["steps"][-1],
+                                                                      self.config["run_type"],
+                                                                      self.config["timestamp"])
 
             df_output.to_pickle(outputs_path)
             df_evaluation.to_pickle(evaluation_path)
@@ -368,10 +376,50 @@ class ModelManager:
         try:
             Path(path_generated).mkdir(parents=True, exist_ok=True)
 
-            predictions_path = f'{path_generated}/predictions_{self.config["steps"][-1]}_{self.config["run_type"]}_{self.config["timestamp"]}.pkl'
+            predictions_path = ModelManager._generate_output_file_name(path_generated,
+                                                                       "predictions",
+                                                                       self.config["steps"][-1],
+                                                                       self.config["run_type"],
+                                                                       self.config["timestamp"])
             df_predictions.to_pickle(predictions_path)
         except Exception as e:
             logger.error(f"Error saving predictions: {e}")
+
+    @staticmethod
+    def _generate_model_file_name(run_type: str, timestamp: str) -> str:
+        """
+        Generates a model file name based on the run type, and timestamp.
+
+        Args:
+            run_type (str): The type of run (e.g., calibration, testing).
+            timestamp (str): The timestamp of the model file.
+
+        Returns:
+            str: The generated model file name.
+        """
+
+        return f"{run_type}_model_{timestamp}.pkl"
+
+    @staticmethod
+    def _generate_output_file_name(
+            path_generated: Union[str, Path], generated_file_type, steps: int, run_type: str, timestamp: str) -> str:
+        """
+        Generates a prediction file name based on the run type, generated file type, steps, and timestamp.
+
+        Args:
+            path_generated (str or Path): The path where the predictions should be saved.
+            generated_file_type (str): The type of generated file (e.g., predictions, output, evaluation).
+            steps (int): The number of steps ahead for the forecast.
+            run_type (str): The type of run (e.g., calibration, testing).
+
+        Returns:
+            str: The generated prediction file name.
+        """
+
+        path_generated = Path(path_generated)
+
+        return f'{path_generated}/{generated_file_type}_{steps}_{run_type}_{timestamp}.pkl'
+
 
 
 if __name__ == "__main__":
