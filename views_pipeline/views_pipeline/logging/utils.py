@@ -5,8 +5,11 @@ import os
 from pathlib import Path
 from views_pipeline.managers.path_manager import ModelPath
 from views_pipeline.cache.global_cache import GlobalCache
+import views_pipeline.configs as configs
 
-_split_by_model = True # Only works for lavender_haze
+_split_by_model = True
+_logs_in_model_dir = True
+
 
 def ensure_log_directory(log_path: str) -> None:
     """
@@ -21,15 +24,15 @@ def ensure_log_directory(log_path: str) -> None:
 
 
 def setup_logging(
-    default_level: int = logging.INFO, env_key: str = 'LOG_CONFIG') -> logging.Logger:
-
+    default_level: int = logging.INFO, env_key: str = "LOG_CONFIG"
+) -> logging.Logger:
     """
     Setup the logging configuration from a YAML file and return the root logger.
 
     Parameters:
     default_level (int): The default logging level if the configuration file is not found
                          or cannot be loaded. Default is logging.INFO.
-                         
+
     env_key (str): Environment variablei key to override the default path to the logging
                    configuration file. Default is 'LOG_CONFIG'.
 
@@ -40,40 +43,40 @@ def setup_logging(
     >>> logger = setup_logging()
     >>> logger.info("Logging setup complete.")
     """
+    # with config.open_text("config", "logging.yaml") as file:
+    #     config = yaml.safe_load(file)
 
-    CONFIG_LOGS_PATH = ModelPath.get_common_configs() / 'config_log.yaml'
-    if _split_by_model:
+    # CONFIG_LOGS_PATH = Path(__file__).parent / "logging.yaml"
+    if _logs_in_model_dir:
         try:
-            COMMON_LOGS_PATH = ModelPath.get_common_logs() / GlobalCache["current_model"]
+            COMMON_LOGS_PATH = ModelPath(GlobalCache["current_model"]).logging
+            if not COMMON_LOGS_PATH.exists():
+                COMMON_LOGS_PATH.mkdir(parents=True, exist_ok=True)
         except:
-            # Pretection in case model name is not available or GlobalCache fails.
-            COMMON_LOGS_PATH = ModelPath.get_common_logs()
-    else:
-        COMMON_LOGS_PATH = ModelPath.get_common_logs()
-
-    # Load YAML configuration
-    path = os.getenv(env_key, CONFIG_LOGS_PATH)
-
-    if os.path.exists(path):
+            logging.warning("Model name not available in GlobalCache.")
+        # Load YAML configuration
+        # path = os.getenv(env_key, CONFIG_LOGS_PATH)
         try:
-            with open(path, 'rt') as f:
-                config = yaml.safe_load(f.read())
-            
+            # Import the logging.yaml file from views_pipeline.configs and read it
+            yaml_file_path = os.path.join('configs', 'logging.yaml')
+            with open(yaml_file_path, 'r') as file:
+                config = yaml.safe_load(file)
+
             # Replace placeholder with actual log directory path
             for handler in config.get("handlers", {}).values():
                 if "filename" in handler and "{LOG_PATH}" in handler["filename"]:
-                    handler["filename"] = handler["filename"].replace("{LOG_PATH}", str(COMMON_LOGS_PATH))
+                    handler["filename"] = handler["filename"].replace(
+                        "{LOG_PATH}", str(COMMON_LOGS_PATH)
+                    )
                     ensure_log_directory(handler["filename"])
-            
+
             # Apply logging configuration
             logging.config.dictConfig(config)
 
         except Exception as e:
             logging.basicConfig(level=default_level)
-            logging.error(f"Failed to load logging configuration from {path}. Using basic configuration. Error: {e}")
-    else:
-        logging.basicConfig(level=default_level)
-        logging.warning(f"Logging configuration file not found at {path}. Using basic configuration.")
-    
-    return logging.getLogger()
+            logging.error(
+                f"Failed to load logging configuration: {e}"
+            )
 
+    return logging.getLogger()

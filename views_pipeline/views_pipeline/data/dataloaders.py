@@ -5,7 +5,7 @@ import sys
 import logging
 from pathlib import Path
 from datetime import datetime
-from common_configs import config_drift_detection
+from views_pipeline.configs import drift_detection
 from views_pipeline.files.logging import create_data_fetch_log_file
 # from viewser import Queryset, Column
 from views_pipeline.managers.path_manager import ModelPath
@@ -255,7 +255,7 @@ class ViewsDataLoader:
         """
         self.partition = partition #if self.partition is None else self.partition
         self.partition_dict = self._get_partition_dict() #if self.partition_dict is None else self.partition_dict
-        self.drift_config_dict = config_drift_detection.drift_detection_partition_dict[
+        self.drift_config_dict = drift_detection.drift_detection_partition_dict[
             partition
         ] if self.drift_config_dict is None else self.drift_config_dict
         self.override_month = override_month if self.override_month is None else override_month

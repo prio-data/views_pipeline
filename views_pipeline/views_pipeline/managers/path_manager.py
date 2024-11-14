@@ -57,21 +57,21 @@ class ModelPath:
     __instances__ = 0
     # Class variables for paths
     _root = None
-    _common_utils = None
-    _common_configs = None
-    _common_querysets = None
-    _meta_tools = None
+    # _common_utils = None
+    # _common_configs = None
+    # _common_querysets = None
+    # _meta_tools = None
 
     @classmethod
     def _initialize_class_paths(cls):
         """Initialize class-level paths."""
         cls._root = cls.find_project_root()
         # cls._models = cls._root / Path(cls._target + "s")
-        cls._common_utils = cls._root / "common_utils"
-        cls._common_configs = cls._root / "common_configs"
-        cls._common_querysets = cls._root / "common_querysets"
-        cls._meta_tools = cls._root / "meta_tools"
-        cls._common_logs = cls._root / "common_logs"
+        # cls._common_utils = cls._root / "common_utils"
+        # cls._common_configs = cls._root / "common_configs"
+        # cls._common_querysets = cls._root / "common_querysets"
+        # cls._meta_tools = cls._root / "meta_tools"
+        # cls._common_logs = cls._root / "common_logs"
 
     @classmethod
     def get_root(cls) -> Path:
@@ -87,40 +87,40 @@ class ModelPath:
             cls._initialize_class_paths()
         return cls._root / Path(cls._target + "s")
 
-    @classmethod
-    def get_common_utils(cls) -> Path:
-        """Get the common utils path."""
-        if cls._common_utils is None:
-            cls._initialize_class_paths()
-        return cls._common_utils
+    # @classmethod
+    # def get_common_utils(cls) -> Path:
+    #     """Get the common utils path."""
+    #     if cls._common_utils is None:
+    #         cls._initialize_class_paths()
+    #     return cls._common_utils
 
-    @classmethod
-    def get_common_configs(cls) -> Path:
-        """Get the common configs path."""
-        if cls._common_configs is None:
-            cls._initialize_class_paths()
-        return cls._common_configs
+    # @classmethod
+    # def get_common_configs(cls) -> Path:
+    #     """Get the common configs path."""
+    #     if cls._common_configs is None:
+    #         cls._initialize_class_paths()
+    #     return cls._common_configs
 
-    @classmethod
-    def get_common_querysets(cls) -> Path:
-        """Get the common querysets path."""
-        if cls._common_querysets is None:
-            cls._initialize_class_paths()
-        return cls._common_querysets
+    # @classmethod
+    # def get_common_querysets(cls) -> Path:
+    #     """Get the common querysets path."""
+    #     if cls._common_querysets is None:
+    #         cls._initialize_class_paths()
+    #     return cls._common_querysets
 
-    @classmethod
-    def get_meta_tools(cls) -> Path:
-        """Get the meta tools path."""
-        if cls._meta_tools is None:
-            cls._initialize_class_paths()
-        return cls._meta_tools
+    # @classmethod
+    # def get_meta_tools(cls) -> Path:
+    #     """Get the meta tools path."""
+    #     if cls._meta_tools is None:
+    #         cls._initialize_class_paths()
+    #     return cls._meta_tools
 
-    @classmethod
-    def get_common_logs(cls) -> Path:
-        """Get the common logs path."""
-        if cls._common_logs is None:
-            cls._initialize_class_paths()
-        return cls._common_logs
+    # @classmethod
+    # def get_common_logs(cls) -> Path:
+    #     """Get the common logs path."""
+    #     if cls._common_logs is None:
+    #         cls._initialize_class_paths()
+    #     return cls._common_logs
 
     @classmethod
     def check_if_model_dir_exists(cls, model_name: str) -> bool:
@@ -255,10 +255,10 @@ class ModelPath:
         # Common paths
         self.root = self.__class__.get_root()
         self.models = self.__class__.get_models()
-        self.common_utils = self.__class__.get_common_utils()
-        self.common_configs = self.__class__.get_common_configs()
+        # self.common_utils = self.__class__.get_common_utils()
+        # self.common_configs = self.__class__.get_common_configs()
         # self.common_querysets = self.__class__.get_common_querysets()
-        self.meta_tools = self.__class__.get_meta_tools()
+        # self.meta_tools = self.__class__.get_meta_tools()
         # Ignore attributes while processing
         self._ignore_attributes = [
             "model_name",
@@ -386,6 +386,7 @@ class ModelPath:
         Creates and sets up various directories required for the model, such as architectures, artifacts, configs, data, etc.
         """
         self.model_dir = self._get_model_dir()
+        self.logging = self.model_dir / "logs"
         self.artifacts = self._build_absolute_directory(Path("artifacts"))
         self.configs = self._build_absolute_directory(Path("configs"))
         self.data = self._build_absolute_directory(Path("data"))
@@ -401,7 +402,7 @@ class ModelPath:
             Path("src/offline_evaluation")
         )
         self.reports = self._build_absolute_directory(Path("reports"))
-        self._templates = self.meta_tools / "templates"
+        # self._templates = self.meta_tools / "templates"
         self.training = self._build_absolute_directory(Path("src/training"))
         self.utils = self._build_absolute_directory(Path("src/utils"))
         self.visualization = self._build_absolute_directory(Path("src/visualization"))
@@ -435,15 +436,15 @@ class ModelPath:
             self._build_absolute_directory(Path("configs/config_meta.py")),
             self._build_absolute_directory(Path("main.py")),
             self._build_absolute_directory(Path("README.md")),
-            self._build_absolute_directory(
-                Path("src/forecasting/generate_forecast.py")
-            ),
-            self._build_absolute_directory(
-                Path("src/management/execute_model_runs.py")
-            ),
-            self._build_absolute_directory(
-                Path("src/management/execute_model_tasks.py")
-            ),
+            # self._build_absolute_directory(
+            #     Path("src/forecasting/generate_forecast.py")
+            # ),
+            # self._build_absolute_directory(
+            #     Path("src/management/execute_model_runs.py")
+            # ),
+            # self._build_absolute_directory(
+            #     Path("src/management/execute_model_tasks.py")
+            # ),
         ]
         # Initialize model-specific directories only if the class is ModelPath
         if self.__class__.__name__ == "ModelPath":
@@ -458,14 +459,14 @@ class ModelPath:
             None
         """
         self.scripts += [
-            self._build_absolute_directory(Path("configs/config_sweep.py")),
-            self._build_absolute_directory(Path("src/dataloaders/get_data.py")),
-            self._build_absolute_directory(
-                Path("src/offline_evaluation/evaluate_model.py")
-            ),
-            self._build_absolute_directory(
-                Path(f"src/training/train_{self.target}.py")
-            ),
+            # self._build_absolute_directory(Path("configs/config_sweep.py")),
+            # self._build_absolute_directory(Path("src/dataloaders/get_data.py")),
+            # self._build_absolute_directory(
+            #     Path("src/offline_evaluation/evaluate_model.py")
+            # ),
+            # self._build_absolute_directory(
+            #     Path(f"src/training/train_{self.target}.py")
+            # ),
             self.queryset_path
         ]
 

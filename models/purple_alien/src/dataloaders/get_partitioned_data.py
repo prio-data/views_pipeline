@@ -12,7 +12,7 @@ setup_project_paths(PATH)
 # Import necessary functions
 from utils_dataloaders import fetch_or_load_views_df, create_or_load_views_vol, parse_args, get_alert_help_string
 from utils_dataloaders import publish_drift_detection_test_ps
-from common_configs import config_drift_detection
+from views_pipeline.configs import drift_detection
 
 if __name__ == "__main__":
     # Parse CLI arguments
@@ -40,7 +40,7 @@ if __name__ == "__main__":
 
     print(f"Partitions to be fetched: {', '.join(partitions_to_process)}")
 
-    config = config_drift_detection.drift_detection_partition_dict
+    config = drift_detection.drift_detection_partition_dict
 
     publish_drift_detection_test_ps()
 
