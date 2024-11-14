@@ -2,7 +2,7 @@ from views_pipeline.managers.model_manager import ModelManager
 from views_pipeline.managers.path_manager import ModelPath
 from views_pipeline.models.outputs import generate_output_dict
 from views_pipeline.files.utils import FileUtils
-from views_pipeline.wandb.utils import WandbUtils
+from views_pipeline.wandb.utils import add_wandb_monthly_metrics, generate_wandb_log_dict, log_wandb_log_dict
 from views_stepshifter.models.stepshifter import StepshifterModel
 from views_stepshifter.models.hurdle_model import HurdleModel
 from common_utils.utils_evaluation_metrics import generate_metric_dict
@@ -97,7 +97,7 @@ class StepshifterManager(ModelManager):
             with wandb.init(project=self._project, entity=self._entity, config=config):  # project and config ignored when running a sweep
 
                 # add the monthly metrics to WandB
-                WandbUtils.add_wandb_monthly_metrics()
+                add_wandb_monthly_metrics()
 
                 # Update config from WandB initialization above
                 self.config = wandb.config
@@ -226,7 +226,7 @@ class StepshifterManager(ModelManager):
 
         _, df_output = generate_output_dict(df, self.config)
         evaluation, df_evaluation = generate_metric_dict(df, self.config)
-        WandbUtils.log_wandb_log_dict(self.config, evaluation)
+        log_wandb_log_dict(self.config, evaluation)
 
         self._save_model_outputs(df_evaluation, df_output, path_generated)
         self._save_predictions(df, path_generated)
@@ -284,4 +284,4 @@ class StepshifterManager(ModelManager):
         wandb.log({"MSE": df["mse"].mean()})
 
         evaluation, _ = generate_metric_dict(df, self.config)
-        WandbUtils.log_wandb_log_dict(self.config, evaluation)
+        log_wandb_log_dict(self.config, evaluation)
