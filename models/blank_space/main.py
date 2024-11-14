@@ -1,9 +1,5 @@
 import wandb
-import sys
 import warnings
-
-from pathlib import Path
-
 
 from views_pipeline.cli.utils import parse_args, validate_arguments
 from views_pipeline.logging.utils import setup_logging
