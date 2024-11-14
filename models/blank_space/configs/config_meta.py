@@ -8,9 +8,9 @@ def get_meta_config():
     """
     meta_config = {
         "name": "blank_space",
-        "algorithm": "HurdleRegression",
-        "model_clf": "LGBMClassifier",
-        "model_reg": "LGBMRegressor",
+        "algorithm": "HurdleModel",
+        "model_clf": "LightGBMModel",
+        "model_reg": "LightGBMModel",
         "depvar": "ln_ged_sb_dep",  # IMPORTANT! The current stepshift only takes one target variable! Not compatiable with Simon's code!
         "queryset": "fatalities002_pgm_natsoc",
         "level": "pgm",
