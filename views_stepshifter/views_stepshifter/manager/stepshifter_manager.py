@@ -1,7 +1,7 @@
 from views_pipeline.managers.model_manager import ModelManager
 from views_pipeline.managers.path_manager import ModelPath
 from views_pipeline.models.outputs import generate_output_dict
-from views_pipeline.files.utils import FileUtils
+from views_pipeline.files.utils import read_log_file, create_log_file
 from views_pipeline.wandb.utils import add_wandb_monthly_metrics, generate_wandb_log_dict, log_wandb_log_dict
 from views_stepshifter.models.stepshifter import StepshifterModel
 from views_stepshifter.models.hurdle_model import HurdleModel
@@ -188,8 +188,8 @@ class StepshifterManager(ModelManager):
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             model_filename = ModelManager._generate_model_file_name(run_type, timestamp)
             stepshift_model.save(path_artifacts / model_filename)
-            data_fetch_timestamp = FileUtils.read_log_file(path_raw / f"{run_type}_data_fetch_log.txt").get("Data Fetch Timestamp", None)
-            FileUtils.create_log_file(path_generated, self.config, timestamp, None, data_fetch_timestamp)
+            data_fetch_timestamp = read_log_file(path_raw / f"{run_type}_data_fetch_log.txt").get("Data Fetch Timestamp", None)
+            create_log_file(path_generated, self.config, timestamp, None, data_fetch_timestamp)
         return stepshift_model
 
     def _evaluate_model_artifact(self, artifact_name):
@@ -222,7 +222,7 @@ class StepshifterManager(ModelManager):
         df = stepshift_model.predict(run_type, df_viewser)
         df = self._get_standardized_df(df)
         data_generation_timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        data_fetch_timestamp = FileUtils.read_log_file(path_raw / f"{run_type}_data_fetch_log.txt").get("Data Fetch Timestamp", None)
+        data_fetch_timestamp = read_log_file(path_raw / f"{run_type}_data_fetch_log.txt").get("Data Fetch Timestamp", None)
 
         _, df_output = generate_output_dict(df, self.config)
         evaluation, df_evaluation = generate_metric_dict(df, self.config)
@@ -230,7 +230,7 @@ class StepshifterManager(ModelManager):
 
         self._save_model_outputs(df_evaluation, df_output, path_generated)
         self._save_predictions(df, path_generated)
-        FileUtils.create_log_file(path_generated, self.config, self.config["timestamp"], data_generation_timestamp, data_fetch_timestamp)
+        create_log_file(path_generated, self.config, self.config["timestamp"], data_generation_timestamp, data_fetch_timestamp)
     
     def _forecast_model_artifact(self, artifact_name):
         path_raw = self._model_path.data_raw
@@ -262,10 +262,10 @@ class StepshifterManager(ModelManager):
         df_predictions = stepshift_model.predict(run_type, df_viewser)
         df_predictions = self._get_standardized_df(df_predictions)
         data_generation_timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        data_fetch_timestamp = FileUtils.read_log_file(path_raw / f"{run_type}_data_fetch_log.txt").get("Data Fetch Timestamp", None)
+        data_fetch_timestamp = read_log_file(path_raw / f"{run_type}_data_fetch_log.txt").get("Data Fetch Timestamp", None)
 
         self._save_predictions(df_predictions, path_generated)
-        FileUtils.create_log_file(path_generated, self.config, self.config["timestamp"], data_generation_timestamp, data_fetch_timestamp)
+        create_log_file(path_generated, self.config, self.config["timestamp"], data_generation_timestamp, data_fetch_timestamp)
 
     def _evaluate_sweep(self, model):
         path_raw = self._model_path.data_raw

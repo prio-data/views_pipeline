@@ -1,13 +1,11 @@
 import os
 import numpy as np
 import pandas as pd
-import sys
 import logging
 from pathlib import Path
 from datetime import datetime
 from views_pipeline.configs import drift_detection
-from views_pipeline.files.logging import create_data_fetch_log_file
-# from viewser import Queryset, Column
+from views_pipeline.files.utils import create_data_fetch_log_file
 from views_pipeline.managers.path_manager import ModelPath
 from typing import Dict
 from ingester3.ViewsMonth import ViewsMonth
