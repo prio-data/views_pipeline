@@ -4,27 +4,11 @@ import logging
 import importlib
 import hashlib
 from typing import Union, Optional, List, Dict
+import re
 
-PATH = Path(__file__)
-if "views_pipeline" in PATH.parts:
-    PATH_ROOT = Path(*PATH.parts[: PATH.parts.index("views_pipeline") + 1])
-    sys.path.insert(0, str(PATH_ROOT))
-else:
-    raise ValueError(
-        "The 'views_pipeline' directory was not found in the provided path."
-    )
-from meta_tools.utils import utils_model_naming, utils_model_paths
-
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s %(name)s - %(levelname)s - %(message)s"
-)
 logger = logging.getLogger(__name__)
 
-
-
-
-# ============================================================ Model Path ============================================================
-
+# ============================================================ ModelPath ============================================================
 
 class ModelPath:
     """
@@ -81,7 +65,7 @@ class ModelPath:
     @classmethod
     def _initialize_class_paths(cls):
         """Initialize class-level paths."""
-        cls._root = utils_model_paths.find_project_root()
+        cls._root = cls.find_project_root()
         # cls._models = cls._root / Path(cls._target + "s")
         cls._common_utils = cls._root / "common_utils"
         cls._common_configs = cls._root / "common_configs"
@@ -187,7 +171,7 @@ class ModelPath:
         if "models" in path.parts and "ensembles" not in path.parts:
             model_idx = path.parts.index("models")
             model_name = path.parts[model_idx + 1]
-            if utils_model_naming.validate_model_name(model_name):
+            if ModelPath.validate_model_name(model_name):
                 logger.debug(f"Valid model name {model_name} found in path {path}")
                 return str(model_name)
             else:
@@ -196,13 +180,55 @@ class ModelPath:
         if "ensembles" in path.parts and "models" not in path.parts:
             model_idx = path.parts.index("ensembles")
             model_name = path.parts[model_idx + 1]
-            if utils_model_naming.validate_model_name(model_name):
+            if ModelPath.validate_model_name(model_name):
                 logger.debug(f"Valid ensemble name {model_name} found in path {path}")
                 return str(model_name)
             else:
                 logger.debug(f"No valid ensemble name found in path {path}")
                 return None
         return None
+    
+    @staticmethod
+    def validate_model_name(name: str) -> bool:
+        """
+        Validates the model name to ensure it follows the lowercase "adjective_noun" format.
+
+        Parameters:
+            name (str): The model name to validate.
+
+        Returns:
+            bool: True if the name is valid, False otherwise.
+        """
+        # Define a basic regex pattern for a noun_adjective format
+        pattern = r"^[a-z]+_[a-z]+$"
+        # Check if the name matches the pattern
+        if re.match(pattern, name):
+            # You might want to add further checks for actual noun and adjective validation
+            # For now, this regex checks for two words separated by an underscore
+            return True
+        return False
+    
+    @staticmethod
+    def find_project_root(marker="LICENSE.md") -> Path:
+        """
+        Finds the base directory of the project by searching for a specific marker file or directory.
+        Args:
+            marker (str): The name of the marker file or directory that indicates the project root.
+                        Defaults to 'LICENSE.md'.
+        Returns:
+            Path: The path of the project root directory.
+        Raises:
+            FileNotFoundError: If the marker file/directory is not found up to the root directory.
+        """
+        # Start from the current directory and move up the hierarchy
+        current_path = Path(__file__).resolve().parent
+        while current_path != current_path.parent:  # Loop until we reach the root directory
+            if (current_path / marker).exists():
+                return current_path
+            current_path = current_path.parent
+        raise FileNotFoundError(
+            f"{marker} not found in the directory hierarchy. Unable to find project root."
+        )
 
     def __init__(
         self, model_name_or_path: Union[str, Path], validate: bool = True
@@ -302,7 +328,7 @@ class ModelPath:
             except Exception as e:
                 logger.error(f"Error extracting model name from path: {e}")
         else:
-            if not utils_model_naming.validate_model_name(model_name_or_path):
+            if not self.validate_model_name(model_name_or_path):
                 raise ValueError(
                     f"Invalid {self.target} name. Please provide a valid {self.target} name that follows the lowercase 'adjective_noun' format."
                 )
@@ -320,7 +346,7 @@ class ModelPath:
             Exception: If there is an error accessing the global cache.
         """
         try:
-            from global_cache import GlobalCache
+            from views_pipeline.cache.global_cache import GlobalCache
 
             cached_instance = GlobalCache[self._instance_hash]
             if cached_instance and not self._force_cache_overwrite:
@@ -339,7 +365,7 @@ class ModelPath:
 
         Adds the model instance to the global cache using the instance hash as the key.
         """
-        from global_cache import GlobalCache
+        from views_pipeline.cache.global_cache import GlobalCache
 
         if GlobalCache[self._instance_hash] is None:
             logger.debug(
@@ -742,12 +768,9 @@ class ModelPath:
             else:
                 scripts[str(path)] = None
         return scripts
+    
 
-
-
-
-# ============================================================ Ensemble Path ============================================================
-
+# ============================================================ EnsemblePath ============================================================
 
 class EnsemblePath(ModelPath):
     """
@@ -830,20 +853,3 @@ class EnsemblePath(ModelPath):
             self._build_absolute_directory(Path("src/utils/utils_run.py")),
             self._build_absolute_directory(Path("src/visualization/visual.py")),
         ]
-
-
-# if __name__ == "__main__":
-#     ensemble_path = EnsemblePath("white_mustang", validate=True)
-#     print(ensemble_path.get_directories())
-#     del ensemble_path
-
-
-
-
-
-# if __name__ == "__main__":
-#     model_path = ModelPath("taco_cat", validate=False)
-#     print(model_path.get_scripts())
-#     print(model_path.get_directories())
-#     print(model_path.get_queryset())
-#     print(model_path.queryset_path)

@@ -4,7 +4,7 @@ from views_pipeline.managers.path_manager import ModelPath
 from common_utils.views_stepshifter_darts.stepshifter import StepshifterModel
 from common_utils.views_stepshifter_darts.hurdle_model import HurdleModel
 from common_utils.utils_evaluation_metrics import generate_metric_dict
-from common_utils.utils_model_outputs import generate_output_dict
+from views_pipeline.models.outputs import generate_output_dict
 from views_pipeline.wandb.utils import WandbUtils
 from views_pipeline.files.utils import FileUtils
 from views_forecasts.extensions import *

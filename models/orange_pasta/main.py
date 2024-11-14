@@ -9,8 +9,8 @@ sys.path.insert(0, str(Path(
 # from set_path import setup_project_paths
 # setup_project_paths(PATH)
 
-from utils_cli_parser import parse_args, validate_arguments
-from utils_logger import setup_logging
+from views_pipeline.cli.utils import parse_args, validate_arguments
+from views_pipeline.logging.utils import setup_logging
 # from execute_model_runs import execute_sweep_run, execute_single_run
 
 warnings.filterwarnings("ignore")
