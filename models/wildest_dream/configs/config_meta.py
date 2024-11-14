@@ -8,9 +8,9 @@ def get_meta_config():
     """
     meta_config = {
         "name": "wildest_dream",
-        "algorithm": "HurdleRegression",
-        "model_clf": "XGBClassifier",
-        "model_reg": "XGBRegressor",
+        "algorithm": "HurdleModel",
+        "model_clf": "XGBModel",
+        "model_reg": "XGBModel",
         "depvar": "ln_ged_sb_dep",  # IMPORTANT! The current stepshift only takes one target variable! Not compatiable with Simon's code!
         "queryset": "fatalities002_pgm_conflict_sptime_dist",
         "level": "pgm",

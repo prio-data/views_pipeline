@@ -7,7 +7,7 @@ def get_meta_config():
     """
     model_config = {
         "name": "electric_relaxation",
-        "algorithm": "RandomForestClassifier", 
+        "algorithm": "RandomForestModel", 
         "depvar": "ged_sb_dep", #or target? 
         "queryset": "escwa001_cflong",
         "level": "cm",
