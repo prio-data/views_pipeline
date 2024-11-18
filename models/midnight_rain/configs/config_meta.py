@@ -11,7 +11,7 @@ def get_meta_config():
         "name": "midnight_rain", 
         "algorithm": "LightGBMModel",
         "depvar": "ln_ged_sb_dep",
-        "queryset": "fatalities002_pgm_escwa_drought",
+        "queryset": "fatalities003_pgm_escwa_drought",
         "level": "pgm",
         "creator": "Xiaolong"
     }

@@ -12,7 +12,7 @@ def get_meta_config():
         "model_clf": "XGBModel",
         "model_reg": "XGBModel",
         "depvar": "ln_ged_sb_dep",  # IMPORTANT! The current stepshift only takes one target variable! Not compatiable with Simon's code!
-        "queryset": "fatalities002_pgm_conflict_sptime_dist",
+        "queryset": "fatalities003_pgm_conflict_sptime_dist",
         "level": "pgm",
         "creator": "Xiaolong"
     }

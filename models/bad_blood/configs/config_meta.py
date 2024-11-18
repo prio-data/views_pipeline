@@ -11,7 +11,7 @@ def get_meta_config():
         "name": "bad_blood", 
         "algorithm": "LightGBMModel", 
         "depvar": "ln_ged_sb_dep",
-        "queryset": "fatalities002_pgm_natsoc",
+        "queryset": "fatalities003_pgm_natsoc",
         "level": "pgm",
         "creator": "Xiaolong"
     }
