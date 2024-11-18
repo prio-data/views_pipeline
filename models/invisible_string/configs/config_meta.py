@@ -11,7 +11,7 @@ def get_meta_config():
         "name": "invisible_string", 
         "algorithm": "LightGBMModel",
         "depvar": "ln_ged_sb_dep",
-        "queryset": "fatalities002_pgm_broad",
+        "queryset": "fatalities003_pgm_broad",
         "level": "pgm",
         "creator": "Xiaolong"
     }

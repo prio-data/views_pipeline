@@ -11,7 +11,7 @@ def get_meta_config():
         "name": "chunky_cat", 
         "algorithm": "LightGBMModel",
         "depvar": "ln_ged_sb_dep",
-        "queryset": "fatalities002_pgm_conflictlong",
+        "queryset": "fatalities003_pgm_conflictlong",
         "level": "pgm",
         "creator": "Xiaolong"
     }

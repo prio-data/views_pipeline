@@ -11,7 +11,7 @@ def get_meta_config():
         "name": "caring_fish", 
         "algorithm": "XGBModel",
         "depvar": "ln_ged_sb_dep",
-        "queryset": "fatalities002_pgm_conflict_history",
+        "queryset": "fatalities003_pgm_conflict_history",
         "level": "pgm",
         "creator": "Xiaolong"
     }
