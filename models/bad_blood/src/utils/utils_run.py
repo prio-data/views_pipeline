@@ -1,7 +1,10 @@
 import numpy as np
+import logging
 from views_stepshifter_darts.stepshifter import StepshifterModel
 from views_stepshifter_darts.hurdle_model import HurdleModel
 from views_forecasts.extensions import *
+
+logger = logging.getLogger(__name__)
 
 
 def get_model(config, partitioner_dict):
@@ -24,14 +27,13 @@ def get_standardized_df(df, config):
     """
 
     run_type = config["run_type"]
-    steps = config["steps"]
     depvar = config["depvar"]
 
     # choose the columns to keep based on the run type and replace negative values with 0
     if run_type in ["calibration", "testing"]:
         cols = [depvar] + df.forecasts.prediction_columns
     elif run_type == "forecasting":
-        cols = [f"step_pred_{i}" for i in steps]
+        cols = ["step_pred_combined", depvar]
     df = df.replace([np.inf, -np.inf], 0)[cols]
     df = df.mask(df < 0, 0)
     return df
