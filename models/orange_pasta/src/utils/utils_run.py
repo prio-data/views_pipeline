@@ -9,7 +9,7 @@ def get_model(config, partitioner_dict):
     Get the model based on the algorithm specified in the config
     """
 
-    if config["algorithm"] == "HurdleRegression":
+    if config["algorithm"] == "HurdleModel":
         model = HurdleModel(config, partitioner_dict)
     else:
         config["model_reg"] = config["algorithm"]
@@ -24,14 +24,13 @@ def get_standardized_df(df, config):
     """
 
     run_type = config["run_type"]
-    steps = config["steps"]
     depvar = config["depvar"]
 
     # choose the columns to keep based on the run type and replace negative values with 0
     if run_type in ["calibration", "testing"]:
         cols = [depvar] + df.forecasts.prediction_columns
     elif run_type == "forecasting":
-        cols = [f"step_pred_{i}" for i in steps]
+        cols = ["step_pred_combined", depvar]
     df = df.replace([np.inf, -np.inf], 0)[cols]
     df = df.mask(df < 0, 0)
     return df
@@ -64,7 +63,7 @@ def update_config(hp_config, meta_config, dp_config, args):
     config["name"] = meta_config["name"]
     config["depvar"] = meta_config["depvar"]
     config["algorithm"] = meta_config["algorithm"]
-    if meta_config["algorithm"] == "HurdleRegression":
+    if meta_config["algorithm"] == "HurdleModel":
         config["model_clf"] = meta_config["model_clf"]
         config["model_reg"] = meta_config["model_reg"]
     config["deployment_status"] = dp_config["deployment_status"]
@@ -78,6 +77,6 @@ def update_sweep_config(sweep_config, args, meta_config):
     sweep_config["parameters"]["name"] = {"value": meta_config["name"]}
     sweep_config["parameters"]["depvar"] = {"value": meta_config["depvar"]}
     sweep_config["parameters"]["algorithm"] = {"value": meta_config["algorithm"]}
-    if meta_config["algorithm"] == "HurdleRegression":
+    if meta_config["algorithm"] == "HurdleModel":
         sweep_config["parameters"]["model_clf"] = {"value": meta_config["model_clf"]}
         sweep_config["parameters"]["model_reg"] = {"value": meta_config["model_reg"]}

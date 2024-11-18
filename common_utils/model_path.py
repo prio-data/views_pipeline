@@ -178,24 +178,24 @@ class ModelPath:
             ValueError: If the model name is not found in the provided path.
         """
         path = Path(path)
-        logger.info(f"Extracting model name from Path: {path}")
+        logger.debug(f"Extracting model name from Path: {path}")
         if "models" in path.parts and "ensembles" not in path.parts:
             model_idx = path.parts.index("models")
             model_name = path.parts[model_idx + 1]
             if utils_model_naming.validate_model_name(model_name):
-                logger.info(f"Valid model name {model_name} found in path {path}")
+                logger.debug(f"Valid model name {model_name} found in path {path}")
                 return str(model_name)
             else:
-                logger.info(f"No valid model name found in path {path}")
+                logger.debug(f"No valid model name found in path {path}")
                 return None
         if "ensembles" in path.parts and "models" not in path.parts:
             model_idx = path.parts.index("ensembles")
             model_name = path.parts[model_idx + 1]
             if utils_model_naming.validate_model_name(model_name):
-                logger.info(f"Valid ensemble name {model_name} found in path {path}")
+                logger.debug(f"Valid ensemble name {model_name} found in path {path}")
                 return str(model_name)
             else:
-                logger.info(f"No valid ensemble name found in path {path}")
+                logger.debug(f"No valid ensemble name found in path {path}")
                 return None
         return None
 
@@ -319,7 +319,7 @@ class ModelPath:
 
             cached_instance = GlobalCache[self._instance_hash]
             if cached_instance and not self._force_cache_overwrite:
-                logger.info(
+                logger.debug(
                     f"ModelPath instance {self.model_name} found in GlobalCache. Using cached instance."
                 )
                 return cached_instance
@@ -337,13 +337,13 @@ class ModelPath:
         from global_cache import GlobalCache
 
         if GlobalCache[self._instance_hash] is None:
-            logger.info(
+            logger.debug(
                 f"Writing {self.target.title}Path object to cache for model {self.model_name}."
             )
             GlobalCache[self._instance_hash] = self
         else:
             if self._force_cache_overwrite:
-                logger.info(
+                logger.debug(
                     f"Overwriting {self.target.title}Path object in cache for model {self.model_name}. (_force_cache_overwrite is set to True)"
                 )
                 GlobalCache[self._instance_hash] = self
@@ -355,13 +355,14 @@ class ModelPath:
         Creates and sets up various directories required for the model, such as architectures, artifacts, configs, data, etc.
         """
         self.model_dir = self._get_model_dir()
-
         self.artifacts = self._build_absolute_directory(Path("artifacts"))
         self.configs = self._build_absolute_directory(Path("configs"))
         self.data = self._build_absolute_directory(Path("data"))
         self.data_generated = self._build_absolute_directory(Path("data/generated"))
         self.data_processed = self._build_absolute_directory(Path("data/processed"))
-
+        self.data_raw = self._build_absolute_directory(Path("data/raw"))
+        self.src = self._build_absolute_directory(Path("src")) 
+        self.architectures = self._build_absolute_directory(Path("src/architectures"))
         self.dataloaders = self._build_absolute_directory(Path("src/dataloaders"))
         self.forecasting = self._build_absolute_directory(Path("src/forecasting"))
         self.management = self._build_absolute_directory(Path("src/management"))
@@ -369,7 +370,6 @@ class ModelPath:
             Path("src/offline_evaluation")
         )
         self.reports = self._build_absolute_directory(Path("reports"))
-        self.src = self._build_absolute_directory(Path("src"))
         self._templates = self.meta_tools / "templates"
         self.training = self._build_absolute_directory(Path("src/training"))
         self.utils = self._build_absolute_directory(Path("src/utils"))
@@ -481,7 +481,7 @@ class ModelPath:
                 logger.error(f"Error importing queryset: {e}")
                 self._queryset = None
             else:
-                logger.info(f"Queryset {self.queryset_path} imported successfully.")
+                logger.debug(f"Queryset {self.queryset_path} imported successfully.")
                 return self._queryset.generate() if self._queryset else None
         else:
             logger.warning(
@@ -569,7 +569,7 @@ class ModelPath:
                     )
                     return
                 if model_name == self.model_name:
-                    logger.info(
+                    logger.debug(
                         f"Path {str(path)} for '{model_name}' is already added to sys.path. Skipping..."
                     )
         if self._sys_paths is None:

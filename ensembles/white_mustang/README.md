@@ -52,7 +52,6 @@ white_mustang/ # should follow the naming convention adjective_noun
     |
     |-- utils/ # functions and classes 
     |   |-- utils_check.py # utils function to check if an ensemble is valid
-    |   |-- utils_outputs.py # util functions to save outputs
     |   |-- utils_run.py # util functions for running models
     | 
     |-- visualization/ # scripts to create visualizations

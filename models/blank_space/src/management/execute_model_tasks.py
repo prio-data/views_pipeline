@@ -45,7 +45,7 @@ def execute_model_tasks(config=None, project=None, train=None, eval=None, foreca
         if config["sweep"] and config["algorithm"] == "HurdleRegression":
             config["parameters"] = {}
             config["parameters"]["clf"], config["parameters"]["reg"] = split_hurdle_parameters(config)
-
+        
         model = get_model(config)
         # logger.info(model)
 

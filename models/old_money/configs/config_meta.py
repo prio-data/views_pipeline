@@ -8,7 +8,7 @@ def get_meta_config():
     """
     meta_config = {
         "name": "old_money",
-        "algorithm": "HurdleRegression",
+        "algorithm": "HurdleModel",
         "model_clf": "LightGBMModel",
         "model_reg": "LightGBMModel",
         "depvar": "ln_ged_sb_dep",  # IMPORTANT! The current stepshift only takes one target variable! Not compatiable with Simon's code!

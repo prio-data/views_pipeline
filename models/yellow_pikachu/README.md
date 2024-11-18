@@ -19,7 +19,6 @@ yellow_pikachu/ # should follow the naming convention adjective_noun
 |-- configs/ # ...
 |   |-- config_deployment.py # configuration for deploying the model into different environments
 |   |-- config_hyperparameters.py # hyperparameters for the model
-|   |-- config_input_data.py # defined queryset as the input data
 |   |-- config_meta # metadata for the model (model architecture, name, target variable, and level of analysis)
 |   |-- config_sweep # sweeping parameters for weights & biases
 |
@@ -59,8 +58,7 @@ yellow_pikachu/ # should follow the naming convention adjective_noun
     |   |-- train_model.py # script to train a single model
     |
     |-- utils/ # functions and classes 
-    |   |-- utils.py # a general utils function
-    |   |-- utils_wandb.py # a w&b specific utils function  
+    |   |-- utils_run.py # util functions for running models
     | 
     |-- visualization/ # scripts to create visualizations
         |-- visual.py 

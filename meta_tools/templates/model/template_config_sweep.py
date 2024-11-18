@@ -2,7 +2,7 @@ from utils import utils_script_gen
 from pathlib import Path
 
 
-def generate(script_dir: Path, model_algorithm: str) -> bool:
+def generate(script_dir: Path, model_name: str, model_algorithm: str) -> bool:
     """
     Generates a script that defines the `get_sweep_config` function for hyperparameter sweeps.
 
@@ -10,6 +10,9 @@ def generate(script_dir: Path, model_algorithm: str) -> bool:
         script_dir (Path):
             The directory where the generated deployment configuration script will be saved.
             This should be a valid writable path.
+
+        model_name (str):
+            The name of the model. This will be included in the metadata configuration.
 
         model_algorithm (str):
             The algorithm of the model to be used in the hyperparameter sweep. This string will be included
@@ -19,7 +22,8 @@ def generate(script_dir: Path, model_algorithm: str) -> bool:
         bool:
             True if the script was written and compiled successfully, False otherwise.
     """
-    code = f"""def get_sweep_config():
+    code = f"""
+def get_sweep_config():
     \"""
     Contains the configuration for hyperparameter sweeps using WandB.
     This configuration is "operational" so modifying it will change the search strategy, parameter ranges, and other settings for hyperparameter tuning aimed at optimizing model performance.
@@ -30,6 +34,7 @@ def generate(script_dir: Path, model_algorithm: str) -> bool:
 
     sweep_config = {{
         'method': 'grid',
+        'name': '{model_name}'
     }}
 
     # Example metric setup:
@@ -41,9 +46,7 @@ def generate(script_dir: Path, model_algorithm: str) -> bool:
 
     # Example parameters setup:
     parameters_dict = {{
-        'model': {{
-            'value': '{model_algorithm}' # Eg. "LSTM", "CNN", "Transformer"
-        }},
+        'steps': {{'values': [[*range(1, 36 + 1, 1)]]}},
     }}
     sweep_config['parameters'] = parameters_dict
 

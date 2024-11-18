@@ -8,10 +8,10 @@ def get_meta_config():
     """
     meta_config = {
         "name": "cruel_summer",
-        "models": ["lavender_haze", "blank_space", "wildest_dream"],
-        "depvar": "ln_ged_sb_dep",  # Double-check the target variables of each model
-        "level": "pgm",
-        "aggregation": "median",
-        "creator": "Xiaolong"
+        "models": ["chunky_cat", "bad_blood"],
+        "depvar": "ln_ged_sb_dep", 
+        "level": "pgm", 
+        "aggregation": "median", 
+        "creator": "Xiaolong" 
     }
     return meta_config

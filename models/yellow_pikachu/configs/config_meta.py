@@ -8,8 +8,10 @@ def get_meta_config():
     """
     meta_config = {
         "name": "yellow_pikachu",
-        "algorithm": "XGBRegressor",
-        "depvar": "ged_sb_dep",  # IMPORTANT! The current stepshift only takes one target variable! Not compatiable with Simon's code!
+        "algorithm": "HurdleRegression",
+        "model_clf": "XGBClassifier",
+        "model_reg": "XGBRegressor",
+        "depvar": "ln_ged_sb_dep",  # IMPORTANT! The current stepshift only takes one target variable! Not compatiable with Simon's code!
         "queryset": "fatalities003_pgm_conflict_treelag",
         "level": "pgm",
         "creator": "Xiaolong"
