@@ -22,7 +22,7 @@ def ensure_log_directory(log_path: str) -> None:
 
 
 def setup_logging(
-    default_level: int = logging.INFO, env_key: str = "LOG_CONFIG"
+    model_name: str, default_level: int = logging.INFO, env_key: str = "LOG_CONFIG"
 ) -> logging.Logger:
     """
     Setup the logging configuration from a YAML file and return the root logger.
@@ -47,16 +47,18 @@ def setup_logging(
     # CONFIG_LOGS_PATH = Path(__file__).parent / "logging.yaml"
     if _logs_in_model_dir:
         try:
-            COMMON_LOGS_PATH = ModelPath(GlobalCache["current_model"]).logging
+            COMMON_LOGS_PATH = ModelPath(model_name).logging
             if not COMMON_LOGS_PATH.exists():
                 COMMON_LOGS_PATH.mkdir(parents=True, exist_ok=True)
-        except:
-            logging.warning("Model name not available in GlobalCache.")
+        except Exception as e:
+            logging.warning(f"Failed to create log directory with exception: {e}")
         # Load YAML configuration
         # path = os.getenv(env_key, CONFIG_LOGS_PATH)
         try:
             # Import the logging.yaml file from views_pipeline.configs and read it
-            with importlib.resources.open_text( 'views_pipeline.configs', 'logging.yaml') as file:
+            with importlib.resources.open_text(
+                "views_pipeline.configs", "logging.yaml"
+            ) as file:
                 config = yaml.safe_load(file)
             logging.info(f"Logging configuration is imported successfully")
 
@@ -73,8 +75,6 @@ def setup_logging(
 
         except Exception as e:
             logging.basicConfig(level=default_level)
-            logging.error(
-                f"Failed to load logging configuration: {e}"
-            )
+            logging.error(f"Failed to load logging configuration: {e}")
 
     return logging.getLogger()
