@@ -2,12 +2,10 @@ import logging
 import logging.config
 import yaml
 import os
-from pathlib import Path
 from views_pipeline.managers.path_manager import ModelPath
 from views_pipeline.cache.global_cache import GlobalCache
-import views_pipeline.configs as configs
+import importlib.resources
 
-_split_by_model = True
 _logs_in_model_dir = True
 
 
@@ -58,9 +56,9 @@ def setup_logging(
         # path = os.getenv(env_key, CONFIG_LOGS_PATH)
         try:
             # Import the logging.yaml file from views_pipeline.configs and read it
-            yaml_file_path = os.path.join('configs', 'logging.yaml')
-            with open(yaml_file_path, 'r') as file:
+            with importlib.resources.open_text( 'views_pipeline.configs', 'logging.yaml') as file:
                 config = yaml.safe_load(file)
+            logging.info(f"Logging configuration is imported successfully")
 
             # Replace placeholder with actual log directory path
             for handler in config.get("handlers", {}).values():
