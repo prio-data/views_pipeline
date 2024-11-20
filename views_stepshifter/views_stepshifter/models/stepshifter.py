@@ -138,7 +138,7 @@ class StepshifterModel:
         index_tuples, df_list = [], []
         for pred in ts_pred:
             df_pred = pred.pd_dataframe().loc[[self._test_start + step - 1]]
-            level = pred.static_covariates.iat[0, 0]
+            level = int(pred.static_covariates.iat[0, 0])
             index_tuples.extend([(month, level) for month in df_pred.index])
             df_list.append(df_pred.values)
 
