@@ -3,9 +3,9 @@ from views_pipeline.managers.path_manager import ModelPath
 from views_pipeline.models.outputs import generate_output_dict
 from views_pipeline.files.utils import read_log_file, create_log_file
 from views_pipeline.wandb.utils import add_wandb_monthly_metrics, generate_wandb_log_dict, log_wandb_log_dict
+from views_pipeline.evaluation.metrics import generate_metric_dict
 from views_stepshifter.models.stepshifter import StepshifterModel
 from views_stepshifter.models.hurdle_model import HurdleModel
-from views_pipeline.evaluation.metrics import generate_metric_dict
 from views_forecasts.extensions import *
 import logging
 import pandas as pd

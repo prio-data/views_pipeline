@@ -1,4 +1,3 @@
-
 import numpy as np
 from .stepshifter import StepshifterModel
 from .validation import views_validate
