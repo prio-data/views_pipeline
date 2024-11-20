@@ -7,7 +7,12 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.11"
-
+viewser = "^6.6.4"
+pytest = "^8.3.3"
+ingester3 = "^2.1.0"
+views_forecasts = "^0.5.5"
+properscoring = "^0.1"
+wandb = "^0.18.7"
 
 [build-system]
 requires = ["poetry-core"]
