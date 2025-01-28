@@ -21,11 +21,11 @@ by Simon Polichinel von der Maase
 
 ### The **Unreasonable** Effectiveness of Being Prepared
 
-- **I Check the weather forecast**: I don’t leave the house without an umbrella on a rainy day.
+- **We Check the weather forecast**: we don’t leave the house without an umbrella on a rainy day.
 
-- **I Check the calendar**: To make sure I don’t double-book myself or miss that very important thing.
+- **We Check the calendar**: To make sure we don’t double-book myself or miss that very important thing.
 
-- **I Check traffic before I commute**: to avoid getting stuck in rush hour and get where I need to be on time.
+- **We Check traffic before we commute**: to avoid getting stuck in rush hour and get where we need to be on time.
 
 ![bg 330% right:33%](image_files/rainy_umbrella.jpg)
 
