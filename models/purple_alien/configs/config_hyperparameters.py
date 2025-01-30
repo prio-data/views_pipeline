@@ -16,7 +16,7 @@ def get_hp_config():
     'scheduler' : 'WarmupDecay', #  'CosineAnnealingLR' 'OneCycleLR'
     'total_hidden_channels' : 32,
     'min_events' : 5,
-    'samples': 30, #300, # 600 for actual trainnig, 10 for debug
+    'samples': 300, #300, # 600 for actual trainnig, 10 for debug
     'batch_size': 3, 
     'dropout_rate' : 0.125,
     'learning_rate' :  0.001,
@@ -32,7 +32,7 @@ def get_hp_config():
     'loss_reg': 'b',
     'loss_reg_a' : 258, 
     'loss_reg_c' :  0.001, # 0.05 works...
-    'test_samples': 10, #128, # 128 for actual testing, 10 for debug - bad naming. 
+    'test_samples': 128, #128, # 128 for actual testing, 10 for debug - bad naming. 
     'np_seed' : 8,
     'torch_seed' : 8,
     'window_dim' : 32,
